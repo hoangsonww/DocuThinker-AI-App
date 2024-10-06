@@ -1,8 +1,18 @@
 const express = require('express');
+const cors = require('cors'); // Import the cors module
 const app = express();
 const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI } = require('./controller');
 
 app.use(express.json());
+
+// CORS configuration
+const corsOptions = {
+  origin: 'http://localhost:3001', // Change this to the frontend URL in production
+  methods: ['GET', 'POST'], // Allow specific HTTP methods
+  credentials: true // Allow credentials (cookies, authorization headers, etc.)
+};
+
+app.use(cors(corsOptions)); // Use the CORS middleware with options
 
 // Logging Middleware
 app.use((req, res, next) => {
