@@ -69,7 +69,11 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
-app.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// Redirect root route to /api-docs
+app.get('/', (req, res) => {
+  res.redirect('/api-docs');
+});
 
 // Logging Middleware
 app.use((req, res, next) => {

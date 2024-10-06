@@ -12,6 +12,7 @@ const Home = ({ theme }) => {
   const [discussionPoints, setDiscussionPoints] = useState('');
   const [loadingKeyIdeas, setLoadingKeyIdeas] = useState(false);
   const [loadingDiscussionPoints, setLoadingDiscussionPoints] = useState(false);
+  const [documentFile, setDocumentFile] = useState(null); // Add this line to manage the document file state
 
   const formatAsMarkdown = (text) => {
     const paragraphs = text.split(/\n\s*\n/);
@@ -59,7 +60,7 @@ const Home = ({ theme }) => {
             transition: 'background-color 0.3s ease, color 0.3s ease',
           }}
       >
-        {!summary && <UploadModal setSummary={setSummary} setOriginalText={setOriginalText} theme={theme} />}
+        {!summary && <UploadModal setSummary={setSummary} setOriginalText={setOriginalText} theme={theme} setDocumentFile={setDocumentFile} />} {/* Pass the setDocumentFile prop */}
         {summary && (
             <>
               <Box
