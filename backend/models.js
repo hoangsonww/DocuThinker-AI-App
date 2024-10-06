@@ -99,20 +99,32 @@ exports.generateDiscussionPoints = async (documentText) => {
   return result.response.text();
 };
 
+// In-memory store for conversation history per session
+let sessionHistory = {};
+
 // Helper: Chat with AI Model using originalText as context
-exports.chatWithAI = async (message, originalText) => {
+exports.chatWithAI = async (sessionId, message, originalText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
     systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Use the provided context and respond to the user’s message conversationally.',
   });
 
-  // Use both originalText (context) and user message
+  // Initialize conversation history for this session if it doesn't exist
+  if (!sessionHistory[sessionId]) {
+    sessionHistory[sessionId] = [];
+  }
+
+  // Retrieve the conversation history for this session
+  let history = sessionHistory[sessionId];
+
+  // Add original text and the new message to history
+  history.push({ role: 'user', parts: [{ text: originalText }] });
+  history.push({ role: 'user', parts: [{ text: message }] });
+
+  // Start AI chat session using the accumulated history
   const chatSession = model.startChat({
-    history: [
-      { role: 'user', parts: [{ text: originalText }] },  // Context from document
-      { role: 'user', parts: [{ text: message }] }        // User message
-    ]
+    history: history,
   });
 
   const result = await chatSession.sendMessage(message);
@@ -120,6 +132,9 @@ exports.chatWithAI = async (message, originalText) => {
   if (!result.response || !result.response.text) {
     throw new Error('Failed to get response from the AI');
   }
+
+  // Update the session history with the new conversation context
+  sessionHistory[sessionId] = history;
 
   return result.response.text();
 };
