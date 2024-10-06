@@ -102,6 +102,11 @@ exports.generateDiscussionPoints = async (documentText) => {
 // In-memory store for conversation history per session
 let sessionHistory = {};
 
+// Helper function to validate that the text is a non-empty string
+const isValidText = (text) => {
+  return typeof text === 'string' && text.trim().length > 0;
+};
+
 // Helper: Chat with AI Model using originalText as context
 exports.chatWithAI = async (sessionId, message, originalText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
@@ -110,7 +115,7 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
     systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Use the provided context and respond to the user’s message conversationally.',
   });
 
-  // Initialize conversation history for this session if it doesn't exist
+  // Initialize the conversation history if not present
   if (!sessionHistory[sessionId]) {
     sessionHistory[sessionId] = [];
   }
@@ -118,25 +123,51 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
   // Retrieve the conversation history for this session
   let history = sessionHistory[sessionId];
 
-  // Add original text and the new message to history
-  history.push({ role: 'user', parts: [{ text: originalText }] });
-  history.push({ role: 'user', parts: [{ text: message }] });
-
-  // Start AI chat session using the accumulated history
-  const chatSession = model.startChat({
-    history: history,
-  });
-
-  const result = await chatSession.sendMessage(message);
-
-  if (!result.response || !result.response.text) {
-    throw new Error('Failed to get response from the AI');
+  // Ensure the originalText is valid for the first message
+  if (history.length === 0 && isValidText(originalText)) {
+    // Add the original context as the first message from the user
+    history.push({ role: 'user', parts: [{ text: originalText }] });
   }
 
-  // Update the session history with the new conversation context
-  sessionHistory[sessionId] = history;
+  // Ensure the user message is valid
+  if (!isValidText(message)) {
+    throw new Error('User message must be a non-empty string.');
+  }
 
-  return result.response.text();
+  // Add the user message to history
+  history.push({ role: 'user', parts: [{ text: message }] });
+
+  try {
+    // Start AI chat session using the accumulated history
+    const chatSession = model.startChat({
+      history: history, // Pass the conversation history
+    });
+
+    const result = await chatSession.sendMessage(message);
+
+    // Ensure that the response contains valid text
+    if (!result.response || !result.response.text) {
+      throw new Error('Failed to get response from the AI.');
+    }
+
+    // Add the AI's response to the conversation history
+    history.push({ role: 'model', parts: [{ text: result.response.text() }] });
+
+    // Update the session history with the new conversation context
+    sessionHistory[sessionId] = history;
+
+    // Return the AI's response
+    return result.response.text();
+  } catch (error) {
+    // Handle potential errors
+    throw new Error('Failed to get AI response: ' + error.message);
+  }
+};
+
+
+// Clear session history (optional function if needed)
+exports.clearSessionHistory = (sessionId) => {
+  delete sessionHistory[sessionId];
 };
 
 // Helper: Check if User Exists and Update Password

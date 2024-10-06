@@ -1,6 +1,7 @@
-const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI, verifyUserEmail } = require('./models');
+const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI, verifyUserEmail, verifyUserAndUpdatePassword } = require('./models');
 const { sendErrorResponse, sendSuccessResponse } = require('./views');
 const { IncomingForm } = require("formidable");
+const { v4: uuidv4 } = require('uuid');
 
 /**
  * @swagger
@@ -196,22 +197,27 @@ exports.generateDiscussionPoints = async (req, res) => {
  *         description: Failed to get response from the AI
  */
 exports.chatWithAI = async (req, res) => {
-  const { message, originalText } = req.body;
+  let { message, originalText, sessionId } = req.body;
+
+  // If no sessionId is provided, generate a new one
+  if (!sessionId) {
+    sessionId = uuidv4();
+  }
 
   if (!message || !originalText) {
     return res.status(400).json({ error: 'Both message and originalText are required' });
   }
 
   try {
-    const response = await chatWithAI(message, originalText);
-    res.status(200).json({ response });
+    const response = await chatWithAI(sessionId, message, originalText);
+    res.status(200).json({ response, sessionId });
+    console.log('Human message:', message);
+    console.log('AI response:', response);
   } catch (error) {
     console.error('Failed to get AI response:', error);
     res.status(500).json({ error: 'Failed to get response from the AI', details: error.message });
   }
 };
-
-const { verifyUserAndUpdatePassword } = require('./models');
 
 /**
  * @swagger

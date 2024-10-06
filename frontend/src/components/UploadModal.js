@@ -30,7 +30,7 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
 
     try {
       setLoading(true);
-      const response = await axios.post('https://docuthinker-ai-app.onrender.com/upload', formData);
+      const response = await axios.post('https://docuthinker-fullstack-app.vercel.app/upload', formData);
       setLoading(false);
 
       const { summary, originalText } = response.data;
@@ -59,21 +59,21 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
-              height: '100vh', // Full viewport height for centering vertically
+              height: '100vh',
             }}
         >
           <Box
               sx={{
-                width: { xs: '90%', sm: '70%', md: '400px' }, // Responsive width
-                maxHeight: '90vh', // Ensures it fits the screen height
-                padding: { xs: 2, sm: 4 }, // Responsive padding
-                bgcolor: theme === 'dark' ? '#1e1e1e' : 'white', // Background color based on theme
+                width: { xs: '90%', sm: '70%', md: '400px' },
+                maxHeight: '90vh',
+                padding: { xs: 2, sm: 4 },
+                bgcolor: theme === 'dark' ? '#1e1e1e' : 'white',
                 textAlign: 'center',
                 borderRadius: '12px',
                 transition: 'background-color 0.3s ease',
-                color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
-                overflowY: 'auto', // Enable scrolling if content overflows
-                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow for aesthetic effect
+                color: theme === 'dark' ? 'white' : 'black',
+                overflowY: 'auto',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
               }}
           >
             <Typography

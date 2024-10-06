@@ -10,7 +10,7 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3001', 'http://localhost:3000', 'https://docuthinker-fullstack-app.vercel.app'],
+  origin: ['http://localhost:3001','http://localhost:3002', 'http://localhost:3000', 'https://docuthinker-fullstack-app.vercel.app'],
   methods: ['GET', 'POST'],
   credentials: true,
 };
@@ -51,7 +51,7 @@ const swaggerOptions = {
         BearerAuth: {
           type: 'http',
           scheme: 'bearer',
-          bearerFormat: 'JWT', // Specify the format as JWT
+          bearerFormat: 'JWT',
         },
       },
     },

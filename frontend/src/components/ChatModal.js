@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Box, Button, TextField, Typography, IconButton } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import axios from 'axios';
 import Spinner from './Spinner';
 import ReactMarkdown from 'react-markdown';
+import { v4 as uuidv4 } from 'uuid';
 
 const ChatModal = ({ theme }) => {
   const [open, setOpen] = useState(false);
@@ -11,15 +12,26 @@ const ChatModal = ({ theme }) => {
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
 
+  useEffect(() => {
+    const sessionId = localStorage.getItem('sessionId');
+    if (!sessionId) {
+      const newSessionId = uuidv4();
+      localStorage.setItem('sessionId', newSessionId);
+    }
+  }, []);
+
   const handleChat = async () => {
     const originalText = localStorage.getItem('originalText');
-    if (!message || !originalText) return;
+    const sessionId = localStorage.getItem('sessionId');
+
+    if (!message || !originalText || !sessionId) return;
 
     try {
       setLoading(true);
-      const res = await axios.post('https://docuthinker-ai-app.onrender.com/chat', {
+      const res = await axios.post('https://docuthinker-fullstack-app.vercel.app/chat', {
         message,
         originalText,
+        sessionId,
       });
       setLoading(false);
       const aiResponse = res.data.response;
@@ -71,7 +83,6 @@ const ChatModal = ({ theme }) => {
                 maxHeight: '80vh',
               }}
           >
-            {/* Close Button in the top-right corner */}
             <IconButton
                 onClick={() => setOpen(false)}
                 sx={{
@@ -84,7 +95,6 @@ const ChatModal = ({ theme }) => {
               <CloseIcon />
             </IconButton>
 
-            {/* Chat Modal Header */}
             <Typography
                 variant="h6"
                 sx={{
@@ -98,7 +108,6 @@ const ChatModal = ({ theme }) => {
               Chat With AI About Your Document
             </Typography>
 
-            {/* Chat history box */}
             <Box
                 sx={{
                   flexGrow: 1,
@@ -154,7 +163,6 @@ const ChatModal = ({ theme }) => {
               ))}
             </Box>
 
-            {/* Message input */}
             <TextField
                 label="Chat with AI"
                 fullWidth
@@ -170,7 +178,6 @@ const ChatModal = ({ theme }) => {
                 }}
             />
 
-            {/* Send Button */}
             <Button variant="contained" sx={{ bgcolor: '#f57c00', font: 'inherit' }} onClick={handleChat}>
               {loading ? <Spinner /> : 'Send'}
             </Button>
