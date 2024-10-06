@@ -58,7 +58,7 @@ exports.generateSummary = async (file) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
-    systemInstruction: 'Summarize the provided document text.',
+    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Summarize the provided document text.',
   });
 
   const chatSession = model.startChat({ history: [{ role: 'user', parts: [{ text: extractedText }] }] });
@@ -79,7 +79,7 @@ exports.generateKeyIdeas = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
-    systemInstruction: 'Generate key ideas from the provided text.',
+    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Generate key ideas from the provided text.',
   });
 
   const chatSession = model.startChat({ history: [{ role: 'user', parts: [{ text: documentText }] }] });
@@ -92,7 +92,7 @@ exports.generateDiscussionPoints = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
-    systemInstruction: 'Generate discussion points from the provided text.',
+    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Generate discussion points from the provided text.',
   });
 
   const chatSession = model.startChat({ history: [{ role: 'user', parts: [{ text: documentText }] }] });
@@ -105,7 +105,7 @@ exports.chatWithAI = async (message, originalText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
-    systemInstruction: 'Use the provided context and respond to the user’s message conversationally.',
+    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Use the provided context and respond to the user’s message conversationally.',
   });
 
   // Use both originalText (context) and user message

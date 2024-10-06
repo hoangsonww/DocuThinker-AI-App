@@ -105,9 +105,74 @@ const Home = ({ theme }) => {
                   Summary
                 </Typography>
                 <Box sx={{ border: '1px solid #f57c00', padding: 2, marginBottom: 2, borderRadius: '12px' }}>
-                  <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
+                  <ReactMarkdown
+                      components={{
+                        h1: ({ node, ...props }) => (
+                            <Typography
+                                variant="h4"
+                                sx={{
+                                  font: 'inherit',
+                                  color: theme === 'dark' ? 'white' : 'black',
+                                  fontWeight: 'bold',
+                                  mb: 2,
+                                }}
+                                {...props}
+                            />
+                        ),
+                        h2: ({ node, ...props }) => (
+                            <Typography
+                                variant="h5"
+                                sx={{
+                                  font: 'inherit',
+                                  color: theme === 'dark' ? 'white' : 'black',
+                                  fontWeight: 'bold',
+                                  mb: 2,
+                                }}
+                                {...props}
+                            />
+                        ),
+                        h3: ({ node, ...props }) => (
+                            <Typography
+                                variant="h6"
+                                sx={{
+                                  font: 'inherit',
+                                  color: theme === 'dark' ? 'white' : 'black',
+                                  fontWeight: 'bold',
+                                }}
+                                {...props}
+                            />
+                        ),
+                        p: ({ node, ...props }) => (
+                            <Typography
+                                sx={{
+                                  font: 'inherit',
+                                  color: theme === 'dark' ? 'white' : 'black',
+                                }}
+                                {...props}
+                            />
+                        ),
+                        ul: ({ node, ...props }) => (
+                            <ul
+                                style={{
+                                  color: theme === 'dark' ? 'white' : 'black',
+                                  font: 'inherit',
+                                }}
+                                {...props}
+                            />
+                        ),
+                        ol: ({ node, ...props }) => (
+                            <ol
+                                style={{
+                                  color: theme === 'dark' ? 'white' : 'black',
+                                  font: 'inherit',
+                                }}
+                                {...props}
+                            />
+                        ),
+                      }}
+                  >
                     {summary}
-                  </Typography>
+                  </ReactMarkdown>
                 </Box>
 
                 {/* Button section aligned in a row or column based on screen size */}

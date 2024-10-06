@@ -56,80 +56,91 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
       >
         <Box
             sx={{
-              width: 400,
-              margin: 'auto',
-              marginTop: '20vh',
-              padding: 4,
-              bgcolor: theme === 'dark' ? '#1e1e1e' : 'white', // Set background color based on theme
-              textAlign: 'center',
-              borderRadius: '12px',
-              transition: 'background-color 0.3s ease', // Smooth transition for background color
-              color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              height: '100vh', // Full viewport height for centering vertically
             }}
         >
-          <Typography
-              variant="h6"
-              sx={{
-                marginBottom: 2,
-                font: 'inherit',
-                fontSize: '18px',
-                color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
-                transition: 'color 0.3s ease', // Smooth transition for text color
-              }}
-          >
-            Upload a document (PDF or DOCX)
-          </Typography>
-
           <Box
-              {...getRootProps()}
               sx={{
-                border: `2px dashed ${theme === 'dark' ? 'white' : '#f57c00'}`, // Border color based on theme
-                padding: 4,
-                cursor: 'pointer',
-                marginBottom: 2,
-                transition: 'border-color 0.3s ease', // Smooth transition for border color
+                width: { xs: '90%', sm: '70%', md: '400px' }, // Responsive width
+                maxHeight: '90vh', // Ensures it fits the screen height
+                padding: { xs: 2, sm: 4 }, // Responsive padding
+                bgcolor: theme === 'dark' ? '#1e1e1e' : 'white', // Background color based on theme
+                textAlign: 'center',
+                borderRadius: '12px',
+                transition: 'background-color 0.3s ease',
+                color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                overflowY: 'auto', // Enable scrolling if content overflows
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow for aesthetic effect
               }}
           >
-            <input {...getInputProps()} />
             <Typography
-                variant="body1"
+                variant="h6"
                 sx={{
+                  marginBottom: 2,
                   font: 'inherit',
-                  color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
-                  transition: 'color 0.3s ease', // Smooth transition for text color
+                  fontSize: { xs: '16px', sm: '18px' },
+                  color: theme === 'dark' ? 'white' : 'black',
+                  transition: 'color 0.3s ease',
                 }}
             >
-              Drag & drop a file here, or click to select
+              Upload a document (PDF or DOCX)
             </Typography>
-          </Box>
 
-          {file && (
+            <Box
+                {...getRootProps()}
+                sx={{
+                  border: `2px dashed ${theme === 'dark' ? 'white' : '#f57c00'}`,
+                  padding: { xs: 2, sm: 4 },
+                  cursor: 'pointer',
+                  marginBottom: 2,
+                  transition: 'border-color 0.3s ease',
+                }}
+            >
+              <input {...getInputProps()} />
               <Typography
-                  variant="body2"
+                  variant="body1"
                   sx={{
-                    mb: 2,
                     font: 'inherit',
-                    color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
-                    transition: 'color 0.3s ease', // Smooth transition for text color
+                    color: theme === 'dark' ? 'white' : 'black',
+                    transition: 'color 0.3s ease',
                   }}
               >
-                {file.name}
+                Drag & drop a file here, or click to select
               </Typography>
-          )}
+            </Box>
 
-          <Button
-              variant="contained"
-              sx={{
-                bgcolor: '#f57c00',
-                color: 'white',
-                font: 'inherit',
-                transition: 'background-color 0.3s ease', // Smooth transition for button background
-              }}
-              onClick={handleUpload}
-              disabled={loading}
-          >
-            {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Upload'}
-          </Button>
+            {file && (
+                <Typography
+                    variant="body2"
+                    sx={{
+                      mb: 2,
+                      font: 'inherit',
+                      color: theme === 'dark' ? 'white' : 'black',
+                      transition: 'color 0.3s ease',
+                    }}
+                >
+                  {file.name}
+                </Typography>
+            )}
+
+            <Button
+                variant="contained"
+                sx={{
+                  bgcolor: '#f57c00',
+                  color: 'white',
+                  font: 'inherit',
+                  transition: 'background-color 0.3s ease',
+                  width: '100%',
+                }}
+                onClick={handleUpload}
+                disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Upload'}
+            </Button>
+          </Box>
         </Box>
       </Modal>
   );
