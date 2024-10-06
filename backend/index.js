@@ -7,9 +7,9 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3001', 'https://docuthinker-fullstack-app.vercel.app'],
-  methods: ['GET', 'POST'], // Allow specific HTTP methods
-  credentials: true // Allow credentials (cookies, authorization headers, etc.)
+  origin: ['http://localhost:3001', 'http://localhost:3000', 'https://docuthinker-fullstack-app.vercel.app'],
+  methods: ['GET', 'POST'],
+  credentials: true
 };
 
 app.use(cors(corsOptions));
