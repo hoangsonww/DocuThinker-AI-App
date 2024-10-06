@@ -26,6 +26,114 @@ The **DocuThinker Frontend** is built using **React** and **Material-UI** to cre
 
 The frontend consists of several pages and components that make up the user interface. Here are the main pages:
 
+### Landing Page
+
+<p align="center">
+  <img src="../images/landing.png" alt="Landing Page" width="100%" style="border-radius: 8px">
+</p>
+
+### Landing Page - Dark Mode
+
+<p align="center">
+  <img src="../images/landing-dark.png" alt="Landing Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### Document Upload Page
+
+<p align="center">
+  <img src="../images/upload.png" alt="Document Upload Page" width="100%" style="border-radius: 8px">
+</p>
+
+### Document Upload Page - Dark Mode
+
+<p align="center">
+  <img src="../images/upload-dark.png" alt="Document Upload Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### Home Page
+
+<p align="center">
+  <img src="../images/home.png" alt="Home Page" width="100%" style="border-radius: 8px">
+</p>
+
+### Home Page - Dark Mode
+
+<p align="center">
+  <img src="../images/home-dark.png" alt="Home Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### Home Page - With Key Ideas
+
+<p align="center">
+  <img src="../images/home-with-key-ideas.png" alt="Home Page - With Key Ideas" width="100%" style="border-radius: 8px">
+</p>
+
+### Chat Modal
+
+<p align="center">
+  <img src="../images/chat.png" alt="Chat Modal" width="100%" style="border-radius: 8px">
+</p>
+
+### Chat Modal - Dark Mode
+
+<p align="center">
+  <img src="../images/chat-dark.png" alt="Chat Modal - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### How To Use Page
+
+<p align="center">
+  <img src="../images/how-to-use.png" alt="How To Use Page" width="100%" style="border-radius: 8px">
+</p>
+
+### How To Use Page - Dark Mode
+
+<p align="center">
+  <img src="../images/how-to-use-dark.png" alt="How To Use Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### Login Page
+
+<p align="center">
+  <img src="../images/login.png" alt="Login Page" width="100%" style="border-radius: 8px">
+</p>
+
+### Login Page - Dark Mode
+
+<p align="center">
+  <img src="../images/login-dark.png" alt="Login Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### Register Page
+
+<p align="center">
+  <img src="../images/register.png" alt="Register Page" width="100%" style="border-radius: 8px">
+</p>
+
+### Register Page - Dark Mode
+
+<p align="center">
+  <img src="../images/register-dark.png" alt="Register Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### Forgot Password Page
+
+<p align="center">
+  <img src="../images/forgot-password.png" alt="Forgot Password Page" width="100%" style="border-radius: 8px">
+</p>
+
+### Forgot Password Page - Dark Mode
+
+<p align="center">
+  <img src="../images/forgot-password-dark.png" alt="Forgot Password Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### Responsive Design - Example
+
+<p align="center">
+  <img src="../images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
+</p>
+
 ## File Structure
 
 Here is the complete file structure for the **DocuThinker Frontend**. The frontend is located under `DocuThinker-AI-App/frontend`:
