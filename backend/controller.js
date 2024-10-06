@@ -1,5 +1,6 @@
 const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI } = require('./model');
 const { sendErrorResponse, sendSuccessResponse } = require('./view');
+const {IncomingForm} = require("formidable");
 
 // Route 1: Register User
 exports.registerUser = async (req, res) => {
@@ -25,8 +26,8 @@ exports.loginUser = async (req, res) => {
 
 // Route 3: Upload Document & Summarize
 exports.uploadDocument = async (req, res) => {
-  const form = new formidable.IncomingForm();
-  form.parse(req, async (err, fields, files) => {
+  const form = new IncomingForm();
+  await form.parse(req, async (err, fields, files) => {
     if (err) {
       sendErrorResponse(res, 500, 'Error parsing the file', err);
     } else if (!files.File) {
