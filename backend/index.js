@@ -7,7 +7,7 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-  origin: 'http://localhost:3001', // Change this to the frontend URL in production
+  origin: ['http://localhost:3001', 'https://docuthinker-fullstack-app.vercel.app'], // Allow both origins
   methods: ['GET', 'POST'], // Allow specific HTTP methods
   credentials: true // Allow credentials (cookies, authorization headers, etc.)
 };
