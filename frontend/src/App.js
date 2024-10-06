@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import LandingPage from "./pages/LandingPage";
 import './App.css';
 import './styles.css';
+import '@fontsource/poppins';
 
 function App() {
   return (
@@ -18,7 +19,8 @@ function App() {
           <Navbar />
           <Box sx={{ flexGrow: 1 }}>
             <Routes>
-              <Route path="/" element={<Home />} />
+              <Route path="/home" element={<Home />} />
+              <Route path="/" element={<LandingPage />} />
               <Route path="/landing" element={<LandingPage />} />
               <Route path="/how-to-use" element={<HowToUse />} />
               <Route path="/login" element={<Login />} />
