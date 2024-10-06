@@ -1,262 +1,223 @@
-# DocuThinker API Documentation
-
-This API allows for document upload, summarization, generating key ideas, discussion points, and an AI-powered chat interface using the Gemini AI model.
+# Backend API Documentation
 
 ## Base URL
-```
-https://<your-backend-url>
-```
+`https://docuthinker-ai-app.onrender.com`
 
 ---
 
-## 1. **Register User**
+## 1. Register User
 
 ### **POST** `/register`
 
-Registers a new user in the system.
+Registers a new user in Firebase.
 
-- **Request Body (JSON)**:
-  ```json
-  {
-    "email": "user@example.com",
-    "password": "yourpassword"
-  }
-  ```
+#### Request Body
+```json
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
 
-- **Response**:
-  - **Success (201)**:
-    ```json
-    {
-      "message": "User registered successfully",
-      "userId": "<firebase-uid>"
-    }
-    ```
-  - **Error (400)**:
-    ```json
-    {
-      "error": "User registration failed",
-      "details": "Email already exists" // (or other Firebase errors)
-    }
-    ```
+#### Response (Success)
+```json
+{
+  "message": "User registered successfully",
+  "userId": "uniqueUserId"
+}
+```
+
+#### Response (Error)
+```json
+{
+  "error": "User registration failed",
+  "details": "Error details here"
+}
+```
 
 ---
 
-## 2. **Login User**
+## 2. Login User and Generate Custom Token
 
 ### **POST** `/login`
 
-Logs in the user and generates a Firebase custom token.
+Generates a custom token for a registered user.
 
-- **Request Body (JSON)**:
-  ```json
-  {
-    "email": "user@example.com"
-  }
-  ```
+#### Request Body
+```json
+{
+  "email": "user@example.com"
+}
+```
 
-- **Response**:
-  - **Success (200)**:
-    ```json
-    {
-      "customToken": "<firebase-custom-token>"
-    }
-    ```
-  - **Error (401)**:
-    ```json
-    {
-      "error": "Invalid credentials",
-      "details": "User not found" // (or other Firebase errors)
-    }
-    ```
+#### Response (Success)
+```json
+{
+  "customToken": "firebase-custom-token"
+}
+```
+
+#### Response (Error)
+```json
+{
+  "error": "Invalid credentials",
+  "details": "Error details here"
+}
+```
 
 ---
 
-## 3. **Upload Document and Summarize**
+## 3. Upload Document and Summarize
 
 ### **POST** `/upload`
 
-Uploads a PDF or DOCX document, extracts its text, and returns both the original text and an AI-generated summary.
+Uploads a document (PDF or DOCX), summarizes it, and returns both the summary and original text. **This route does not store the document.**
 
-- **Form Data**:
-  - `File`: The document to be uploaded.
+#### Request Example
 
-- **Response**:
-  - **Success (200)**:
-    ```json
-    {
-      "summary": "Summarized text from the document",
-      "originalText": "Full extracted text from the document"
-    }
-    ```
-  - **Error (400 or 500)**:
-    ```json
-    {
-      "error": "No file uploaded" // (or other relevant errors)
-    }
-    ```
+```bash
+curl --location 'https://docuthinker-ai-app.onrender.com/upload' \
+--form 'File=@"path/to/your/document.pdf"'
+```
+
+#### Request Body (form-data)
+- `File`: The file being uploaded (PDF or DOCX).
+
+#### Response (Success)
+```json
+{
+  "message": "Document summarized",
+  "summary": "Generated summary here",
+  "originalText": "Original document text here"
+}
+```
+
+#### Response (Error)
+```json
+{
+  "error": "Failed to upload and summarize the document",
+  "details": "Error details here"
+}
+```
 
 ---
 
-## 4. **Generate Key Ideas**
+## 4. Generate Key Ideas from Document Text
 
 ### **POST** `/generate-key-ideas`
 
-Generates key ideas from a given document text.
+Generates key ideas from a provided text document.
 
-- **Request Body (JSON)**:
-  ```json
-  {
-    "documentText": "Text of the document"
-  }
-  ```
+#### Request Body
+```json
+{
+  "documentText": "The text of the document goes here."
+}
+```
 
-- **Response**:
-  - **Success (200)**:
-    ```json
-    {
-      "keyIdeas": "Generated key ideas from the document"
-    }
-    ```
-  - **Error (500)**:
-    ```json
-    {
-      "error": "Failed to generate key ideas",
-      "details": "<error details>"
-    }
-    ```
+#### Response (Success)
+```json
+{
+  "keyIdeas": "Generated key ideas from the document"
+}
+```
+
+#### Response (Error)
+```json
+{
+  "error": "Failed to generate key ideas",
+  "details": "Error details here"
+}
+```
 
 ---
 
-## 5. **Generate Discussion Points**
+## 5. Generate Discussion Points from Document Text
 
 ### **POST** `/generate-discussion-points`
 
-Generates discussion points from a given document text.
+Generates discussion points from the provided text document.
 
-- **Request Body (JSON)**:
-  ```json
-  {
-    "documentText": "Text of the document"
-  }
-  ```
+#### Request Body
+```json
+{
+  "documentText": "The text of the document goes here."
+}
+```
 
-- **Response**:
-  - **Success (200)**:
-    ```json
-    {
-      "discussionPoints": "Generated discussion points from the document"
-    }
-    ```
-  - **Error (500)**:
-    ```json
-    {
-      "error": "Failed to generate discussion points",
-      "details": "<error details>"
-    }
-    ```
+#### Response (Success)
+```json
+{
+  "discussionPoints": "Generated discussion points from the document"
+}
+```
+
+#### Response (Error)
+```json
+{
+  "error": "Failed to generate discussion points",
+  "details": "Error details here"
+}
+```
 
 ---
 
-## 6. **Chat with AI Model**
+## 6. Chat with AI Model
 
 ### **POST** `/chat`
 
-Sends a message to the AI model for a conversational response.
+Send a message to the AI model for a conversational response.
 
-- **Request Body (JSON)**:
-  ```json
-  {
-    "message": "Your message to the AI"
-  }
-  ```
+#### Request Body
+```json
+{
+  "message": "Your message to the AI goes here."
+}
+```
 
-- **Response**:
-  - **Success (200)**:
-    ```json
-    {
-      "response": "AI's conversational response"
-    }
-    ```
-  - **Error (500)**:
-    ```json
-    {
-      "error": "Failed to get AI response",
-      "details": "<error details>"
-    }
-    ```
+#### Response (Success)
+```json
+{
+  "response": "AI's conversational response"
+}
+```
 
----
-
-## 7. **Get User's Documents (Placeholder)**
-
-### **GET** `/documents`
-
-Fetches the list of documents for the current user.
-
-- **Response**:
-  - **Success (200)**:
-    ```json
-    {
-      "documents": [
-        {
-          "id": "document-id-1",
-          "filename": "Document 1",
-          "summary": "Summary of document 1",
-          "content": "Full content of document 1"
-        },
-        {
-          "id": "document-id-2",
-          "filename": "Document 2",
-          "summary": "Summary of document 2",
-          "content": "Full content of document 2"
-        }
-      ]
-    }
-    ```
-  - **Error (500)**:
-    ```json
-    {
-      "error": "Failed to fetch documents",
-      "details": "<error details>"
-    }
-    ```
+#### Response (Error)
+```json
+{
+  "error": "Failed to get response from the model",
+  "details": "Error details here"
+}
+```
 
 ---
 
-## 8. **Delete Document (Placeholder)**
+## 7. Error Handling for Unsupported Routes
 
-### **DELETE** `/documents/:docId`
-
-Deletes a document by its ID.
-
-- **Response**:
-  - **Success (200)**:
-    ```json
-    {
-      "message": "Document deleted successfully"
-    }
-    ```
-  - **Error (500)**:
-    ```json
-    {
-      "error": "Failed to delete document",
-      "details": "<error details>"
-    }
-    ```
+### **Response (404 - Not Found)**
+```json
+{
+  "error": "Route not found"
+}
+```
 
 ---
 
-## Error Handling
+## 8. Global Error Handler
 
-All API endpoints may return the following error structure in case of failure:
+If any internal server error occurs, this global handler will return a 500 status code.
 
-- **Error Format**:
-  ```json
-  {
-    "error": "Description of the error",
-    "details": "Additional error details (if any)"
-  }
-  ```
+### **Response (500 - Internal Server Error)**
+```json
+{
+  "error": "An internal error occurred",
+  "details": "Detailed error message here"
+}
+```
 
 ---
 
+## Notes
+- All routes use JSON responses.
+- When uploading files, ensure the `File` key in the form-data matches what is expected.
+- All endpoints respond with appropriate status codes: 200 for success, 400 for bad requests, 404 for not found, and 500 for internal server errors.

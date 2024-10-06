@@ -100,15 +100,28 @@ exports.generateDiscussionPoints = async (documentText) => {
   return result.response.text();
 };
 
-// Helper: Chat with AI Model
-exports.chatWithAI = async (message) => {
+// Helper: Chat with AI Model using originalText as context
+exports.chatWithAI = async (message, originalText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: 'gemini-1.5-flash',
-    systemInstruction: 'Respond to the user’s message conversationally.',
+    systemInstruction: 'Use the provided context and respond to the user’s message conversationally.',
   });
 
-  const chatSession = model.startChat({ history: [{ role: 'user', parts: [{ text: message }] }] });
+  // Use both originalText (context) and user message
+  const chatSession = model.startChat({
+    history: [
+      { role: 'user', parts: [{ text: originalText }] },  // Context from document
+      { role: 'user', parts: [{ text: message }] }        // User message
+    ]
+  });
+
   const result = await chatSession.sendMessage(message);
+
+  if (!result.response || !result.response.text) {
+    throw new Error('Failed to get response from the AI');
+  }
+
   return result.response.text();
 };
+

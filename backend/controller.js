@@ -65,13 +65,20 @@ exports.generateDiscussionPoints = async (req, res) => {
   }
 };
 
-// Route 6: Chat with AI Model
+// Controller: Handle chat with AI and provide originalText as context
 exports.chatWithAI = async (req, res) => {
-  const { message } = req.body;
+  const { message, originalText } = req.body;
+
+  if (!message || !originalText) {
+    return res.status(400).json({ error: 'Both message and originalText are required' });
+  }
+
   try {
-    const aiResponse = await chatWithAI(message);
-    sendSuccessResponse(res, 200, 'AI response generated', { response: aiResponse });
+    const response = await chatWithAI(message, originalText);
+    res.status(200).json({ response });
   } catch (error) {
-    sendErrorResponse(res, 500, 'Failed to get AI response', error.message);
+    console.error('Failed to get AI response:', error);
+    res.status(500).json({ error: 'Failed to get response from the AI', details: error.message });
   }
 };
+
