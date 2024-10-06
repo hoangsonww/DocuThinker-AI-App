@@ -5,7 +5,7 @@ import UploadModal from '../components/UploadModal';
 import ChatModal from '../components/ChatModal';
 import axios from 'axios';
 
-const Home = () => {
+const Home = ({ theme }) => {
   const [summary, setSummary] = useState('');
   const [originalText, setOriginalText] = useState('');
   const [keyIdeas, setKeyIdeas] = useState('');
@@ -56,22 +56,35 @@ const Home = () => {
             padding: 4,
             gap: 2,
             alignItems: 'flex-start',
+            transition: 'background-color 0.3s ease, color 0.3s ease',
           }}
       >
-        {!summary && <UploadModal setSummary={setSummary} setOriginalText={setOriginalText} />}
+        {!summary && <UploadModal setSummary={setSummary} setOriginalText={setOriginalText} theme={theme} />}
         {summary && (
             <>
               <Box
                   sx={{
                     width: { xs: '100%', md: '30%' },
                     marginBottom: { xs: 2, md: 0 },
+                    transition: 'background-color 0.3s ease, color 0.3s ease',
                   }}
               >
-                <Typography variant="h6" sx={{ font: 'inherit', fontWeight: 'bold', fontSize: '20px', mb: 2 }}>
+                <Typography
+                    variant="h6"
+                    sx={{
+                      font: 'inherit',
+                      fontWeight: 'bold',
+                      fontSize: '20px',
+                      mb: 2,
+                      color: theme === 'dark' ? 'white' : 'black',
+                    }}
+                >
                   Original Document
                 </Typography>
                 <Box sx={{ border: '1px solid #f57c00', padding: 2, borderRadius: '12px' }}>
-                  <Typography sx={{ font: 'inherit' }}>{originalText}</Typography>
+                  <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
+                    {originalText}
+                  </Typography>
                 </Box>
               </Box>
               <Box
@@ -79,11 +92,22 @@ const Home = () => {
                     width: { xs: '100%', md: '70%' },
                   }}
               >
-                <Typography variant="h6" sx={{ font: 'inherit', fontWeight: 'bold', fontSize: '20px', mb: 2 }}>
+                <Typography
+                    variant="h6"
+                    sx={{
+                      font: 'inherit',
+                      fontWeight: 'bold',
+                      fontSize: '20px',
+                      mb: 2,
+                      color: theme === 'dark' ? 'white' : 'black',
+                    }}
+                >
                   Summary
                 </Typography>
                 <Box sx={{ border: '1px solid #f57c00', padding: 2, marginBottom: 2, borderRadius: '12px' }}>
-                  <Typography sx={{ font: 'inherit' }}>{summary}</Typography>
+                  <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
+                    {summary}
+                  </Typography>
                 </Box>
 
                 {/* Button section aligned in a row or column based on screen size */}
@@ -115,21 +139,174 @@ const Home = () => {
                 {/* Display key ideas and discussion points as Markdown */}
                 {keyIdeas && (
                     <Box sx={{ marginTop: 2 }}>
-                      <Typography variant="h6" sx={{ font: 'inherit', fontWeight: 'bold', fontSize: '20px', mb: 2 }}>
+                      <Typography
+                          variant="h6"
+                          sx={{
+                            font: 'inherit',
+                            fontWeight: 'bold',
+                            fontSize: '20px',
+                            mb: 2,
+                            color: theme === 'dark' ? 'white' : 'black',
+                          }}
+                      >
                         Key Ideas
                       </Typography>
                       <Box sx={{ border: '1px solid #f57c00', padding: 2, borderRadius: '12px' }}>
-                        <ReactMarkdown>{keyIdeas}</ReactMarkdown>
+                        {/* Custom ReactMarkdown renderer */}
+                        <ReactMarkdown
+                            components={{
+                              h1: ({ node, ...props }) => (
+                                  <Typography
+                                      variant="h4"
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        fontWeight: 'bold',
+                                        mb: 2,
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              h2: ({ node, ...props }) => (
+                                  <Typography
+                                      variant="h5"
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        fontWeight: 'bold',
+                                        mb: 2,
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              h3: ({ node, ...props }) => (
+                                  <Typography
+                                      variant="h6"
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        fontWeight: 'bold',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              p: ({ node, ...props }) => (
+                                  <Typography
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              ul: ({ node, ...props }) => (
+                                  <ul
+                                      style={{
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        font: 'inherit',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              ol: ({ node, ...props }) => (
+                                  <ol
+                                      style={{
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        font: 'inherit',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                            }}
+                        >
+                          {keyIdeas}
+                        </ReactMarkdown>
                       </Box>
                     </Box>
                 )}
                 {discussionPoints && (
                     <Box sx={{ marginTop: 2 }}>
-                      <Typography variant="h6" sx={{ font: 'inherit', fontWeight: 'bold', fontSize: '20px', mb: 2 }}>
+                      <Typography
+                          variant="h6"
+                          sx={{
+                            font: 'inherit',
+                            fontWeight: 'bold',
+                            fontSize: '20px',
+                            mb: 2,
+                            color: theme === 'dark' ? 'white' : 'black',  // Set text color based on theme
+                          }}
+                      >
                         Discussion Points
                       </Typography>
                       <Box sx={{ border: '1px solid #f57c00', padding: 2, borderRadius: '12px' }}>
-                        <ReactMarkdown>{discussionPoints}</ReactMarkdown>
+                        <ReactMarkdown
+                            components={{
+                              h1: ({ node, ...props }) => (
+                                  <Typography
+                                      variant="h4"
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        fontWeight: 'bold',
+                                        mb: 2,
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              h2: ({ node, ...props }) => (
+                                  <Typography
+                                      variant="h5"
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        fontWeight: 'bold',
+                                        mb: 2,
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              h3: ({ node, ...props }) => (
+                                  <Typography
+                                      variant="h6"
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        fontWeight: 'bold',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              p: ({ node, ...props }) => (
+                                  <Typography
+                                      sx={{
+                                        font: 'inherit',
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              ul: ({ node, ...props }) => (
+                                  <ul
+                                      style={{
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        font: 'inherit',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                              ol: ({ node, ...props }) => (
+                                  <ol
+                                      style={{
+                                        color: theme === 'dark' ? 'white' : 'black',
+                                        font: 'inherit',
+                                      }}
+                                      {...props}
+                                  />
+                              ),
+                            }}
+                        >
+                          {discussionPoints}
+                        </ReactMarkdown>
                       </Box>
                     </Box>
                 )}

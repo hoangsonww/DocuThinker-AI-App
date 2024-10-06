@@ -1,25 +1,24 @@
 import React, { useState } from 'react';
-import { Box, Button, TextField, Typography, CircularProgress, Alert, Link } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+import { Box, Button, TextField, Typography, CircularProgress, Alert } from '@mui/material';
 import axios from 'axios';
 
-const Login = ({ theme }) => {
+const ForgotPassword = ({ theme }) => {
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const handleForgotPassword = async () => {
     setLoading(true);
     setError('');
+    setSuccess('');
     try {
-      await axios.post('https://docuthinker-ai-app.onrender.com/login', { email, password });
+      await axios.post('https://docuthinker-ai-app.onrender.com/forgot-password', { email });
       setLoading(false);
-      // Handle successful login (e.g., redirect)
+      setSuccess('A password reset link has been sent to your email.');
     } catch (error) {
       setLoading(false);
-      setError('Login failed. Please try again.');
+      setError('Failed to send reset link. Please try again.');
     }
   };
 
@@ -29,8 +28,8 @@ const Login = ({ theme }) => {
             minHeight: '100vh',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'flex-start', // Align to the top
-            paddingTop: '3rem', // Add padding at the top
+            alignItems: 'flex-start',
+            paddingTop: '3rem',
             backgroundColor: theme === 'dark' ? '#1e1e1e' : '#f5f5f5',
             transition: 'background-color 0.3s ease',
           }}
@@ -58,19 +57,24 @@ const Login = ({ theme }) => {
                 fontSize: '30px',
               }}
           >
-            Login
+            Forgot Password
           </Typography>
 
-          {/* Error Alert */}
+          {/* Error and Success Alerts */}
           {error && (
               <Alert severity="error" sx={{ marginBottom: '1.5rem' }}>
                 {error}
               </Alert>
           )}
+          {success && (
+              <Alert severity="success" sx={{ marginBottom: '1.5rem' }}>
+                {success}
+              </Alert>
+          )}
 
           {/* Email Input */}
           <TextField
-              label="Email"
+              label="Enter your email"
               type="email"
               fullWidth
               required
@@ -90,33 +94,11 @@ const Login = ({ theme }) => {
               }}
           />
 
-          {/* Password Input */}
-          <TextField
-              label="Password"
-              type="password"
-              fullWidth
-              required
-              sx={{
-                marginBottom: '1.5rem',
-                backgroundColor: theme === 'dark' ? '#555' : '#fff',
-                borderRadius: '8px',
-                font: 'inherit',
-              }}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              inputProps={{
-                style: { fontFamily: 'Poppins, sans-serif' },
-              }}
-              InputLabelProps={{
-                style: { fontFamily: 'Poppins, sans-serif' },
-              }}
-          />
-
-          {/* Login Button */}
+          {/* Send Reset Link Button */}
           <Button
               variant="contained"
               fullWidth
-              onClick={handleLogin}
+              onClick={handleForgotPassword}
               sx={{
                 backgroundColor: '#f57c00',
                 color: 'white',
@@ -128,32 +110,11 @@ const Login = ({ theme }) => {
               }}
               disabled={loading}
           >
-            {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Login'}
+            {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Send Reset Link'}
           </Button>
-
-          {/* Forgot Password Link */}
-          <Box sx={{ marginTop: '1.5rem', textAlign: 'center', color: '#f57c00' }}>
-            <Link
-                component="button"
-                variant="body2"
-                sx={{
-                  color: '#f57c00',
-                  cursor: 'pointer',
-                  textDecoration: 'none',
-                  font: 'inherit',
-                  '&:hover': {
-                    textDecoration: 'underline', // Only underline on hover
-                    backgroundColor: 'transparent', // No background color change on hover
-                  },
-                }}
-                onClick={() => navigate('/forgot-password')}
-            >
-              Forgot Password?
-            </Link>
-          </Box>
         </Box>
       </Box>
   );
 };
 
-export default Login;
+export default ForgotPassword;

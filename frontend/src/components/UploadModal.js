@@ -3,7 +3,7 @@ import { Box, Button, Modal, Typography, CircularProgress } from '@mui/material'
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 
-const UploadModal = ({ setSummary, setOriginalText, setDocumentFile }) => {
+const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) => {
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
@@ -16,7 +16,10 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile }) => {
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop,
-    accept: { 'application/pdf': [], 'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [] }
+    accept: {
+      'application/pdf': [],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document': [],
+    },
   });
 
   const handleUpload = async () => {
@@ -51,16 +54,77 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile }) => {
           disableBackdropClick={!isUploaded}
           disableEscapeKeyDown={!isUploaded}
       >
-        <Box sx={{ width: 400, margin: 'auto', marginTop: '20vh', padding: 4, bgcolor: 'white', textAlign: 'center', borderRadius: '12px' }}>
-          <Typography variant="h6" sx={{ marginBottom: 2, font: 'inherit', fontSize: '18px' }}>Upload a document (PDF or DOCX)</Typography>
-          <Box {...getRootProps()} sx={{ border: '2px dashed #f57c00', padding: 4, cursor: 'pointer', marginBottom: 2 }}>
+        <Box
+            sx={{
+              width: 400,
+              margin: 'auto',
+              marginTop: '20vh',
+              padding: 4,
+              bgcolor: theme === 'dark' ? '#1e1e1e' : 'white', // Set background color based on theme
+              textAlign: 'center',
+              borderRadius: '12px',
+              transition: 'background-color 0.3s ease', // Smooth transition for background color
+              color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+            }}
+        >
+          <Typography
+              variant="h6"
+              sx={{
+                marginBottom: 2,
+                font: 'inherit',
+                fontSize: '18px',
+                color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                transition: 'color 0.3s ease', // Smooth transition for text color
+              }}
+          >
+            Upload a document (PDF or DOCX)
+          </Typography>
+
+          <Box
+              {...getRootProps()}
+              sx={{
+                border: `2px dashed ${theme === 'dark' ? 'white' : '#f57c00'}`, // Border color based on theme
+                padding: 4,
+                cursor: 'pointer',
+                marginBottom: 2,
+                transition: 'border-color 0.3s ease', // Smooth transition for border color
+              }}
+          >
             <input {...getInputProps()} />
-            <Typography variant="body1" sx={{ font: 'inherit' }}>Drag & drop a file here, or click to select</Typography>
+            <Typography
+                variant="body1"
+                sx={{
+                  font: 'inherit',
+                  color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                  transition: 'color 0.3s ease', // Smooth transition for text color
+                }}
+            >
+              Drag & drop a file here, or click to select
+            </Typography>
           </Box>
-          {file && <Typography variant="body2" sx={{ mb: 2, font: 'inherit' }}>{file.name}</Typography>}
+
+          {file && (
+              <Typography
+                  variant="body2"
+                  sx={{
+                    mb: 2,
+                    font: 'inherit',
+                    color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                    transition: 'color 0.3s ease', // Smooth transition for text color
+                  }}
+              >
+                {file.name}
+              </Typography>
+          )}
+
           <Button
               variant="contained"
-              sx={{ bgcolor: '#f57c00', font: 'inherit' }}
+              sx={{
+                bgcolor: '#f57c00',
+                color: 'white',
+                font: 'inherit',
+                transition: 'background-color 0.3s ease', // Smooth transition for button background
+              }}
               onClick={handleUpload}
               disabled={loading}
           >

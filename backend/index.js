@@ -1,5 +1,5 @@
 const express = require('express');
-const cors = require('cors'); // Import the cors module
+const cors = require('cors');
 const app = express();
 const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI } = require('./controller');
 
@@ -7,12 +7,12 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-  origin: ['http://localhost:3001', 'https://docuthinker-fullstack-app.vercel.app'], // Allow both origins
+  origin: ['http://localhost:3001', 'https://docuthinker-fullstack-app.vercel.app'],
   methods: ['GET', 'POST'], // Allow specific HTTP methods
   credentials: true // Allow credentials (cookies, authorization headers, etc.)
 };
 
-app.use(cors(corsOptions)); // Use the CORS middleware with options
+app.use(cors(corsOptions));
 
 // Logging Middleware
 app.use((req, res, next) => {
