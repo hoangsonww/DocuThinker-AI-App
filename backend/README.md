@@ -90,7 +90,7 @@ Make sure to replace these values with your Firebase and Google Generative AI cr
 
 ## File Structure
 
-The backend of DocuThinker is structured in a modular way to keep the codebase clean and organized. It follows the **MVC (Model-View-Controller)** pattern for better separation of concerns.
+The backend of **DocuThinker** is structured in a modular way to keep the codebase clean and organized. It follows the **MVC (Model-View-Controller)** pattern for better separation of concerns.
 Here’s a breakdown of the file structure:
 
 ```

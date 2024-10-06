@@ -268,6 +268,7 @@ DocuThinker-AI-App/
 │   ├── README.md                     # Frontend README file
 │   └── package.lock                  # Lock file for dependencies
 ├── images/                           # Images for the README
+├── .env                              # Environment variables file for the whole app
 ├── docker-compose.yml                # Docker Compose file for containerization
 ├── jsconfig.json                     # JavaScript configuration file
 ├── package.json                      # Project dependencies and scripts
@@ -278,7 +279,7 @@ DocuThinker-AI-App/
 ├── vercel.json                       # Vercel configuration file
 ├── .gitignore                        # Git ignore file
 ├── LICENSE.md                        # License file for the project
-├── README.md                         # Comprehensive README for the whole app
+└── README.md                         # Comprehensive README for the whole app
 ```
 
 <h2 id="getting-started">🛠️ Getting Started</h2>
@@ -291,9 +292,9 @@ Ensure you have the following tools installed:
 - **npm** or **yarn**
 - **Firebase Admin SDK** credentials
 - **Google Generative AI** credentials
+- **.env** file with necessary API keys (You can contact me to get the `.env` file - but you should obtain your own API keys for production).
 
 ### **Frontend Installation**
-
 
 1. **Clone the repository**:
     ```bash
@@ -311,7 +312,7 @@ Ensure you have the following tools installed:
    npm install
    ```
 
-4. **Start the React app**:
+4. **Start the Frontend React app**:
    ```bash
    npm start
    ```
