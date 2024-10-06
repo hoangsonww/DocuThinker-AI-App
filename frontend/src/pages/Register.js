@@ -3,7 +3,7 @@ import { Box, Button, TextField, Typography, CircularProgress, Alert } from '@mu
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Register = () => {
+const Register = ( theme ) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -55,7 +55,7 @@ const Register = () => {
             padding: '2rem',
             borderRadius: '12px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            bgcolor: 'white',
+            bgcolor: theme === 'dark' ? '#333' : 'white',
             textAlign: 'center',
           }}
       >

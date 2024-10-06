@@ -44,7 +44,7 @@ function App() {
               <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
               <Route path="/forgot-password" element={<ForgotPassword theme={theme} />} />
               <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
+              <Route path="/register" element={<Register theme={theme} />} />
             </Routes>
           </Box>
           <Footer />

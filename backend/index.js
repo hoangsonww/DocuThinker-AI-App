@@ -1,7 +1,9 @@
 const express = require('express');
 const cors = require('cors');
 const app = express();
-const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI } = require('./controller');
+const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI, forgotPassword,
+  verifyEmail
+} = require('./controllers');
 
 app.use(express.json());
 
@@ -27,6 +29,8 @@ app.post('/upload', uploadDocument);
 app.post('/generate-key-ideas', generateKeyIdeas);
 app.post('/generate-discussion-points', generateDiscussionPoints);
 app.post('/chat', chatWithAI);
+app.post('/forgot-password', forgotPassword);
+app.post('/verify-email', verifyEmail);
 
 // Error handling for unsupported routes
 app.use((req, res) => {

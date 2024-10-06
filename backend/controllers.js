@@ -1,5 +1,5 @@
-const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI } = require('./model');
-const { sendErrorResponse, sendSuccessResponse } = require('./view');
+const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI, verifyUserEmail} = require('./models');
+const { sendErrorResponse, sendSuccessResponse } = require('./views');
 const {IncomingForm} = require("formidable");
 
 // Route 1: Register User
@@ -79,5 +79,39 @@ exports.chatWithAI = async (req, res) => {
   } catch (error) {
     console.error('Failed to get AI response:', error);
     res.status(500).json({ error: 'Failed to get response from the AI', details: error.message });
+  }
+};
+
+const { verifyUserAndUpdatePassword } = require('./models');
+
+// Controller: Verify User and Allow Password Update
+exports.forgotPassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  if (!email || !newPassword) {
+    return res.status(400).json({ error: 'Email and new password are required.' });
+  }
+
+  try {
+    const result = await verifyUserAndUpdatePassword(email, newPassword);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update password', details: error.message });
+  }
+};
+
+// Controller: Verify Email
+exports.verifyEmail = async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    return sendErrorResponse(res, 400, 'Email is required');
+  }
+
+  try {
+    const userRecord = await verifyUserEmail(email); // Call model to verify email
+    sendSuccessResponse(res, 200, 'Email verified', { uid: userRecord.uid });
+  } catch (error) {
+    sendErrorResponse(res, 404, 'User not found', error.message);
   }
 };

@@ -124,3 +124,29 @@ exports.chatWithAI = async (message, originalText) => {
   return result.response.text();
 };
 
+// Helper: Check if User Exists and Update Password
+exports.verifyUserAndUpdatePassword = async (email, newPassword) => {
+  try {
+    // Check if the user exists in Firebase
+    const user = await firebaseAdmin.auth().getUserByEmail(email);
+
+    // If user exists, update their password
+    await firebaseAdmin.auth().updateUser(user.uid, {
+      password: newPassword,
+    });
+
+    return { message: 'Password updated successfully.' };
+  } catch (error) {
+    throw new Error('Failed to update password. ' + error.message);
+  }
+};
+
+// Helper: Verify if User Email Exists
+exports.verifyUserEmail = async (email) => {
+  try {
+    const userRecord = await firebaseAdmin.auth().getUserByEmail(email);
+    return userRecord;
+  } catch (error) {
+    throw new Error('User not found');
+  }
+};
