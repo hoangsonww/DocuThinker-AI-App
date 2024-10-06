@@ -11,15 +11,15 @@ const activeStyle = {
   paddingBottom: '4px',
 };
 
-const hoverStyle = {
-  '&:hover': {
-    color: '#fff',
-  },
-};
-
 const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const navigate = useNavigate();
+
+  const hoverStyle = {
+    '&:hover': {
+      color: theme === 'dark' ? 'white' : 'black',
+    },
+  };
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {

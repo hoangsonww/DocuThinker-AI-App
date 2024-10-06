@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-route
 import { Box } from '@mui/material';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import GoogleAnalytics from './components/GoogleAnalytics'; // Import the GoogleAnalytics component
+import GoogleAnalytics from './components/GoogleAnalytics';
 import Home from './pages/Home';
 import HowToUse from './pages/HowToUse';
 import Login from './pages/Login';
@@ -36,8 +36,6 @@ function App() {
   const [theme, setTheme] = useState(getStoredTheme());
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  useTrackPageView();
-
   useEffect(() => {
     document.body.style.backgroundColor = theme === 'dark' ? '#121212' : '#ffffff';
   }, [theme]);
@@ -56,6 +54,7 @@ function App() {
   return (
       <Router>
         <GoogleAnalytics />
+        <TrackPageView />
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
           <Navbar theme={theme} onThemeToggle={handleThemeToggle} isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
           <Box sx={{ flexGrow: 1 }}>
@@ -76,6 +75,12 @@ function App() {
         </Box>
       </Router>
   );
+}
+
+// New Component that uses the custom hook to track page views
+function TrackPageView() {
+  useTrackPageView(); // Hook is called inside the Router now
+  return null; // This component doesn't render anything
 }
 
 export default App;
