@@ -37,7 +37,7 @@ Ensure you have the following installed on your machine:
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/your-repo/DocuThinker-AI-App.git
+   git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
    cd DocuThinker-AI-App/backend
    ```
 

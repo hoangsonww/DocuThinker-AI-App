@@ -1,70 +1,216 @@
-# Getting Started with Create React App
+# DocuThinker Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Welcome to the **Frontend** of the **DocuThinker** application! This React-based frontend integrates with the DocuThinker backend, allowing users to upload documents, chat with an AI, and extract key insights from their documents. The frontend also provides various authentication functionalities such as registration, login, and password recovery.
 
-## Available Scripts
+## Table of Contents
+- [Overview](#overview)
+- [File Structure](#file-structure)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment Variables](#environment-variables)
+- [Running the App](#running-the-app)
+- [Key Features](#key-features)
+- [Screenshots](#screenshots)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
 
-In the project directory, you can run:
+## Overview
 
-### `npm start`
+The **DocuThinker Frontend** is built using **React** and **Material-UI** to create a clean and responsive interface. It allows users to:
+- Upload documents (PDF or Word) for AI-based summarization and key insights generation.
+- Register, log in, and reset their passwords.
+- View and interact with the document processing results in a user-friendly way.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## User Interfaces
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+The frontend consists of several pages and components that make up the user interface. Here are the main pages:
 
-### `npm test`
+## File Structure
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Here is the complete file structure for the **DocuThinker Frontend**. The frontend is located under `DocuThinker-AI-App/frontend`:
 
-### `npm run build`
+```
+DocuThinker-AI-App/
+├── frontend/
+│   ├── public/
+│   │   ├── index.html                # Main HTML template
+│   │   └── manifest.json             # Manifest for PWA settings
+│   ├── src/
+│   │   ├── assets/                   # Static assets like images and fonts
+│   │   │   └── logo.png              # App logo or images
+│   │   ├── components/
+│   │   │   ├── ChatModal.js          # Chat modal component
+│   │   │   ├── Spinner.js            # Loading spinner component
+│   │   │   ├── UploadModal.js        # Document upload modal component
+│   │   │   ├── Navbar.js             # Navigation bar component
+│   │   │   ├── Footer.js             # Footer component
+│   │   │   └── GoogleAnalytics.js    # Google Analytics integration component
+│   │   ├── pages/
+│   │   │   ├── Home.js               # Home page where documents are uploaded
+│   │   │   ├── LandingPage.js        # Welcome and information page
+│   │   │   ├── Login.js              # Login page
+│   │   │   ├── Register.js           # Registration page
+│   │   │   ├── ForgotPassword.js     # Forgot password page
+│   │   │   └── HowToUse.js           # Page explaining how to use the app
+│   │   ├── App.js                    # Main App component
+│   │   ├── index.js                  # Entry point for the React app
+│   │   ├── App.css                   # Global CSS 1
+│   │   ├── index.css                 # Global CSS 2
+│   │   ├── reportWebVitals.js        # Web Vitals reporting
+│   │   ├── styles.css                # Custom styles for different components
+│   │   └── config.js                 # Configuration file for environment variables
+│   ├── .env                          # Environment variables file (e.g., REACT_APP_BACKEND_URL)
+│   ├── package.json                  # Project dependencies and scripts
+│   ├── README.md                     # This README file
+│   └── package.lock                  # Lock file for dependencies
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Key Folders
+- **assets/**: Contains static assets such as images, fonts, etc.
+- **components/**: Reusable React components like `Navbar`, `Footer`, and `GoogleAnalytics`.
+- **pages/**: React components representing the different pages of the app (e.g., `Home`, `LandingPage`, `Login`).
+- **public/**: Contains the `index.html` and other public files that aren't processed by Webpack.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+## Prerequisites
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Before you begin, ensure you have the following installed on your machine:
+- **Node.js** (v14 or higher)
+- **npm** or **yarn**
+- **Backend API** (Ensure that the backend is set up and running. You can find the backend setup guide in the [backend directory](../backend/README.md)).
 
-### `npm run eject`
+## Installation
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+To get started, follow these steps:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. **Clone the repository**:
+   ```bash
+   git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
+   cd DocuThinker-AI-App/frontend
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. **Install dependencies**:
+   Using npm:
+   ```bash
+   npm install
+   ```
+   or using Yarn:
+   ```bash
+   yarn install
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## Environment Variables
 
-## Learn More
+Ensure you have an `.env` file in the `frontend/` directory with the necessary environment variables:
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+REACT_APP_BACKEND_URL=http://localhost:3000       # Backend URL for API requests
+REACT_APP_GOOGLE_ANALYTICS_ID=G-XXXXXX            # Google Analytics ID (optional)
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Running the App
 
-### Code Splitting
+1. **Start the development server**:
+   ```bash
+   npm start
+   ```
+   or if using **yarn**:
+   ```bash
+   yarn start
+   ```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+2. Open your browser and navigate to `http://localhost:3001` (or the port you configured).
 
-### Analyzing the Bundle Size
+### Scripts
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Here are the most important scripts available in the `package.json`:
 
-### Making a Progressive Web App
+- **Start**:
+  ```bash
+  npm start
+  ```
+  Starts the React app in development mode.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+- **Build**:
+  ```bash
+  npm run build
+  ```
+  Builds the app for production in the `build/` directory.
 
-### Advanced Configuration
+- **Test**:
+  ```bash
+  npm test
+  ```
+  Runs the test suite for the project.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## Key Features
 
-### Deployment
+- **Document Upload**: Users can upload documents (PDF, Word) and get real-time AI summaries and key insights.
+- **Authentication**: Users can register, log in, and reset their passwords.
+- **Google Analytics Integration**: User activity is tracked via Google Analytics.
+- **Dark Mode Support**: Theme toggle between dark and light modes.
+- **Responsive Design**: Works well on both desktop and mobile devices.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Screenshots
 
-### `npm run build` fails to minify
+Here are some screenshots of the **DocuThinker Frontend**:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+### Landing Page
+[Placeholder for Landing Page Screenshot - Centered]
+
+### Document Upload
+[Placeholder for Document Upload Screenshot - Centered]
+
+### Login Page
+[Placeholder for Login Page Screenshot - Centered]
+
+> **Note**: Replace the placeholders with actual screenshots once you have them. You can take screenshots using your browser or a screenshot tool.
+
+## Deployment
+
+### Deploying to Vercel
+
+To deploy the app to **Vercel**, follow these steps:
+
+1. Create an account on [Vercel](https://vercel.com/) if you don't have one.
+2. Install the Vercel CLI:
+   ```bash
+   npm install -g vercel
+   ```
+3. Link your project:
+   ```bash
+   vercel
+   ```
+4. Deploy the project:
+   ```bash
+   vercel --prod
+   ```
+
+You can also configure the project in Vercel's dashboard and trigger deployments from your GitHub repository.
+
+## Contributing
+
+We welcome contributions from the community! If you'd like to contribute, please follow these steps:
+
+1. Fork the repository.
+2. Create a new branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+3. Make your changes and commit them:
+   ```bash
+   git commit -m "Add your feature"
+   ```
+4. Push the changes to your forked repository:
+   ```bash
+   git push origin feature/your-feature
+   ```
+5. Open a pull request to the main repository.
+
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE.md) file for details.
+
+---
+
+Happy coding! 🚀
