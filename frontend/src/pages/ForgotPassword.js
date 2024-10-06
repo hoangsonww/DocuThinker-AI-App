@@ -22,6 +22,7 @@ const ForgotPassword = ({ theme }) => {
       const response = await axios.post('https://docuthinker-ai-app.onrender.com/verify-email', { email });
       setEmailVerified(true);
       setSuccess('Email verified. Please enter your new password.');
+      console.log(response.data);
     } catch (error) {
       setError('Email not found. Please check your email.');
     } finally {
