@@ -48,6 +48,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
 - [**🔧 Contributing**](#contributing)
 - [**📝 License**](#license)
+- [**📚 Alternative Documentation**](#alternative-docs)
 - [**👨‍💻 Author**](#author)
 
 <h2 id="-overview">📖 Overview</h2>
@@ -491,11 +492,18 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial 
 
 The **DocuThinker** open-source project is for educational purposes only and should not be used for commercial applications. Feel free to use it for learning and personal projects!
 
+<h2 id="alternative-docs">📚 Alternative Documentation</h2>
+
+- **[Alternative General Documentations](https://hoangsonww.github.io/DocuThinker-AI-App/)**
+- **[Backend README](backend/README.md)**
+- **[Frontend README](frontend/README.md)**
+
 <h2 id="author">👨‍💻 Author</h2>
 
 - **[Son Nguyen](https://github.com/hoangsonww)**
 - Feel free to connect with me on **[LinkedIn](https://www.linkedin.com/in/hoangsonw/)**.
 - If you have any questions or feedback, please feel free to reach out to me at **[hoangson091104@gmail.com](mailto:hoangson091104@gmail.com)**.
+- Also, check out my **[portfolio](https://sonnguyenhoang.com/)** for more projects and articles.
 
 ---
 
