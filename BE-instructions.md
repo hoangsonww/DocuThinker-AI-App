@@ -1,100 +1,262 @@
-### Instructions to Start the Backend (BE) Server for the **DocuThinker** App
+# DocuThinker API Documentation
 
-Before starting the backend server, ensure that you have set up everything correctly and installed the required dependencies. Here’s a step-by-step guide to get the server up and running:
+This API allows for document upload, summarization, generating key ideas, discussion points, and an AI-powered chat interface using the Gemini AI model.
 
----
-
-### **1. Set Up Environment Variables**
-
-Make sure you have an **`.env`** file in the root directory with the following variables properly set:
-
-```bash
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-BASE_URL=http://localhost:3000
-
-HUGGINGFACE_API_KEY=your-huggingface-api-key
-OPENAI_API_KEY=your-openai-api-key
+## Base URL
 ```
-
-Replace the placeholder values with the correct credentials:
-- **Google OAuth** credentials for Google Drive integration.
-- **Hugging Face API** key for summarization.
-- **OpenAI API** key for brainstorming ideas.
-
----
-
-### **2. Install Dependencies**
-
-If you haven't installed the required dependencies for the backend, run the following command in the project root directory:
-
-```bash
-npm install
-```
-
-This will install:
-- **Express.js**: Main server framework.
-- **formidable**: For handling file uploads.
-- **pdf-parse**: For extracting text from PDF files.
-- **mammoth**: For extracting text from DOCX files.
-- **axios**: For making HTTP requests to external APIs like Hugging Face and OpenAI.
-- **googleapis**: For interacting with Google OAuth and Google Drive.
-- **dotenv**: For loading environment variables.
-
----
-
-### **3. Start the Express.js Server**
-
-Once everything is set up, you can start the backend Express.js server by running the following command:
-
-```bash
-node src/app/api/index.js
-```
-
-This will start the server on **http://localhost:3000** by default, and you'll see the following message in the terminal if everything works correctly:
-
-```
-Server ready on port 3000.
+https://<your-backend-url>
 ```
 
 ---
 
-### **4. Testing the Server**
+## 1. **Register User**
 
-Once the server is running, you can use **Postman** or **curl** to test the endpoints as described earlier, such as:
+### **POST** `/register`
 
-- **File Upload** (`POST /upload`)
-- **Google Drive Files List** (`GET /google/files`)
-- **Summarization** (`POST /summarize`)
+Registers a new user in the system.
 
-You should see the responses in the terminal and on Postman when the endpoints are successfully accessed.
+- **Request Body (JSON)**:
+  ```json
+  {
+    "email": "user@example.com",
+    "password": "yourpassword"
+  }
+  ```
 
----
-
-### **5. Optional: Use Vercel CLI for Local Testing**
-
-You can also test how the app would run on Vercel’s serverless platform by using the **Vercel CLI**:
-
-1. Install the **Vercel CLI**:
-   ```bash
-   npm install -g vercel
-   ```
-
-2. Start a local development server using Vercel:
-   ```bash
-   vercel dev
-   ```
-
-This simulates a Vercel environment locally so you can see how the app will behave once deployed.
-
----
-
-### **6. Debugging and Logs**
-
-- If any endpoint fails, check the **logs** in the terminal where the server is running.
-- Verify that the **environment variables** are correctly loaded (use `console.log(process.env)` if needed).
-- Make sure all **dependencies** are properly installed (`npm install` again if necessary).
+- **Response**:
+  - **Success (201)**:
+    ```json
+    {
+      "message": "User registered successfully",
+      "userId": "<firebase-uid>"
+    }
+    ```
+  - **Error (400)**:
+    ```json
+    {
+      "error": "User registration failed",
+      "details": "Email already exists" // (or other Firebase errors)
+    }
+    ```
 
 ---
 
-By following these steps, you should be able to start the Express.js backend server for your DocuThinker app and test its API endpoints locally before deploying to Vercel. Let me know if you have any questions or need further assistance!
+## 2. **Login User**
+
+### **POST** `/login`
+
+Logs in the user and generates a Firebase custom token.
+
+- **Request Body (JSON)**:
+  ```json
+  {
+    "email": "user@example.com"
+  }
+  ```
+
+- **Response**:
+  - **Success (200)**:
+    ```json
+    {
+      "customToken": "<firebase-custom-token>"
+    }
+    ```
+  - **Error (401)**:
+    ```json
+    {
+      "error": "Invalid credentials",
+      "details": "User not found" // (or other Firebase errors)
+    }
+    ```
+
+---
+
+## 3. **Upload Document and Summarize**
+
+### **POST** `/upload`
+
+Uploads a PDF or DOCX document, extracts its text, and returns both the original text and an AI-generated summary.
+
+- **Form Data**:
+  - `File`: The document to be uploaded.
+
+- **Response**:
+  - **Success (200)**:
+    ```json
+    {
+      "summary": "Summarized text from the document",
+      "originalText": "Full extracted text from the document"
+    }
+    ```
+  - **Error (400 or 500)**:
+    ```json
+    {
+      "error": "No file uploaded" // (or other relevant errors)
+    }
+    ```
+
+---
+
+## 4. **Generate Key Ideas**
+
+### **POST** `/generate-key-ideas`
+
+Generates key ideas from a given document text.
+
+- **Request Body (JSON)**:
+  ```json
+  {
+    "documentText": "Text of the document"
+  }
+  ```
+
+- **Response**:
+  - **Success (200)**:
+    ```json
+    {
+      "keyIdeas": "Generated key ideas from the document"
+    }
+    ```
+  - **Error (500)**:
+    ```json
+    {
+      "error": "Failed to generate key ideas",
+      "details": "<error details>"
+    }
+    ```
+
+---
+
+## 5. **Generate Discussion Points**
+
+### **POST** `/generate-discussion-points`
+
+Generates discussion points from a given document text.
+
+- **Request Body (JSON)**:
+  ```json
+  {
+    "documentText": "Text of the document"
+  }
+  ```
+
+- **Response**:
+  - **Success (200)**:
+    ```json
+    {
+      "discussionPoints": "Generated discussion points from the document"
+    }
+    ```
+  - **Error (500)**:
+    ```json
+    {
+      "error": "Failed to generate discussion points",
+      "details": "<error details>"
+    }
+    ```
+
+---
+
+## 6. **Chat with AI Model**
+
+### **POST** `/chat`
+
+Sends a message to the AI model for a conversational response.
+
+- **Request Body (JSON)**:
+  ```json
+  {
+    "message": "Your message to the AI"
+  }
+  ```
+
+- **Response**:
+  - **Success (200)**:
+    ```json
+    {
+      "response": "AI's conversational response"
+    }
+    ```
+  - **Error (500)**:
+    ```json
+    {
+      "error": "Failed to get AI response",
+      "details": "<error details>"
+    }
+    ```
+
+---
+
+## 7. **Get User's Documents (Placeholder)**
+
+### **GET** `/documents`
+
+Fetches the list of documents for the current user.
+
+- **Response**:
+  - **Success (200)**:
+    ```json
+    {
+      "documents": [
+        {
+          "id": "document-id-1",
+          "filename": "Document 1",
+          "summary": "Summary of document 1",
+          "content": "Full content of document 1"
+        },
+        {
+          "id": "document-id-2",
+          "filename": "Document 2",
+          "summary": "Summary of document 2",
+          "content": "Full content of document 2"
+        }
+      ]
+    }
+    ```
+  - **Error (500)**:
+    ```json
+    {
+      "error": "Failed to fetch documents",
+      "details": "<error details>"
+    }
+    ```
+
+---
+
+## 8. **Delete Document (Placeholder)**
+
+### **DELETE** `/documents/:docId`
+
+Deletes a document by its ID.
+
+- **Response**:
+  - **Success (200)**:
+    ```json
+    {
+      "message": "Document deleted successfully"
+    }
+    ```
+  - **Error (500)**:
+    ```json
+    {
+      "error": "Failed to delete document",
+      "details": "<error details>"
+    }
+    ```
+
+---
+
+## Error Handling
+
+All API endpoints may return the following error structure in case of failure:
+
+- **Error Format**:
+  ```json
+  {
+    "error": "Description of the error",
+    "details": "Additional error details (if any)"
+  }
+  ```
+
+---
+

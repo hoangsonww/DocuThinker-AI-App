@@ -3,30 +3,33 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint",
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject",
     "server": "nodemon backend/index.js"
   },
   "dependencies": {
+    "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.6.0",
+    "@google/generative-ai": "^0.21.0",
+    "@mui/material": "^5.0.0",
     "axios": "^1.7.7",
     "busboy": "^1.6.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
+    "firebase": "^10.14.0",
+    "firebase-admin": "^12.6.0",
     "formidable": "^3.5.1",
     "googleapis": "^144.0.0",
     "mammoth": "^1.8.0",
-    "next": "14.2.14",
     "pdf-parse": "^1.1.1",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-scripts": "^5.0.1"
   },
   "devDependencies": {
     "eslint": "^8",
-    "eslint-config-next": "14.2.14",
-    "nodemon": "^3.1.7",
-    "postcss": "^8",
-    "tailwindcss": "^3.4.1"
+    "nodemon": "^3.1.7"
   }
 }
