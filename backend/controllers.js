@@ -1,8 +1,31 @@
-const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI, verifyUserEmail} = require('./models');
+const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI, verifyUserEmail } = require('./models');
 const { sendErrorResponse, sendSuccessResponse } = require('./views');
-const {IncomingForm} = require("formidable");
+const { IncomingForm } = require("formidable");
 
-// Route 1: Register User
+/**
+ * @swagger
+ * /register:
+ *   post:
+ *     summary: Register a new user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *     responses:
+ *       201:
+ *         description: User registered successfully
+ *       400:
+ *         description: User registration failed
+ */
 exports.registerUser = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -13,7 +36,30 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-// Route 2: Login User
+/**
+ * @swagger
+ * /login:
+ *   post:
+ *     summary: Login a user
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "user@example.com"
+ *               password:
+ *                 type: string
+ *                 example: "password123"
+ *     responses:
+ *       200:
+ *         description: Custom token generated
+ *       401:
+ *         description: Invalid credentials
+ */
 exports.loginUser = async (req, res) => {
   const { email } = req.body;
   try {
@@ -24,7 +70,29 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-// Route 3: Upload Document & Summarize
+/**
+ * @swagger
+ * /upload:
+ *   post:
+ *     summary: Upload a document for summarization
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               File:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Document summarized
+ *       400:
+ *         description: No file uploaded
+ *       500:
+ *         description: Failed to summarize document
+ */
 exports.uploadDocument = async (req, res) => {
   const form = new IncomingForm();
   await form.parse(req, async (err, fields, files) => {
@@ -43,7 +111,26 @@ exports.uploadDocument = async (req, res) => {
   });
 };
 
-// Route 4: Generate Key Ideas
+/**
+ * @swagger
+ * /generate-key-ideas:
+ *   post:
+ *     summary: Generate key ideas from document text
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               documentText:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Key ideas generated
+ *       500:
+ *         description: Failed to generate key ideas
+ */
 exports.generateKeyIdeas = async (req, res) => {
   const { documentText } = req.body;
   try {
@@ -54,7 +141,26 @@ exports.generateKeyIdeas = async (req, res) => {
   }
 };
 
-// Route 5: Generate Discussion Points
+/**
+ * @swagger
+ * /generate-discussion-points:
+ *   post:
+ *     summary: Generate discussion points from document text
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               documentText:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Discussion points generated
+ *       500:
+ *         description: Failed to generate discussion points
+ */
 exports.generateDiscussionPoints = async (req, res) => {
   const { documentText } = req.body;
   try {
@@ -65,7 +171,30 @@ exports.generateDiscussionPoints = async (req, res) => {
   }
 };
 
-// Controller: Handle chat with AI and provide originalText as context
+/**
+ * @swagger
+ * /chat:
+ *   post:
+ *     summary: Chat with AI using original document context
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               message:
+ *                 type: string
+ *               originalText:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: AI response
+ *       400:
+ *         description: Both message and originalText are required
+ *       500:
+ *         description: Failed to get response from the AI
+ */
 exports.chatWithAI = async (req, res) => {
   const { message, originalText } = req.body;
 
@@ -84,7 +213,32 @@ exports.chatWithAI = async (req, res) => {
 
 const { verifyUserAndUpdatePassword } = require('./models');
 
-// Controller: Verify User and Allow Password Update
+/**
+ * @swagger
+ * /forgot-password:
+ *   post:
+ *     summary: Reset a user's password
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "user@example.com"
+ *               newPassword:
+ *                 type: string
+ *                 example: "newPassword123"
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *       400:
+ *         description: Email and new password are required
+ *       500:
+ *         description: Failed to update password
+ */
 exports.forgotPassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
@@ -100,7 +254,27 @@ exports.forgotPassword = async (req, res) => {
   }
 };
 
-// Controller: Verify Email
+/**
+ * @swagger
+ * /verify-email:
+ *   post:
+ *     summary: Verify if a user's email exists
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 example: "user@example.com"
+ *     responses:
+ *       200:
+ *         description: Email verified
+ *       404:
+ *         description: User not found
+ */
 exports.verifyEmail = async (req, res) => {
   const { email } = req.body;
 
