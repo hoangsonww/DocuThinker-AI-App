@@ -1,224 +1,309 @@
-### **Summary of Backend (BE) Endpoints and How Frontend (FE) Can Use Them**
+# **DocuThinker - AI-Powered Document Analysis and Summarization App**
 
-Here is a summary of the backend API endpoints for your Express.js application, along with the expected responses and how the frontend can use them.
+Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application that integrates an AI-powered document processing backend with a React-based frontend. The app allows users to upload documents for summarization, generate key insights, and chat with an AI based on the document's content.
 
----
+## **📚 Table of Contents**
 
-### **1. File Upload and Text Extraction Endpoint**
-
-**Endpoint**: `POST /upload`
-
-**Description**: Allows the user to upload a **PDF** or **DOCX** file, which is then processed to extract the text.
-
-**Request**:
-- **Method**: `POST`
-- **Body (multipart/form-data)**: File input as `file`
-
-**Example Request** (Form Data):
-```form-data
-{
-  "file": <uploaded PDF or DOCX file>
-}
-```
-
-**Response**:
-- **Success**: Returns the extracted text from the uploaded file.
-```json
-{
-  "text": "Extracted text from the document."
-}
-```
-
-**Frontend Usage**:
-- The frontend can provide a **file input** (e.g., drag-and-drop or form upload) that sends the file to this endpoint for processing. The response can be displayed on the UI to show the extracted text.
+- [**🎵 Overview**](#-overview)
+- [**🌟 Features**](#-features)
+- [**🛠️ Technologies**](#-technologies)
+- [**🖼️ User Interface**](#-user-interface)
+    - [**Landing Page**](#landing-page)
+    - [**Document Upload Page**](#document-upload-page)
+    - [**Home Page**](#home-page)
+    - [**Chat Modal**](#chat-modal)
+    - [**Login Page**](#login-page)
+    - [**Registration Page**](#registration-page)
+    - [**Forgot Password Page**](#forgot-password-page)
+    - [**Responsive Design Example**](#responsive-design-example)
+- [**📂 Complete File Structure**](#-complete-file-structure)
+- [**🛠️ Getting Started**](#-getting-started)
+    - [**Prerequisites**](#prerequisites)
+    - [**Frontend Installation**](#frontend-installation)
+    - [**Backend Installation**](#backend-installation)
+- [**📋 API Endpoints**](#-api-endpoints)
+    - [**User Endpoints**](#user-endpoints)
+    - [**Document Endpoints**](#document-endpoints)
+    - [**AI Interaction Endpoints**](#ai-interaction-endpoints)
+- [**🚀 Deployment**](#-deployment)
+- [**🔧 Contributing**](#-contributing)
+- [**📝 License**](#-license)
 
 ---
 
-### **2. Google OAuth2 Authentication URL**
+<h2 id="-overview">🎵 Overview</h2>
 
-**Endpoint**: `GET /google/auth`
-
-**Description**: Provides the Google OAuth2 URL that the frontend can use to authenticate the user with Google Drive.
-
-**Request**:
-- **Method**: `GET`
-
-**Response**:
-- **Success**: Returns a URL that the frontend should redirect the user to for authentication.
-```json
-{
-  "url": "https://accounts.google.com/o/oauth2/auth?..."
-}
-```
-
-**Frontend Usage**:
-- When the user initiates a Google Drive file upload, the frontend should send a `GET` request to this endpoint to retrieve the OAuth URL. The user will be redirected to this URL to complete the OAuth2 flow.
+The **DocuThinker** app is designed to provide users with a simple, AI-powered document management tool. Users can upload PDFs or Word documents and receive summaries, key insights, and discussion points. Additionally, users can chat with an AI using the document's content for further clarifications.
 
 ---
 
-### **3. Google OAuth2 Callback**
+## **🌟 Features**
 
-**Endpoint**: `GET /google/callback`
-
-**Description**: Handles the OAuth2 callback after the user authenticates with Google Drive. Exchanges the authorization code for access tokens.
-
-**Request**:
-- **Method**: `GET`
-- **Query Parameter**: `code` (Google OAuth2 authorization code)
-
-**Example Request**:
-```url
-GET /google/callback?code=YOUR_AUTH_CODE
-```
-
-**Response**:
-- **Success**: Returns a message with the access tokens.
-```json
-{
-  "message": "Authenticated successfully",
-  "tokens": {
-    "access_token": "...",
-    "refresh_token": "...",
-    ...
-  }
-}
-```
-
-**Frontend Usage**:
-- After authentication with Google, Google will redirect the user back to the frontend with an authorization `code`. The frontend should send this `code` to the backend to complete the OAuth flow and obtain tokens.
+- **Document Upload & Summarization**: Upload PDFs or Word documents for AI-generated summaries.
+- **Key Insights & Discussion Points**: Generate important ideas and topics for discussion from your documents.
+- **AI Chat Integration**: Chat with an AI using your document’s original context.
+- **User Authentication**: Secure registration, login, and password reset functionality.
+- **Responsive Design**: Seamless experience across both desktop and mobile devices.
+- **Dark Mode Support**: Toggle between light and dark themes.
 
 ---
 
-### **4. List Google Drive Files**
+## **🛠️ Technologies**
 
-**Endpoint**: `GET /google/files`
-
-**Description**: Retrieves a list of files from the user's Google Drive.
-
-**Request**:
-- **Method**: `GET`
-
-**Response**:
-- **Success**: Returns a list of Google Drive files.
-```json
-{
-  "files": [
-    { "id": "fileId1", "name": "file1.pdf", "mimeType": "application/pdf" },
-    { "id": "fileId2", "name": "file2.docx", "mimeType": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" }
-  ]
-}
-```
-
-**Frontend Usage**:
-- Once authenticated, the frontend can display the user's Google Drive files by sending a `GET` request to this endpoint and rendering the file list on the UI.
+- **Frontend**: React, Material-UI, Axios
+- **Backend**: Node.js, Express, Firebase (Authentication), Google Generative AI (Document Processing)
+- **Database**: Firebase, MongoDB
+- **API Documentation**: Swagger
 
 ---
 
-### **5. Download and Process Google Drive File**
+## **🖼️ User Interface**
 
-**Endpoint**: `POST /google/download`
+### **Landing Page**
 
-**Description**: Downloads a file from Google Drive and extracts text from it.
+<p align="center">
+  <img src="images/landing.png" alt="Landing Page" width="100%" style="border-radius: 8px">
+</p>
 
-**Request**:
-- **Method**: `POST`
-- **Body (JSON)**:
-```json
-{
-  "fileId": "fileId1",
-  "mimeType": "application/pdf"
-}
+### **Landing Page - Dark Mode**
+
+<p align="center">
+  <img src="images/landing-dark.png" alt="Landing Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Document Upload Page**
+
+<p align="center">
+  <img src="images/upload.png" alt="Document Upload Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Document Upload Page - Dark Mode**
+
+<p align="center">
+  <img src="images/upload-dark.png" alt="Document Upload Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Home Page**
+
+<p align="center">
+  <img src="images/home.png" alt="Home Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Home Page - Dark Mode**
+
+<p align="center">
+  <img src="images/home-dark.png" alt="Home Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Home Page - With Key Ideas**
+
+<p align="center">
+  <img src="images/home-with-key-ideas.png" alt="Home Page - With Key Ideas" width="100%" style="border-radius: 8px">
+</p>
+
+### **Chat Modal**
+
+<p align="center">
+  <img src="images/chat.png" alt="Chat Modal" width="100%" style="border-radius: 8px">
+</p>
+
+### **Chat Modal - Dark Mode**
+
+<p align="center">
+  <img src="images/chat-dark.png" alt="Chat Modal - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **How To Use Page**
+
+<p align="center">
+  <img src="images/how-to-use.png" alt="How To Use Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **How To Use Page - Dark Mode**
+
+<p align="center">
+  <img src="images/how-to-use-dark.png" alt="How To Use Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Login Page**
+
+<p align="center">
+  <img src="images/login.png" alt="Login Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Login Page - Dark Mode**
+
+<p align="center">
+  <img src="images/login-dark.png" alt="Login Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Registration Page**
+
+<p align="center">
+  <img src="images/register.png" alt="Registration Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Registration Page - Dark Mode**
+
+<p align="center">
+  <img src="images/register-dark.png" alt="Registration Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Forgot Password Page**
+
+<p align="center">
+  <img src="images/forgot-password.png" alt="Forgot Password Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Forgot Password Page - Dark Mode**
+
+<p align="center">
+  <img src="images/forgot-password-dark.png" alt="Forgot Password Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Responsive Design Example**
+
+<p align="center">
+  <img src="images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
+</p>
+
+## **📂 Complete File Structure**
+
+```
+DocuThinker-AI-App/
+├── backend/
+│   ├── controllers.js          # API controllers for business logic
+│   ├── models.js               # Data models and interaction with Firebase and AI
+│   ├── views.js                # Helper functions for formatting API responses
+│   ├── index.js                # Main server entry point
+│   ├── .env                    # Environment variables for backend
+│   ├── README.md               # Backend documentation
+├── frontend/
+│   ├── public/
+│   │   ├── index.html          # Main HTML template
+│   │   └── manifest.json       # Manifest for PWA settings
+│   ├── src/
+│   │   ├── assets/             # Static assets such as images and fonts
+│   │   ├── components/         # Reusable components like ChatModal, Navbar, Footer
+│   │   ├── pages/              # Pages such as Home, Login, Register
+│   │   ├── App.js              # Main App component
+│   │   ├── index.js            # Entry point for the React app
+│   │   ├── styles.css          # Custom styles
+│   ├── .env                    # Environment variables for frontend
+│   ├── package.json            # Frontend dependencies
+│   ├── README.md               # Frontend documentation
+├── README.md                   # Comprehensive README for the whole app
 ```
 
-**Response**:
-- **Success**: Returns the extracted text from the Google Drive file.
-```json
-{
-  "text": "Extracted text from the Google Drive file"
-}
-```
+## **🛠️ Getting Started**
 
-**Frontend Usage**:
-- The user can select a Google Drive file, and the frontend sends a `POST` request with the `fileId` and `mimeType`. The backend will return the extracted text, which can be displayed on the UI.
+### **Prerequisites**
+
+Ensure you have the following tools installed:
+
+- **Node.js** (v14 or higher)
+- **npm** or **yarn**
+- **Firebase Admin SDK** credentials
+- **Google Generative AI** credentials
+
+### **Frontend Installation**
+
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd frontend
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the React app**:
+   ```bash
+   npm start
+   ```
+
+### **Backend Installation**
+
+1. **Navigate to the backend directory**:
+   ```bash
+   cd backend
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the backend server**:
+   ```bash
+   npm run dev
+   ```
 
 ---
 
-### **6. Text Summarization**
+## **📋 API Endpoints**
 
-**Endpoint**: `POST /summarize`
-
-**Description**: Sends extracted text to a summarization model (e.g., Hugging Face BART) and returns the summary.
-
-**Request**:
-- **Method**: `POST`
-- **Body (JSON)**:
-```json
-{
-  "text": "This is the extracted text to summarize."
-}
-```
-
-**Response**:
-- **Success**: Returns the summarized text.
-```json
-{
-  "summary": "Summarized text"
-}
-```
-
-**Frontend Usage**:
-- The frontend can take extracted text from the file and send it to the backend for summarization. The summary can be displayed in the UI once the response is received.
+| HTTP Method | Endpoint                      | Description                                   | Auth Required |
+|-------------|-------------------------------|-----------------------------------------------|---------------|
+| POST        | `/register`                   | Register a new user                           | No            |
+| POST        | `/login`                      | Login a user and generate a custom token      | No            |
+| POST        | `/upload`                     | Upload a document for summarization           | Yes           |
+| POST        | `/generate-key-ideas`         | Generate key ideas from document text         | Yes           |
+| POST        | `/generate-discussion-points` | Generate discussion points from document text | Yes           |
+| POST        | `/chat`                       | Chat with AI using document context           | Yes           |
+| POST        | `/forgot-password`            | Reset a user's password                       | No            |
+| POST        | `/verify-email`               | Verify if a user's email exists               | No            |
 
 ---
 
-### **7. Brainstorming Ideas**
+## **🚀 Deployment**
 
-**Endpoint**: `POST /brainstorm`
+### **Frontend Deployment (Vercel)**
 
-**Description**: Generates brainstorming ideas based on provided text using OpenAI.
+1. **Install the Vercel CLI**:
+   ```bash
+   npm install -g vercel
+   ```
 
-**Request**:
-- **Method**: `POST`
-- **Body (JSON)**:
-```json
-{
-  "text": "This is the text to generate brainstorming ideas from."
-}
-```
+2. **Deploy the frontend**:
+   ```bash
+   vercel
+   ```
 
-**Response**:
-- **Success**: Returns a list of brainstorming ideas.
-```json
-{
-  "ideas": "Here are some key points to consider: ..."
-}
-```
+3. **Follow the instructions in your terminal to complete the deployment**.
 
-**Frontend Usage**:
-- The frontend can send summarized text or any other relevant text to this endpoint, and the generated brainstorming ideas can be displayed in the UI as key points or suggestions.
+### **Backend Deployment**
+
+- The backend can be deployed on platforms like **Heroku**, **Render**, or **Vercel**.
 
 ---
 
-### **Example of Extracted Text:**
+## **🔧 Contributing**
 
-Here’s an example of text extracted from a sample document:
+We welcome contributions from the community! Follow these steps to contribute:
 
-```json
-{
-  "text": "\n\nDear Son,\nCongratulations! It is a pleasure to officially inform you of your acceptance to the College of Arts and Science’s\nComputer Science Major degree program! ...\n"
-}
-```
-
-This text can then be sent to the summarization and brainstorming endpoints to generate more concise summaries or generate ideas based on the document's content.
+1. **Fork the repository**.
+2. **Create a new branch**:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+3. **Commit your changes**:
+   ```bash
+   git commit -m "Add your feature"
+   ```
+4. **Push the changes**:
+   ```bash
+   git push origin feature/your-feature
+   ```
+5. **Submit a pull request**.
 
 ---
 
-### **Frontend Workflow Overview:**
+## **📝 License**
 
-1. **Upload File** → `/upload` (for manual uploads) or `/google/download` (for Google Drive files)
-2. **Display Extracted Text** → Render the text response in the frontend.
-3. **Summarize Text** → `/summarize` to get a summarized version of the text.
-4. **Brainstorm Ideas** → `/brainstorm` to generate key points or discussion questions based on the text.
+This project is licensed under the **MIT License**. See the [LICENSE](LICENSE.md) file for details.
 
-This allows the user to upload files, see extracted content, and generate useful summaries and brainstorming ideas through a seamless integration between the backend and frontend.
+---
 
+Happy coding! 🚀

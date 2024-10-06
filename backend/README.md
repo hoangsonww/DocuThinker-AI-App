@@ -2,6 +2,8 @@
 
 The **DocuThinker Backend** is the server-side component of the DocuThinker application that handles user registration, login, document processing, AI interactions, and email verification. This backend is built using Node.js, Express, Firebase for authentication, and Google Generative AI for document summarization and key ideas generation. The backend also uses Swagger for API documentation.
 
+The backend is currently hosted on Render and can be accessed at [https://docuthinker-ai-app.onrender.com](https://docuthinker-ai-app.onrender.com).
+
 ## Table of Contents
 - [Features](#features)
 - [Prerequisites](#prerequisites)

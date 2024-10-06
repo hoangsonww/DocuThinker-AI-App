@@ -140,6 +140,10 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
             >
               {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Upload'}
             </Button>
+
+            <Typography sx={{ mt: 2, font: 'inherit', color: theme === 'dark' ? 'white' : 'black', fontSize: '14px' }}>
+              <em>Note that our servers might be slow or experience downtime due to high traffic. It may take up to 2 minutes to process your document during these times. We appreciate your patience, and apologize for any inconvenience.</em>
+            </Typography>
           </Box>
         </Box>
       </Modal>
