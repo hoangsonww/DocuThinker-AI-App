@@ -92,10 +92,10 @@ const Home = ({ theme }) => {
                       border: '1px solid #f57c00',
                       padding: 2,
                       borderRadius: '12px',
-                      wordBreak: 'break-word', // Force long words to break and wrap within the box
-                      overflowWrap: 'break-word', // Ensure overflowed content wraps within the box
-                      maxHeight: '400px', // Optional: set a max height to handle long content gracefully
-                      overflowY: 'auto', // Optional: make the box scrollable if content exceeds max height
+                      wordBreak: 'break-word',
+                      overflowWrap: 'break-word',
+                      maxHeight: '400px',
+                      overflowY: 'auto',
                     }}
                 >
                   <Typography
