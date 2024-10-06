@@ -168,9 +168,10 @@ app.post('/brainstorm', async (req, res) => {
   }
 });
 
-// Start the server
-app.listen(3000, () => {
-  console.log('Server ready on port 3000.');
+// Start the server with the dynamic port from the environment variable
+const port = process.env.PORT || 3000;  // Use Render's dynamic port or 3000 for local dev
+app.listen(port, '0.0.0.0', () => {
+  console.log(`Server ready on port ${port}.`);
 });
 
 module.exports = app;
