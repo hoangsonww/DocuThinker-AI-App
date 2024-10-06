@@ -37,6 +37,9 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Backend Installation**](#backend-installation)
 - [**📋 API Endpoints**](#api-endpoints)
     - [**API Documentation**](#api-documentation)
+    - [**API Architecture**](#api-architecture)
+    - [**API Testing**](#api-testing)
+    - [**Error Handling**](#error-handling)
 - [**📦 Containerization**](#containerization)
 - [**🚀 Deployment**](#deployment)
     - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
@@ -224,27 +227,58 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 ```
 DocuThinker-AI-App/
 ├── backend/
-│   ├── controllers.js          # API controllers for business logic
-│   ├── models.js               # Data models and interaction with Firebase and AI
-│   ├── views.js                # Helper functions for formatting API responses
-│   ├── index.js                # Main server entry point
-│   ├── .env                    # Environment variables for backend
-│   ├── README.md               # Backend documentation
+│   ├── controllers.js                # Controls the flow of data and logic
+│   ├── models.js                     # Models for interacting with database and AI/ML services
+│   ├── views.js                      # Output formatting for success and error responses
+│   ├── .env                          # Environment variables (git-ignored)
+│   ├── index.js                      # Main entry point for the server
+│   ├── Dockerfile                    # Docker configuration file
+│   └── README.md                     # Backend README file
 ├── frontend/
 │   ├── public/
-│   │   ├── index.html          # Main HTML template
-│   │   └── manifest.json       # Manifest for PWA settings
+│   │   ├── index.html                # Main HTML template
+│   │   └── manifest.json             # Manifest for PWA settings
 │   ├── src/
-│   │   ├── assets/             # Static assets such as images and fonts
-│   │   ├── components/         # Reusable components like ChatModal, Navbar, Footer
-│   │   ├── pages/              # Pages such as Home, Login, Register
-│   │   ├── App.js              # Main App component
-│   │   ├── index.js            # Entry point for the React app
-│   │   ├── styles.css          # Custom styles
-│   ├── .env                    # Environment variables for frontend
-│   ├── package.json            # Frontend dependencies
-│   ├── README.md               # Frontend documentation
-├── README.md                   # Comprehensive README for the whole app
+│   │   ├── assets/                   # Static assets like images and fonts
+│   │   │   └── logo.png              # App logo or images
+│   │   ├── components/
+│   │   │   ├── ChatModal.js          # Chat modal component
+│   │   │   ├── Spinner.js            # Loading spinner component
+│   │   │   ├── UploadModal.js        # Document upload modal component
+│   │   │   ├── Navbar.js             # Navigation bar component
+│   │   │   ├── Footer.js             # Footer component
+│   │   │   └── GoogleAnalytics.js    # Google Analytics integration component
+│   │   ├── pages/
+│   │   │   ├── Home.js               # Home page where documents are uploaded
+│   │   │   ├── LandingPage.js        # Welcome and information page
+│   │   │   ├── Login.js              # Login page
+│   │   │   ├── Register.js           # Registration page
+│   │   │   ├── ForgotPassword.js     # Forgot password page
+│   │   │   └── HowToUse.js           # Page explaining how to use the app
+│   │   ├── App.js                    # Main App component
+│   │   ├── index.js                  # Entry point for the React app
+│   │   ├── App.css                   # Global CSS 1
+│   │   ├── index.css                 # Global CSS 2
+│   │   ├── reportWebVitals.js        # Web Vitals reporting
+│   │   ├── styles.css                # Custom styles for different components
+│   │   └── config.js                 # Configuration file for environment variables
+│   ├── .env                          # Environment variables file (e.g., REACT_APP_BACKEND_URL)
+│   ├── package.json                  # Project dependencies and scripts
+│   ├── Dockerfile                    # Docker configuration file
+│   ├── README.md                     # Frontend README file
+│   └── package.lock                  # Lock file for dependencies
+├── images/                           # Images for the README
+├── docker-compose.yml                # Docker Compose file for containerization
+├── jsconfig.json                     # JavaScript configuration file
+├── package.json                      # Project dependencies and scripts
+├── package-lock.json                 # Lock file for dependencies
+├── postcss.config.js                 # PostCSS configuration file
+├── tailwind.config.js                # Tailwind CSS configuration file
+├── render.yaml                       # Render configuration file
+├── vercel.json                       # Vercel configuration file
+├── .gitignore                        # Git ignore file
+├── LICENSE.md                        # License file for the project
+├── README.md                         # Comprehensive README for the whole app
 ```
 
 <h2 id="getting-started">🛠️ Getting Started</h2>
@@ -260,22 +294,31 @@ Ensure you have the following tools installed:
 
 ### **Frontend Installation**
 
-1. **Navigate to the frontend directory**:
+
+1. **Clone the repository**:
+    ```bash
+    git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
+    cd DocuThinker-AI-App/backend
+    ```
+
+2. **Navigate to the frontend directory**:
    ```bash
    cd frontend
    ```
 
-2. **Install dependencies**:
+3. **Install dependencies**:
    ```bash
    npm install
    ```
 
-3. **Start the React app**:
+4. **Start the React app**:
    ```bash
    npm start
    ```
 
 ### **Backend Installation**
+
+Note that this is optional since we are deploying the backend on **Render**. However, you can (and should) run the backend locally for development purposes.
 
 1. **Navigate to the backend directory**:
    ```bash
@@ -329,6 +372,52 @@ For example, our API endpoints documentation looks like this:
 <p align="center">
   <img src="images/swagger.png" alt="Swagger Documentation" width="100%" style="border-radius: 8px">
 </p>
+
+### **API Architecture**
+
+- The backend API is structured using **Express** and **Firebase Admin SDK** for user authentication and data storage.
+- We use the MVC (Model-View-Controller) pattern to separate concerns and improve code organization.
+- The API endpoints are designed to be RESTful and follow best practices for error handling and response formatting.
+- The API routes are secured using Firebase authentication middleware to ensure that only authenticated users can access the endpoints.
+- The API controllers handle the business logic for each route, interacting with the data models and formatting the responses.
+
+### **API Testing**
+
+- You can test the API endpoints using **Postman** or **Insomnia**. Simply make a POST request to the desired endpoint with the required parameters.
+
+- For example, you can test the `/upload` endpoint by sending a POST request with the document file as a form-data parameter.
+
+- Feel free to test all the API endpoints and explore the functionalities of the app.
+
+#### Example Request to Register a User:
+
+```bash
+curl --location --request POST 'http://localhost:3000/register' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "email": "test@example.com",
+    "password": "password123"
+}'
+```
+
+#### Example Request to Upload a Document:
+
+```bash
+curl --location --request POST 'http://localhost:3000/upload' \
+--header 'Authorization: Bearer <your-token>' \
+--form 'File=@"/path/to/your/file.pdf"'
+```
+
+### **Error Handling**
+
+The backend APIs uses centralized error handling to capture and log errors. Responses for failed requests are returned with a proper status code and an error message:
+
+```json
+{
+  "error": "An internal error occurred",
+  "details": "Error details go here"
+}
+```
 
 <h2 id="containerization">📦 Containerization</h2>
 
@@ -397,7 +486,9 @@ We will review your changes and merge them into the main branch shortly.
 
 <h2 id="license">📝 License</h2>
 
-This project is licensed under the **MIT License**. See the [LICENSE](LICENSE.md) file for details.
+This project is licensed under the **Creative Commons Attribution-NonCommercial License**. See the [LICENSE](LICENSE.md) file for details.
+
+The **DocuThinker** open-source project is for educational purposes only and should not be used for commercial applications. Feel free to use it for learning and personal projects!
 
 <h2 id="author">👨‍💻 Author</h2>
 
