@@ -77,10 +77,9 @@ function App() {
   );
 }
 
-// New Component that uses the custom hook to track page views
 function TrackPageView() {
-  useTrackPageView(); // Hook is called inside the Router now
-  return null; // This component doesn't render anything
+  useTrackPageView();
+  return null;
 }
 
 export default App;

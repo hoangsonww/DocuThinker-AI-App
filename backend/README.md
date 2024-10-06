@@ -88,25 +88,18 @@ Make sure to replace these values with your Firebase and Google Generative AI cr
 
 ## File Structure
 
+The backend of DocuThinker is structured in a modular way to keep the codebase clean and organized. It follows the **MVC (Model-View-Controller)** pattern for better separation of concerns.
 Here’s a breakdown of the file structure:
 
 ```
 DocuThinker-AI-App/
 ├── backend/
-│   ├── controllers/
-│   │   └── controllers.js      # Handles the core logic for API routes
-│   ├── models/
-│   │   └── models.js           # Firebase and Google AI helper functions
-│   ├── views/
-│   │   └── views.js            # Utility functions to format responses
-│   ├── routes/
-│   │   └── index.js            # Main Express API routes
-│   ├── swagger/
-│   │   └── swaggerConfig.js    # Swagger setup and options
-│   ├── .env                    # Environment variables (git-ignored)
-│   ├── package.json            # Project dependencies and scripts
-│   ├── index.js                # Main entry point for the server
-│   └── README.md               # This file
+│   ├── controllers.js        # Controls the flow of data and logic
+│   ├── models.js             # Models for interacting with database and AI/ML services
+│   ├── views.js              # Output formatting for success and error responses
+│   ├── .env                  # Environment variables (git-ignored)
+│   ├── index.js              # Main entry point for the server
+│   └── README.md             # This file
 ```
 
 - `controllers/`: Contains the core business logic for each route.
