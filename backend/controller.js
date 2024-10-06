@@ -81,4 +81,3 @@ exports.chatWithAI = async (req, res) => {
     res.status(500).json({ error: 'Failed to get response from the AI', details: error.message });
   }
 };
-

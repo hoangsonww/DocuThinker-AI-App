@@ -28,8 +28,7 @@ firebaseAdmin.initializeApp({
 // Firestore for storing user documents
 const firestore = firebaseAdmin.firestore();
 
-// Rest of your helper functions and code
-// Example: Create a user in Firebase
+// Helper: Create a new user
 exports.createUser = async (email, password) => {
   return await firebaseAdmin.auth().createUser({ email, password });
 };

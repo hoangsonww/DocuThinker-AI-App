@@ -14,12 +14,24 @@ const Login = ({ theme }) => {
     setLoading(true);
     setError('');
     try {
-      await axios.post('https://docuthinker-ai-app.onrender.com/login', { email, password });
+      const response = await axios.post('https://docuthinker-ai-app.onrender.com/login', { email, password }, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       setLoading(false);
-      // Handle successful login (e.g., redirect)
+
+      const { customToken } = response.data;
+      localStorage.setItem('token', customToken);
+      navigate('/home');
     } catch (error) {
       setLoading(false);
-      setError('Login failed. Please try again.');
+      if (error.response && error.response.status === 401) {
+        setError('Invalid email or password. Please try again.');
+      } else {
+        setError('Login failed. Please try again.');
+      }
     }
   };
 
@@ -29,8 +41,8 @@ const Login = ({ theme }) => {
             minHeight: '100vh',
             display: 'flex',
             justifyContent: 'center',
-            alignItems: 'flex-start', // Align to the top
-            paddingTop: '3rem', // Add padding at the top
+            alignItems: 'flex-start',
+            paddingTop: '3rem',
             backgroundColor: theme === 'dark' ? '#1e1e1e' : '#f5f5f5',
             transition: 'background-color 0.3s ease',
           }}
@@ -142,8 +154,8 @@ const Login = ({ theme }) => {
                   textDecoration: 'none',
                   font: 'inherit',
                   '&:hover': {
-                    textDecoration: 'underline', // Only underline on hover
-                    backgroundColor: 'transparent', // No background color change on hover
+                    textDecoration: 'underline',
+                    backgroundColor: 'transparent',
                   },
                 }}
                 onClick={() => navigate('/forgot-password')}

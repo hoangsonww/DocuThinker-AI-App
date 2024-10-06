@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, CircularProgress, Alert } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [email, setEmail] = useState('');
@@ -9,32 +10,40 @@ const Register = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleRegister = async (e) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    // Simple password match validation
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError('Passwords do not match');
       return;
     }
 
     try {
       setLoading(true);
-      const response = await axios.post('https://docuthinker-ai-app.onrender.com/register', {
-        email,
-        password,
-      });
+      const response = await axios.post(
+          'https://docuthinker-ai-app.onrender.com/register',
+          { email, password },
+          { headers: { 'Content-Type': 'application/json' } }
+      );
       setLoading(false);
-      setSuccess("User registered successfully! You can now login.");
+      setSuccess('User registered successfully! You can now login.');
       setEmail('');
       setPassword('');
       setConfirmPassword('');
+
+      setTimeout(() => {
+        navigate('/login');
+      }, 1500);
+
+      console.log(response.data);
     } catch (err) {
       setLoading(false);
       setError('Registration failed. Please try again.');
+      console.log(err.response?.data || err.message);
     }
   };
 
@@ -56,14 +65,14 @@ const Register = () => {
 
         {/* Error Message */}
         {error && (
-            <Alert severity="error" sx={{ mb: 2 }}>
+            <Alert severity="error" sx={{ mb: 2, font: 'inherit', fontSize: '16px' }}>
               {error}
             </Alert>
         )}
 
         {/* Success Message */}
         {success && (
-            <Alert severity="success" sx={{ mb: 2 }}>
+            <Alert severity="success" sx={{ mb: 2, font: 'inherit', fontSize: '16px' }}>
               {success}
             </Alert>
         )}
