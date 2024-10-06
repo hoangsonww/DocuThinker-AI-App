@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Button, TextField, Typography, CircularProgress, Alert } from '@mui/material';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 const ForgotPassword = ({ theme }) => {
   const [email, setEmail] = useState('');
@@ -10,15 +11,16 @@ const ForgotPassword = ({ theme }) => {
   const [emailVerified, setEmailVerified] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Step 1: Verify if the email exists in Firebase
-  const handleVerifyEmail = async () => {
+  const handleVerifyEmail = async (e) => {
+    e.preventDefault();
     setLoading(true);
     setError('');
     setSuccess('');
 
     try {
-      // Send request to backend to verify email
       const response = await axios.post('https://docuthinker-ai-app.onrender.com/verify-email', { email });
       setEmailVerified(true);
       setSuccess('Email verified. Please enter your new password.');
@@ -31,7 +33,9 @@ const ForgotPassword = ({ theme }) => {
   };
 
   // Step 2: Handle password reset once email is verified
-  const handleUpdatePassword = async () => {
+  const handleUpdatePassword = async (e) => {
+    e.preventDefault();
+
     if (newPassword !== confirmNewPassword) {
       setError('Passwords do not match.');
       return;
@@ -42,9 +46,9 @@ const ForgotPassword = ({ theme }) => {
     setSuccess('');
 
     try {
-      // Send request to update the password
       await axios.post('https://docuthinker-ai-app.onrender.com/forgot-password', { email, newPassword });
       setSuccess('Password updated successfully.');
+      navigate('/login');
     } catch (error) {
       setError('Failed to update password. Please try again.');
     } finally {
@@ -92,19 +96,19 @@ const ForgotPassword = ({ theme }) => {
 
           {/* Error and Success Alerts */}
           {error && (
-              <Alert severity="error" sx={{ marginBottom: '1.5rem' }}>
+              <Alert severity="error" sx={{ marginBottom: '1.5rem', font: 'inherit' }}>
                 {error}
               </Alert>
           )}
           {success && (
-              <Alert severity="success" sx={{ marginBottom: '1.5rem' }}>
+              <Alert severity="success" sx={{ marginBottom: '1.5rem', font: 'inherit' }}>
                 {success}
               </Alert>
           )}
 
           {/* Email Input */}
           {!emailVerified && (
-              <>
+              <form onSubmit={handleVerifyEmail}>
                 <TextField
                     label="Enter your email"
                     type="email"
@@ -119,16 +123,16 @@ const ForgotPassword = ({ theme }) => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     inputProps={{
-                      style: { fontFamily: 'Poppins, sans-serif' },
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                     }}
                     InputLabelProps={{
-                      style: { fontFamily: 'Poppins, sans-serif' },
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                     }}
                 />
                 <Button
+                    type="submit"
                     variant="contained"
                     fullWidth
-                    onClick={handleVerifyEmail}
                     sx={{
                       backgroundColor: '#f57c00',
                       color: 'white',
@@ -142,13 +146,12 @@ const ForgotPassword = ({ theme }) => {
                 >
                   {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Verify Email'}
                 </Button>
-              </>
+              </form>
           )}
 
           {/* Show Password Fields Only After Email is Verified */}
           {emailVerified && (
-              <>
-                {/* New Password Input */}
+              <form onSubmit={handleUpdatePassword}>
                 <TextField
                     label="New Password"
                     type="password"
@@ -163,14 +166,13 @@ const ForgotPassword = ({ theme }) => {
                     value={newPassword}
                     onChange={(e) => setNewPassword(e.target.value)}
                     inputProps={{
-                      style: { fontFamily: 'Poppins, sans-serif' },
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                     }}
                     InputLabelProps={{
-                      style: { fontFamily: 'Poppins, sans-serif' },
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                     }}
                 />
 
-                {/* Confirm New Password Input */}
                 <TextField
                     label="Confirm New Password"
                     type="password"
@@ -185,18 +187,17 @@ const ForgotPassword = ({ theme }) => {
                     value={confirmNewPassword}
                     onChange={(e) => setConfirmNewPassword(e.target.value)}
                     inputProps={{
-                      style: { fontFamily: 'Poppins, sans-serif' },
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                     }}
                     InputLabelProps={{
-                      style: { fontFamily: 'Poppins, sans-serif' },
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                     }}
                 />
 
-                {/* Update Password Button */}
                 <Button
+                    type="submit"
                     variant="contained"
                     fullWidth
-                    onClick={handleUpdatePassword}
                     sx={{
                       backgroundColor: '#f57c00',
                       color: 'white',
@@ -210,7 +211,7 @@ const ForgotPassword = ({ theme }) => {
                 >
                   {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Update Password'}
                 </Button>
-              </>
+              </form>
           )}
         </Box>
       </Box>

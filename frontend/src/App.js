@@ -20,22 +20,27 @@ const getStoredTheme = () => {
 
 function App() {
   const [theme, setTheme] = useState(getStoredTheme());
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  // Apply theme on app load
   useEffect(() => {
     document.body.style.backgroundColor = theme === 'dark' ? '#121212' : '#ffffff';
   }, [theme]);
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+  }, []);
+
   const handleThemeToggle = () => {
     const newTheme = theme === 'dark' ? 'light' : 'dark';
     setTheme(newTheme);
-    localStorage.setItem('theme', newTheme); // Store the theme preference in localStorage
+    localStorage.setItem('theme', newTheme);
   };
 
   return (
       <Router>
         <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Navbar theme={theme} onThemeToggle={handleThemeToggle} />
+          <Navbar theme={theme} onThemeToggle={handleThemeToggle} isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
           <Box sx={{ flexGrow: 1 }}>
             <Routes>
               <Route path="/home" element={<Home theme={theme} />} />
@@ -43,7 +48,10 @@ function App() {
               <Route path="/landing" element={<LandingPage theme={theme} />} />
               <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
               <Route path="/forgot-password" element={<ForgotPassword theme={theme} />} />
-              <Route path="/login" element={<Login />} />
+              <Route
+                  path="/login"
+                  element={<Login onLogin={() => setIsLoggedIn(true)} theme={theme} />}
+              />
               <Route path="/register" element={<Register theme={theme} />} />
             </Routes>
           </Box>

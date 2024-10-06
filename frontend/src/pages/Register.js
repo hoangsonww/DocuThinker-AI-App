@@ -3,7 +3,7 @@ import { Box, Button, TextField, Typography, CircularProgress, Alert } from '@mu
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
-const Register = ( theme ) => {
+const Register = ({ theme }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -13,7 +13,7 @@ const Register = ( theme ) => {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); // Prevent form refresh
     setError('');
     setSuccess('');
 
@@ -55,11 +55,22 @@ const Register = ( theme ) => {
             padding: '2rem',
             borderRadius: '12px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            bgcolor: theme === 'dark' ? '#333' : 'white',
+            bgcolor: theme === 'dark' ? '#333' : 'white', // Dark mode background
+            color: theme === 'dark' ? 'white' : 'black', // Dark mode text color
             textAlign: 'center',
+            transition: 'background-color 0.3s ease, color 0.3s ease',
           }}
       >
-        <Typography variant="h4" sx={{ mb: 3, color: '#f57c00', font: 'inherit', fontWeight: '600', fontSize: '32px' }}>
+        <Typography
+            variant="h4"
+            sx={{
+              mb: 3,
+              color: '#f57c00',
+              font: 'inherit',
+              fontWeight: '600',
+              fontSize: '32px',
+            }}
+        >
           Register
         </Typography>
 
@@ -87,12 +98,18 @@ const Register = ( theme ) => {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              sx={{ mb: 2, fontFamily: 'Poppins, sans-serif' }}
+              sx={{
+                mb: 2,
+                fontFamily: 'Poppins, sans-serif',
+                backgroundColor: theme === 'dark' ? '#555' : '#fff', // Dark mode input background
+                borderRadius: '8px',
+                input: { color: theme === 'dark' ? 'white' : 'black' }, // Dark mode input text color
+              }}
               inputProps={{
                 style: { fontFamily: 'Poppins, sans-serif' },
               }}
               InputLabelProps={{
-                style: { fontFamily: 'Poppins, sans-serif' },
+                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' }, // Label color
               }}
           />
           <TextField
@@ -103,12 +120,18 @@ const Register = ( theme ) => {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              sx={{ mb: 2, fontFamily: 'Poppins, sans-serif' }}
+              sx={{
+                mb: 2,
+                fontFamily: 'Poppins, sans-serif',
+                backgroundColor: theme === 'dark' ? '#555' : '#fff', // Dark mode input background
+                borderRadius: '8px',
+                input: { color: theme === 'dark' ? 'white' : 'black' }, // Dark mode input text color
+              }}
               inputProps={{
                 style: { fontFamily: 'Poppins, sans-serif' },
               }}
               InputLabelProps={{
-                style: { fontFamily: 'Poppins, sans-serif' },
+                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' }, // Label color
               }}
           />
           <TextField
@@ -119,12 +142,18 @@ const Register = ( theme ) => {
               type="password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              sx={{ mb: 2, fontFamily: 'Poppins, sans-serif' }}
+              sx={{
+                mb: 2,
+                fontFamily: 'Poppins, sans-serif',
+                backgroundColor: theme === 'dark' ? '#555' : '#fff', // Dark mode input background
+                borderRadius: '8px',
+                input: { color: theme === 'dark' ? 'white' : 'black' }, // Dark mode input text color
+              }}
               inputProps={{
-                style: { fontFamily: 'Poppins, sans-serif' },
+                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
               }}
               InputLabelProps={{
-                style: { fontFamily: 'Poppins, sans-serif' },
+                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' }, // Label color
               }}
           />
 
