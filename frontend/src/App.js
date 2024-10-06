@@ -14,7 +14,6 @@ import './App.css';
 import './styles.css';
 import '@fontsource/poppins';
 
-// Retrieve the user's theme preference from localStorage
 const getStoredTheme = () => {
   return localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
 };

@@ -12,7 +12,9 @@ const Home = ({ theme }) => {
   const [discussionPoints, setDiscussionPoints] = useState('');
   const [loadingKeyIdeas, setLoadingKeyIdeas] = useState(false);
   const [loadingDiscussionPoints, setLoadingDiscussionPoints] = useState(false);
-  const [documentFile, setDocumentFile] = useState(null); // Add this line to manage the document file state
+  const [documentFile, setDocumentFile] = useState(null);
+
+  console.log('documentFile:', documentFile);
 
   const formatAsMarkdown = (text) => {
     const paragraphs = text.split(/\n\s*\n/);
@@ -94,7 +96,6 @@ const Home = ({ theme }) => {
                       borderRadius: '12px',
                       wordBreak: 'break-word',
                       overflowWrap: 'break-word',
-                      maxHeight: '400px',
                       overflowY: 'auto',
                     }}
                 >
