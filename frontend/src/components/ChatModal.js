@@ -5,7 +5,7 @@ import axios from 'axios';
 import Spinner from './Spinner';
 import ReactMarkdown from 'react-markdown';
 
-const ChatModal = () => {
+const ChatModal = ({ theme }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -35,6 +35,12 @@ const ChatModal = () => {
     }
   };
 
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      handleChat();
+    }
+  };
+
   return (
       <>
         <Button onClick={() => setOpen(true)} sx={{ bgcolor: '#f57c00', color: 'white', font: 'inherit', borderRadius: '12px' }}>
@@ -49,7 +55,8 @@ const ChatModal = () => {
                 transform: 'translate(-50%, -50%)',
                 width: '40%',
                 height: '50%',
-                bgcolor: 'white',
+                bgcolor: theme === 'dark' ? '#1e1e1e' : '#fff',
+                color: theme === 'dark' ? 'white' : 'black',
                 padding: 4,
                 borderRadius: '12px',
                 overflow: 'auto',
@@ -71,7 +78,7 @@ const ChatModal = () => {
                   position: 'absolute',
                   top: 8,
                   right: 8,
-                  color: 'black',
+                  color: theme === 'dark' ? 'white' : 'black',
                 }}
             >
               <CloseIcon />
@@ -85,6 +92,7 @@ const ChatModal = () => {
                   font: 'inherit',
                   fontSize: '20px',
                   textAlign: 'center',
+                  color: theme === 'dark' ? 'white' : 'black',
                 }}
             >
               Chat With AI About Your Document
@@ -100,6 +108,7 @@ const ChatModal = () => {
                   marginBottom: 2,
                   borderRadius: '12px',
                   maxHeight: '60%',
+                  bgcolor: theme === 'dark' ? '#2a2a2a' : 'white',
                 }}
             >
               {chatHistory.map((chat, index) => (
@@ -151,12 +160,13 @@ const ChatModal = () => {
                 fullWidth
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                sx={{ marginBottom: 2, borderRadius: '12px', font: 'inherit' }}
+                onKeyDown={handleKeyDown}
+                sx={{ marginBottom: 2, borderRadius: '12px', font: 'inherit', bgcolor: theme === 'dark' ? '#2a2a2a' : 'white' }}
                 inputProps={{
-                  style: { fontFamily: 'Poppins, sans-serif' },
+                  style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                 }}
                 InputLabelProps={{
-                  style: { fontFamily: 'Poppins, sans-serif' },
+                  style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000' },
                 }}
             />
 

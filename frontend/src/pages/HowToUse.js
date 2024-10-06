@@ -192,7 +192,7 @@ const HowToUse = ({ theme }) => {
                         color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
                       }}
                   >
-                    5. Chat with the AI
+                    5. Chat with our AI
                   </Typography>
                 }
                 secondary={
@@ -204,7 +204,7 @@ const HowToUse = ({ theme }) => {
                       }}
                   >
                     Use the 'Chat with AI' feature to ask specific questions or get more information based on the document.
-                    The AI will use the document context to provide tailored answers.
+                    Our AI models, trained by DocuThinker, will use the document context to provide tailored answers.
                   </Typography>
                 }
             />

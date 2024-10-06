@@ -49,6 +49,11 @@ const Home = ({ theme }) => {
     }
   };
 
+  const handleUploadNewDocument = () => {
+    // Reload the page when the button is clicked
+    window.location.reload();
+  };
+
   return (
       <Box
           sx={{
@@ -199,7 +204,14 @@ const Home = ({ theme }) => {
                   >
                     {loadingDiscussionPoints ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Generate Discussion Points'}
                   </Button>
-                  <ChatModal />
+                  <ChatModal theme={theme} />
+                  {/* New Upload New Document Button */}
+                  <Button
+                      onClick={handleUploadNewDocument}
+                      sx={{ bgcolor: '#f57c00', color: 'white', font: 'inherit', borderRadius: '12px' }}
+                  >
+                    Upload New Document
+                  </Button>
                 </Box>
 
                 {/* Display key ideas and discussion points as Markdown */}
