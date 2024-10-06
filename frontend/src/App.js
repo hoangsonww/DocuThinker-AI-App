@@ -7,7 +7,9 @@ import Footer from './components/Footer';
 import Home from './pages/Home';
 import HowToUse from './pages/HowToUse';
 import Login from './pages/Login';
+import LandingPage from "./pages/LandingPage";
 import './App.css';
+import './styles.css';
 
 function App() {
   return (
@@ -17,6 +19,7 @@ function App() {
           <Box sx={{ flexGrow: 1 }}>
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/landing" element={<LandingPage />} />
               <Route path="/how-to-use" element={<HowToUse />} />
               <Route path="/login" element={<Login />} />
             </Routes>

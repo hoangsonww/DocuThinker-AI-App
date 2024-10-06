@@ -7,12 +7,12 @@ const Navbar = () => {
   return (
       <AppBar position="static" sx={{ bgcolor: 'white', padding: 1 }}>
         <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1, color: '#f57c00' }}>
+          <Typography variant="h1" component="div" sx={{ flexGrow: 1, color: '#f57c00', font: 'inherit', fontWeight: 'bold', fontSize: '2rem' }}>
             DocuThinker
           </Typography>
-          <Button component={Link} to="/" sx={{ color: 'black', marginRight: 2 }}>Home</Button>
-          <Button component={Link} to="/how-to-use" sx={{ color: 'black', marginRight: 2 }}>How to Use</Button>
-          <Button component={Link} to="/login" sx={{ color: 'black' }}>Login</Button>
+          <Button component={Link} to="/" sx={{ color: 'black', marginRight: 2, font: 'inherit' }}>Home</Button>
+          <Button component={Link} to="/how-to-use" sx={{ color: 'black', marginRight: 2, font: 'inherit' }}>How to Use</Button>
+          <Button component={Link} to="/login" sx={{ color: 'black', font: 'inherit' }}>Login</Button>
         </Toolbar>
       </AppBar>
   );
