@@ -22,12 +22,8 @@ describe('Home Component', () => {
     render(<Home theme="light" />);
 
     fireEvent.click(screen.getByText(/Upload a Document/i));
-    // This step can depend on how UploadModal works, but we're assuming summary is set manually in this test for simplicity
-    // In your actual app, it might trigger based on some modal interaction.
-
     fireEvent.click(screen.getByText(/Upload New Document/i));
 
-    // Make sure the summary is displayed
     await waitFor(() => {
       expect(screen.getByText(mockSummary)).toBeInTheDocument();
     });
