@@ -28,8 +28,9 @@ const Login = ({ theme, onLogin }) => {
       onLogin();
       setLoading(false);
 
-      const { customToken } = response.data;
+      const { customToken, userId } = response.data;
       localStorage.setItem('token', customToken);
+      localStorage.setItem('userId', userId);
       navigate('/home');
     } catch (error) {
       setLoading(false);

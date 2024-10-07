@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Modal, Typography, CircularProgress } from '@mui/material';
+import {Box, Button, Modal, Typography, CircularProgress, TextField} from '@mui/material';
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 
@@ -8,10 +8,12 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
   const [isUploaded, setIsUploaded] = useState(false);
+  const [title, setTitle] = useState('');
 
   const onDrop = (acceptedFiles) => {
     setFile(acceptedFiles[0]);
     setDocumentFile(acceptedFiles[0]);
+    setTitle(acceptedFiles[0].name);
   };
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -23,10 +25,16 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
   });
 
   const handleUpload = async () => {
-    if (!file) return;
+    if (!file || !title) return;
 
     const formData = new FormData();
     formData.append('File', file);
+    formData.append('title', title);
+
+    const userId = localStorage.getItem('userId');
+    if (userId) {
+      formData.append('userId', userId);
+    }
 
     try {
       setLoading(true);
@@ -124,6 +132,15 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
                 >
                   {file.name}
                 </Typography>
+            )}
+
+            {file && (
+                <TextField
+                    label="Document Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    fullWidth
+                />
             )}
 
             <Button

@@ -1,7 +1,8 @@
-const { createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI, verifyUserEmail, verifyUserAndUpdatePassword } = require('./models');
+const { firestore, createUser, loginUser, generateSummary, generateKeyIdeas, generateDiscussionPoints, chatWithAI, verifyUserEmail, verifyUserAndUpdatePassword } = require('./models');
 const { sendErrorResponse, sendSuccessResponse } = require('./views');
 const { IncomingForm } = require("formidable");
 const { v4: uuidv4 } = require('uuid');
+const firebaseAdmin = require('firebase-admin');
 
 /**
  * @swagger
@@ -31,8 +32,21 @@ exports.registerUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userRecord = await createUser(email, password);
+    console.log(`User created in Firebase Auth: ${userRecord.uid}`);
+
+    // Log before trying to create a Firestore document
+    console.log('Attempting to create Firestore user document...');
+
+    // Create a user document in Firestore with an empty documents list
+    await firestore.collection('users').doc(userRecord.uid).set({
+      email: email,
+      documents: []
+    });
+
+    console.log('Firestore user document created successfully');
     sendSuccessResponse(res, 201, 'User registered successfully', { userId: userRecord.uid });
   } catch (error) {
+    console.error('Error during Firestore document creation:', error.message); // Log the error message
     sendErrorResponse(res, 400, 'User registration failed', error.message);
   }
 };
@@ -65,7 +79,12 @@ exports.loginUser = async (req, res) => {
   const { email } = req.body;
   try {
     const customToken = await loginUser(email);
-    sendSuccessResponse(res, 200, 'Custom token generated', { customToken });
+    const user = await firebaseAdmin.auth().getUserByEmail(email); // Fetch user details
+
+    sendSuccessResponse(res, 200, 'Custom token generated', {
+      customToken,
+      userId: user.uid // Send back userId
+    });
   } catch (error) {
     sendErrorResponse(res, 401, 'Invalid credentials', error.message);
   }
@@ -103,8 +122,38 @@ exports.uploadDocument = async (req, res) => {
       sendErrorResponse(res, 400, 'No file uploaded');
     } else {
       try {
-        const result = await generateSummary(files.File[0]);
-        sendSuccessResponse(res, 200, 'Document summarized', result);
+        const { userId, title } = fields;
+        const result = await generateSummary(files.File[0]); // Assumes you have a generateSummary function
+
+        // Check if a userId was provided, i.e., logged-in user
+        if (userId) {
+          const actualUserId = Array.isArray(userId) ? userId[0] : userId;
+          const userRef = firestore.collection('users').doc(actualUserId);
+
+          const userDoc = await userRef.get();
+          if (!userDoc.exists) {
+            return sendErrorResponse(res, 404, 'User not found');
+          }
+
+          // Generate a unique ID for the document
+          const docId = firestore.collection('users').doc().id;
+
+          // Update the Firestore document to add the new document data
+          await userRef.update({
+            documents: firebaseAdmin.firestore.FieldValue.arrayUnion({
+              id: docId,
+              title: title,
+              originalText: result.originalText,
+              summary: result.summary
+            })
+          });
+        }
+
+        // Send success response with summary and originalText
+        sendSuccessResponse(res, 200, 'Document summarized', {
+          summary: result.summary,
+          originalText: result.originalText
+        });
       } catch (error) {
         sendErrorResponse(res, 500, 'Failed to summarize document', error.message);
       }
@@ -293,5 +342,105 @@ exports.verifyEmail = async (req, res) => {
     sendSuccessResponse(res, 200, 'Email verified', { uid: userRecord.uid });
   } catch (error) {
     sendErrorResponse(res, 404, 'User not found', error.message);
+  }
+};
+
+exports.getAllDocuments = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const documents = userData.documents || [];
+    sendSuccessResponse(res, 200, 'Documents retrieved', documents);
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve documents', error.message);
+  }
+};
+
+// Retrieve a specific document by ID
+exports.getDocumentById = async (req, res) => {
+  const { userId, docId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const document = userData.documents.find((doc) => doc.id === docId);
+
+    if (!document) {
+      return sendErrorResponse(res, 404, 'Document not found');
+    }
+
+    sendSuccessResponse(res, 200, 'Document retrieved', document);
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve document', error.message);
+  }
+};
+
+// Retrieve document details (title, original text, and summary)
+exports.getDocumentDetails = async (req, res) => {
+  const { userId, docId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const document = userData.documents.find((doc) => doc.id === docId);
+
+    if (!document) {
+      return sendErrorResponse(res, 404, 'Document not found');
+    }
+
+    const { title, originalText, summary } = document;
+    sendSuccessResponse(res, 200, 'Document details retrieved', { title, originalText, summary });
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve document details', error.message);
+  }
+};
+
+exports.deleteDocument = async (req, res) => {
+  const { userId, docId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const updatedDocuments = userData.documents.filter(doc => doc.id !== docId);
+
+    await firestore.collection('users').doc(userId).update({
+      documents: updatedDocuments
+    });
+
+    sendSuccessResponse(res, 200, 'Document deleted successfully');
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to delete document', error.message);
+  }
+};
+
+exports.deleteAllDocuments = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    await firestore.collection('users').doc(userId).update({
+      documents: []
+    });
+
+    sendSuccessResponse(res, 200, 'All documents deleted successfully');
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to delete documents', error.message);
   }
 };

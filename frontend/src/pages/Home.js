@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, Typography, Button, CircularProgress } from '@mui/material';
 import ReactMarkdown from 'react-markdown';
 import UploadModal from '../components/UploadModal';
 import ChatModal from '../components/ChatModal';
 import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 const Home = ({ theme }) => {
   const [summary, setSummary] = useState('');
@@ -15,6 +16,16 @@ const Home = ({ theme }) => {
   const [documentFile, setDocumentFile] = useState(null);
 
   console.log('documentFile:', documentFile);
+
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.state) {
+      const { summary, originalText } = location.state;
+      setSummary(summary);
+      setOriginalText(originalText);
+    }
+  }, [location.state]);
 
   const formatAsMarkdown = (text) => {
     const paragraphs = text.split(/\n\s*\n/);

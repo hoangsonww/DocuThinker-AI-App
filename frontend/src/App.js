@@ -10,6 +10,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import LandingPage from './pages/LandingPage';
 import ForgotPassword from './pages/ForgotPassword';
+import DocumentsPage from "./pages/DocumentsPage";
 import './App.css';
 import './styles.css';
 import '@fontsource/poppins';
@@ -62,6 +63,7 @@ function App() {
               <Route path="/" element={<LandingPage theme={theme} />} />
               <Route path="/landing" element={<LandingPage theme={theme} />} />
               <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
+              <Route path="/documents" element={<DocumentsPage theme={theme} />} />
               <Route path="/forgot-password" element={<ForgotPassword theme={theme} />} />
               <Route
                   path="/login"

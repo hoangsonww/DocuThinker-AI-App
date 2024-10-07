@@ -196,3 +196,5 @@ exports.verifyUserEmail = async (email) => {
     throw new Error('User not found');
   }
 };
+
+module.exports = { firestore, isValidText, sessionHistory, ...exports };

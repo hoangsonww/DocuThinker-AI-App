@@ -30,6 +30,7 @@ const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
     onLogout();
     navigate('/login');
   };
@@ -51,6 +52,14 @@ const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
             sx={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 2, font: 'inherit', textTransform: 'none' }}
         >
           How to Use
+        </Button>
+        <Button
+            component={NavLink}
+            to="/documents"
+            style={({ isActive }) => (isActive ? activeStyle : undefined)}
+            sx={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 2, font: 'inherit', textTransform: 'none' }}
+        >
+          Documents
         </Button>
 
         {/* Conditionally render Login or Logout based on isLoggedIn */}

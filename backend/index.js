@@ -3,7 +3,7 @@ const cors = require('cors');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const path = require('path');
-const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI, forgotPassword, verifyEmail } = require('./controllers');
+const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI, forgotPassword, verifyEmail, getAllDocuments, getDocumentById, getDocumentDetails, deleteAllDocuments, deleteDocument } = require('./controllers');
 
 const app = express();
 app.use(express.json());
@@ -11,7 +11,7 @@ app.use(express.json());
 // CORS configuration
 const corsOptions = {
   origin: ['http://localhost:3001','http://localhost:3002', 'http://localhost:3000', 'https://docuthinker-fullstack-app.vercel.app'],
-  methods: ['GET', 'POST'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 };
 
@@ -90,6 +90,11 @@ app.post('/generate-discussion-points', generateDiscussionPoints);
 app.post('/chat', chatWithAI);
 app.post('/forgot-password', forgotPassword);
 app.post('/verify-email', verifyEmail);
+app.get('/documents/:userId', getAllDocuments); // Retrieve all documents
+app.get('/documents/:userId/:docId', getDocumentById); // Retrieve specific document by ID
+app.get('/document-details/:userId/:docId', getDocumentDetails); // Retrieve document details by ID
+app.delete('/documents/:userId/:docId', deleteDocument);  // Delete a specific document
+app.delete('/documents/:userId', deleteAllDocuments);     // Delete all documents for a user
 
 // Error handling for unsupported routes
 app.use((req, res) => {
