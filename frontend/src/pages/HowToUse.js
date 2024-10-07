@@ -36,7 +36,7 @@ const HowToUse = ({ theme }) => {
               font: 'inherit',
               marginBottom: 3,
               fontSize: '1.1rem',
-              color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+              color: theme === 'dark' ? 'white' : '#333',
               lineHeight: '1.6',
             }}
         >
@@ -69,7 +69,7 @@ const HowToUse = ({ theme }) => {
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 'bold',
                         fontSize: '1.1rem',
-                        color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : 'black',
                       }}
                   >
                     1. Upload a Document
@@ -80,7 +80,7 @@ const HowToUse = ({ theme }) => {
                       sx={{
                         fontFamily: 'Poppins, sans-serif',
                         fontSize: '1rem',
-                        color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
                     Click the upload box on the home page to drag and drop your document or select one from your device. We
@@ -99,7 +99,7 @@ const HowToUse = ({ theme }) => {
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 'bold',
                         fontSize: '1.1rem',
-                        color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : 'black',
                       }}
                   >
                     2. View the Document Summary
@@ -110,7 +110,7 @@ const HowToUse = ({ theme }) => {
                       sx={{
                         fontFamily: 'Poppins, sans-serif',
                         fontSize: '1rem',
-                        color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
                     Once uploaded, the app will automatically summarize your document. You'll see the full original document
@@ -129,7 +129,7 @@ const HowToUse = ({ theme }) => {
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 'bold',
                         fontSize: '1.1rem',
-                        color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : 'black',
                       }}
                   >
                     3. Generate Key Ideas
@@ -140,7 +140,7 @@ const HowToUse = ({ theme }) => {
                       sx={{
                         fontFamily: 'Poppins, sans-serif',
                         fontSize: '1rem',
-                        color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
                     After reviewing the summary, click the 'Generate Key Ideas' button to let the AI extract the most
@@ -159,7 +159,7 @@ const HowToUse = ({ theme }) => {
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 'bold',
                         fontSize: '1.1rem',
-                        color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : 'black',
                       }}
                   >
                     4. Generate Discussion Points
@@ -170,7 +170,7 @@ const HowToUse = ({ theme }) => {
                       sx={{
                         fontFamily: 'Poppins, sans-serif',
                         fontSize: '1rem',
-                        color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
                     You can also generate discussion points that can be used for group discussions, debates, or further
@@ -189,7 +189,7 @@ const HowToUse = ({ theme }) => {
                         fontFamily: 'Poppins, sans-serif',
                         fontWeight: 'bold',
                         fontSize: '1.1rem',
-                        color: theme === 'dark' ? 'white' : 'black', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : 'black',
                       }}
                   >
                     5. Chat with our AI
@@ -200,7 +200,7 @@ const HowToUse = ({ theme }) => {
                       sx={{
                         fontFamily: 'Poppins, sans-serif',
                         fontSize: '1rem',
-                        color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+                        color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
                     Use the 'Chat with AI' feature to ask specific questions or get more information based on the document.
@@ -231,7 +231,7 @@ const HowToUse = ({ theme }) => {
               marginBottom: 3,
               font: 'inherit',
               fontSize: '1.1rem',
-              color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+              color: theme === 'dark' ? 'white' : '#333',
               lineHeight: '1.6',
             }}
         >
@@ -249,7 +249,7 @@ const HowToUse = ({ theme }) => {
             sx={{
               font: 'inherit',
               fontSize: '1.1rem',
-              color: theme === 'dark' ? 'white' : '#333', // Text color based on theme
+              color: theme === 'dark' ? 'white' : '#333',
               lineHeight: '1.6',
             }}
         >
