@@ -30,7 +30,7 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
 
     try {
       setLoading(true);
-      const response = await axios.post('https://docuthinker-fullstack-app.vercel.app/upload', formData);
+      const response = await axios.post('https://docuthinker-ai-app.onrender.com/upload', formData);
       setLoading(false);
 
       const { summary, originalText } = response.data;

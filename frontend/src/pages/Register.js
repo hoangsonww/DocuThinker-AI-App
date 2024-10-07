@@ -13,7 +13,7 @@ const Register = ({ theme }) => {
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
-    e.preventDefault(); // Prevent form refresh
+    e.preventDefault();
     setError('');
     setSuccess('');
 

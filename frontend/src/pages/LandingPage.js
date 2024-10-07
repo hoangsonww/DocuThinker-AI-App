@@ -1,17 +1,17 @@
 import React from 'react';
 import { Box, Typography, Button, Container, Grid, Card, CardContent } from '@mui/material';
 import { Link } from 'react-router-dom';
-import { keyframes } from '@emotion/react'; // For keyframe animations
+import { keyframes } from '@emotion/react';
 
 // Define the keyframe animation for sliding upwards
 const slideUp = keyframes`
     from {
-        transform: translateY(30px); /* Slide up from 30px below */
-        opacity: 0; /* Start invisible */
+        transform: translateY(30px);
+        opacity: 0;
     }
     to {
-        transform: translateY(0); /* Slide to original position */
-        opacity: 1; /* End fully visible */
+        transform: translateY(0); 
+        opacity: 1;
     }
 `;
 
@@ -99,8 +99,8 @@ const LandingPage = ({ theme }) => {
                     key={feature.title}
                     sx={{
                       animation: `${slideUp} 0.6s ease-out`,
-                      animationDelay: `${index * 0.2}s`, // Stagger the cards by 0.2s
-                      animationFillMode: 'both', // Ensure the final state persists
+                      animationDelay: `${index * 0.2}s`,
+                      animationFillMode: 'both',
                     }}
                 >
                   <Card
@@ -111,7 +111,7 @@ const LandingPage = ({ theme }) => {
                         backgroundColor: isDarkMode ? '#333' : '#fff',
                         transition: 'background-color 0.3s ease',
                         '&:hover': {
-                          boxShadow: 6, // Subtle box shadow on hover
+                          boxShadow: 6,
                         },
                       }}
                   >

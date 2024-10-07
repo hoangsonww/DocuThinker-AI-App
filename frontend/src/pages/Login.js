@@ -81,7 +81,7 @@ const Login = ({ theme, onLogin }) => {
 
           {/* Error Alert */}
           {error && (
-              <Alert severity="error" sx={{ marginBottom: '1.5rem' }}>
+              <Alert severity="error" sx={{ marginBottom: '1.5rem', font: 'inherit' }}>
                 {error}
               </Alert>
           )}
