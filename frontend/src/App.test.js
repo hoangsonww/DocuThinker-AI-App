@@ -30,30 +30,24 @@ describe('Home Component', () => {
   });
 
   it('handles generate key ideas button click and shows loading spinner', async () => {
-    // Mock the Axios response for generating key ideas
     axios.post.mockResolvedValue({
       data: { keyIdeas: 'These are key ideas from the document.' }
     });
 
     render(<Home theme="light" />);
 
-    // Simulate setting originalText to enable buttons
     fireEvent.click(screen.getByText(/Generate Key Ideas/i));
 
-    // Loading spinner appears when the button is clicked
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
-    // Wait for the loading spinner to disappear after the API resolves
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    // Ensure the key ideas are rendered
     expect(screen.getByText(/These are key ideas from the document./i)).toBeInTheDocument();
   });
 
   it('handles generate discussion points button click and shows loading spinner', async () => {
-    // Mock the Axios response for generating discussion points
     axios.post.mockResolvedValue({
       data: { discussionPoints: 'These are the discussion points.' }
     });
