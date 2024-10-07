@@ -67,7 +67,7 @@ const Home = ({ theme }) => {
             transition: 'background-color 0.3s ease, color 0.3s ease',
           }}
       >
-        {!summary && <UploadModal setSummary={setSummary} setOriginalText={setOriginalText} theme={theme} setDocumentFile={setDocumentFile} />} {/* Pass the setDocumentFile prop */}
+        {!summary && <UploadModal setSummary={setSummary} setOriginalText={setOriginalText} theme={theme} setDocumentFile={setDocumentFile} />}
         {summary && (
             <>
               <Box
