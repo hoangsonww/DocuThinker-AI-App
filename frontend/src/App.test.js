@@ -2,13 +2,12 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
 import axios from 'axios';
-import Home from './pages/Home'; // Adjust the path if necessary
+import Home from './pages/Home';
 
 jest.mock('axios');
 
 describe('Home Component', () => {
   beforeEach(() => {
-    // Clear all instances and calls to constructor and all methods:
     axios.post.mockClear();
   });
 
@@ -22,7 +21,6 @@ describe('Home Component', () => {
     const mockSummary = 'This is the document summary';
     render(<Home theme="light" />);
 
-    // Simulate setting the summary (simulate after file upload)
     fireEvent.click(screen.getByText(/Upload a Document/i));
     // This step can depend on how UploadModal works, but we're assuming summary is set manually in this test for simplicity
     // In your actual app, it might trigger based on some modal interaction.
