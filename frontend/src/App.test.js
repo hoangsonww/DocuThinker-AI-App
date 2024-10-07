@@ -54,18 +54,14 @@ describe('Home Component', () => {
 
     render(<Home theme="light" />);
 
-    // Simulate setting originalText to enable buttons
     fireEvent.click(screen.getByText(/Generate Discussion Points/i));
 
-    // Loading spinner appears when the button is clicked
     expect(screen.getByRole('progressbar')).toBeInTheDocument();
 
-    // Wait for the loading spinner to disappear after the API resolves
     await waitFor(() => {
       expect(screen.queryByRole('progressbar')).not.toBeInTheDocument();
     });
 
-    // Ensure the discussion points are rendered
     expect(screen.getByText(/These are the discussion points./i)).toBeInTheDocument();
   });
 
