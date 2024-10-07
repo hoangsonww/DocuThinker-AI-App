@@ -182,7 +182,19 @@ const ChatModal = ({ theme }) => {
               {loading ? <Spinner /> : 'Send'}
             </Button>
 
-            <Typography sx={{ textAlign: 'center', mt: 2, font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
+            <Typography
+                sx={{
+                  textAlign: 'center',
+                  mt: 2,
+                  font: 'inherit',
+                  color: theme === 'dark' ? 'white' : 'black',
+                  fontSize: '14px',
+                  display: {
+                    xs: 'none',
+                    md: 'block',
+                  }
+                }}
+            >
               <em>Resize the modal by dragging the bottom right corner. Feel free to talk to our AI about anything!</em>
             </Typography>
           </Box>
