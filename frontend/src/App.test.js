@@ -66,7 +66,6 @@ describe('Home Component', () => {
   });
 
   it('displays an error message if the API call for key ideas fails', async () => {
-    // Mock a failed Axios request
     axios.post.mockRejectedValue(new Error('Failed to generate key ideas'));
 
     render(<Home theme="light" />);
@@ -81,17 +80,14 @@ describe('Home Component', () => {
   });
 
   it('reloads the page when "Upload New Document" is clicked', () => {
-    // Mock the window.location.reload function
     const reloadMock = jest.spyOn(window.location, 'reload').mockImplementation(() => {});
 
     render(<Home theme="light" />);
 
-    // Click the upload new document button
     fireEvent.click(screen.getByText(/Upload New Document/i));
 
     expect(reloadMock).toHaveBeenCalled();
 
-    // Restore the original reload function
     reloadMock.mockRestore();
   });
 });
