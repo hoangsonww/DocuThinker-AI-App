@@ -55,8 +55,8 @@ const Register = ({ theme }) => {
             padding: '2rem',
             borderRadius: '12px',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-            bgcolor: theme === 'dark' ? '#333' : 'white', // Dark mode background
-            color: theme === 'dark' ? 'white' : 'black', // Dark mode text color
+            bgcolor: theme === 'dark' ? '#333' : 'white',
+            color: theme === 'dark' ? 'white' : 'black',
             textAlign: 'center',
             transition: 'background-color 0.3s ease, color 0.3s ease',
           }}
@@ -101,15 +101,15 @@ const Register = ({ theme }) => {
               sx={{
                 mb: 2,
                 fontFamily: 'Poppins, sans-serif',
-                backgroundColor: theme === 'dark' ? '#555' : '#fff', // Dark mode input background
+                backgroundColor: theme === 'dark' ? '#555' : '#fff',
                 borderRadius: '8px',
-                input: { color: theme === 'dark' ? 'white' : 'black' }, // Dark mode input text color
+                input: { color: theme === 'dark' ? 'white' : 'black' },
               }}
               inputProps={{
                 style: { fontFamily: 'Poppins, sans-serif' },
               }}
               InputLabelProps={{
-                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' }, // Label color
+                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
               }}
           />
           <TextField
@@ -123,15 +123,15 @@ const Register = ({ theme }) => {
               sx={{
                 mb: 2,
                 fontFamily: 'Poppins, sans-serif',
-                backgroundColor: theme === 'dark' ? '#555' : '#fff', // Dark mode input background
+                backgroundColor: theme === 'dark' ? '#555' : '#fff',
                 borderRadius: '8px',
-                input: { color: theme === 'dark' ? 'white' : 'black' }, // Dark mode input text color
+                input: { color: theme === 'dark' ? 'white' : 'black' },
               }}
               inputProps={{
                 style: { fontFamily: 'Poppins, sans-serif' },
               }}
               InputLabelProps={{
-                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' }, // Label color
+                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
               }}
           />
           <TextField
@@ -145,15 +145,15 @@ const Register = ({ theme }) => {
               sx={{
                 mb: 2,
                 fontFamily: 'Poppins, sans-serif',
-                backgroundColor: theme === 'dark' ? '#555' : '#fff', // Dark mode input background
+                backgroundColor: theme === 'dark' ? '#555' : '#fff',
                 borderRadius: '8px',
-                input: { color: theme === 'dark' ? 'white' : 'black' }, // Dark mode input text color
+                input: { color: theme === 'dark' ? 'white' : 'black' },
               }}
               inputProps={{
                 style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
               }}
               InputLabelProps={{
-                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' }, // Label color
+                style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
               }}
           />
 
