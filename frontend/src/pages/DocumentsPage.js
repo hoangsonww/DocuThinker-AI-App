@@ -97,7 +97,7 @@ const DocumentsPage = (theme) => {
   return (
       <Box p={4}>
         <Typography variant="h4" gutterBottom sx={{ font: 'inherit', fontWeight: 'bold', fontSize: '34px', color: theme === 'dark' ? 'white' : 'black' }}>
-          Your Documents
+          Your Analyzed Documents
         </Typography>
 
         {documents.length === 0 ? (

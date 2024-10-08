@@ -205,7 +205,7 @@ const Profile = ({ theme }) => {
 
           {/* Thank you message */}
           <Typography sx={{ mt: 3, font: 'inherit', fontWeight: 'bold', fontSize: '18px' }}>
-            Thank you for exploring DocuThink!
+            Thank you for exploring DocuThinker! 🚀
           </Typography>
 
           <div style={{ borderBottom: '1px solid #ccc', marginTop: '16px' }}></div>
