@@ -32,21 +32,21 @@ exports.registerUser = async (req, res) => {
   const { email, password } = req.body;
   try {
     const userRecord = await createUser(email, password);
+    const creationDate = new Date();
+
     console.log(`User created in Firebase Auth: ${userRecord.uid}`);
 
-    // Log before trying to create a Firestore document
-    console.log('Attempting to create Firestore user document...');
-
-    // Create a user document in Firestore with an empty documents list
+    // Create a user document in Firestore with email, empty documents list, and the creation date
     await firestore.collection('users').doc(userRecord.uid).set({
       email: email,
-      documents: []
+      documents: [],
+      createdAt: creationDate  // Store the creation date
     });
 
     console.log('Firestore user document created successfully');
     sendSuccessResponse(res, 201, 'User registered successfully', { userId: userRecord.uid });
   } catch (error) {
-    console.error('Error during Firestore document creation:', error.message); // Log the error message
+    console.error('Error during Firestore document creation:', error.message);
     sendErrorResponse(res, 400, 'User registration failed', error.message);
   }
 };
@@ -442,5 +442,92 @@ exports.deleteAllDocuments = async (req, res) => {
     sendSuccessResponse(res, 200, 'All documents deleted successfully');
   } catch (error) {
     sendErrorResponse(res, 500, 'Failed to delete documents', error.message);
+  }
+};
+
+exports.updateUserEmail = async (req, res) => {
+  const { userId, newEmail } = req.body;
+
+  try {
+    // Update the user's email in Firebase Authentication
+    const userRecord = await firebaseAdmin.auth().updateUser(userId, { email: newEmail });
+
+    // Also update the email in the user's Firestore document
+    await firestore.collection('users').doc(userId).update({ email: newEmail });
+
+    sendSuccessResponse(res, 200, 'Email updated successfully', { email: userRecord.email });
+  } catch (error) {
+    sendErrorResponse(res, 400, 'Failed to update email', error.message);
+  }
+};
+
+// Update user password
+exports.updateUserPassword = async (req, res) => {
+  const { userId, newPassword } = req.body;
+
+  try {
+    // Update the user's password in Firebase Authentication
+    await firebaseAdmin.auth().updateUser(userId, { password: newPassword });
+
+    sendSuccessResponse(res, 200, 'Password updated successfully');
+  } catch (error) {
+    sendErrorResponse(res, 400, 'Failed to update password', error.message);
+  }
+};
+
+exports.getDaysSinceJoined = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const createdAt = userData.createdAt.toDate();  // Firestore stores dates as Timestamp objects
+    const today = new Date();
+
+    // Calculate the difference in days between today and the creation date
+    const diffInTime = today.getTime() - createdAt.getTime();
+    const diffInDays = Math.floor(diffInTime / (1000 * 3600 * 24));
+
+    sendSuccessResponse(res, 200, 'Days since user joined retrieved', { days: diffInDays });
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve days since joined', error.message);
+  }
+};
+
+exports.getDocumentCount = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const documentCount = userData.documents.length;
+
+    sendSuccessResponse(res, 200, 'Document count retrieved', { documentCount });
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve document count', error.message);
+  }
+};
+
+exports.getUserEmail = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    sendSuccessResponse(res, 200, 'User email retrieved', { email: userData.email });
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve user email', error.message);
   }
 };

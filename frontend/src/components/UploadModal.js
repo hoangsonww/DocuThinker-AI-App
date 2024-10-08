@@ -140,6 +140,13 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     fullWidth
+                    sx={{ marginBottom: 2, font: 'inherit' }}
+                    inputProps={{
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
+                    }}
+                    InputLabelProps={{
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000' },
+                    }}
                 />
             )}
 

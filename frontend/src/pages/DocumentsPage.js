@@ -11,13 +11,13 @@ import {
   IconButton
 } from '@mui/material';
 import { Delete, Visibility } from '@mui/icons-material';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirection
+import { useNavigate } from 'react-router-dom';
 
-const DocumentsPage = () => {
+const DocumentsPage = (theme) => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userId = localStorage.getItem('userId'); // Get userId from localStorage
-  const navigate = useNavigate(); // Initialize the navigation hook
+  const userId = localStorage.getItem('userId');
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!userId) {
@@ -27,12 +27,11 @@ const DocumentsPage = () => {
 
     const fetchDocuments = async () => {
       try {
-        const response = await axios.get(`http://localhost:3000/documents/${userId}`);
+        const response = await axios.get(`https://docuthinker-ai-app.onrender.com/documents/${userId}`);
 
-        // Extracting the documents from the response
         const documentsData = response.data;
         const documentsList = Object.keys(documentsData)
-            .filter(key => key !== 'message') // Exclude the message key
+            .filter(key => key !== 'message')
             .map(key => documentsData[key]);
 
         setDocuments(documentsList);
@@ -49,11 +48,10 @@ const DocumentsPage = () => {
   const handleViewDocument = async (docId) => {
     try {
       const response = await axios.get(
-          `http://localhost:3000/document-details/${userId}/${docId}`
+          `https://docuthinker-ai-app.onrender.com/document-details/${userId}/${docId}`
       );
-      const { summary, originalText } = response.data; // Directly access response.data
+      const { summary, originalText } = response.data;
 
-      // Redirect to Home component, passing summary and originalText as state
       navigate('/home', { state: { summary, originalText } });
     } catch (error) {
       console.error('Error viewing document:', error);
@@ -62,7 +60,7 @@ const DocumentsPage = () => {
 
   const handleDeleteDocument = async (docId) => {
     try {
-      await axios.delete(`http://localhost:3000/documents/${userId}/${docId}`);
+      await axios.delete(`https://docuthinker-ai-app.onrender.com/documents/${userId}/${docId}`);
       setDocuments(documents.filter((doc) => doc.id !== docId));
     } catch (error) {
       console.error('Error deleting document:', error);
@@ -71,7 +69,7 @@ const DocumentsPage = () => {
 
   const handleDeleteAllDocuments = async () => {
     try {
-      await axios.delete(`http://localhost:3000/documents/${userId}`);
+      await axios.delete(`https://docuthinker-ai-app.onrender.com/documents/${userId}`);
       setDocuments([]);
     } catch (error) {
       console.error('Error deleting all documents:', error);
@@ -80,8 +78,10 @@ const DocumentsPage = () => {
 
   if (!userId) {
     return (
-        <Box p={4}>
-          <Typography variant="h5" color="error">You are not logged in. Please log in to view your documents.</Typography>
+        <Box p={4} sx={{ textAlign: 'center' }}>
+          <Typography variant="h5" color="error" sx={{ font: 'inherit', fontSize: '24px', fontWeight: 'bold', color: theme === 'dark' ? 'red' : 'white' }}>
+            You are not logged in. Please log in to view your documents.
+          </Typography>
         </Box>
     );
   }
@@ -96,27 +96,56 @@ const DocumentsPage = () => {
 
   return (
       <Box p={4}>
-        <Typography variant="h4" gutterBottom>Your Documents</Typography>
+        <Typography variant="h4" gutterBottom sx={{ font: 'inherit', fontWeight: 'bold', fontSize: '34px', color: theme === 'dark' ? 'white' : 'black' }}>
+          Your Documents
+        </Typography>
 
         {documents.length === 0 ? (
-            <Typography>No documents found.</Typography>
+            <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>No documents found.</Typography>
         ) : (
             <List>
               {documents.map((doc) => (
                   <ListItem
                       key={doc.id}
-                      secondaryAction={
-                        <>
-                          <IconButton onClick={() => handleViewDocument(doc.id)}>
-                            <Visibility />
-                          </IconButton>
-                          <IconButton onClick={() => handleDeleteDocument(doc.id)}>
-                            <Delete />
-                          </IconButton>
-                        </>
-                      }
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start',
+                        borderRadius: '8px',
+                        gap: 1,
+                        '@media (min-width:600px)': {
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'space-between'
+                        },
+                        '&:hover': {
+                          bgcolor: '#f5f5f5',
+                          transition: 'background-color 0.3s ease'
+                        }
+                      }}
                   >
-                    <ListItemText primary={doc.title[0]} />
+                    <ListItemText
+                        primary={
+                          <Typography sx={{ font: 'inherit', wordBreak: 'break-word' }}>
+                            {doc.title[0]}
+                          </Typography>
+                        }
+                    />
+                    <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'row',
+                          gap: 1,
+                          mt: { xs: 1, sm: 0 },
+                        }}
+                    >
+                      <IconButton onClick={() => handleViewDocument(doc.id)} title={`View ${doc.title[0]}`}>
+                        <Visibility />
+                      </IconButton>
+                      <IconButton onClick={() => handleDeleteDocument(doc.id)} sx={{ color: 'red' }} title={`Delete ${doc.title[0]}`}>
+                        <Delete />
+                      </IconButton>
+                    </Box>
                   </ListItem>
               ))}
             </List>
@@ -127,7 +156,7 @@ const DocumentsPage = () => {
                 variant="contained"
                 color="secondary"
                 onClick={handleDeleteAllDocuments}
-                sx={{ mt: 2 }}
+                sx={{ mt: 2, font: 'inherit' }}
             >
               Delete All Documents
             </Button>

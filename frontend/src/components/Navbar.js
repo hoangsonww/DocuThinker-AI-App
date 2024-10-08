@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, Box, List, ListItem, ListItemText } from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { AppBar, Toolbar, Typography, Button, IconButton, Drawer, Box, List, ListItem, ListItemText, ListItemIcon } from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
 import { NavLink, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import HomeIcon from '@mui/icons-material/Home';
+import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
+import DescriptionIcon from '@mui/icons-material/Description';
+import PersonIcon from '@mui/icons-material/Person';
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import LoginIcon from '@mui/icons-material/Login';
+import AppRegistrationIcon from '@mui/icons-material/AppRegistration';
 
 const activeStyle = {
   borderBottom: '3px solid #f57c00',
@@ -11,15 +19,23 @@ const activeStyle = {
   paddingBottom: '4px',
 };
 
-const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
+const Navbar = ({ theme, onThemeToggle, onLogout }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  const hoverStyle = {
-    '&:hover': {
-      color: theme === 'dark' ? 'white' : 'black',
-    },
-  };
+  useEffect(() => {
+    const checkLoggedInStatus = () => {
+      const userId = localStorage.getItem('userId');
+      setIsLoggedIn(!!userId);
+    };
+
+    checkLoggedInStatus();
+
+    const interval = setInterval(checkLoggedInStatus, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const toggleDrawer = (open) => (event) => {
     if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
@@ -41,28 +57,63 @@ const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
             component={NavLink}
             to="/home"
             style={({ isActive }) => (isActive ? activeStyle : undefined)}
-            sx={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 2, font: 'inherit', textTransform: 'none' }}
+            sx={{
+              color: theme === 'dark' ? 'white' : 'black',
+              marginRight: 2,
+              font: 'inherit',
+              textTransform: 'none',
+              display: 'flex',
+              alignItems: 'center',
+            }}
         >
-          Home
+          <HomeIcon sx={{ marginRight: 1 }} /> Home
         </Button>
         <Button
             component={NavLink}
             to="/how-to-use"
             style={({ isActive }) => (isActive ? activeStyle : undefined)}
-            sx={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 2, font: 'inherit', textTransform: 'none' }}
+            sx={{
+              color: theme === 'dark' ? 'white' : 'black',
+              marginRight: 2,
+              font: 'inherit',
+              textTransform: 'none',
+              display: 'flex',
+              alignItems: 'center',
+            }}
         >
-          How to Use
+          <HelpOutlineIcon sx={{ marginRight: 1 }} /> How to Use
         </Button>
         <Button
             component={NavLink}
             to="/documents"
             style={({ isActive }) => (isActive ? activeStyle : undefined)}
-            sx={{ color: theme === 'dark' ? 'white' : 'black', marginRight: 2, font: 'inherit', textTransform: 'none' }}
+            sx={{
+              color: theme === 'dark' ? 'white' : 'black',
+              marginRight: 2,
+              font: 'inherit',
+              textTransform: 'none',
+              display: 'flex',
+              alignItems: 'center',
+            }}
         >
-          Documents
+          <DescriptionIcon sx={{ marginRight: 1 }} /> Documents
+        </Button>
+        <Button
+            component={NavLink}
+            to="/profile"
+            style={({ isActive }) => (isActive ? activeStyle : undefined)}
+            sx={{
+              color: theme === 'dark' ? 'white' : 'black',
+              marginRight: 2,
+              font: 'inherit',
+              textTransform: 'none',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+        >
+          <PersonIcon sx={{ marginRight: 1 }} /> Profile
         </Button>
 
-        {/* Conditionally render Login or Logout based on isLoggedIn */}
         {isLoggedIn ? (
             <Button
                 onClick={handleLogout}
@@ -71,10 +122,11 @@ const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
                   marginRight: 2,
                   font: 'inherit',
                   textTransform: 'none',
-                  ...hoverStyle,
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
             >
-              Logout
+              <ExitToAppIcon sx={{ marginRight: 1 }} /> Logout
             </Button>
         ) : (
             <Button
@@ -86,10 +138,11 @@ const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
                   marginRight: 2,
                   font: 'inherit',
                   textTransform: 'none',
-                  ...hoverStyle,
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
             >
-              Login
+              <LoginIcon sx={{ marginRight: 1 }} /> Login
             </Button>
         )}
 
@@ -97,9 +150,15 @@ const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
             component={NavLink}
             to="/register"
             style={({ isActive }) => (isActive ? activeStyle : undefined)}
-            sx={{ color: theme === 'dark' ? 'white' : 'black', font: 'inherit', textTransform: 'none' }}
+            sx={{
+              color: theme === 'dark' ? 'white' : 'black',
+              font: 'inherit',
+              textTransform: 'none',
+              display: 'flex',
+              alignItems: 'center',
+            }}
         >
-          Register
+          <AppRegistrationIcon sx={{ marginRight: 1 }} /> Register
         </Button>
       </>
   );
@@ -152,32 +211,36 @@ const Navbar = ({ theme, onThemeToggle, isLoggedIn, onLogout }) => {
 
         <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
           <Box
-              sx={{ width: 250, padding: 2, height: '100%', bgcolor: theme === 'dark' ? '#333' : 'white' }}
+              sx={{
+                width: 250,
+                padding: 2,
+                height: '100%',
+                bgcolor: theme === 'dark' ? '#333' : 'white',
+              }}
               role="presentation"
               onClick={toggleDrawer(false)}
               onKeyDown={toggleDrawer(false)}
           >
             <List sx={{ bgcolor: theme === 'dark' ? '#333' : 'white' }}>
-              <ListItem button component={NavLink} to="/home" sx={{ color: theme === 'dark' ? 'white' : 'black', '&:hover': hoverStyle, borderRadius: '8px' }}>
-                <ListItemText disableTypography={true} primary="Home" />
-              </ListItem>
-              <ListItem button component={NavLink} to="/how-to-use" sx={{ color: theme === 'dark' ? 'white' : 'black', '&:hover': hoverStyle, borderRadius: '8px' }}>
-                <ListItemText disableTypography={true} primary="How to Use" />
+              <ListItem
+                  button
+                  component={NavLink}
+                  to="/home"
+                  sx={{
+                    color: theme === 'dark' ? 'white' : 'black',
+                    '&:hover': { color: theme === 'dark' ? 'white' : 'black' },
+                    borderRadius: '8px',
+                  }}
+              >
+                <ListItemIcon
+                    sx={{ minWidth: '40px', color: theme === 'dark' ? 'white' : 'black' }}
+                >
+                  <HomeIcon />
+                </ListItemIcon>
+                <ListItemText disableTypography primary="Home" />
               </ListItem>
 
-              {isLoggedIn ? (
-                  <ListItem button onClick={handleLogout} sx={{ color: 'red', '&:hover': hoverStyle, borderRadius: '8px' }}>
-                    <ListItemText disableTypography={true} primary="Logout" />
-                  </ListItem>
-              ) : (
-                  <ListItem button component={NavLink} to="/login" sx={{ color: theme === 'dark' ? 'white' : 'black', '&:hover': hoverStyle, borderRadius: '8px' }}>
-                    <ListItemText disableTypography={true} primary="Login" />
-                  </ListItem>
-              )}
-
-              <ListItem button component={NavLink} to="/register" sx={{ color: theme === 'dark' ? 'white' : 'black', '&:hover': hoverStyle, borderRadius: '8px' }}>
-                <ListItemText disableTypography={true} primary="Register" />
-              </ListItem>
+              {/* Add other links... */}
             </List>
           </Box>
         </Drawer>

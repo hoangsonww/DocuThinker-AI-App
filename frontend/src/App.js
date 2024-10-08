@@ -11,6 +11,7 @@ import Register from './pages/Register';
 import LandingPage from './pages/LandingPage';
 import ForgotPassword from './pages/ForgotPassword';
 import DocumentsPage from "./pages/DocumentsPage";
+import Profile from "./pages/Profile";
 import './App.css';
 import './styles.css';
 import '@fontsource/poppins';
@@ -65,6 +66,7 @@ function App() {
               <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
               <Route path="/documents" element={<DocumentsPage theme={theme} />} />
               <Route path="/forgot-password" element={<ForgotPassword theme={theme} />} />
+              <Route path="/profile" element={<Profile theme={theme} />} />
               <Route
                   path="/login"
                   element={<Login onLogin={() => setIsLoggedIn(true)} theme={theme} />}

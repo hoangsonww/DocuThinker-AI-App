@@ -1,11 +1,27 @@
 import React from 'react';
-import { Box, Typography, IconButton, Link } from '@mui/material';
+import { Box, Typography, IconButton } from '@mui/material';
+import { NavLink, useLocation } from 'react-router-dom';
 import GitHubIcon from '@mui/icons-material/GitHub';
 import LinkedInIcon from '@mui/icons-material/LinkedIn';
 import EmailIcon from '@mui/icons-material/Email';
 import LanguageIcon from '@mui/icons-material/Language';
 
+const activeLinkStyle = {
+  borderBottom: '3px solid white',
+  textDecoration: 'none',
+  color: 'white',
+};
+
+const defaultLinkStyle = {
+  textDecoration: 'none',
+  color: 'white',
+};
+
 const Footer = () => {
+  const location = useLocation();
+
+  const isLandingActive = location.pathname === '/' || location.pathname === '/landing';
+
   return (
       <Box
           sx={{
@@ -17,19 +33,49 @@ const Footer = () => {
           }}
       >
         {/* Navigation Links */}
-        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mb: 2 }}>
-          <Link href="/home" sx={{ color: 'white', textDecoration: 'none', fontSize: '1rem' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'center', gap: 3, mb: 2, flexWrap: 'wrap' }}>
+          <NavLink
+              to="/home"
+              style={({ isActive }) => (isActive ? activeLinkStyle : defaultLinkStyle)}
+          >
             Home
-          </Link>
-          <Link href="/login" sx={{ color: 'white', textDecoration: 'none', fontSize: '1rem' }}>
+          </NavLink>
+          <NavLink
+              to="/how-to-use"
+              style={({ isActive }) => (isActive ? activeLinkStyle : defaultLinkStyle)}
+          >
+            How to Use
+          </NavLink>
+          <NavLink
+              to="/documents"
+              style={({ isActive }) => (isActive ? activeLinkStyle : defaultLinkStyle)}
+          >
+            Documents
+          </NavLink>
+          <NavLink
+              to="/profile"
+              style={({ isActive }) => (isActive ? activeLinkStyle : defaultLinkStyle)}
+          >
+            Profile
+          </NavLink>
+          <NavLink
+              to="/login"
+              style={({ isActive }) => (isActive ? activeLinkStyle : defaultLinkStyle)}
+          >
             Login
-          </Link>
-          <Link href="/register" sx={{ color: 'white', textDecoration: 'none', fontSize: '1rem' }}>
+          </NavLink>
+          <NavLink
+              to="/register"
+              style={({ isActive }) => (isActive ? activeLinkStyle : defaultLinkStyle)}
+          >
             Register
-          </Link>
-          <Link href="/landing" sx={{ color: 'white', textDecoration: 'none', fontSize: '1rem' }}>
-            Landing Page
-          </Link>
+          </NavLink>
+          <NavLink
+              to="/"
+              style={isLandingActive ? activeLinkStyle : defaultLinkStyle} // Handle both / and /landing
+          >
+            Landing
+          </NavLink>
         </Box>
 
         {/* Social Media Icons */}

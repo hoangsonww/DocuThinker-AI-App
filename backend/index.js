@@ -3,7 +3,10 @@ const cors = require('cors');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const path = require('path');
-const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI, forgotPassword, verifyEmail, getAllDocuments, getDocumentById, getDocumentDetails, deleteAllDocuments, deleteDocument } = require('./controllers');
+const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI, forgotPassword,
+  verifyEmail, getAllDocuments, getDocumentById, getDocumentDetails, deleteAllDocuments, deleteDocument,
+  getDaysSinceJoined, getDocumentCount, updateUserEmail, updateUserPassword, getUserEmail
+} = require('./controllers');
 
 const app = express();
 app.use(express.json());
@@ -95,6 +98,11 @@ app.get('/documents/:userId/:docId', getDocumentById); // Retrieve specific docu
 app.get('/document-details/:userId/:docId', getDocumentDetails); // Retrieve document details by ID
 app.delete('/documents/:userId/:docId', deleteDocument);  // Delete a specific document
 app.delete('/documents/:userId', deleteAllDocuments);     // Delete all documents for a user
+app.post('/update-email', updateUserEmail);       // Update email
+app.post('/update-password', updateUserPassword); // Update password
+app.get('/days-since-joined/:userId', getDaysSinceJoined);  // Retrieve days since joined
+app.get('/document-count/:userId', getDocumentCount);       // Retrieve document count
+app.get('/users/:userId', getUserEmail);
 
 // Error handling for unsupported routes
 app.use((req, res) => {
