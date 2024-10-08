@@ -339,30 +339,28 @@ Note that this is optional since we are deploying the backend on **Render**. How
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
 
-| HTTP Method | Endpoint                      | Description                                   | Auth Required |
-|-------------|-------------------------------|-----------------------------------------------|---------------|
-| POST        | `/register`                   | Register a new user                           | No            |
-| POST        | `/login`                      | Login a user and generate a custom token      | No            |
-| POST        | `/upload`                     | Upload a document for summarization           | Yes           |
-| POST        | `/generate-key-ideas`         | Generate key ideas from document text         | Yes           |
-| POST        | `/generate-discussion-points` | Generate discussion points from document text | Yes           |
-| POST        | `/chat`                       | Chat with AI using document context           | Yes           |
-| POST        | `/forgot-password`            | Reset a user's password                       | No            |
-| POST        | `/verify-email`               | Verify if a user's email exists               | No            |
-| GET         | `/user`                       | Get user details                              | Yes           |
-| GET         | `/logout`                     | Logout a user                                 | Yes           |
-| GET         | `/api-docs`                   | Swagger API documentation                     | No            |
-| GET         | `/api-docs/redoc`             | Redoc API documentation                       | No            |
-| GET         | `/`                           | Test route for backend server                 | No            |
-| PUT         | `/update-password`            | Update a user's password                      | Yes           |
-| PUT         | `/update-email`               | Update a user's email                         | Yes           |
-| PUT         | `/update-name`                | Update a user's name                          | Yes           |
-| PUT         | `/update-avatar`              | Update a user's avatar                        | Yes           |
-| DELETE      | `/delete-account`             | Delete a user's account                       | Yes           |
-| DELETE      | `/delete-document`            | Delete a user's document                      | Yes           |
-| DELETE      | `/delete-all-documents`       | Delete all user documents                     | Yes           |
-| DELETE      | `/delete-all-users`           | Delete all users                              | Yes           |
-| DELETE      | `/delete-all-data`            | Delete all user data                          | Yes           |
+The backend of **DocuThinker** provides several API endpoints for user authentication, document management, and AI-powered insights. These endpoints are used by the frontend to interact with the backend server:
+
+| **Method** | **Endpoint**                         | **Description**                                                                                     |
+|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
+| POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
+| POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
+| POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
+| POST       | `/generate-key-ideas`                | Generate key ideas from the document text.                                                          |
+| POST       | `/generate-discussion-points`        | Generate discussion points from the document text.                                                  |
+| POST       | `/chat`                              | Chat with AI using the original document text as context.                                           |
+| POST       | `/forgot-password`                   | Reset a user's password in Firebase Authentication.                                                 |
+| POST       | `/verify-email`                      | Verify if a user's email exists in Firestore.                                                       |
+| GET        | `/documents/{userId}`                | Retrieve all documents associated with the given `userId`.                                          |
+| GET        | `/documents/{userId}/{docId}`        | Retrieve a specific document by `userId` and `docId`.                                               |
+| GET        | `/document-details/{userId}/{docId}` | Retrieve document details (title, original text, summary) by `userId` and `docId`.                  |
+| DELETE     | `/delete-document/{userId}/{docId}`  | Delete a specific document by `userId` and `docId`.                                                 |
+| DELETE     | `/delete-all-documents/{userId}`     | Delete all documents associated with the given `userId`.                                            |
+| POST       | `/update-email`                      | Update a user's email in both Firebase Authentication and Firestore.                                |
+| POST       | `/update-password`                   | Update a user's password in Firebase Authentication.                                                |
+| GET        | `/days-since-joined/{userId}`        | Get the number of days since the user associated with `userId` joined the service.                  |
+| GET        | `/document-count/{userId}`           | Retrieve the number of documents associated with the given `userId`.                                |
+| GET        | `/user-email/{userId}`               | Retrieve the email of a user associated with `userId`.                                              |
 
 ### API Documentation
 

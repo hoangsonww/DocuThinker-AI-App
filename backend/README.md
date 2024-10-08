@@ -122,18 +122,28 @@ Here you’ll find all the available routes, their request formats, and response
 
 ## API Endpoints
 
-Here is a list of all available API endpoints:
+The backend of **DocuThinker** provides the following API endpoints:
 
-| HTTP Method | Endpoint                      | Description                                   | Authentication Required |
-|-------------|-------------------------------|-----------------------------------------------|-------------------------|
-| POST        | `/register`                   | Register a new user                           | No                      |
-| POST        | `/login`                      | Login a user and generate a custom token      | No                      |
-| POST        | `/upload`                     | Upload a document for summarization           | Yes                     |
-| POST        | `/generate-key-ideas`         | Generate key ideas from document text         | Yes                     |
-| POST        | `/generate-discussion-points` | Generate discussion points from document text | Yes                     |
-| POST        | `/chat`                       | Chat with AI using original document context  | Yes                     |
-| POST        | `/forgot-password`            | Reset a user's password                       | No                      |
-| POST        | `/verify-email`               | Verify if a user's email exists               | No                      |
+| **Method** | **Endpoint**                         | **Description**                                                                                     |
+|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
+| POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
+| POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
+| POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
+| POST       | `/generate-key-ideas`                | Generate key ideas from the document text.                                                          |
+| POST       | `/generate-discussion-points`        | Generate discussion points from the document text.                                                  |
+| POST       | `/chat`                              | Chat with AI using the original document text as context.                                           |
+| POST       | `/forgot-password`                   | Reset a user's password in Firebase Authentication.                                                 |
+| POST       | `/verify-email`                      | Verify if a user's email exists in Firestore.                                                       |
+| GET        | `/documents/{userId}`                | Retrieve all documents associated with the given `userId`.                                          |
+| GET        | `/documents/{userId}/{docId}`        | Retrieve a specific document by `userId` and `docId`.                                               |
+| GET        | `/document-details/{userId}/{docId}` | Retrieve document details (title, original text, summary) by `userId` and `docId`.                  |
+| DELETE     | `/delete-document/{userId}/{docId}`  | Delete a specific document by `userId` and `docId`.                                                 |
+| DELETE     | `/delete-all-documents/{userId}`     | Delete all documents associated with the given `userId`.                                            |
+| POST       | `/update-email`                      | Update a user's email in both Firebase Authentication and Firestore.                                |
+| POST       | `/update-password`                   | Update a user's password in Firebase Authentication.                                                |
+| GET        | `/days-since-joined/{userId}`        | Get the number of days since the user associated with `userId` joined the service.                  |
+| GET        | `/document-count/{userId}`           | Retrieve the number of documents associated with the given `userId`.                                |
+| GET        | `/user-email/{userId}`               | Retrieve the email of a user associated with `userId`.                                              |
 
 ### Authentication
 

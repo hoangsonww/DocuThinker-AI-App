@@ -9,6 +9,9 @@ const firebaseAdmin = require('firebase-admin');
  * /register:
  *   post:
  *     summary: Register a new user
+ *     description: Create a new user in Firebase Authentication and Firestore.
+ *     tags:
+ *     - Users
  *     requestBody:
  *       required: true
  *       content:
@@ -40,7 +43,7 @@ exports.registerUser = async (req, res) => {
     await firestore.collection('users').doc(userRecord.uid).set({
       email: email,
       documents: [],
-      createdAt: creationDate  // Store the creation date
+      createdAt: creationDate
     });
 
     console.log('Firestore user document created successfully');
@@ -56,6 +59,9 @@ exports.registerUser = async (req, res) => {
  * /login:
  *   post:
  *     summary: Login a user
+ *     description: Authenticate a user and generate a custom token for the user.
+ *     tags:
+ *     - Users
  *     requestBody:
  *       required: true
  *       content:
@@ -95,6 +101,9 @@ exports.loginUser = async (req, res) => {
  * /upload:
  *   post:
  *     summary: Upload a document for summarization
+ *     description: Upload a document file to be summarized by the AI.
+ *     tags:
+ *     - Documents
  *     requestBody:
  *       required: true
  *       content:
@@ -166,6 +175,9 @@ exports.uploadDocument = async (req, res) => {
  * /generate-key-ideas:
  *   post:
  *     summary: Generate key ideas from document text
+ *     description: Extract key ideas from the given document text.
+ *     tags:
+ *     - AI/Machine Learning
  *     requestBody:
  *       required: true
  *       content:
@@ -196,6 +208,9 @@ exports.generateKeyIdeas = async (req, res) => {
  * /generate-discussion-points:
  *   post:
  *     summary: Generate discussion points from document text
+ *     description: Extract discussion points from the given document text.
+ *     tags:
+ *     - AI/Machine Learning
  *     requestBody:
  *       required: true
  *       content:
@@ -226,6 +241,9 @@ exports.generateDiscussionPoints = async (req, res) => {
  * /chat:
  *   post:
  *     summary: Chat with AI using original document context
+ *     description: Engage in conversation with the AI using the original document text as context.
+ *     tags:
+ *     - AI/Machine Learning
  *     requestBody:
  *       required: true
  *       content:
@@ -273,6 +291,9 @@ exports.chatWithAI = async (req, res) => {
  * /forgot-password:
  *   post:
  *     summary: Reset a user's password
+ *     description: Updates the password of a user in Firebase Authentication.
+ *     tags:
+ *     - Users
  *     requestBody:
  *       required: true
  *       content:
@@ -314,6 +335,9 @@ exports.forgotPassword = async (req, res) => {
  * /verify-email:
  *   post:
  *     summary: Verify if a user's email exists
+ *     description: Checks if the given email exists in the Firestore database.
+ *     tags:
+ *     - Users
  *     requestBody:
  *       required: true
  *       content:
@@ -345,6 +369,29 @@ exports.verifyEmail = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /documents/{userId}:
+ *   get:
+ *     summary: Retrieve all documents of a user
+ *     description: Fetches a list of all documents associated with the given userId.
+ *     tags:
+ *     - Documents
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *     responses:
+ *       200:
+ *         description: Documents retrieved successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to retrieve documents
+ */
 exports.getAllDocuments = async (req, res) => {
   const { userId } = req.params;
 
@@ -362,7 +409,35 @@ exports.getAllDocuments = async (req, res) => {
   }
 };
 
-// Retrieve a specific document by ID
+/**
+ * @swagger
+ * /documents/{userId}/{docId}:
+ *   get:
+ *     summary: Retrieve a specific document by ID
+ *     description: Fetches a document associated with the given userId and docId.
+ *     tags:
+ *     - Documents
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *       - in: path
+ *         name: docId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The document ID
+ *     responses:
+ *       200:
+ *         description: Document retrieved successfully
+ *       404:
+ *         description: Document or user not found
+ *       500:
+ *         description: Failed to retrieve document
+ */
 exports.getDocumentById = async (req, res) => {
   const { userId, docId } = req.params;
 
@@ -385,7 +460,35 @@ exports.getDocumentById = async (req, res) => {
   }
 };
 
-// Retrieve document details (title, original text, and summary)
+/**
+ * @swagger
+ * /document-details/{userId}/{docId}:
+ *   get:
+ *     summary: Retrieve document details
+ *     description: Fetches the details (title, original text, summary) of a document by userId and docId.
+ *     tags:
+ *     - Documents
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *       - in: path
+ *         name: docId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The document ID
+ *     responses:
+ *       200:
+ *         description: Document details retrieved successfully
+ *       404:
+ *         description: Document or user not found
+ *       500:
+ *         description: Failed to retrieve document details
+ */
 exports.getDocumentDetails = async (req, res) => {
   const { userId, docId } = req.params;
 
@@ -409,6 +512,35 @@ exports.getDocumentDetails = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /delete-document/{userId}/{docId}:
+ *   delete:
+ *     summary: Delete a specific document
+ *     description: Deletes a document by userId and docId.
+ *     tags:
+ *     - Documents
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *       - in: path
+ *         name: docId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The document ID
+ *     responses:
+ *       200:
+ *         description: Document deleted successfully
+ *       404:
+ *         description: Document or user not found
+ *       500:
+ *         description: Failed to delete document
+ */
 exports.deleteDocument = async (req, res) => {
   const { userId, docId } = req.params;
 
@@ -431,6 +563,27 @@ exports.deleteDocument = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /delete-all-documents/{userId}:
+ *   delete:
+ *     summary: Delete all documents
+ *     description: Deletes all documents associated with the given userId.
+ *     tags:
+ *     - Documents
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *     responses:
+ *       200:
+ *         description: All documents deleted successfully
+ *       500:
+ *         description: Failed to delete documents
+ */
 exports.deleteAllDocuments = async (req, res) => {
   const { userId } = req.params;
 
@@ -445,6 +598,36 @@ exports.deleteAllDocuments = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /update-email:
+ *   post:
+ *     summary: Update user email
+ *     description: Updates the email of a user in both Firebase Authentication and Firestore.
+ *     tags:
+ *     - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - newEmail
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The userId of the user
+ *               newEmail:
+ *                 type: string
+ *                 description: The new email address
+ *     responses:
+ *       200:
+ *         description: Email updated successfully
+ *       400:
+ *         description: Failed to update email
+ */
 exports.updateUserEmail = async (req, res) => {
   const { userId, newEmail } = req.body;
 
@@ -461,7 +644,36 @@ exports.updateUserEmail = async (req, res) => {
   }
 };
 
-// Update user password
+/**
+ * @swagger
+ * /update-password:
+ *   post:
+ *     summary: Update user password
+ *     description: Updates the password of a user in Firebase Authentication.
+ *     tags:
+ *     - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - newPassword
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The userId of the user
+ *               newPassword:
+ *                 type: string
+ *                 description: The new password
+ *     responses:
+ *       200:
+ *         description: Password updated successfully
+ *       400:
+ *         description: Failed to update password
+ */
 exports.updateUserPassword = async (req, res) => {
   const { userId, newPassword } = req.body;
 
@@ -475,6 +687,29 @@ exports.updateUserPassword = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /days-since-joined/{userId}:
+ *   get:
+ *     summary: Get days since user joined
+ *     description: Retrieves the number of days since a user joined the service.
+ *     tags:
+ *     - Users
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *     responses:
+ *       200:
+ *         description: Days since user joined retrieved successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to retrieve days since joined
+ */
 exports.getDaysSinceJoined = async (req, res) => {
   const { userId } = req.params;
 
@@ -485,7 +720,7 @@ exports.getDaysSinceJoined = async (req, res) => {
     }
 
     const userData = userDoc.data();
-    const createdAt = userData.createdAt.toDate();  // Firestore stores dates as Timestamp objects
+    const createdAt = userData.createdAt.toDate();
     const today = new Date();
 
     // Calculate the difference in days between today and the creation date
@@ -498,6 +733,30 @@ exports.getDaysSinceJoined = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ *
+ * /document-count/{userId}:
+ *   get:
+ *     summary: Get document count
+ *     description: Retrieves the number of documents associated with the given userId.
+ *     tags:
+ *     - User
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *     responses:
+ *       200:
+ *         description: Document count retrieved successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to retrieve document count
+ */
 exports.getDocumentCount = async (req, res) => {
   const { userId } = req.params;
 
@@ -516,6 +775,29 @@ exports.getDocumentCount = async (req, res) => {
   }
 };
 
+/**
+ * @swagger
+ * /user-email/{userId}:
+ *   get:
+ *     summary: Get user email
+ *     description: Retrieves the email of a user by userId.
+ *     tags:
+ *     - User
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *     responses:
+ *       200:
+ *         description: User email retrieved successfully
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to retrieve user email
+ */
 exports.getUserEmail = async (req, res) => {
   const { userId } = req.params;
 
