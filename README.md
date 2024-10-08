@@ -289,10 +289,9 @@ DocuThinker-AI-App/
 
 Ensure you have the following tools installed:
 
-- **Node.js** (v14 or higher)
+- **Node.js** (between v14 and v20)
 - **npm** or **yarn**
 - **Firebase Admin SDK** credentials
-- **Google Generative AI** credentials
 - **.env** file with necessary API keys (You can contact me to get the `.env` file - but you should obtain your own API keys for production).
 
 ### **Frontend Installation**
@@ -336,6 +335,8 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    npm run dev
    ```
+   
+**Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
 
