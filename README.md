@@ -97,6 +97,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Node.js**: JavaScript runtime for building scalable network applications.
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
+  - **RabbitMQ**: Message broker for handling asynchronous tasks.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
