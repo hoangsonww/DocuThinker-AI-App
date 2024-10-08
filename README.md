@@ -100,6 +100,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
+  - **Redis**: In-memory data structure store for caching.
 - **API Documentation**:
   - **Swagger**: OpenAPI documentation for all API endpoints.
 - **Containerization**:
@@ -292,6 +293,8 @@ Ensure you have the following tools installed:
 - **Node.js** (between v14 and v20)
 - **npm** or **yarn**
 - **Firebase Admin SDK** credentials
+- **Redis** for caching
+- **MongoDB** for data storage
 - **.env** file with necessary API keys (You can contact me to get the `.env` file - but you should obtain your own API keys for production).
 
 ### **Frontend Installation**
