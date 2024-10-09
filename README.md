@@ -510,6 +510,10 @@ The backend APIs uses centralized error handling to capture and log errors. Resp
 }
 ```
 
+<h2 id="mobile-app">📱 Mobile App</h2>
+
+
+
 <h2 id="containerization">📦 Containerization</h2>
 
 The **DocuThinker** app can be containerized using **Docker** for easy deployment and scaling. Follow these steps to containerize the app:
