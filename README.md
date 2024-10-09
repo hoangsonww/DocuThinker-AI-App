@@ -406,6 +406,7 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    npm run dev
    ```
+   
 **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
 
 ### **Running the Mobile App**
