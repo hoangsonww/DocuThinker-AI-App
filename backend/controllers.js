@@ -741,7 +741,7 @@ exports.getDaysSinceJoined = async (req, res) => {
  *     summary: Get document count
  *     description: Retrieves the number of documents associated with the given userId.
  *     tags:
- *     - User
+ *     - Users
  *     parameters:
  *       - in: path
  *         name: userId
@@ -782,7 +782,7 @@ exports.getDocumentCount = async (req, res) => {
  *     summary: Get user email
  *     description: Retrieves the email of a user by userId.
  *     tags:
- *     - User
+ *     - Users
  *     parameters:
  *       - in: path
  *         name: userId
