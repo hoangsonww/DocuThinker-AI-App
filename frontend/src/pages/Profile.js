@@ -7,7 +7,7 @@ import {
   IconButton,
   CircularProgress
 } from '@mui/material';
-import { Edit as EditIcon } from '@mui/icons-material';
+import { GitHub, LinkedIn, Facebook, Instagram, Edit as EditIcon, Save as SaveIcon } from '@mui/icons-material';
 import axios from 'axios';
 
 const Profile = ({ theme }) => {
@@ -19,6 +19,14 @@ const Profile = ({ theme }) => {
   const [loading, setLoading] = useState(true);
   const [updatingEmail, setUpdatingEmail] = useState(false);
   const [joinedDate, setJoinedDate] = useState('');
+  const [socialMedia, setSocialMedia] = useState({
+    github: '',
+    linkedin: '',
+    facebook: '',
+    instagram: ''
+  });
+  const [editingField, setEditingField] = useState(null);
+  const [updatingSocialMedia, setUpdatingSocialMedia] = useState(false);
   const [error, setError] = useState('');
   const userId = localStorage.getItem('userId');
   const avatarUrl = '/OIP.jpg';
@@ -32,6 +40,7 @@ const Profile = ({ theme }) => {
           const daysResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/days-since-joined/${userId}`);
           const documentResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/document-count/${userId}`);
           const joinedDateResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/user-joined-date/${userId}`);
+          const socialMediaResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/social-media/${userId}`);
 
           if (!emailResponse.data || !daysResponse.data || !documentResponse.data || !joinedDateResponse.data) {
             setEmail('N/A');
@@ -43,6 +52,7 @@ const Profile = ({ theme }) => {
             setDaysSinceJoined(daysResponse.data.days);
             setDocumentCount(documentResponse.data.documentCount);
             setJoinedDate(new Date(joinedDateResponse.data.joinedDate).toLocaleDateString());
+            setSocialMedia(socialMediaResponse.data.socialMedia || {});
           }
 
           setLoading(false);
@@ -73,6 +83,53 @@ const Profile = ({ theme }) => {
       setError('Failed to update email. Please try again.');
     } finally {
       setUpdatingEmail(false);
+    }
+  };
+
+  const handleUpdateSocialMedia = async () => {
+    setUpdatingSocialMedia(true);
+    try {
+      await axios.post('https://docuthinker-ai-app.onrender.com/update-social-media', {
+        userId,
+        ...socialMedia
+      });
+      setError('');
+      setEditingField(null);
+    } catch (err) {
+      setError('Failed to update social media links.');
+    } finally {
+      setUpdatingSocialMedia(false);
+    }
+  };
+
+  const formatLink = (platform, username) => {
+    const baseUrls = {
+      github: 'https://github.com/',
+      linkedin: 'https://linkedin.com/in/',
+      facebook: 'https://facebook.com/',
+      instagram: 'https://instagram.com/',
+    };
+    return username ? baseUrls[platform] + username : '';
+  };
+
+  const getUsername = (url) => {
+    if (url) {
+      const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:github|linkedin|facebook|instagram)\.com\/([\w-]+)/);
+      return match ? match[1] : url;
+    }
+    return '';
+  };
+
+  const handleSocialMediaChange = (e) => {
+    setSocialMedia({
+      ...socialMedia,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleKeyPress = (event, platform) => {
+    if (event.key === 'Enter') {
+      handleUpdateSocialMedia(platform);
     }
   };
 
@@ -118,6 +175,7 @@ const Profile = ({ theme }) => {
             height: '100vh',
             backgroundColor: theme === 'dark' ? '#222' : '#f4f4f4',
             paddingTop: 8,
+            paddingBottom: 12,
           }}
       >
         <Box
@@ -160,7 +218,7 @@ const Profile = ({ theme }) => {
           </Typography>
 
           {/* Display Email */}
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
             <Typography sx={{ font: 'inherit' }}><strong>Email:</strong> {email}</Typography>
             <IconButton onClick={() => setIsEditingEmail(true)}>
               <EditIcon sx={{ color: theme === 'dark' ? '#fff' : '#000' }} title="Edit Email Address" />
@@ -176,7 +234,7 @@ const Profile = ({ theme }) => {
                     variant="outlined"
                     value={newEmail}
                     onChange={(e) => setNewEmail(e.target.value)}
-                    sx={{ mb: 2 }}
+                    sx={{ mb: 2, textAlign: 'center' }}
                     inputProps={{
                       style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                     }}
@@ -199,21 +257,48 @@ const Profile = ({ theme }) => {
           )}
 
           {/* Display Days since joined */}
-          <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Days Since Joined:</strong> {daysSinceJoined}</Typography>
+          <Typography sx={{ mb: 2, font: 'inherit', textAlign: 'center' }}><strong>Days Since Joined:</strong> {daysSinceJoined}</Typography>
 
           {/* Display Joined Date */}
-          <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Date Joined:</strong> {joinedDate}</Typography>
+          <Typography sx={{ mb: 2, font: 'inherit', textAlign: 'center' }}><strong>Date Joined:</strong> {joinedDate}</Typography>
 
           {/* Display Document Count */}
-          <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>
+          <Typography sx={{ mb: 1, font: 'inherit', textAlign: 'center' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>
 
-          {/* Display Today's Date */}
-          <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Today's Date:</strong> {today}</Typography>
-
-          {/* Thank you message */}
-          <Typography sx={{ mt: 3, font: 'inherit', fontWeight: 'bold', fontSize: '18px' }}>
-            Thank you for exploring DocuThinker! 🚀
-          </Typography>
+          {/* Social Media Fields */}
+          {['github', 'linkedin', 'facebook', 'instagram'].map((platform) => (
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 1, flexWrap: 'nowrap' }} key={platform}>
+                {platform === 'github' && <GitHub sx={{ mr: 1 }} />}
+                {platform === 'linkedin' && <LinkedIn sx={{ mr: 1 }} />}
+                {platform === 'facebook' && <Facebook sx={{ mr: 1 }} />}
+                {platform === 'instagram' && <Instagram sx={{ mr: 1 }} />}
+                {editingField === platform ? (
+                    <TextField
+                        name={platform}
+                        value={socialMedia[platform]}
+                        onChange={handleSocialMediaChange}
+                        onKeyPress={(e) => handleKeyPress(e, platform)}
+                        sx={{ font: 'inherit', textAlign: 'center', flexGrow: 1 }}
+                    />
+                ) : (
+                    <>
+                      <Typography sx={{ fontWeight: 'bold', mr: 1, font: 'inherit', textAlign: 'center' }}>
+                        {platform.charAt(0).toUpperCase() + platform.slice(1)}:
+                      </Typography>
+                      <Button
+                          href={formatLink(platform, socialMedia[platform])}
+                          target="_blank"
+                          sx={{ fontWeight: 'bold', font: 'inherit', textTransform: 'none', wordWrap: 'break-word' }}
+                      >
+                        {getUsername(socialMedia[platform]) || 'Not Set'}
+                      </Button>
+                    </>
+                )}
+                <IconButton onClick={() => setEditingField(editingField === platform ? null : platform)}>
+                  {editingField === platform ? <SaveIcon sx={{ color: '#000' }} /> : <EditIcon sx={{ color: theme === 'dark' ? '#fff' : '#000' }} />}
+                </IconButton>
+              </Box>
+          ))}
 
           <div style={{ borderBottom: '1px solid #ccc', marginTop: '16px' }}></div>
 

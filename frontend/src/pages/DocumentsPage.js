@@ -186,7 +186,7 @@ const DocumentsPage = ({ theme }) => {
                           justifyContent: 'space-between',
                         },
                         '&:hover': {
-                          bgcolor: '#f5f5f5',
+                          bgcolor: theme === 'dark' ? '#333' : '#f5f5f5',
                           transition: 'background-color 0.3s ease',
                         },
                       }}
@@ -211,7 +211,7 @@ const DocumentsPage = ({ theme }) => {
                     ) : (
                         <ListItemText
                             primary={
-                              <Typography sx={{ font: 'inherit', wordBreak: 'break-word' }}>
+                              <Typography sx={{ font: 'inherit', wordBreak: 'break-word', color: theme === 'dark' ? 'white' : 'black' }}>
                                 {doc.title}
                               </Typography>
                             }
