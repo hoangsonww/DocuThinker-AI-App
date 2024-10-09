@@ -228,15 +228,15 @@ const DocumentsPage = ({ theme }) => {
                         }}
                     >
                       {editingDocId === doc.id ? (
-                          <IconButton onClick={() => handleSaveTitle(doc.id)} title={`Save ${doc.title}`}>
+                          <IconButton onClick={() => handleSaveTitle(doc.id)} title={`Save ${doc.title}`} sx={{ color: theme === 'dark' ? '#fff' : '#000' }}>
                             <Save />
                           </IconButton>
                       ) : (
                           <>
-                            <IconButton onClick={() => handleViewDocument(doc.id)} title={`View ${doc.title}`}>
+                            <IconButton onClick={() => handleViewDocument(doc.id)} title={`View ${doc.title}`} sx={{ color: theme === 'dark' ? '#fff' : '#000' }}>
                               <Visibility />
                             </IconButton>
-                            <IconButton onClick={() => handleEditDocument(doc.id, doc.title)} title={`Edit ${doc.title}`}>
+                            <IconButton onClick={() => handleEditDocument(doc.id, doc.title)} title={`Edit ${doc.title}`} sx={{ color: theme === 'dark' ? '#fff' : '#000' }}>
                               <Edit />
                             </IconButton>
                             <IconButton
@@ -261,14 +261,20 @@ const DocumentsPage = ({ theme }) => {
             count={Math.ceil(documents.length / documentsPerPage)}
             page={currentPage}
             onChange={handlePageChange}
-            color="primary"
+            color="secondary"
             sx={{
               display: 'flex',
               justifyContent: 'center',
               mt: 3,
               '& .MuiPaginationItem-root': {
                 fontFamily: 'Poppins, sans-serif',
+                color: theme === 'dark' ? '#fff' : '#000', // Set the text color here
               },
+              '& .Mui-selected': {
+                backgroundColor: theme === 'dark' ? '#fff' : '#000', // Control selected background color
+                color: theme === 'dark' ? '#000' : '#fff', // Control selected item text color
+              },
+              color: theme === 'dark' ? '#fff' : '#000',
             }}
         />
 
