@@ -3,7 +3,6 @@ import { Box, Typography, Button, Container, Grid, Card, CardContent } from '@mu
 import { Link } from 'react-router-dom';
 import { keyframes } from '@emotion/react';
 
-// Define the keyframe animation for sliding upwards
 const slideUp = keyframes`
     from {
         transform: translateY(30px);
