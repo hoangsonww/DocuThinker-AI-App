@@ -40,7 +40,8 @@ const HowToUse = ({ theme }) => {
               lineHeight: '1.6',
             }}
         >
-          Welcome to <strong>DocuThinker</strong>, your AI-powered document summarization tool. Follow the steps below to
+          Welcome to <strong>DocuThinker</strong>, your AI-powered document summarization tool. Follow the steps below
+          to
           upload documents and make the most out of our key features like summarization, generating key ideas, and
           discussion points from your uploaded documents.
         </Typography>
@@ -59,7 +60,7 @@ const HowToUse = ({ theme }) => {
           Steps to Get Started
         </Typography>
 
-        <List sx={{ listStyleType: 'none', paddingLeft: 0 }}>
+        <List sx={{listStyleType: 'none', paddingLeft: 0}}>
           <ListItem>
             <ListItemText
                 disableTypography
@@ -83,7 +84,8 @@ const HowToUse = ({ theme }) => {
                         color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
-                    Click the upload box on the home page to drag and drop your document or select one from your device. We
+                    Click the upload box on the home page to drag and drop your document or select one from your device.
+                    We
                     support both PDF and DOCX formats.
                   </Typography>
                 }
@@ -113,7 +115,8 @@ const HowToUse = ({ theme }) => {
                         color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
-                    Once uploaded, the app will automatically summarize your document. You'll see the full original document
+                    Once uploaded, the app will automatically summarize your document. You'll see the full original
+                    document
                     text on the left and a concise summary on the right.
                   </Typography>
                 }
@@ -203,8 +206,42 @@ const HowToUse = ({ theme }) => {
                         color: theme === 'dark' ? 'white' : '#333',
                       }}
                   >
-                    Use the 'Chat with AI' feature to ask specific questions or get more information based on the document.
+                    Use the 'Chat with AI' feature to ask specific questions or get more information based on the
+                    document.
                     Our AI models, trained by DocuThinker, will use the document context to provide tailored answers.
+                  </Typography>
+                }
+            />
+          </ListItem>
+
+          <ListItem>
+            <ListItemText
+                disableTypography
+                primary={
+                  <Typography
+                      sx={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        color: theme === 'dark' ? 'white' : 'black',
+                      }}
+                  >
+                    6. Create an Account to Save Uploaded Documents
+                  </Typography>
+                }
+                secondary={
+                  <Typography
+                      sx={{
+                        fontFamily: 'Poppins, sans-serif',
+                        fontSize: '1rem',
+                        color: theme === 'dark' ? 'white' : '#333',
+                      }}
+                  >
+                    You can also create an account to save your uploaded documents and access them later. This feature
+                    allows
+                    you to view, download, or delete your documents as needed and gives you a higher upload limit.
+                    Visit the <strong>Register</strong> page to create an account and then log in to access your saved
+                    documents.
                   </Typography>
                 }
             />
@@ -236,7 +273,7 @@ const HowToUse = ({ theme }) => {
             }}
         >
           DocuThinker currently supports:
-          <ul style={{ paddingLeft: '20px', marginTop: '8px', font: 'inherit' }}>
+          <ul style={{paddingLeft: '20px', marginTop: '8px', font: 'inherit'}}>
             <li>PDF files</li>
             <li>DOCX (Word) files</li>
           </ul>
@@ -254,8 +291,16 @@ const HowToUse = ({ theme }) => {
             }}
         >
           DocuThinker helps you save time by summarizing long documents, extracting key ideas, and preparing discussion
-          points for further exploration. Make sure to utilize the AI chat feature to dive deeper into any aspect of your
+          points for further exploration. Make sure to utilize the AI chat feature to dive deeper into any aspect of
+          your
           document!
+        </Typography>
+
+        <div style={{borderBottom: '1px solid #ccc', width: '100%', marginBottom: '1rem', marginTop: '1rem' }}></div>
+
+        {/* Thank you message */}
+        <Typography sx={{ mt: 3, font: 'inherit', fontWeight: 'bold', fontSize: '18px' }}>
+          Thank you for exploring DocuThinker today! 🚀
         </Typography>
       </Box>
   );

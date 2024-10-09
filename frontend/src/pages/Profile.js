@@ -32,6 +32,8 @@ const Profile = ({ theme }) => {
   const avatarUrl = '/OIP.jpg';
   const today = new Date().toLocaleDateString();
 
+  console.log(updatingSocialMedia);
+
   useEffect(() => {
     if (userId) {
       const fetchData = async () => {
@@ -263,7 +265,10 @@ const Profile = ({ theme }) => {
           <Typography sx={{ mb: 2, font: 'inherit', textAlign: 'center' }}><strong>Date Joined:</strong> {joinedDate}</Typography>
 
           {/* Display Document Count */}
-          <Typography sx={{ mb: 1, font: 'inherit', textAlign: 'center' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>
+          <Typography sx={{ mb: 2, font: 'inherit', textAlign: 'center' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>
+
+          {/* Display Today's Date */}
+          <Typography sx={{ mb: 1, font: 'inherit' }}><strong>Today's Date:</strong> {today}</Typography>
 
           {/* Social Media Fields */}
           {['github', 'linkedin', 'facebook', 'instagram'].map((platform) => (
@@ -299,6 +304,11 @@ const Profile = ({ theme }) => {
                 </IconButton>
               </Box>
           ))}
+
+          {/* Thank you message */}
+          <Typography sx={{ mt: 3, font: 'inherit', fontWeight: 'bold', fontSize: '18px' }}>
+            Thank you for exploring DocuThinker today! 🚀
+          </Typography>
 
           <div style={{ borderBottom: '1px solid #ccc', marginTop: '16px' }}></div>
 

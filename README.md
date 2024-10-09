@@ -279,6 +279,8 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 
 <h2 id="complete-file-structure">📂 Complete File Structure</h2>
 
+The **DocuThinker** app is organized into separate subdirectories for the frontend, backend, and mobile app. Each directory contains the necessary files and folders for the respective components of the app. Here is the complete file structure of the app:
+
 ```
 DocuThinker-AI-App/
 ├── backend/
