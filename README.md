@@ -483,6 +483,7 @@ For example, our API endpoints documentation looks like this:
 - The backend API is structured using **Express** and **Firebase Admin SDK** for user authentication and data storage.
 - We use the MVC (Model-View-Controller) pattern to separate concerns and improve code organization.
 - The API endpoints are designed to be RESTful and follow best practices for error handling and response formatting.
+- The **Microservices Architecture** is also used to handle asynchronous tasks and improve scalability.
 - The API routes are secured using Firebase authentication middleware to ensure that only authenticated users can access the endpoints.
 - The API controllers handle the business logic for each route, interacting with the data models and formatting the responses.
 
