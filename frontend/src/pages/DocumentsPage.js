@@ -301,5 +301,4 @@ const DocumentsPage = ({ theme }) => {
       </Box>
   );
 };
-
 export default DocumentsPage;
