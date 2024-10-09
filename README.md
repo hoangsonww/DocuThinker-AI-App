@@ -471,6 +471,7 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 | GET        | `/social-media/{userId}`             | Get the social media links of the user associated with `userId`.                                    |
 | POST       | `/update-social-media`               | Update the social media links of the user associated with `userId`.                                 |
 
+More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
 ### API Documentation
 
