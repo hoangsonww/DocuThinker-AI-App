@@ -943,3 +943,62 @@ exports.getUserJoinedDate = async (req, res) => {
     sendErrorResponse(res, 500, 'Failed to retrieve user joined date', error.message);
   }
 };
+
+/**
+ * @swagger
+ * /update-theme:
+ *   put:
+ *     summary: Update user preferred theme
+ *     description: Updates the preferred theme (light/dark) for a user in their Firestore document.
+ *     tags:
+ *     - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - theme
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The userId of the user
+ *               theme:
+ *                 type: string
+ *                 description: The new preferred theme (either "light" or "dark")
+ *     responses:
+ *       200:
+ *         description: Theme updated successfully
+ *       400:
+ *         description: Failed to update theme
+ *       404:
+ *         description: User not found
+ */
+exports.updateTheme = async (req, res) => {
+  const { userId, theme } = req.body;
+
+  if (!userId || !theme) {
+    return sendErrorResponse(res, 400, 'UserId and theme are required.');
+  }
+
+  // Validate theme input
+  if (theme !== 'light' && theme !== 'dark') {
+    return sendErrorResponse(res, 400, 'Invalid theme. Theme must be either "light" or "dark".');
+  }
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found.');
+    }
+
+    // Update the theme preference in Firestore
+    await firestore.collection('users').doc(userId).update({ theme });
+
+    sendSuccessResponse(res, 200, 'Theme updated successfully.', { theme });
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to update theme.', error.message);
+  }
+};
