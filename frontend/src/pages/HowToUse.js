@@ -299,7 +299,7 @@ const HowToUse = ({ theme }) => {
         <div style={{borderBottom: '1px solid #ccc', width: '100%', marginBottom: '1rem', marginTop: '1rem' }}></div>
 
         {/* Thank you message */}
-        <Typography sx={{ mt: 3, font: 'inherit', fontWeight: 'bold', fontSize: '18px' }}>
+        <Typography sx={{ mt: 3, font: 'inherit', fontWeight: 'bold', fontSize: '18px', color: theme === 'dark' ? 'white' : 'black' }}>
           Thank you for exploring DocuThinker today! 🚀
         </Typography>
       </Box>
