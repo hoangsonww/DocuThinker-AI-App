@@ -1002,3 +1002,73 @@ exports.updateTheme = async (req, res) => {
     sendErrorResponse(res, 500, 'Failed to update theme.', error.message);
   }
 };
+
+/**
+ * @swagger
+ * /update-social-media:
+ *   post:
+ *     summary: Update social media links for a user
+ *     description: Save or update the GitHub, LinkedIn, Facebook, and Instagram links for the user.
+ *     tags:
+ *     - Users
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The user ID
+ *               github:
+ *                 type: string
+ *                 description: The user's GitHub link
+ *               linkedin:
+ *                 type: string
+ *                 description: The user's LinkedIn link
+ *               facebook:
+ *                 type: string
+ *                 description: The user's Facebook link
+ *               instagram:
+ *                 type: string
+ *                 description: The user's Instagram link
+ *     responses:
+ *       200:
+ *         description: Social media links updated successfully
+ *       400:
+ *         description: Invalid request
+ *       500:
+ *         description: Internal server error
+ */
+exports.updateSocialMedia = async (req, res) => {
+  const { userId, github, linkedin, facebook, instagram } = req.body;
+
+  if (!userId) {
+    return sendErrorResponse(res, 400, 'User ID is required');
+  }
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    // Update social media links in Firestore
+    await firestore.collection('users').doc(userId).update({
+      socialMedia: {
+        github: github || null,
+        linkedin: linkedin || null,
+        facebook: facebook || null,
+        instagram: instagram || null,
+      },
+    });
+
+    sendSuccessResponse(res, 200, 'Social media links updated successfully');
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to update social media links', error.message);
+  }
+};

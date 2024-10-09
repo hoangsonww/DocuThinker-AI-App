@@ -163,7 +163,7 @@ const DocumentsPage = ({ theme }) => {
           Your Analyzed Documents
         </Typography>
 
-        <div style={{ borderBottom: '1px solid #000', width: '100%', marginBottom: '1rem' }}></div>
+        <div style={{ borderBottom: '1px solid #ccc', width: '100%', marginBottom: '1rem' }}></div>
 
         {documents.length === 0 ? (
             <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
@@ -254,7 +254,7 @@ const DocumentsPage = ({ theme }) => {
             </List>
         )}
 
-        <div style={{ borderBottom: '0.5px solid #000', width: '100%', marginBottom: '1rem', height: '1rem' }}></div>
+        <div style={{ borderBottom: '0.5px solid #ccc', width: '100%', marginBottom: '1rem', height: '1rem' }}></div>
 
         {/* Pagination component */}
         <Pagination
