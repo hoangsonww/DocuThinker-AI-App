@@ -124,7 +124,7 @@ const DocumentsPage = ({ theme }) => {
 
   if (!userId) {
     return (
-        <Box p={4}
+        <Box
              sx={{
                display: 'flex',
                justifyContent: 'center',
@@ -137,13 +137,14 @@ const DocumentsPage = ({ theme }) => {
           <Typography
               variant="h5"
               sx={{
+                color: theme === 'dark' ? '#fff' : '#000',
                 font: 'inherit',
                 fontSize: '24px',
                 fontWeight: 'bold',
-                color: theme === 'dark' ? 'white' : 'black',
+                textAlign: 'center',
               }}
           >
-            You are not signed in. Please log in to view your documents.
+            You are not signed in. Please <a href="/login" style={{ color: '#f57c00' }}>log in</a> to view your documents.
           </Typography>
         </Box>
     );

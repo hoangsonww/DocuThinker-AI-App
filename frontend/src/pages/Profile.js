@@ -165,7 +165,7 @@ const Profile = ({ theme }) => {
                 textAlign: 'center',
               }}
           >
-            You are not signed in. Please log in to access your profile.
+            You are not signed in. Please <a href="/login" style={{ color: '#f57c00' }}>log in</a> to view your profile.
           </Typography>
         </Box>
     );
@@ -223,7 +223,7 @@ const Profile = ({ theme }) => {
           </Typography>
 
           {/* Display Email */}
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 2 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', mb: 1.5 }}>
             <Typography sx={{ font: 'inherit' }}><strong>Email:</strong> {email}</Typography>
             <IconButton onClick={() => setIsEditingEmail(true)}>
               <EditIcon sx={{ color: theme === 'dark' ? '#fff' : '#000' }} title="Edit Email Address" />
@@ -262,16 +262,16 @@ const Profile = ({ theme }) => {
           )}
 
           {/* Display Days since joined */}
-          <Typography sx={{ mb: 2, font: 'inherit', textAlign: 'center' }}><strong>Days Since Joined:</strong> {daysSinceJoined}</Typography>
+          <Typography sx={{ mb: 2.5, font: 'inherit', textAlign: 'center' }}><strong>Days Since Joined:</strong> {daysSinceJoined}</Typography>
 
           {/* Display Joined Date */}
-          <Typography sx={{ mb: 2, font: 'inherit', textAlign: 'center' }}><strong>Date Joined:</strong> {joinedDate}</Typography>
+          <Typography sx={{ mb: 2.5, font: 'inherit', textAlign: 'center' }}><strong>Date Joined:</strong> {joinedDate}</Typography>
 
           {/* Display Document Count */}
-          <Typography sx={{ mb: 2, font: 'inherit', textAlign: 'center' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>
+          <Typography sx={{ mb: 2.5, font: 'inherit', textAlign: 'center' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>
 
           {/* Display Today's Date */}
-          <Typography sx={{ mb: 1, font: 'inherit' }}><strong>Today's Date:</strong> {today}</Typography>
+          <Typography sx={{ mb: 1.5, font: 'inherit' }}><strong>Today's Date:</strong> {today}</Typography>
 
           {/* Social Media Fields */}
           {['github', 'linkedin', 'facebook', 'instagram'].map((platform) => (
