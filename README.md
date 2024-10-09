@@ -16,11 +16,16 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Landing Page - Dark Mode**](#landing-page---dark-mode)
     - [**Document Upload Page**](#document-upload-page)
     - [**Document Upload Page - Dark Mode**](#document-upload-page---dark-mode)
+    - [**Document Upload Page - Document Uploaded**](#document-upload-page---document-uploaded)
     - [**Home Page**](#home-page)
     - [**Home Page - Dark Mode**](#home-page---dark-mode)
     - [**Home Page - With Key Ideas**](#home-page---with-key-ideas)
     - [**Chat Modal**](#chat-modal)
     - [**Chat Modal - Dark Mode**](#chat-modal---dark-mode)
+    - [**Documents Page**](#documents-page)
+    - [**Documents Page - Dark Mode**](#documents-page---dark-mode)
+    - [**Profile Page**](#profile-page)
+    - [**Profile Page - Dark Mode**](#profile-page---dark-mode)
     - [**How To Use Page**](#how-to-use-page)
     - [**How To Use Page - Dark Mode**](#how-to-use-page---dark-mode)
     - [**Login Page**](#login-page)
@@ -350,6 +355,14 @@ Ensure you have the following tools installed:
 - **Firebase Admin SDK** credentials
 - **Redis** for caching
 - **MongoDB** for data storage
+- **RabbitMQ** for handling asynchronous tasks
+- **Docker** for containerization (optional)
+- **Postman** for API testing (optional)
+- **Expo CLI** for running the mobile app
+- **React Native CLI** for building the mobile app
+- **Firebase SDK** for mobile app integration
+- **Expo Go** app for testing the mobile app on a physical device
+- **Tailwind CSS** for styling the frontend
 - **.env** file with necessary API keys (You can contact me to get the `.env` file - but you should obtain your own API keys for production).
 
 ### **Frontend Installation**
