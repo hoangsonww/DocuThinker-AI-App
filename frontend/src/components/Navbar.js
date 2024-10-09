@@ -32,7 +32,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
 
     checkLoggedInStatus();
 
-    const interval = setInterval(checkLoggedInStatus, 5000);
+    const interval = setInterval(checkLoggedInStatus, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -49,6 +49,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
     localStorage.removeItem('userId');
     onLogout();
     navigate('/login');
+    setIsLoggedIn(false);
   };
 
   const renderNavLinks = (
@@ -119,6 +120,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
                 onClick={handleLogout}
                 sx={{
                   color: 'red',
+                  '&:hover': { color: 'white' },
                   marginRight: 2,
                   font: 'inherit',
                   textTransform: 'none',
@@ -240,7 +242,132 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
                 <ListItemText disableTypography primary="Home" />
               </ListItem>
 
-              {/* Add other links... */}
+              <ListItem
+                  button
+                  component={NavLink}
+                  to="/how-to-use"
+                  sx={{
+                    color: theme === 'dark' ? 'white' : 'black',
+                    '&:hover': { color: theme === 'dark' ? 'white' : 'black' },
+                    borderRadius: '8px',
+                  }}
+              >
+                <ListItemIcon
+                    sx={{ minWidth: '40px', color: theme === 'dark' ? 'white' : 'black' }}
+                >
+                  <HelpOutlineIcon />
+                </ListItemIcon>
+                <ListItemText disableTypography primary="How to Use" />
+              </ListItem>
+
+              <ListItem
+                  button
+                  component={NavLink}
+                  to="/documents"
+                  sx={{
+                    color: theme === 'dark' ? 'white' : 'black',
+                    '&:hover': { color: theme === 'dark' ? 'white' : 'black' },
+                    borderRadius: '8px',
+                  }}
+              >
+                <ListItemIcon
+                    sx={{ minWidth: '40px', color: theme === 'dark' ? 'white' : 'black' }}
+                >
+                  <DescriptionIcon />
+                </ListItemIcon>
+                <ListItemText disableTypography primary="Documents" />
+              </ListItem>
+
+              <ListItem
+                  button
+                  component={NavLink}
+                  to="/profile"
+                  sx={{
+                    color: theme === 'dark' ? 'white' : 'black',
+                    '&:hover': { color: theme === 'dark' ? 'white' : 'black' },
+                    borderRadius: '8px',
+                  }}
+              >
+                <ListItemIcon
+                    sx={{ minWidth: '40px', color: theme === 'dark' ? 'white' : 'black' }}
+                >
+                  <PersonIcon />
+                </ListItemIcon>
+                <ListItemText disableTypography primary="Profile" />
+
+              </ListItem>
+              {isLoggedIn ? (
+                  <ListItem
+                      button
+                      onClick={handleLogout}
+                      sx={{
+                        color: 'red',
+                        '&:hover': { color: 'red' },
+                        borderRadius: '8px',
+                      }}
+                  >
+                    <ListItemIcon
+                        sx={{ minWidth: '40px', color: 'red' }}
+                    >
+                      <ExitToAppIcon />
+                    </ListItemIcon>
+                    <ListItemText disableTypography primary="Logout" />
+                  </ListItem>
+              ) : (
+                  <ListItem
+                      button
+                      component={NavLink}
+                      to="/login"
+                      sx={{
+                        color: theme === 'dark' ? 'white' : 'black',
+                        '&:hover': { color: theme === 'dark' ? 'white' : 'black' },
+                        borderRadius: '8px',
+                      }}
+                  >
+                    <ListItemIcon
+                        sx={{ minWidth: '40px', color: theme === 'dark' ? 'white' : 'black' }}
+                    >
+                      <LoginIcon />
+                    </ListItemIcon>
+                    <ListItemText disableTypography primary="Login" />
+                  </ListItem>
+              )}
+
+              <ListItem
+                  button
+                  component={NavLink}
+                  to="/register"
+                  sx={{
+                    color: theme === 'dark' ? 'white' : 'black',
+                    '&:hover': { color: theme === 'dark' ? 'white' : 'black' },
+                    borderRadius: '8px',
+                  }}
+              >
+                <ListItemIcon
+                    sx={{ minWidth: '40px', color: theme === 'dark' ? 'white' : 'black' }}
+                >
+                  <AppRegistrationIcon />
+                </ListItemIcon>
+                <ListItemText disableTypography primary="Register" />
+              </ListItem>
+
+              <ListItem
+                  button
+                  onClick={toggleDrawer(false)}
+                  sx={{
+                    color: theme === 'dark' ? 'white' : 'black',
+                    '&:hover': { color: theme === 'dark' ? 'white' : 'black' },
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                  }}
+              >
+                <ListItemIcon
+                    sx={{ minWidth: '40px', color: theme === 'dark' ? 'white' : 'black' }}
+                >
+                  <CloseIcon />
+                </ListItemIcon>
+                <ListItemText disableTypography primary="Close" />
+              </ListItem>
             </List>
           </Box>
         </Drawer>
