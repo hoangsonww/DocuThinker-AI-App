@@ -10,6 +10,7 @@ import {
   ListItemText,
   IconButton,
   TextField,
+  Pagination,
 } from '@mui/material';
 import { Delete, Visibility, Edit, Save } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -19,6 +20,8 @@ const DocumentsPage = ({ theme }) => {
   const [loading, setLoading] = useState(true);
   const [editingDocId, setEditingDocId] = useState(null);
   const [newTitle, setNewTitle] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [documentsPerPage] = useState(5); // Set maximum documents per page
   const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
 
@@ -47,6 +50,11 @@ const DocumentsPage = ({ theme }) => {
     fetchDocuments();
   }, [userId]);
 
+  // Get the current documents to be displayed based on pagination
+  const indexOfLastDocument = currentPage * documentsPerPage;
+  const indexOfFirstDocument = indexOfLastDocument - documentsPerPage;
+  const currentDocuments = documents.slice(indexOfFirstDocument, indexOfLastDocument);
+
   const handleViewDocument = async (docId) => {
     try {
       const response = await axios.get(
@@ -61,7 +69,7 @@ const DocumentsPage = ({ theme }) => {
 
   const handleNewDocClick = () => {
     navigate('/home');
-  }
+  };
 
   const handleDeleteDocument = async (docId) => {
     try {
@@ -99,16 +107,22 @@ const DocumentsPage = ({ theme }) => {
       );
 
       setDocuments(updatedDocuments);
-      setEditingDocId(null);
+      setEditingDocId(null); // Close the edit mode
     } catch (error) {
       console.error('Error updating document title:', error);
     }
   };
 
+  // Function to handle keypress and save the document title on "Enter"
   const handleKeyPress = (event, docId) => {
     if (event.key === 'Enter') {
       handleSaveTitle(docId);
     }
+  };
+
+  // Function to handle page change
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
   };
 
   if (!userId) {
@@ -152,15 +166,15 @@ const DocumentsPage = ({ theme }) => {
           Your Analyzed Documents
         </Typography>
 
-        <div style={{borderBottom: '1px solid #ccc', width: '100%', marginBottom: '1rem'}}></div>
+        <div style={{ borderBottom: '1px solid #000', width: '100%', marginBottom: '1rem' }}></div>
 
         {documents.length === 0 ? (
-            <Typography sx={{font: 'inherit', color: theme === 'dark' ? 'white' : 'black'}}>
+            <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
               No documents found.
             </Typography>
         ) : (
             <List>
-              {documents.map((doc) => (
+              {currentDocuments.map((doc) => (
                   <ListItem
                       key={doc.id}
                       sx={{
@@ -189,18 +203,18 @@ const DocumentsPage = ({ theme }) => {
                             variant="outlined"
                             size="small"
                             label={`Enter new title`}
-                            sx={{mb: 1}}
+                            sx={{ mb: 1 }}
                             inputProps={{
-                              style: {fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black'},
+                              style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
                             }}
                             InputLabelProps={{
-                              style: {fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000'},
+                              style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000' },
                             }}
                         />
                     ) : (
                         <ListItemText
                             primary={
-                              <Typography sx={{font: 'inherit', wordBreak: 'break-word'}}>
+                              <Typography sx={{ font: 'inherit', wordBreak: 'break-word' }}>
                                 {doc.title}
                               </Typography>
                             }
@@ -213,30 +227,27 @@ const DocumentsPage = ({ theme }) => {
                           display: 'flex',
                           flexDirection: 'row',
                           gap: 1,
-                          mt: {xs: 1, sm: 0},
+                          mt: { xs: 1, sm: 0 },
                         }}
                     >
                       {editingDocId === doc.id ? (
                           <IconButton onClick={() => handleSaveTitle(doc.id)} title={`Save ${doc.title}`}>
-                            <Save/>
+                            <Save />
                           </IconButton>
                       ) : (
                           <>
                             <IconButton onClick={() => handleViewDocument(doc.id)} title={`View ${doc.title}`}>
-                              <Visibility/>
+                              <Visibility />
                             </IconButton>
-                            <IconButton
-                                onClick={() => handleEditDocument(doc.id, doc.title)}
-                                title={`Edit ${doc.title}`}
-                            >
-                              <Edit/>
+                            <IconButton onClick={() => handleEditDocument(doc.id, doc.title)} title={`Edit ${doc.title}`}>
+                              <Edit />
                             </IconButton>
                             <IconButton
                                 onClick={() => handleDeleteDocument(doc.id)}
-                                sx={{color: 'red'}}
+                                sx={{ color: 'red' }}
                                 title={`Delete ${doc.title}`}
                             >
-                              <Delete/>
+                              <Delete />
                             </IconButton>
                           </>
                       )}
@@ -246,28 +257,36 @@ const DocumentsPage = ({ theme }) => {
             </List>
         )}
 
-        <div style={{borderBottom: '0.5px solid #ccc', width: '100%', marginBottom: '1rem', height: '1rem'}}></div>
+        <div style={{ borderBottom: '0.5px solid #000', width: '100%', marginBottom: '1rem', height: '1rem' }}></div>
+
+        {/* Pagination component */}
+        <Pagination
+            count={Math.ceil(documents.length / documentsPerPage)}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}
+        />
 
         {documents.length > 0 && (
-            <Button
-                variant="contained"
-                color="secondary"
-                onClick={handleDeleteAllDocuments}
-                sx={{mt: 2, font: 'inherit', mr: 2}}
-            >
-              Delete All Documents
-            </Button>
-        )}
-
-        {documents.length > 0 && (
-            <Button
-                variant="contained"
-                color="primary"
-                onClick={handleNewDocClick}
-                sx={{mt: 2, font: 'inherit'}}
-            >
-              Upload New Documents
-            </Button>
+            <>
+              <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={handleDeleteAllDocuments}
+                  sx={{ mt: 2, font: 'inherit', mr: 2 }}
+              >
+                Delete All Documents
+              </Button>
+              <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={handleNewDocClick}
+                  sx={{ mt: 2, font: 'inherit' }}
+              >
+                Upload New Documents
+              </Button>
+            </>
         )}
       </Box>
   );
