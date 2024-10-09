@@ -268,11 +268,11 @@ const DocumentsPage = ({ theme }) => {
               mt: 3,
               '& .MuiPaginationItem-root': {
                 fontFamily: 'Poppins, sans-serif',
-                color: theme === 'dark' ? '#fff' : '#000', // Set the text color here
+                color: theme === 'dark' ? '#fff' : '#000',
               },
               '& .Mui-selected': {
-                backgroundColor: theme === 'dark' ? '#fff' : '#000', // Control selected background color
-                color: theme === 'dark' ? '#000' : '#fff', // Control selected item text color
+                backgroundColor: theme === 'dark' ? '#fff' : '#000',
+                color: theme === 'dark' ? '#000' : '#fff',
               },
               color: theme === 'dark' ? '#fff' : '#000',
             }}
