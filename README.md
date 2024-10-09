@@ -88,8 +88,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 - **How To Use Guide**: Detailed instructions on how to use the app effectively.
 - **API Documentation**: Swagger documentation for all API endpoints.
 - **Authentication Middleware**: Secure routes with Firebase authentication middleware.
-- **Environment Variables**: Securely store sensitive data using environment variables.
-- **Containerization**: Dockerize the app for easy deployment and scaling.
+- **Containerization**: Dockerized the app for easy deployment and scaling.
 - **Continuous Integration**: Automated testing and deployment with GitHub Actions.
 
 <h2 id="technologies">⚙️ Technologies</h2>
