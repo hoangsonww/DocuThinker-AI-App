@@ -47,7 +47,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**API Testing**](#api-testing)
     - [**Error Handling**](#error-handling)
     - [**Example Request to Register a User**](#example-request-to-register-a-user)
-
+- [**📱 Mobile App**](#mobile-app)
 - [**API Endpoints**](#api-endpoints)
 - [**📦 Containerization**](#containerization)
 - [**🚀 Deployment**](#deployment)
