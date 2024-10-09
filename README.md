@@ -268,7 +268,13 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 ### **Responsive Design Example**
 
 <p align="center">
-  <img src="images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
+  <img src="images/responsive.png" alt="Responsive Design" width="60%" style="border-radius: 8px">
+</p>
+
+### **Navigation Drawer**
+
+<p align="center">
+  <img src="images/navigation-drawer.png" alt="Navigation Drawer" width="60%" style="border-radius: 8px">
 </p>
 
 ### **Footer**
