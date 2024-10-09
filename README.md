@@ -514,6 +514,10 @@ The backend APIs uses centralized error handling to capture and log errors. Resp
 
 The **DocuThinker** mobile app is built using **React Native** and **Expo**. It provides a mobile-friendly interface for users to upload documents, generate summaries, and chat with an AI. The mobile app integrates with the backend API to provide a seamless experience across devices.
 
+Currently, it is in development and will be released soon on both the **App Store** and **Google Play Store**.
+
+Below is a screenshot of the mobile app:
+
 
 
 <h2 id="containerization">📦 Containerization</h2>
