@@ -21,7 +21,7 @@ const DocumentsPage = ({ theme }) => {
   const [editingDocId, setEditingDocId] = useState(null);
   const [newTitle, setNewTitle] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const [documentsPerPage] = useState(5); // Set maximum documents per page
+  const [documentsPerPage] = useState(5);
   const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
 
@@ -50,7 +50,6 @@ const DocumentsPage = ({ theme }) => {
     fetchDocuments();
   }, [userId]);
 
-  // Get the current documents to be displayed based on pagination
   const indexOfLastDocument = currentPage * documentsPerPage;
   const indexOfFirstDocument = indexOfLastDocument - documentsPerPage;
   const currentDocuments = documents.slice(indexOfFirstDocument, indexOfLastDocument);
@@ -107,20 +106,18 @@ const DocumentsPage = ({ theme }) => {
       );
 
       setDocuments(updatedDocuments);
-      setEditingDocId(null); // Close the edit mode
+      setEditingDocId(null);
     } catch (error) {
       console.error('Error updating document title:', error);
     }
   };
 
-  // Function to handle keypress and save the document title on "Enter"
   const handleKeyPress = (event, docId) => {
     if (event.key === 'Enter') {
       handleSaveTitle(docId);
     }
   };
 
-  // Function to handle page change
   const handlePageChange = (event, value) => {
     setCurrentPage(value);
   };
@@ -265,7 +262,14 @@ const DocumentsPage = ({ theme }) => {
             page={currentPage}
             onChange={handlePageChange}
             color="primary"
-            sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              mt: 3,
+              '& .MuiPaginationItem-root': {
+                fontFamily: 'Poppins, sans-serif',
+              },
+            }}
         />
 
         {documents.length > 0 && (
