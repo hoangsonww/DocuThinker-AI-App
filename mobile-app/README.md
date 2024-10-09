@@ -44,25 +44,25 @@ The app uses the [Material Design](https://material.io/design) system for its us
 ### Landing Page
 
 <p align="center">
-  <img src="../images/responsive.png" alt="DocuThinker Mobile" width="60%" style="border-radius: 10px;">
+  <img src="../images/responsive.png" alt="DocuThinker Mobile" width="50%" style="border-radius: 10px;">
 </p>
 
 ### Navigation Drawer
 
 <p align="center">
-  <img src="../images/navigation-drawer.png" alt="DocuThinker Mobile" width="60%" style="border-radius: 10px;">
+  <img src="../images/navigation-drawer.png" alt="DocuThinker Mobile" width="50%" style="border-radius: 10px;">
 </p>
 
 ### Document List
 
 <p align="center">
-  <img src="../images/documents-mobile.png" alt="DocuThinker Mobile" width="60%" style="border-radius: 10px;">
+  <img src="../images/documents-mobile.png" alt="DocuThinker Mobile" width="50%" style="border-radius: 10px;">
 </p>
 
 ### How to Use Page
 
 <p align="center">
-  <img src="../images/how-to-use-mobile.png" alt="DocuThinker Mobile" width="60%" style="border-radius: 10px;">
+  <img src="../images/how-to-use-mobile.png" alt="DocuThinker Mobile" width="50%" style="border-radius: 10px;">
 </p>
 
 ## Get Started
