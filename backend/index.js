@@ -5,7 +5,7 @@ const swaggerUi = require('swagger-ui-express');
 const path = require('path');
 const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI, forgotPassword,
   verifyEmail, getAllDocuments, getDocumentById, getDocumentDetails, deleteAllDocuments, deleteDocument,
-  getDaysSinceJoined, getDocumentCount, updateUserEmail, updateUserPassword, getUserEmail
+  getDaysSinceJoined, getDocumentCount, updateUserEmail, updateUserPassword, getUserEmail, updateDocumentTitle
 } = require('./controllers');
 
 const app = express();
@@ -103,6 +103,7 @@ app.post('/update-password', updateUserPassword); // Update password
 app.get('/days-since-joined/:userId', getDaysSinceJoined);  // Retrieve days since joined
 app.get('/document-count/:userId', getDocumentCount);       // Retrieve document count
 app.get('/users/:userId', getUserEmail);
+app.post('/update-document-title', updateDocumentTitle);
 
 // Error handling for unsupported routes
 app.use((req, res) => {

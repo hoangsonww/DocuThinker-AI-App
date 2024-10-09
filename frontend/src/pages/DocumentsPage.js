@@ -13,7 +13,7 @@ import {
 import { Delete, Visibility } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
-const DocumentsPage = (theme) => {
+const DocumentsPage = ({ theme }) => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
   const userId = localStorage.getItem('userId');
@@ -79,7 +79,7 @@ const DocumentsPage = (theme) => {
   if (!userId) {
     return (
         <Box p={4} sx={{ textAlign: 'center' }}>
-          <Typography variant="h5" color="error" sx={{ font: 'inherit', fontSize: '24px', fontWeight: 'bold', color: theme === 'dark' ? 'red' : 'white' }}>
+          <Typography variant="h5" sx={{ font: 'inherit', fontSize: '24px', fontWeight: 'bold', color: theme === 'dark' ? 'white' : 'black' }}>
             You are not logged in. Please log in to view your documents.
           </Typography>
         </Box>

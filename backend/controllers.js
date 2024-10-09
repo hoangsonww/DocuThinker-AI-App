@@ -813,3 +813,69 @@ exports.getUserEmail = async (req, res) => {
     sendErrorResponse(res, 500, 'Failed to retrieve user email', error.message);
   }
 };
+
+/**
+ * @swagger
+ * /update-document-title:
+ *   post:
+ *     summary: Update the title of a document
+ *     description: Updates the title of a document associated with a given user and document ID in Firestore.
+ *     tags:
+ *     - Documents
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - docId
+ *               - newTitle
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: The userId of the user
+ *               docId:
+ *                 type: string
+ *                 description: The ID of the document
+ *               newTitle:
+ *                 type: string
+ *                 description: The new title for the document
+ *     responses:
+ *       200:
+ *         description: Document title updated successfully
+ *       404:
+ *         description: User or document not found
+ *       500:
+ *         description: Failed to update document title
+ */
+exports.updateDocumentTitle = async (req, res) => {
+  const { userId, docId, newTitle } = req.body;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const documentIndex = userData.documents.findIndex((doc) => doc.id === docId);
+
+    if (documentIndex === -1) {
+      return sendErrorResponse(res, 404, 'Document not found');
+    }
+
+    // Update the title of the specific document
+    userData.documents[documentIndex].title = newTitle;
+
+    // Save the updated user document back to Firestore
+    await firestore.collection('users').doc(userId).update({
+      documents: userData.documents,
+    });
+
+    sendSuccessResponse(res, 200, 'Document title updated successfully');
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to update document title', error.message);
+  }
+};
