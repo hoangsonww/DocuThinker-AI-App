@@ -479,6 +479,7 @@ For example, our API endpoints documentation looks like this:
 
 ### **API Architecture**
 
+- We use **Node.js** and **Express** to build the backend server for **DocuThinker**.
 - The backend API is structured using **Express** and **Firebase Admin SDK** for user authentication and data storage.
 - We use the MVC (Model-View-Controller) pattern to separate concerns and improve code organization.
 - The API endpoints are designed to be RESTful and follow best practices for error handling and response formatting.
