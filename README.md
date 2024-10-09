@@ -80,11 +80,13 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 - **AI Chat Integration**: Chat with an AI using your document’s original context.
 - **User Authentication**: Secure registration, login, and password reset functionality.
 - **Responsive Design**: Seamless experience across both desktop and mobile devices.
+- **Profile Management**: Update email, password, and view document history.
+- **Document History**: View all uploaded documents and their details.
+- **Document Deletion**: Delete individual documents or all documents associated with your account.
+- **Mobile App Integration**: React Native mobile app for on-the-go document management.
 - **Dark Mode Support**: Toggle between light and dark themes.
 - **How To Use Guide**: Detailed instructions on how to use the app effectively.
 - **API Documentation**: Swagger documentation for all API endpoints.
-- **Error Handling**: Custom error messages and alerts for better user experience.
-- **Loading Spinners**: Visual feedback during document processing and API calls.
 - **Authentication Middleware**: Secure routes with Firebase authentication middleware.
 - **Environment Variables**: Securely store sensitive data using environment variables.
 - **Containerization**: Dockerize the app for easy deployment and scaling.
