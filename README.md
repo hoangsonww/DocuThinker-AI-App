@@ -512,6 +512,8 @@ The backend APIs uses centralized error handling to capture and log errors. Resp
 
 <h2 id="mobile-app">📱 Mobile App</h2>
 
+The **DocuThinker** mobile app is built using **React Native** and **Expo**. It provides a mobile-friendly interface for users to upload documents, generate summaries, and chat with an AI. The mobile app integrates with the backend API to provide a seamless experience across devices.
+
 
 
 <h2 id="containerization">📦 Containerization</h2>
