@@ -331,5 +331,4 @@ const Profile = ({ theme }) => {
       </Box>
   );
 };
-
 export default Profile;
