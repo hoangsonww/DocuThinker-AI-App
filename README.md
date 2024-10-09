@@ -516,13 +516,13 @@ The **DocuThinker** mobile app is built using **React Native** and **Expo**. It 
 
 Currently, it is in development and will be released soon on both the **App Store** and **Google Play Store**.
 
+Stay tuned for the release of the **DocuThinker** mobile app!
+
 Below is a screenshot of the mobile app:
 
 <p align="center">
   <img src="images/responsive.png" alt="Mobile App" width="50%" style="border-radius: 8px">
 </p>
-
-Stay tuned for the release of the **DocuThinker** mobile app!
 
 <h2 id="containerization">📦 Containerization</h2>
 
