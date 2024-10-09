@@ -18,6 +18,7 @@ const Profile = ({ theme }) => {
   const [documentCount, setDocumentCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [updatingEmail, setUpdatingEmail] = useState(false);
+  const [joinedDate, setJoinedDate] = useState('');
   const [error, setError] = useState('');
   const userId = localStorage.getItem('userId');
   const avatarUrl = '/OIP.jpg';
@@ -30,15 +31,18 @@ const Profile = ({ theme }) => {
           const emailResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/users/${userId}`);
           const daysResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/days-since-joined/${userId}`);
           const documentResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/document-count/${userId}`);
+          const joinedDateResponse = await axios.get(`https://docuthinker-ai-app.onrender.com/user-joined-date/${userId}`);
 
-          if (!emailResponse.data || !daysResponse.data || !documentResponse.data) {
+          if (!emailResponse.data || !daysResponse.data || !documentResponse.data || !joinedDateResponse.data) {
             setEmail('N/A');
             setDaysSinceJoined('N/A');
             setDocumentCount('N/A');
+            setJoinedDate('N/A');
           } else {
             setEmail(emailResponse.data.email);
             setDaysSinceJoined(daysResponse.data.days);
             setDocumentCount(documentResponse.data.documentCount);
+            setJoinedDate(new Date(joinedDateResponse.data.joinedDate).toLocaleDateString());
           }
 
           setLoading(false);
@@ -134,12 +138,12 @@ const Profile = ({ theme }) => {
                 height: 150,
                 borderRadius: '50%',
                 overflow: 'hidden',
-                margin: '0 auto 16px', // Center the avatar and add margin below
-                border: '3px solid #f57c00', // Optional: Add border for better visibility
+                margin: '0 auto 16px',
+                border: '3px solid #f57c00',
               }}
           >
             <img
-                src={avatarUrl} // Placeholder avatar URL
+                src={avatarUrl}
                 alt="User Avatar"
                 style={{ width: '100%', height: '100%', objectFit: 'cover' }}
             />
@@ -196,6 +200,9 @@ const Profile = ({ theme }) => {
 
           {/* Display Days since joined */}
           <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Days Since Joined:</strong> {daysSinceJoined}</Typography>
+
+          {/* Display Joined Date */}
+          <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Date Joined:</strong> {joinedDate}</Typography>
 
           {/* Display Document Count */}
           <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>

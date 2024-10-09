@@ -879,3 +879,67 @@ exports.updateDocumentTitle = async (req, res) => {
     sendErrorResponse(res, 500, 'Failed to update document title', error.message);
   }
 };
+
+/**
+ * @swagger
+ * /user-joined-date/{userId}:
+ *   get:
+ *     summary: Get user joined date
+ *     description: Retrieves the date when the user joined (createdAt field) from Firestore.
+ *     tags:
+ *     - Users
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user
+ *     responses:
+ *       200:
+ *         description: User joined date retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 joinedDate:
+ *                   type: string
+ *                   format: date-time
+ *                   description: The date the user joined
+ *                 message:
+ *                   type: string
+ *                   description: Response message
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to retrieve user joined date
+ */
+exports.getUserJoinedDate = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    // Fetch user document from Firestore
+    const userDoc = await firestore.collection('users').doc(userId).get();
+
+    // Check if the user exists
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    // Get the user data and retrieve the createdAt field
+    const userData = userDoc.data();
+    const createdAt = userData.createdAt;
+
+    // If createdAt field exists, send it in the response
+    if (createdAt) {
+      sendSuccessResponse(res, 200, 'User joined date retrieved', {
+        joinedDate: createdAt.toDate(),
+      });
+    } else {
+      sendErrorResponse(res, 404, 'User joined date not available');
+    }
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve user joined date', error.message);
+  }
+};
