@@ -594,7 +594,7 @@ We welcome contributions from the community! Follow these steps to contribute:
    
 5. **Submit a pull request**.
 
-We will review your changes and merge them into the main branch shortly.
+I will review your changes and merge them into the main branch shortly.
 
 <h2 id="license">📝 License</h2>
 
