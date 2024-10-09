@@ -75,6 +75,8 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 
 <h2 id="features">✨ Features</h2>
 
+**DocuThinker** offers a wide range of features to help users manage and analyze their documents effectively. Here are some of the key features of the app:
+
 - **Document Upload & Summarization**: Upload PDFs or Word documents for AI-generated summaries.
 - **Key Insights & Discussion Points**: Generate important ideas and topics for discussion from your documents.
 - **AI Chat Integration**: Chat with an AI using your document’s original context.
