@@ -35,6 +35,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Prerequisites**](#prerequisites)
     - [**Frontend Installation**](#frontend-installation)
     - [**Backend Installation**](#backend-installation)
+    - [**Running the Mobile App**](#running-the-mobile-app)
 - [**📋 API Endpoints**](#api-endpoints)
     - [**API Documentation**](#api-documentation)
     - [**API Architecture**](#api-architecture)
@@ -102,6 +103,11 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
   - **Redis**: In-memory data structure store for caching.
+- **Mobile App**:
+  - **React Native**: JavaScript framework for building mobile applications.
+  - **Expo**: Framework and platform for universal React applications.
+  - **Firebase SDK**: Firebase services for mobile applications.
+  - **React Navigation**: Routing and navigation for React Native apps.
 - **API Documentation**:
   - **Swagger**: OpenAPI documentation for all API endpoints.
 - **Containerization**:
@@ -306,6 +312,18 @@ DocuThinker-AI-App/
 │   ├── Dockerfile                    # Docker configuration file
 │   ├── README.md                     # Frontend README file
 │   └── package.lock                  # Lock file for dependencies
+├── mobile-app/                       # Mobile app directory
+│   ├── app/                          # React Native app directory
+│   ├── .env                          # Environment variables file for the mobile app
+│   ├── app.json                      # Expo configuration file
+│   ├── components/                   # Reusable components for the mobile app
+│   ├── assets/                       # Static assets for the mobile app
+│   ├── constants/                    # Constants for the mobile app
+│   ├── hooks/                        # Custom hooks for the mobile app
+│   ├── scripts/                      # Scripts for the mobile app
+│   ├── babel.config.js               # Babel configuration file
+│   ├── package.json                  # Project dependencies and scripts
+│   ├── tsconfig.json                 # TypeScript configuration file
 ├── images/                           # Images for the README
 ├── .env                              # Environment variables file for the whole app
 ├── docker-compose.yml                # Docker Compose file for containerization
@@ -377,6 +395,25 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```
    
 **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
+
+### **Running the Mobile App**
+
+1. **Navigate to the mobile app directory**:
+   ```bash
+   cd mobile-app
+   ```
+   
+2. **Install dependencies**:
+   ```bash
+    npm install
+    ```
+   
+3. **Start the Expo server**:
+    ```bash
+    npx expo start
+    ```
+   
+4. **Run the app on an emulator or physical device**: Follow the instructions in the terminal to run the app on an emulator or physical device.
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
 
