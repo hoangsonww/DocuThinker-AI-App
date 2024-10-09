@@ -198,7 +198,7 @@ const Profile = ({ theme }) => {
           <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Days Since Joined:</strong> {daysSinceJoined}</Typography>
 
           {/* Display Document Count */}
-          <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Number of Documents:</strong> {documentCount}</Typography>
+          <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Documents Uploaded So Far:</strong> {documentCount}</Typography>
 
           {/* Display Today's Date */}
           <Typography sx={{ mb: 2, font: 'inherit' }}><strong>Today's Date:</strong> {today}</Typography>

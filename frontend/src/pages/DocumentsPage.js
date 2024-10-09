@@ -8,14 +8,17 @@ import {
   List,
   ListItem,
   ListItemText,
-  IconButton
+  IconButton,
+  TextField,
 } from '@mui/material';
-import { Delete, Visibility } from '@mui/icons-material';
+import { Delete, Visibility, Edit, Save } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 
 const DocumentsPage = ({ theme }) => {
   const [documents, setDocuments] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [editingDocId, setEditingDocId] = useState(null);
+  const [newTitle, setNewTitle] = useState('');
   const userId = localStorage.getItem('userId');
   const navigate = useNavigate();
 
@@ -28,7 +31,6 @@ const DocumentsPage = ({ theme }) => {
     const fetchDocuments = async () => {
       try {
         const response = await axios.get(`https://docuthinker-ai-app.onrender.com/documents/${userId}`);
-
         const documentsData = response.data;
         const documentsList = Object.keys(documentsData)
             .filter(key => key !== 'message')
@@ -51,7 +53,6 @@ const DocumentsPage = ({ theme }) => {
           `https://docuthinker-ai-app.onrender.com/document-details/${userId}/${docId}`
       );
       const { summary, originalText } = response.data;
-
       navigate('/home', { state: { summary, originalText } });
     } catch (error) {
       console.error('Error viewing document:', error);
@@ -76,10 +77,49 @@ const DocumentsPage = ({ theme }) => {
     }
   };
 
+  const handleEditDocument = (docId, currentTitle) => {
+    setEditingDocId(docId);
+    setNewTitle(currentTitle);
+  };
+
+  const handleSaveTitle = async (docId) => {
+    try {
+      await axios.post(`https://docuthinker-ai-app.onrender.com/update-document-title`, {
+        userId,
+        docId,
+        newTitle,
+      });
+
+      const updatedDocuments = documents.map((doc) =>
+          doc.id === docId ? { ...doc, title: [newTitle] } : doc
+      );
+
+      setDocuments(updatedDocuments);
+      setEditingDocId(null); // Close the edit mode
+    } catch (error) {
+      console.error('Error updating document title:', error);
+    }
+  };
+
+  // Function to handle keypress and save the document title on "Enter"
+  const handleKeyPress = (event, docId) => {
+    if (event.key === 'Enter') {
+      handleSaveTitle(docId);
+    }
+  };
+
   if (!userId) {
     return (
         <Box p={4} sx={{ textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ font: 'inherit', fontSize: '24px', fontWeight: 'bold', color: theme === 'dark' ? 'white' : 'black' }}>
+          <Typography
+              variant="h5"
+              sx={{
+                font: 'inherit',
+                fontSize: '24px',
+                fontWeight: 'bold',
+                color: theme === 'dark' ? 'white' : 'black',
+              }}
+          >
             You are not logged in. Please log in to view your documents.
           </Typography>
         </Box>
@@ -96,12 +136,23 @@ const DocumentsPage = ({ theme }) => {
 
   return (
       <Box p={4}>
-        <Typography variant="h4" gutterBottom sx={{ font: 'inherit', fontWeight: 'bold', fontSize: '34px', color: theme === 'dark' ? 'white' : 'black' }}>
+        <Typography
+            variant="h4"
+            gutterBottom
+            sx={{
+              font: 'inherit',
+              fontWeight: 'bold',
+              fontSize: '34px',
+              color: theme === 'dark' ? 'white' : 'black',
+            }}
+        >
           Your Analyzed Documents
         </Typography>
 
         {documents.length === 0 ? (
-            <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>No documents found.</Typography>
+            <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
+              No documents found.
+            </Typography>
         ) : (
             <List>
               {documents.map((doc) => (
@@ -116,21 +167,42 @@ const DocumentsPage = ({ theme }) => {
                         '@media (min-width:600px)': {
                           flexDirection: 'row',
                           alignItems: 'center',
-                          justifyContent: 'space-between'
+                          justifyContent: 'space-between',
                         },
                         '&:hover': {
                           bgcolor: '#f5f5f5',
-                          transition: 'background-color 0.3s ease'
-                        }
+                          transition: 'background-color 0.3s ease',
+                        },
                       }}
                   >
-                    <ListItemText
-                        primary={
-                          <Typography sx={{ font: 'inherit', wordBreak: 'break-word' }}>
-                            {doc.title[0]}
-                          </Typography>
-                        }
-                    />
+                    {/* Document Title or Editable Title */}
+                    {editingDocId === doc.id ? (
+                        <TextField
+                            value={newTitle}
+                            onChange={(e) => setNewTitle(e.target.value)}
+                            onKeyPress={(e) => handleKeyPress(e, doc.id)}
+                            variant="outlined"
+                            size="small"
+                            label={`Enter new title`}
+                            sx={{ mb: 1 }}
+                            inputProps={{
+                              style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
+                            }}
+                            InputLabelProps={{
+                              style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000' },
+                            }}
+                        />
+                    ) : (
+                        <ListItemText
+                            primary={
+                              <Typography sx={{ font: 'inherit', wordBreak: 'break-word' }}>
+                                {doc.title}
+                              </Typography>
+                            }
+                        />
+                    )}
+
+                    {/* Action Buttons */}
                     <Box
                         sx={{
                           display: 'flex',
@@ -139,12 +211,30 @@ const DocumentsPage = ({ theme }) => {
                           mt: { xs: 1, sm: 0 },
                         }}
                     >
-                      <IconButton onClick={() => handleViewDocument(doc.id)} title={`View ${doc.title[0]}`}>
-                        <Visibility />
-                      </IconButton>
-                      <IconButton onClick={() => handleDeleteDocument(doc.id)} sx={{ color: 'red' }} title={`Delete ${doc.title[0]}`}>
-                        <Delete />
-                      </IconButton>
+                      {editingDocId === doc.id ? (
+                          <IconButton onClick={() => handleSaveTitle(doc.id)} title={`Save ${doc.title}`}>
+                            <Save />
+                          </IconButton>
+                      ) : (
+                          <>
+                            <IconButton onClick={() => handleViewDocument(doc.id)} title={`View ${doc.title}`}>
+                              <Visibility />
+                            </IconButton>
+                            <IconButton
+                                onClick={() => handleEditDocument(doc.id, doc.title)}
+                                title={`Edit ${doc.title}`}
+                            >
+                              <Edit />
+                            </IconButton>
+                            <IconButton
+                                onClick={() => handleDeleteDocument(doc.id)}
+                                sx={{ color: 'red' }}
+                                title={`Delete ${doc.title}`}
+                            >
+                              <Delete />
+                            </IconButton>
+                          </>
+                      )}
                     </Box>
                   </ListItem>
               ))}
