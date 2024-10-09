@@ -141,6 +141,12 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   <img src="images/upload-dark.png" alt="Document Upload Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
+### **Document Upload Page - Document Uploaded**
+
+<p align="center">
+  <img src="images/file-uploaded.png" alt="Document Upload Page - Document Uploaded" width="100%" style="border-radius: 8px">
+</p>
+
 ### **Home Page**
 
 <p align="center">
@@ -156,7 +162,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 ### **Home Page - With Key Ideas**
 
 <p align="center">
-  <img src="images/home-with-key-ideas.png" alt="Home Page - With Key Ideas" width="100%" style="border-radius: 8px">
+  <img src="images/home-with-key-idea.png" alt="Home Page - With Key Ideas" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Chat Modal**
@@ -169,6 +175,30 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 
 <p align="center">
   <img src="images/chat-dark.png" alt="Chat Modal - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Documents Page**
+
+<p align="center">
+  <img src="images/documents.png" alt="Documents Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Documents Page - Dark Mode**
+
+<p align="center">
+  <img src="images/documents-dark.png" alt="Documents Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Profile Page**
+
+<p align="center">
+  <img src="images/profile.png" alt="Profile Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Profile Page - Dark Mode**
+
+<p align="center">
+  <img src="images/profile-dark.png" alt="Profile Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
 ### **How To Use Page**
@@ -223,6 +253,12 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 
 <p align="center">
   <img src="images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
+</p>
+
+### **Footer**
+
+<p align="center">
+  <img src="images/footer.png" alt="Footer" width="100%" style="border-radius: 8px">
 </p>
 
 <h2 id="complete-file-structure">📂 Complete File Structure</h2>
