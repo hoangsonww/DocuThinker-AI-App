@@ -59,6 +59,10 @@ const DocumentsPage = ({ theme }) => {
     }
   };
 
+  const handleNewDocClick = () => {
+    navigate('/home');
+  }
+
   const handleDeleteDocument = async (docId) => {
     try {
       await axios.delete(`https://docuthinker-ai-app.onrender.com/documents/${userId}/${docId}`);
@@ -95,13 +99,12 @@ const DocumentsPage = ({ theme }) => {
       );
 
       setDocuments(updatedDocuments);
-      setEditingDocId(null); // Close the edit mode
+      setEditingDocId(null);
     } catch (error) {
       console.error('Error updating document title:', error);
     }
   };
 
-  // Function to handle keypress and save the document title on "Enter"
   const handleKeyPress = (event, docId) => {
     if (event.key === 'Enter') {
       handleSaveTitle(docId);
@@ -149,8 +152,10 @@ const DocumentsPage = ({ theme }) => {
           Your Analyzed Documents
         </Typography>
 
+        <div style={{borderBottom: '1px solid #ccc', width: '100%', marginBottom: '1rem'}}></div>
+
         {documents.length === 0 ? (
-            <Typography sx={{ font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
+            <Typography sx={{font: 'inherit', color: theme === 'dark' ? 'white' : 'black'}}>
               No documents found.
             </Typography>
         ) : (
@@ -184,18 +189,18 @@ const DocumentsPage = ({ theme }) => {
                             variant="outlined"
                             size="small"
                             label={`Enter new title`}
-                            sx={{ mb: 1 }}
+                            sx={{mb: 1}}
                             inputProps={{
-                              style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
+                              style: {fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black'},
                             }}
                             InputLabelProps={{
-                              style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000' },
+                              style: {fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000'},
                             }}
                         />
                     ) : (
                         <ListItemText
                             primary={
-                              <Typography sx={{ font: 'inherit', wordBreak: 'break-word' }}>
+                              <Typography sx={{font: 'inherit', wordBreak: 'break-word'}}>
                                 {doc.title}
                               </Typography>
                             }
@@ -208,30 +213,30 @@ const DocumentsPage = ({ theme }) => {
                           display: 'flex',
                           flexDirection: 'row',
                           gap: 1,
-                          mt: { xs: 1, sm: 0 },
+                          mt: {xs: 1, sm: 0},
                         }}
                     >
                       {editingDocId === doc.id ? (
                           <IconButton onClick={() => handleSaveTitle(doc.id)} title={`Save ${doc.title}`}>
-                            <Save />
+                            <Save/>
                           </IconButton>
                       ) : (
                           <>
                             <IconButton onClick={() => handleViewDocument(doc.id)} title={`View ${doc.title}`}>
-                              <Visibility />
+                              <Visibility/>
                             </IconButton>
                             <IconButton
                                 onClick={() => handleEditDocument(doc.id, doc.title)}
                                 title={`Edit ${doc.title}`}
                             >
-                              <Edit />
+                              <Edit/>
                             </IconButton>
                             <IconButton
                                 onClick={() => handleDeleteDocument(doc.id)}
-                                sx={{ color: 'red' }}
+                                sx={{color: 'red'}}
                                 title={`Delete ${doc.title}`}
                             >
-                              <Delete />
+                              <Delete/>
                             </IconButton>
                           </>
                       )}
@@ -241,14 +246,27 @@ const DocumentsPage = ({ theme }) => {
             </List>
         )}
 
+        <div style={{borderBottom: '0.5px solid #ccc', width: '100%', marginBottom: '1rem', height: '1rem'}}></div>
+
         {documents.length > 0 && (
             <Button
                 variant="contained"
                 color="secondary"
                 onClick={handleDeleteAllDocuments}
-                sx={{ mt: 2, font: 'inherit' }}
+                sx={{mt: 2, font: 'inherit', mr: 2}}
             >
               Delete All Documents
+            </Button>
+        )}
+
+        {documents.length > 0 && (
+            <Button
+                variant="contained"
+                color="primary"
+                onClick={handleNewDocClick}
+                sx={{mt: 2, font: 'inherit'}}
+            >
+              Upload New Documents
             </Button>
         )}
       </Box>
