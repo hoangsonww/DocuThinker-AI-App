@@ -555,6 +555,7 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
 
 - We have deployed the app live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
 - Additionally, we are also using **Netlify** for backups and testing. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
+- The mobile app will be deployed on the **App Store** and **Google Play Store** soon.
 
 ### **Backend Deployment (Render)**
 
