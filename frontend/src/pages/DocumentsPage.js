@@ -124,7 +124,16 @@ const DocumentsPage = ({ theme }) => {
 
   if (!userId) {
     return (
-        <Box p={4} sx={{ textAlign: 'center' }}>
+        <Box p={4}
+             sx={{
+               display: 'flex',
+               justifyContent: 'center',
+               alignItems: 'center',
+               textAlign: 'center',
+               height: '100vh',
+               backgroundColor: theme === 'dark' ? '#222' : '#f4f4f4',
+             }}
+        >
           <Typography
               variant="h5"
               sx={{
