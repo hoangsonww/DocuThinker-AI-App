@@ -1005,12 +1005,75 @@ exports.updateTheme = async (req, res) => {
 
 /**
  * @swagger
+ * /social-media/{userId}:
+ *   get:
+ *     summary: Get social media links for a user
+ *     description: Fetch social media links (GitHub, LinkedIn, Facebook, Instagram) for a specific user by their userId.
+ *     tags:
+ *       - Users
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The user ID of the user whose social media links you want to retrieve.
+ *     responses:
+ *       200:
+ *         description: Social media links retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 socialMedia:
+ *                   type: object
+ *                   properties:
+ *                     github:
+ *                       type: string
+ *                     linkedin:
+ *                       type: string
+ *                     facebook:
+ *                       type: string
+ *                     instagram:
+ *                       type: string
+ *       404:
+ *         description: User not found
+ *       500:
+ *         description: Failed to retrieve social media links
+ */
+exports.getSocialMedia = async (req, res) => {
+  const { userId } = req.params;
+
+  try {
+    const userDoc = await firestore.collection('users').doc(userId).get();
+
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, 'User not found');
+    }
+
+    const userData = userDoc.data();
+    const socialMedia = userData.socialMedia || {
+      github: '',
+      linkedin: '',
+      facebook: '',
+      instagram: '',
+    };
+
+    sendSuccessResponse(res, 200, 'Social media links retrieved successfully', { socialMedia });
+  } catch (error) {
+    sendErrorResponse(res, 500, 'Failed to retrieve social media links', error.message);
+  }
+};
+
+/**
+ * @swagger
  * /update-social-media:
  *   post:
  *     summary: Update social media links for a user
- *     description: Save or update the GitHub, LinkedIn, Facebook, and Instagram links for the user.
+ *     description: Update the social media links (GitHub, LinkedIn, Facebook, Instagram) for a specific user by their userId.
  *     tags:
- *     - Users
+ *       - Users
  *     requestBody:
  *       required: true
  *       content:
@@ -1022,48 +1085,41 @@ exports.updateTheme = async (req, res) => {
  *             properties:
  *               userId:
  *                 type: string
- *                 description: The user ID
+ *                 description: The user ID of the user to update social media links for.
  *               github:
  *                 type: string
- *                 description: The user's GitHub link
  *               linkedin:
  *                 type: string
- *                 description: The user's LinkedIn link
  *               facebook:
  *                 type: string
- *                 description: The user's Facebook link
  *               instagram:
  *                 type: string
- *                 description: The user's Instagram link
  *     responses:
  *       200:
  *         description: Social media links updated successfully
- *       400:
- *         description: Invalid request
+ *       404:
+ *         description: User not found
  *       500:
- *         description: Internal server error
+ *         description: Failed to update social media links
  */
 exports.updateSocialMedia = async (req, res) => {
   const { userId, github, linkedin, facebook, instagram } = req.body;
 
-  if (!userId) {
-    return sendErrorResponse(res, 400, 'User ID is required');
-  }
-
   try {
-    const userDoc = await firestore.collection('users').doc(userId).get();
+    const userRef = firestore.collection('users').doc(userId);
+    const userDoc = await userRef.get();
 
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, 'User not found');
     }
 
     // Update social media links in Firestore
-    await firestore.collection('users').doc(userId).update({
+    await userRef.update({
       socialMedia: {
-        github: github || null,
-        linkedin: linkedin || null,
-        facebook: facebook || null,
-        instagram: instagram || null,
+        github: github || '',
+        linkedin: linkedin || '',
+        facebook: facebook || '',
+        instagram: instagram || '',
       },
     });
 

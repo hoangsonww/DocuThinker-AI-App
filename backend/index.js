@@ -6,7 +6,7 @@ const path = require('path');
 const { registerUser, loginUser, uploadDocument, generateKeyIdeas, generateDiscussionPoints, chatWithAI, forgotPassword,
   verifyEmail, getAllDocuments, getDocumentById, getDocumentDetails, deleteAllDocuments, deleteDocument,
   getDaysSinceJoined, getDocumentCount, updateUserEmail, updateUserPassword, getUserEmail, updateDocumentTitle,
-  getUserJoinedDate, updateTheme, updateSocialMedia
+  getUserJoinedDate, updateTheme, updateSocialMedia, getSocialMedia
 } = require('./controllers');
 
 const app = express();
@@ -107,7 +107,8 @@ app.get('/users/:userId', getUserEmail);
 app.post('/update-document-title', updateDocumentTitle);
 app.get('/user-joined-date/:userId', getUserJoinedDate);
 app.put('/update-theme', updateTheme);
-app.post('/social-media', updateSocialMedia);
+app.get('/social-media/:userId', getSocialMedia); // For getting social media links
+app.post('/update-social-media', updateSocialMedia); // For updating social media links
 
 // Error handling for unsupported routes
 app.use((req, res) => {
