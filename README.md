@@ -584,6 +584,7 @@ We welcome contributions from the community! Follow these steps to contribute:
    ```bash
    git commit -m "Add your feature"
    ```
+   
 4. **Push the changes**:
    ```bash
    git push origin feature/your-feature
