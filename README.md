@@ -522,6 +522,8 @@ Below is a screenshot of the mobile app:
   <img src="images/responsive.png" alt="Mobile App" width="50%" style="border-radius: 8px">
 </p>
 
+Stay tuned for the release of the **DocuThinker** mobile app!
+
 <h2 id="containerization">📦 Containerization</h2>
 
 The **DocuThinker** app can be containerized using **Docker** for easy deployment and scaling. Follow these steps to containerize the app:
