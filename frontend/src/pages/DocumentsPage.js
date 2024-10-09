@@ -30,7 +30,6 @@ const DocumentsPage = ({ theme }) => {
       setLoading(false);
       return;
     }
-
     const fetchDocuments = async () => {
       try {
         const response = await axios.get(`https://docuthinker-ai-app.onrender.com/documents/${userId}`);
