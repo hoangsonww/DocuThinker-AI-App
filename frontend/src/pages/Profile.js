@@ -150,6 +150,7 @@ const Profile = ({ theme }) => {
               display: 'flex',
               justifyContent: 'center',
               alignItems: 'center',
+              textAlign: 'center',
               height: '100vh',
               backgroundColor: theme === 'dark' ? '#222' : '#f4f4f4',
             }}
@@ -159,6 +160,8 @@ const Profile = ({ theme }) => {
               sx={{
                 color: theme === 'dark' ? '#fff' : '#000',
                 font: 'inherit',
+                fontSize: '24px',
+                fontWeight: 'bold',
                 textAlign: 'center',
               }}
           >

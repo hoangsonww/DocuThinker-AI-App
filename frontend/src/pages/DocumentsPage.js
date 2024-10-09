@@ -134,7 +134,7 @@ const DocumentsPage = ({ theme }) => {
                 color: theme === 'dark' ? 'white' : 'black',
               }}
           >
-            You are not logged in. Please log in to view your documents.
+            You are not signed in. Please log in to view your documents.
           </Typography>
         </Box>
     );
