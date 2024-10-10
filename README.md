@@ -104,6 +104,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **React Router**: Declarative routing for React applications.
   - **Context API**: State management for React applications.
   - **React Redux**: State container for JavaScript apps.
+  - **Tailwind CSS**: Utility-first CSS framework for styling.
 - **Backend**:
   - **Express**: Web application framework for Node.js.
   - **Firebase Admin SDK**: Firebase services for server-side applications.
