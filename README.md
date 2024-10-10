@@ -35,6 +35,8 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Forgot Password Page**](#forgot-password-page)
     - [**Forgot Password Page - Dark Mode**](#forgot-password-page---dark-mode)
     - [**Responsive Design Example**](#responsive-design-example)
+    - [**Navigation Drawer**](#navigation-drawer)
+    - [**Footer**](#footer)
 - [**📂 Complete File Structure**](#complete-file-structure)
 - [**🛠️ Getting Started**](#getting-started)
     - [**Prerequisites**](#prerequisites)
