@@ -402,6 +402,11 @@ Ensure you have the following tools installed:
    ```bash
    npm start
    ```
+   
+5. **Build the Frontend React app (for production)**:
+   ```bash
+   npm run build
+   ```
 
 ### **Backend Installation**
 
