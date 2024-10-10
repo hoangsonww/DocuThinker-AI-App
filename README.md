@@ -35,6 +35,8 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Forgot Password Page**](#forgot-password-page)
     - [**Forgot Password Page - Dark Mode**](#forgot-password-page---dark-mode)
     - [**Responsive Design Example**](#responsive-design-example)
+    - [**Navigation Drawer**](#navigation-drawer)
+    - [**Footer**](#footer)
 - [**📂 Complete File Structure**](#complete-file-structure)
 - [**🛠️ Getting Started**](#getting-started)
     - [**Prerequisites**](#prerequisites)
@@ -102,6 +104,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **React Router**: Declarative routing for React applications.
   - **Context API**: State management for React applications.
   - **React Redux**: State container for JavaScript apps.
+  - **Tailwind CSS**: Utility-first CSS framework for styling.
 - **Backend**:
   - **Express**: Web application framework for Node.js.
   - **Firebase Admin SDK**: Firebase services for server-side applications.
@@ -399,6 +402,11 @@ Ensure you have the following tools installed:
 4. **Start the Frontend React app**:
    ```bash
    npm start
+   ```
+   
+5. **Build the Frontend React app (for production)**:
+   ```bash
+   npm run build
    ```
 
 ### **Backend Installation**
