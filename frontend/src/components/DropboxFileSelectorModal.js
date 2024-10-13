@@ -6,8 +6,6 @@ const DropboxFileSelectorModal = ({ open, handleClose, accessToken, onFileSelect
   const [dropboxFiles, setDropboxFiles] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
-
-  // Initialize Dropbox SDK with access token
   const dbx = new Dropbox({ accessToken });
 
   // List files from Dropbox with filtering for .pdf and .docx
@@ -16,7 +14,6 @@ const DropboxFileSelectorModal = ({ open, handleClose, accessToken, onFileSelect
     try {
       const response = await dbx.filesListFolder({ path: '' });
 
-      // Filter for PDF and DOCX files and match the search query
       const filteredFiles = response.entries.filter((file) =>
           (file.name.endsWith('.pdf') || file.name.endsWith('.docx')) && (!query || file.name.toLowerCase().includes(query.toLowerCase()))
       );
@@ -46,13 +43,12 @@ const DropboxFileSelectorModal = ({ open, handleClose, accessToken, onFileSelect
       const selectedFile = new File([blob], response.name, { type: blob.type });
 
       onFileSelect(selectedFile);
-      handleClose(); // Close the modal after selection
+      handleClose();
     } catch (error) {
       console.error('Error downloading Dropbox file:', error);
     }
   };
 
-  // Handle search bar input changes
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
     listFiles(e.target.value);
