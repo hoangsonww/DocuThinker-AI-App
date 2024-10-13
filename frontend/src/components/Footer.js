@@ -76,6 +76,12 @@ const Footer = () => {
           >
             Landing
           </NavLink>
+          <NavLink
+              to="/privacy-policy"
+              style={isLandingActive ? activeLinkStyle : defaultLinkStyle}
+          >
+            Privacy Policy
+          </NavLink>
         </Box>
 
         {/* Social Media Icons */}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import { Box } from '@mui/material';
+import { GoogleOAuthProvider } from '@react-oauth/google'; // Import GoogleOAuthProvider
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import GoogleAnalytics from './components/GoogleAnalytics';
@@ -12,10 +13,12 @@ import LandingPage from './pages/LandingPage';
 import ForgotPassword from './pages/ForgotPassword';
 import DocumentsPage from "./pages/DocumentsPage";
 import Profile from "./pages/Profile";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import './App.css';
 import './styles.css';
 import '@fontsource/poppins';
 
+// Get stored theme from localStorage
 const getStoredTheme = () => {
   return localStorage.getItem('theme') === 'dark' ? 'dark' : 'light';
 };
@@ -52,31 +55,38 @@ function App() {
     localStorage.setItem('theme', newTheme);
   };
 
+  console.log('Google Client ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
+
+
   return (
-      <Router>
-        <GoogleAnalytics />
-        <TrackPageView />
-        <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-          <Navbar theme={theme} onThemeToggle={handleThemeToggle} isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
-          <Box sx={{ flexGrow: 1 }}>
-            <Routes>
-              <Route path="/home" element={<Home theme={theme} />} />
-              <Route path="/" element={<LandingPage theme={theme} />} />
-              <Route path="/landing" element={<LandingPage theme={theme} />} />
-              <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
-              <Route path="/documents" element={<DocumentsPage theme={theme} />} />
-              <Route path="/forgot-password" element={<ForgotPassword theme={theme} />} />
-              <Route path="/profile" element={<Profile theme={theme} />} />
-              <Route
-                  path="/login"
-                  element={<Login onLogin={() => setIsLoggedIn(true)} theme={theme} />}
-              />
-              <Route path="/register" element={<Register theme={theme} />} />
-            </Routes>
+      // Wrap your entire app in GoogleOAuthProvider
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <Router>
+          <GoogleAnalytics />
+          <TrackPageView />
+          <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+            <Navbar theme={theme} onThemeToggle={handleThemeToggle} isLoggedIn={isLoggedIn} onLogout={() => setIsLoggedIn(false)} />
+            <Box sx={{ flexGrow: 1 }}>
+              <Routes>
+                <Route path="/home" element={<Home theme={theme} />} />
+                <Route path="/" element={<LandingPage theme={theme} />} />
+                <Route path="/landing" element={<LandingPage theme={theme} />} />
+                <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
+                <Route path="/documents" element={<DocumentsPage theme={theme} />} />
+                <Route path="/forgot-password" element={<ForgotPassword theme={theme} />} />
+                <Route path="/profile" element={<Profile theme={theme} />} />
+                <Route path="/privacy-policy" element={<PrivacyPolicy theme={theme} />} />
+                <Route
+                    path="/login"
+                    element={<Login onLogin={() => setIsLoggedIn(true)} theme={theme} />}
+                />
+                <Route path="/register" element={<Register theme={theme} />} />
+              </Routes>
+            </Box>
+            <Footer />
           </Box>
-          <Footer />
-        </Box>
-      </Router>
+        </Router>
+      </GoogleOAuthProvider>
   );
 }
 

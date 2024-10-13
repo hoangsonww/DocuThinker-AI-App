@@ -17,7 +17,8 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
-    "server": "nodemon backend/index.js"
+    "server": "nodemon backend/index.js",
+    "frontend": "cd frontend && npm start"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
