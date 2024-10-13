@@ -3,7 +3,7 @@ import { Box, Button, Modal, Typography, CircularProgress, TextField } from '@mu
 import { useDropzone } from 'react-dropzone';
 import axios from 'axios';
 import { gapi } from 'gapi-script';
-import GoogleDriveFileSelectorModal from './GoogleDriveFileSelectorModal'; // Import the new component
+import GoogleDriveFileSelectorModal from './GoogleDriveFileSelectorModal';
 
 const SCOPES = 'https://www.googleapis.com/auth/drive.readonly';
 const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/rest'];
@@ -121,133 +121,136 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
             onClose={() => {
               if (isUploaded) setOpen(false);
             }}
+            disablePortal
             disableBackdropClick={!isUploaded}
             disableEscapeKeyDown={!isUploaded}
+            BackdropProps={{
+              style: { backgroundColor: 'rgba(0, 0, 0, 0.5)' },
+            }}
+            sx={{
+              zIndex: 1200,
+            }}
         >
           <Box
               sx={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                height: '100vh',
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                width: { xs: '90%', sm: '70%', md: '400px' },
+                maxHeight: '90vh',
+                padding: { xs: 2, sm: 4 },
+                bgcolor: theme === 'dark' ? '#1e1e1e' : 'white',
+                textAlign: 'center',
+                borderRadius: '12px',
+                transition: 'background-color 0.3s ease',
+                color: theme === 'dark' ? 'white' : 'black',
+                overflowY: 'auto',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                border: 'none', // Ensure there's no border around the modal
+                outline: 'none', // Remove any default outline that may appear
               }}
           >
-            <Box
+            <Typography
+                variant="h6"
                 sx={{
-                  width: { xs: '90%', sm: '70%', md: '400px' },
-                  maxHeight: '90vh',
-                  padding: { xs: 2, sm: 4 },
-                  bgcolor: theme === 'dark' ? '#1e1e1e' : 'white',
-                  textAlign: 'center',
-                  borderRadius: '12px',
-                  transition: 'background-color 0.3s ease',
+                  marginBottom: 2,
+                  font: 'inherit',
+                  fontSize: { xs: '16px', sm: '18px' },
                   color: theme === 'dark' ? 'white' : 'black',
-                  overflowY: 'auto',
-                  boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                  transition: 'color 0.3s ease',
                 }}
             >
+              Upload a document (PDF or DOCX)
+            </Typography>
+
+            <Box
+                {...getRootProps()}
+                sx={{
+                  border: `2px dashed ${theme === 'dark' ? 'white' : '#f57c00'}`,
+                  padding: { xs: 2, sm: 4 },
+                  cursor: 'pointer',
+                  marginBottom: 2,
+                  transition: 'border-color 0.3s ease',
+                }}
+            >
+              <input {...getInputProps()} />
               <Typography
-                  variant="h6"
+                  variant="body1"
                   sx={{
-                    marginBottom: 2,
                     font: 'inherit',
-                    fontSize: { xs: '16px', sm: '18px' },
                     color: theme === 'dark' ? 'white' : 'black',
                     transition: 'color 0.3s ease',
                   }}
               >
-                Upload a document (PDF or DOCX)
+                Drag & drop a file here, or click to select
               </Typography>
+            </Box>
 
-              <Box
-                  {...getRootProps()}
-                  sx={{
-                    border: `2px dashed ${theme === 'dark' ? 'white' : '#f57c00'}`,
-                    padding: { xs: 2, sm: 4 },
-                    cursor: 'pointer',
-                    marginBottom: 2,
-                    transition: 'border-color 0.3s ease',
-                  }}
-              >
-                <input {...getInputProps()} />
+            {file && (
                 <Typography
-                    variant="body1"
+                    variant="body2"
                     sx={{
+                      mb: 2,
                       font: 'inherit',
                       color: theme === 'dark' ? 'white' : 'black',
                       transition: 'color 0.3s ease',
                     }}
                 >
-                  Drag & drop a file here, or click to select
+                  {file.name}
                 </Typography>
-              </Box>
+            )}
 
-              {file && (
-                  <Typography
-                      variant="body2"
-                      sx={{
-                        mb: 2,
-                        font: 'inherit',
-                        color: theme === 'dark' ? 'white' : 'black',
-                        transition: 'color 0.3s ease',
-                      }}
-                  >
-                    {file.name}
-                  </Typography>
-              )}
+            {file && (
+                <TextField
+                    label="Document Title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    fullWidth
+                    sx={{ marginBottom: 2, font: 'inherit' }}
+                    inputProps={{
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
+                    }}
+                    InputLabelProps={{
+                      style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000' },
+                    }}
+                />
+            )}
 
-              {file && (
-                  <TextField
-                      label="Document Title"
-                      value={title}
-                      onChange={(e) => setTitle(e.target.value)}
-                      fullWidth
-                      sx={{ marginBottom: 2, font: 'inherit' }}
-                      inputProps={{
-                        style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : 'black' },
-                      }}
-                      InputLabelProps={{
-                        style: { fontFamily: 'Poppins, sans-serif', color: theme === 'dark' ? 'white' : '#000' },
-                      }}
-                  />
-              )}
+            <Button
+                variant="contained"
+                sx={{
+                  bgcolor: '#f57c00',
+                  color: 'white',
+                  font: 'inherit',
+                  transition: 'background-color 0.3s ease',
+                  width: '100%',
+                }}
+                onClick={handleUpload}
+                disabled={loading}
+            >
+              {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Upload'}
+            </Button>
 
-              <Button
-                  variant="contained"
-                  sx={{
-                    bgcolor: '#f57c00',
-                    color: 'white',
-                    font: 'inherit',
-                    transition: 'background-color 0.3s ease',
-                    width: '100%',
-                  }}
-                  onClick={handleUpload}
-                  disabled={loading}
-              >
-                {loading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Upload'}
-              </Button>
+            <Typography sx={{ mt: 2, font: 'inherit' }}>OR</Typography>
 
-              <Typography sx={{ mt: 2, font: 'inherit' }}>
-                OR
-              </Typography>
-
-              <Button
-                  variant="contained"
-                  sx={{ bgcolor: '#4285F4 !important', color: 'white !important', font: 'inherit', mt: 2, width: '100%' }}
-                  onClick={handleGoogleLogin}
-                  disabled={!isGoogleAuthReady}
-              >
-                {isGoogleAuthReady ? 'Select from Google Drive' : 'Loading Google Auth...'}
-              </Button>
-            </Box>
+            <Button
+                variant="contained"
+                sx={{
+                  bgcolor: '#4285F4 !important',
+                  color: 'white !important',
+                  font: 'inherit',
+                  mt: 2,
+                  width: '100%',
+                }}
+                onClick={handleGoogleLogin}
+                disabled={!isGoogleAuthReady}
+            >
+              {isGoogleAuthReady ? 'Select from Google Drive' : 'Loading Google Auth...'}
+            </Button>
           </Box>
-
-          <Typography sx={{ mt: 2, font: 'inherit', color: theme === 'dark' ? 'white' : 'black', fontSize: '14px' }}>
-            <em>Note that our servers might be slow or experience downtime due to high traffic. It may take up to 2 minutes to process your document during these times. We appreciate your patience, and apologize for any inconvenience.</em>
-          </Typography>
         </Modal>
 
-        {/* Google Drive File Selector Modal */}
         <GoogleDriveFileSelectorModal
             open={driveModalOpen}
             handleClose={() => setDriveModalOpen(false)}
