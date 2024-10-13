@@ -55,11 +55,7 @@ function App() {
     localStorage.setItem('theme', newTheme);
   };
 
-  console.log('Google Client ID:', process.env.REACT_APP_GOOGLE_CLIENT_ID);
-
-
   return (
-      // Wrap your entire app in GoogleOAuthProvider
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <Router>
           <GoogleAnalytics />

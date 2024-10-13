@@ -170,6 +170,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           position="static"
           sx={{
             bgcolor: theme === 'dark' ? '#333' : 'white',
+            zIndex: 1000,
             padding: 1,
             transition: 'background-color 0.3s ease, color 0.3s ease',
           }}

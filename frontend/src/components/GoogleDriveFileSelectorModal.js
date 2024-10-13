@@ -62,7 +62,7 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
     } catch (error) {
       console.error('Failed to retrieve file from Google Drive:', error);
     } finally {
-      setSelectedFileId(null); // Reset after download is complete
+      setSelectedFileId(null);
     }
   };
 
@@ -134,7 +134,7 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
           />
 
           {loading ? (
-              <CircularProgress sx={{ textAlign: 'center', color: theme === 'dark' ? 'white' : '#f57c00' }} />
+              <CircularProgress sx={{ textAlign: 'center !important', color: theme === 'dark' ? 'white' : '#f57c00' }} />
           ) : (
               <Box sx={{ maxHeight: '300px', overflowY: 'auto', width: '100%' }}>
                 {driveFiles.length > 0 ? (
@@ -150,7 +150,8 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
                                 font: 'inherit',
                                 textAlign: 'left',
                                 color: theme === 'dark' ? 'white' : 'black',
-                                borderColor: theme === 'dark' ? 'white' : '#f57c00',
+                                border: 'none',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
                                 '&:hover': {
                                   backgroundColor: theme === 'dark' ? '#333' : '#f57c00',
                                   color: 'white',
@@ -158,7 +159,7 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
                               }}
                           >
                             {selectedFileId === file.id ? (
-                                <CircularProgress size={24} sx={{ color: theme === 'dark' ? 'white' : 'black' }} />
+                                <CircularProgress size={24} sx={{ color: theme === 'dark' ? 'white' : 'black', textAlign: 'center !important' }} />
                             ) : (
                                 file.name
                             )}

@@ -17,6 +17,8 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Document Upload Page**](#document-upload-page)
     - [**Document Upload Page - Dark Mode**](#document-upload-page---dark-mode)
     - [**Document Upload Page - Document Uploaded**](#document-upload-page---document-uploaded)
+    - [**Google Drive Document Selection**](#google-drive-document-selection)
+    - [**Google Drive Document Selection - Dark Mode**](#google-drive-document-selection---dark-mode)
     - [**Home Page**](#home-page)
     - [**Home Page - Dark Mode**](#home-page---dark-mode)
     - [**Home Page - With Key Ideas**](#home-page---with-key-ideas)
@@ -165,6 +167,18 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 
 <p align="center">
   <img src="images/file-uploaded.png" alt="Document Upload Page - Document Uploaded" width="100%" style="border-radius: 8px">
+</p>
+
+### **Google Drive Document Selection**
+
+<p align="center">
+  <img src="images/drive-upload.png" alt="Google Drive Document Selection" width="100%" style="border-radius: 8px">
+</p>
+
+### **Google Drive Document Selection - Dark Mode**
+
+<p align="center">
+  <img src="images/drive-upload-dark.png" alt="Google Drive Document Selection - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Home Page**
