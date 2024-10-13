@@ -111,6 +111,7 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
           <Typography
               variant="h6"
               sx={{
+                marginTop: 2,
                 marginBottom: 2,
                 font: 'inherit',
                 fontSize: '1.4rem',
