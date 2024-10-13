@@ -14,6 +14,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import DocumentsPage from "./pages/DocumentsPage";
 import Profile from "./pages/Profile";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
+import { Analytics } from "@vercel/analytics/react"
 import './App.css';
 import './styles.css';
 import '@fontsource/poppins';
@@ -58,6 +59,7 @@ function App() {
   return (
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
         <Router>
+          <Analytics />
           <GoogleAnalytics />
           <TrackPageView />
           <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
