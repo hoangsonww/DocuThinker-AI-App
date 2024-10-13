@@ -148,6 +148,7 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
                               sx={{
                                 justifyContent: 'left',
                                 font: 'inherit',
+                                textAlign: 'left',
                                 color: theme === 'dark' ? 'white' : 'black',
                                 borderColor: theme === 'dark' ? 'white' : '#f57c00',
                                 '&:hover': {
