@@ -166,7 +166,7 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
                         </Box>
                     ))
                 ) : isSearchPerformed ? (
-                    <Typography>No files found</Typography>
+                    <Typography sx={{ font: 'inherit' }}>No files found</Typography>
                 ) : null}
               </Box>
           )}
