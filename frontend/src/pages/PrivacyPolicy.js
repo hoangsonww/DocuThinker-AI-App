@@ -224,7 +224,7 @@ const PrivacyPolicy = ({ theme }) => {
           <div style={{ height: '20px', borderBottom: '1px solid #f0f0f0', marginBottom: '20px' }} />
 
           <Typography variant="body1" sx={{ font: 'inherit', fontWeight: 'bold' }}>
-            Made with ❤️ by <a style={{ color: isDark ? 'white' : 'black' }} href="https://sonnguyenhoang.com">Son Nguyen</a> in 2024. Thank you for visiting DocuThinker! 🚀
+            Made with ❤️ by <a style={{ color: '#f57c00' }} href="https://sonnguyenhoang.com">Son Nguyen</a> in 2024. Thank you for visiting DocuThinker! 🚀
           </Typography>
         </Box>
       </Box>

@@ -82,15 +82,16 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
               flexDirection: 'column',
               justifyContent: 'center',
               alignItems: 'center',
-              padding: 4,
+              padding: { xs: 2, sm: 3, md: 4 },
               bgcolor: theme === 'dark' ? '#1e1e1e' : 'white',
               color: theme === 'dark' ? 'white' : 'black',
               borderRadius: '12px',
               boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
-              width: { xs: '90%', sm: '70%', md: '400px' },
+              width: { xs: '90%', sm: '70%', md: '50%', lg: '400px' },
+              maxWidth: '500px',
               maxHeight: '90vh',
               margin: '0 auto',
-              marginTop: '10%',
+              marginTop: { xs: '20%', sm: '10%' },
               textAlign: 'center',
               overflowY: 'auto',
             }}
@@ -112,7 +113,8 @@ const GoogleDriveFileSelectorModal = ({ open, handleClose, googleAuth, onFileSel
               sx={{
                 marginBottom: 2,
                 font: 'inherit',
-                fontSize: { xs: '16px', sm: '18px' },
+                fontSize: '1.4rem',
+                fontWeight: 'bold',
                 color: theme === 'dark' ? 'white' : 'black',
               }}
           >

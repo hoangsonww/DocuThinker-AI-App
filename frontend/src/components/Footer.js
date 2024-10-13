@@ -78,7 +78,7 @@ const Footer = () => {
           </NavLink>
           <NavLink
               to="/privacy-policy"
-              style={isLandingActive ? activeLinkStyle : defaultLinkStyle}
+              style={({ isActive }) => (isActive ? activeLinkStyle : defaultLinkStyle)}
           >
             Privacy Policy
           </NavLink>

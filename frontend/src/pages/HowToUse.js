@@ -300,7 +300,7 @@ const HowToUse = ({ theme }) => {
 
         {/* Thank you message */}
         <Typography sx={{ mt: 3, font: 'inherit', fontWeight: 'bold', fontSize: '18px', color: theme === 'dark' ? 'white' : 'black' }}>
-          Thank you for exploring DocuThinker today! 🚀
+          Made with ❤️ by <a style={{ color: '#f57c00' }} href="https://sonnguyenhoang.com">Son Nguyen</a> in 2024. Thank you for visiting DocuThinker! 🚀
         </Typography>
       </Box>
   );
