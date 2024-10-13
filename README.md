@@ -331,6 +331,7 @@ DocuThinker-AI-App/
 │   │   └── config.js                 # Configuration file for environment variables
 │   ├── .env                          # Environment variables file (e.g., REACT_APP_BACKEND_URL)
 │   ├── package.json                  # Project dependencies and scripts
+│   ├── craco.config.js               # Craco configuration file
 │   ├── Dockerfile                    # Docker configuration file
 │   ├── README.md                     # Frontend README file
 │   └── package.lock                  # Lock file for dependencies
@@ -409,12 +410,26 @@ Ensure you have the following tools installed:
    ```bash
    npm run build
    ```
+   
+6. **Alternatively, you can use `yarn` to install dependencies and run the app**:
+   ```bash
+   yarn install
+   yarn start
+   ```
+   
+7. **Or, for your convenience, if you have already installed the dependencies, you can directly run the app in the root directory using**:
+   ```bash
+   npm run frontend
+   ```
+    This way, you don't have to navigate to the `frontend` directory every time you want to run the app.
+   
+8. **The app will run on `http://localhost:3000`**. You can access it in your browser.
 
 ### **Backend Installation**
 
 Note that this is optional since we are deploying the backend on **Render**. However, you can (and should) run the backend locally for development purposes.
 
-1. **Navigate to the backend directory**:
+1. **Navigate to the root (not `backend`) directory**:
    ```bash
    cd backend
    ```
@@ -426,8 +441,10 @@ Note that this is optional since we are deploying the backend on **Render**. How
 
 3. **Start the backend server**:
    ```bash
-   npm run dev
+   npm run server
    ```
+   
+4. **The backend code is in the `backend` directory**. Feel free to explore the API endpoints and controllers.
    
 **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
 
