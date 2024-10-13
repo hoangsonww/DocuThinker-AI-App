@@ -11,14 +11,13 @@ const DISCOVERY_DOCS = ['https://www.googleapis.com/discovery/v1/apis/drive/v3/r
 const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) => {
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [file, setFile] = useState(null);  // The file selected either from Dropzone or Google Drive
+  const [file, setFile] = useState(null);
   const [isUploaded, setIsUploaded] = useState(false);
   const [title, setTitle] = useState('');
   const [googleAuth, setGoogleAuth] = useState(null);
   const [isGoogleAuthReady, setIsGoogleAuthReady] = useState(false);
-  const [driveModalOpen, setDriveModalOpen] = useState(false); // To control the file selector modal
+  const [driveModalOpen, setDriveModalOpen] = useState(false);
 
-  // Initialize the Google API Client
   const initClient = () => {
     return new Promise((resolve, reject) => {
       gapi.load('client:auth2', () => {
@@ -32,7 +31,7 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
             .then(() => {
               const authInstance = gapi.auth2.getAuthInstance();
               setGoogleAuth(authInstance);
-              setIsGoogleAuthReady(true);  // Mark that Google Auth is ready
+              setIsGoogleAuthReady(true);
               resolve();
             })
             .catch((error) => {
@@ -49,12 +48,11 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
     });
   }, []);
 
-  // Google Sign-In Handler
   const handleGoogleLogin = async () => {
     if (isGoogleAuthReady && googleAuth) {
       try {
         await googleAuth.signIn();
-        setDriveModalOpen(true); // Open the file selector modal
+        setDriveModalOpen(true);
       } catch (error) {
         console.error('Google sign-in failed:', error);
       }
@@ -63,14 +61,12 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
     }
   };
 
-  // Callback when a file is selected from Google Drive
   const handleFileFromGoogleDrive = (selectedFile) => {
     setFile(selectedFile);
-    setTitle(selectedFile.name);  // Set the title from the file name
-    setDocumentFile(selectedFile);  // Set document file for further use
+    setTitle(selectedFile.name);
+    setDocumentFile(selectedFile);
   };
 
-  // File Dropzone (local file upload)
   const onDrop = (acceptedFiles) => {
     setFile(acceptedFiles[0]);
     setDocumentFile(acceptedFiles[0]);
@@ -85,7 +81,6 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
     },
   });
 
-  // Handle File Upload to Server
   const handleUpload = async () => {
     if (!file || !title) return;
 
@@ -238,7 +233,7 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
 
               <Button
                   variant="contained"
-                  sx={{ bgcolor: '#4285F4', color: 'white', font: 'inherit', mt: 2, width: '100%' }}
+                  sx={{ bgcolor: '#4285F4 !important', color: 'white !important', font: 'inherit', mt: 2, width: '100%' }}
                   onClick={handleGoogleLogin}
                   disabled={!isGoogleAuthReady}
               >
@@ -253,7 +248,7 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
             open={driveModalOpen}
             handleClose={() => setDriveModalOpen(false)}
             googleAuth={googleAuth}
-            onFileSelect={handleFileFromGoogleDrive}  // Pass selected file back to UploadModal
+            onFileSelect={handleFileFromGoogleDrive}
             theme={theme}
         />
       </>
