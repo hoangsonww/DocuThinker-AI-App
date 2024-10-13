@@ -31,9 +31,10 @@ const DropboxFileSelectorModal = ({ open, handleClose, accessToken, onFileSelect
 
   useEffect(() => {
     if (open && accessToken) {
-      listFiles(); // Fetch files when modal opens
+      listFiles();
     }
-  }, [open, accessToken]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, accessToken, listFiles]);
 
   // Handle file selection
   const handleFileSelection = async (fileId) => {
