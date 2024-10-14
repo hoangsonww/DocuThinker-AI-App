@@ -11,34 +11,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**📖 Overview**](#-overview)
 - [**✨ Features**](#features)
 - [**⚙️ Technologies**](#technologies)
-- [**🖼️ User Interface**](#user-interface)
-    - [**Landing Page**](#landing-page)
-    - [**Landing Page - Dark Mode**](#landing-page---dark-mode)
-    - [**Document Upload Page**](#document-upload-page)
-    - [**Document Upload Page - Dark Mode**](#document-upload-page---dark-mode)
-    - [**Document Upload Page - Document Uploaded**](#document-upload-page---document-uploaded)
-    - [**Google Drive Document Selection**](#google-drive-document-selection)
-    - [**Google Drive Document Selection - Dark Mode**](#google-drive-document-selection---dark-mode)
-    - [**Home Page**](#home-page)
-    - [**Home Page - Dark Mode**](#home-page---dark-mode)
-    - [**Home Page - With Key Ideas**](#home-page---with-key-ideas)
-    - [**Chat Modal**](#chat-modal)
-    - [**Chat Modal - Dark Mode**](#chat-modal---dark-mode)
-    - [**Documents Page**](#documents-page)
-    - [**Documents Page - Dark Mode**](#documents-page---dark-mode)
-    - [**Profile Page**](#profile-page)
-    - [**Profile Page - Dark Mode**](#profile-page---dark-mode)
-    - [**How To Use Page**](#how-to-use-page)
-    - [**How To Use Page - Dark Mode**](#how-to-use-page---dark-mode)
-    - [**Login Page**](#login-page)
-    - [**Login Page - Dark Mode**](#login-page---dark-mode)
-    - [**Registration Page**](#registration-page)
-    - [**Registration Page - Dark Mode**](#registration-page---dark-mode)
-    - [**Forgot Password Page**](#forgot-password-page)
-    - [**Forgot Password Page - Dark Mode**](#forgot-password-page---dark-mode)
-    - [**Responsive Design Example**](#responsive-design-example)
-    - [**Navigation Drawer**](#navigation-drawer)
-    - [**Footer**](#footer)
+- [**🖼️ User Interfaces**](#user-interface)
 - [**📂 Complete File Structure**](#complete-file-structure)
 - [**🛠️ Getting Started**](#getting-started)
     - [**Prerequisites**](#prerequisites)
@@ -58,6 +31,8 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Live Deployments**](#live-deployments)
     - [**Backend Deployment (Render)**](#backend-deployment-render)
     - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
+- [**🔗 Jenkins Integration**](#jenkins)
+- [**🚢 Kubernetes Integration**](#kubernetes)
 - [**🔧 Contributing**](#contributing)
 - [**📝 License**](#license)
 - [**📚 Alternative Documentation**](#alternative-docs)
@@ -658,6 +633,13 @@ If successful, you should see the Jenkins pipeline running and deploying the app
 <p align="center">
   <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
 </p>
+
+<h2 id="kubernetes">🚢 Kubernetes Integration</h2>
+
+- We are using **Kubernetes** for container orchestration and scaling. The app can be deployed on a Kubernetes cluster for high availability and scalability.
+- The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `k8s` directory.
+- Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
+- You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
 
 <h2 id="contributing">🔧 Contributing</h2>
 
