@@ -103,6 +103,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Swagger**: OpenAPI documentation for all API endpoints.
 - **Containerization**:
   - **Docker**: Containerization platform for building, shipping, and running applications.
+  - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.
 - **Continuous Integration**:
   - **GitHub Actions**: Automated workflows for testing and deployment.
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
