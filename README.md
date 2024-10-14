@@ -631,6 +631,34 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
 
 - Therefore, the first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. It is completely normal to take up to 2 minutes for the first API call to respond.
 
+<h2 id="jenkins">🔗 Jenkins Integration</h2>
+
+- We are using **Jenkins** for continuous integration and deployment. The Jenkins pipeline is set up to automatically test and deploy the app whenever changes are pushed to the main branch.
+- The pipeline runs the tests, builds the app, and deploys it to **Vercel** and **Render**. Feel free to visit the pipeline at **[`Jenkinsfile`](Jenkinsfile)**.
+- The pipeline is triggered automatically whenever a new commit is pushed to the main branch.
+- You can set up your own Jenkins pipeline to automate testing and deployment for your projects by following these commands and steps:
+
+1. **Install Jenkins**:
+   ```bash
+   brew install jenkins
+   ```
+   
+2. **Start Jenkins**:
+   ```bash
+   brew services start jenkins
+   ```
+   
+3. **Access Jenkins**:
+    Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
+
+4. **Follow the instructions to set up Jenkins and create a new pipeline**.
+
+If successful, you should see the Jenkins pipeline running and deploying the app automatically whenever changes are pushed to the main branch. Here is an example:
+
+<p align="center">
+  <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
+</p>
+
 <h2 id="contributing">🔧 Contributing</h2>
 
 We welcome contributions from the community! Follow these steps to contribute:
