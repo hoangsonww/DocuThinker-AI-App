@@ -288,6 +288,7 @@ DocuThinker-AI-App/
 │   ├── models.js                     # Models for interacting with database and AI/ML services
 │   ├── views.js                      # Output formatting for success and error responses
 │   ├── .env                          # Environment variables (git-ignored)
+│   ├── firebase-admin-sdk.json       # Firebase Admin SDK credentials (git-ignored)
 │   ├── index.js                      # Main entry point for the server
 │   ├── Dockerfile                    # Docker configuration file
 │   └── README.md                     # Backend README file
@@ -337,6 +338,14 @@ DocuThinker-AI-App/
 │   ├── babel.config.js               # Babel configuration file
 │   ├── package.json                  # Project dependencies and scripts
 │   ├── tsconfig.json                 # TypeScript configuration file
+├── k8s/                              # Kubernetes configuration files
+│   ├── backend-deployment.yaml       # Deployment configuration for the backend
+│   ├── backend-service.yaml          # Service configuration for the backend
+│   ├── frontend-deployment.yaml      # Deployment configuration for the frontend
+│   ├── frontend-service.yaml         # Service configuration for the frontend
+│   ├── firebase-deployment.yaml      # Deployment configuration for Firebase
+│   ├── firebase-service.yaml         # Service configuration for Firebase
+│   ├── configmap.yaml                # ConfigMap configuration for environment variables
 ├── images/                           # Images for the README
 ├── .env                              # Environment variables file for the whole app
 ├── docker-compose.yml                # Docker Compose file for containerization
