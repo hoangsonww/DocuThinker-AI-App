@@ -11,34 +11,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**📖 Overview**](#-overview)
 - [**✨ Features**](#features)
 - [**⚙️ Technologies**](#technologies)
-- [**🖼️ User Interface**](#user-interface)
-    - [**Landing Page**](#landing-page)
-    - [**Landing Page - Dark Mode**](#landing-page---dark-mode)
-    - [**Document Upload Page**](#document-upload-page)
-    - [**Document Upload Page - Dark Mode**](#document-upload-page---dark-mode)
-    - [**Document Upload Page - Document Uploaded**](#document-upload-page---document-uploaded)
-    - [**Google Drive Document Selection**](#google-drive-document-selection)
-    - [**Google Drive Document Selection - Dark Mode**](#google-drive-document-selection---dark-mode)
-    - [**Home Page**](#home-page)
-    - [**Home Page - Dark Mode**](#home-page---dark-mode)
-    - [**Home Page - With Key Ideas**](#home-page---with-key-ideas)
-    - [**Chat Modal**](#chat-modal)
-    - [**Chat Modal - Dark Mode**](#chat-modal---dark-mode)
-    - [**Documents Page**](#documents-page)
-    - [**Documents Page - Dark Mode**](#documents-page---dark-mode)
-    - [**Profile Page**](#profile-page)
-    - [**Profile Page - Dark Mode**](#profile-page---dark-mode)
-    - [**How To Use Page**](#how-to-use-page)
-    - [**How To Use Page - Dark Mode**](#how-to-use-page---dark-mode)
-    - [**Login Page**](#login-page)
-    - [**Login Page - Dark Mode**](#login-page---dark-mode)
-    - [**Registration Page**](#registration-page)
-    - [**Registration Page - Dark Mode**](#registration-page---dark-mode)
-    - [**Forgot Password Page**](#forgot-password-page)
-    - [**Forgot Password Page - Dark Mode**](#forgot-password-page---dark-mode)
-    - [**Responsive Design Example**](#responsive-design-example)
-    - [**Navigation Drawer**](#navigation-drawer)
-    - [**Footer**](#footer)
+- [**🖼️ User Interfaces**](#user-interface)
 - [**📂 Complete File Structure**](#complete-file-structure)
 - [**🛠️ Getting Started**](#getting-started)
     - [**Prerequisites**](#prerequisites)
@@ -58,6 +31,8 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
     - [**Live Deployments**](#live-deployments)
     - [**Backend Deployment (Render)**](#backend-deployment-render)
     - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
+- [**🔗 Jenkins Integration**](#jenkins)
+- [**🚢 Kubernetes Integration**](#kubernetes)
 - [**🔧 Contributing**](#contributing)
 - [**📝 License**](#license)
 - [**📚 Alternative Documentation**](#alternative-docs)
@@ -115,6 +90,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
   - **RabbitMQ**: Message broker for handling asynchronous tasks.
+  - **OAuth2**: Authentication framework for securing API endpoints.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
@@ -128,6 +104,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Swagger**: OpenAPI documentation for all API endpoints.
 - **Containerization**:
   - **Docker**: Containerization platform for building, shipping, and running applications.
+  - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.
 - **Continuous Integration**:
   - **GitHub Actions**: Automated workflows for testing and deployment.
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
@@ -312,6 +289,7 @@ DocuThinker-AI-App/
 │   ├── models.js                     # Models for interacting with database and AI/ML services
 │   ├── views.js                      # Output formatting for success and error responses
 │   ├── .env                          # Environment variables (git-ignored)
+│   ├── firebase-admin-sdk.json       # Firebase Admin SDK credentials (git-ignored)
 │   ├── index.js                      # Main entry point for the server
 │   ├── Dockerfile                    # Docker configuration file
 │   └── README.md                     # Backend README file
@@ -361,6 +339,14 @@ DocuThinker-AI-App/
 │   ├── babel.config.js               # Babel configuration file
 │   ├── package.json                  # Project dependencies and scripts
 │   ├── tsconfig.json                 # TypeScript configuration file
+├── k8s/                              # Kubernetes configuration files
+│   ├── backend-deployment.yaml       # Deployment configuration for the backend
+│   ├── backend-service.yaml          # Service configuration for the backend
+│   ├── frontend-deployment.yaml      # Deployment configuration for the frontend
+│   ├── frontend-service.yaml         # Service configuration for the frontend
+│   ├── firebase-deployment.yaml      # Deployment configuration for Firebase
+│   ├── firebase-service.yaml         # Service configuration for Firebase
+│   ├── configmap.yaml                # ConfigMap configuration for environment variables
 ├── images/                           # Images for the README
 ├── .env                              # Environment variables file for the whole app
 ├── docker-compose.yml                # Docker Compose file for containerization
@@ -631,6 +617,41 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
 
 - Therefore, the first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. It is completely normal to take up to 2 minutes for the first API call to respond.
 
+<h2 id="jenkins">🔗 Jenkins Integration</h2>
+
+- We are using **Jenkins** for continuous integration and deployment. The Jenkins pipeline is set up to automatically test and deploy the app whenever changes are pushed to the main branch.
+- The pipeline runs the tests, builds the app, and deploys it to **Vercel** and **Render**. Feel free to visit the pipeline at **[`Jenkinsfile`](Jenkinsfile)**.
+- The pipeline is triggered automatically whenever a new commit is pushed to the main branch.
+- You can set up your own Jenkins pipeline to automate testing and deployment for your projects by following these commands and steps:
+
+1. **Install Jenkins**:
+   ```bash
+   brew install jenkins
+   ```
+   
+2. **Start Jenkins**:
+   ```bash
+   brew services start jenkins
+   ```
+   
+3. **Access Jenkins**:
+    Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
+
+4. **Follow the instructions to set up Jenkins and create a new pipeline**.
+
+If successful, you should see the Jenkins pipeline running and deploying the app automatically whenever changes are pushed to the main branch. Here is an example:
+
+<p align="center">
+  <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
+</p>
+
+<h2 id="kubernetes">🚢 Kubernetes Integration</h2>
+
+- We are using **Kubernetes** for container orchestration and scaling. The app can be deployed on a Kubernetes cluster for high availability and scalability.
+- The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `k8s` directory.
+- Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
+- You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
+
 <h2 id="contributing">🔧 Contributing</h2>
 
 We welcome contributions from the community! Follow these steps to contribute:
@@ -652,9 +673,7 @@ We welcome contributions from the community! Follow these steps to contribute:
    git push origin feature/your-feature
    ```
    
-5. **Submit a pull request**.
-
-I will review your changes and merge them into the main branch shortly. 
+5. **Submit a pull request**: Please submit a pull request from your forked repository to the main repository. I will review your changes and merge them into the main branch shortly. 
 
 Thank you for contributing to **DocuThinker**! 🎉
 
