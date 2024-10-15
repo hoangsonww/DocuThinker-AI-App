@@ -110,7 +110,6 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
-  - **Firebase**: Cloud platform for building web and mobile applications.
 
 <h2 id="user-interface">🖼️ User Interface</h2>
 
