@@ -3,5 +3,5 @@ kind: ConfigMap
 metadata:
   name: docuthinker-config
 data:
-  NODE_ENV: production
-  REACT_APP_BACKEND_URL: http://backend-service:3000
+  NODE_ENV: "production"
+  REACT_APP_BACKEND_URL: "http://backend-service:3000"
