@@ -70,7 +70,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 - **API Documentation**: Swagger documentation for all API endpoints.
 - **Authentication Middleware**: Secure routes with Firebase authentication middleware.
 - **Containerization**: Dockerized the app for easy deployment and scaling.
-- **Continuous Integration**: Automated testing and deployment with GitHub Actions.
+- **Continuous Integration**: Automated testing and deployment with GitHub Actions & Jenkins.
 
 <h2 id="technologies">⚙️ Technologies</h2>
 
@@ -107,6 +107,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.
 - **Continuous Integration**:
   - **GitHub Actions**: Automated workflows for testing and deployment.
+  - **Jenkins**: Automation server for continuous integration and deployment.
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
