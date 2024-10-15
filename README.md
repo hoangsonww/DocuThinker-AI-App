@@ -89,7 +89,6 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Node.js**: JavaScript runtime for building scalable network applications.
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
-  - **RabbitMQ**: Message broker for handling asynchronous tasks.
   - **OAuth2**: Authentication framework for securing API endpoints.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
@@ -105,7 +104,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 - **Containerization**:
   - **Docker**: Containerization platform for building, shipping, and running applications.
   - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.
-- **Continuous Integration**:
+- **CI/CD & Deployment**:
   - **GitHub Actions**: Automated workflows for testing and deployment.
   - **Jenkins**: Automation server for continuous integration and deployment.
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
