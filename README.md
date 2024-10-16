@@ -3,7 +3,7 @@
 Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application that integrates an AI-powered document processing backend with a React-based frontend. The app allows users to upload documents for summarization, generate key insights, and chat with an AI based on the document's content.
 
 <p align="center">
-  <img src="images/logo.png" alt="DocuThinker" width="50%" style="border-radius: 8px">
+  <img src="images/logo.png" alt="DocuThinker Logo" width="50%" style="border-radius: 8px">
 </p>
 
 ## **📚 Table of Contents**
