@@ -338,7 +338,7 @@ DocuThinker-AI-App/
 │   ├── babel.config.js               # Babel configuration file
 │   ├── package.json                  # Project dependencies and scripts
 │   ├── tsconfig.json                 # TypeScript configuration file
-├── k8s/                              # Kubernetes configuration files
+├── kubernetes/                       # Kubernetes configuration files
 │   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
 │   ├── backend-service.yaml          # Service configuration for the backend
