@@ -70,7 +70,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 - **API Documentation**: Swagger documentation for all API endpoints.
 - **Authentication Middleware**: Secure routes with Firebase authentication middleware.
 - **Containerization**: Dockerized the app for easy deployment and scaling.
-- **Continuous Integration**: Automated testing and deployment with GitHub Actions.
+- **Continuous Integration**: Automated testing and deployment with GitHub Actions & Jenkins.
 
 <h2 id="technologies">⚙️ Technologies</h2>
 
@@ -89,7 +89,6 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   - **Node.js**: JavaScript runtime for building scalable network applications.
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
-  - **RabbitMQ**: Message broker for handling asynchronous tasks.
   - **OAuth2**: Authentication framework for securing API endpoints.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
@@ -105,12 +104,12 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 - **Containerization**:
   - **Docker**: Containerization platform for building, shipping, and running applications.
   - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.
-- **Continuous Integration**:
+- **CI/CD & Deployment**:
   - **GitHub Actions**: Automated workflows for testing and deployment.
+  - **Jenkins**: Automation server for continuous integration and deployment.
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
-  - **Firebase**: Cloud platform for building web and mobile applications.
 
 <h2 id="user-interface">🖼️ User Interface</h2>
 
@@ -339,7 +338,8 @@ DocuThinker-AI-App/
 │   ├── babel.config.js               # Babel configuration file
 │   ├── package.json                  # Project dependencies and scripts
 │   ├── tsconfig.json                 # TypeScript configuration file
-├── k8s/                              # Kubernetes configuration files
+├── kubernetes/                       # Kubernetes configuration files
+│   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
 │   ├── backend-service.yaml          # Service configuration for the backend
 │   ├── frontend-deployment.yaml      # Deployment configuration for the frontend
@@ -648,7 +648,7 @@ If successful, you should see the Jenkins pipeline running and deploying the app
 <h2 id="kubernetes">🚢 Kubernetes Integration</h2>
 
 - We are using **Kubernetes** for container orchestration and scaling. The app can be deployed on a Kubernetes cluster for high availability and scalability.
-- The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `k8s` directory.
+- The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `kubernetes` directory.
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
 
