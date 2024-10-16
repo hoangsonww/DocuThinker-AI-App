@@ -5,7 +5,6 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 <p align="center">
   <img src="images/logo.png" alt="DocuThinker" width="50%" style="border-radius: 8px">
 </p>
-
 ## **📚 Table of Contents**
 
 - [**📖 Overview**](#-overview)
