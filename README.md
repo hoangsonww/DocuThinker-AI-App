@@ -339,7 +339,7 @@ DocuThinker-AI-App/
 │   ├── scripts/                      # Scripts for the mobile app
 │   ├── babel.config.js               # Babel configuration file
 │   ├── package.json                  # Project dependencies and scripts
-│   ├── tsconfig.json                 # TypeScript configuration file
+│   └── tsconfig.json                 # TypeScript configuration file
 │ 
 ├── kubernetes/                       # Kubernetes configuration files
 │   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
@@ -349,7 +349,8 @@ DocuThinker-AI-App/
 │   ├── frontend-service.yaml         # Service configuration for the frontend
 │   ├── firebase-deployment.yaml      # Deployment configuration for Firebase
 │   ├── firebase-service.yaml         # Service configuration for Firebase
-│   ├── configmap.yaml                # ConfigMap configuration for environment variables
+│   └── configmap.yaml                # ConfigMap configuration for environment variables
+│ 
 ├── images/                           # Images for the README
 ├── .env                              # Environment variables file for the whole app
 ├── docker-compose.yml                # Docker Compose file for containerization
