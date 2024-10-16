@@ -40,7 +40,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 
 <h2 id="-overview">📖 Overview</h2>
 
-The **DocuThinker** app is designed to provide users with a simple, AI-powered document management tool. Users can upload PDFs or Word documents and receive summaries, key insights, and discussion points. Additionally, users can chat with an AI using the document's content for further clarifications.
+The **DocuThinker** app is designed to provide users with a simple, AI-powered document management tool. Users can upload PDFs or Word documents and receive summaries, key insights, and discussion points. Additionally, users can chat with an AI using the document's content for further clarification.
 
 **DocuThinker** is created using the **FERN-Stack** architecture, which stands for **Firebase, Express, React, and Node.js**. The backend is built with Node.js and Express, integrating Firebase for user authentication and MongoDB for data storage. The frontend is built with React and Material-UI, providing a responsive and user-friendly interface.
 
@@ -700,7 +700,7 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 
 ---
 
-**Happy Coding and Analyzing! 🎶**
+**Happy Coding and Analyzing! 🚀**
 
 **Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024.**
 
