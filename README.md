@@ -292,6 +292,7 @@ DocuThinker-AI-App/
 │   ├── index.js                      # Main entry point for the server
 │   ├── Dockerfile                    # Docker configuration file
 │   └── README.md                     # Backend README file
+│ 
 ├── frontend/
 │   ├── public/
 │   │   ├── index.html                # Main HTML template
@@ -326,6 +327,7 @@ DocuThinker-AI-App/
 │   ├── Dockerfile                    # Docker configuration file
 │   ├── README.md                     # Frontend README file
 │   └── package.lock                  # Lock file for dependencies
+│
 ├── mobile-app/                       # Mobile app directory
 │   ├── app/                          # React Native app directory
 │   ├── .env                          # Environment variables file for the mobile app
@@ -338,6 +340,7 @@ DocuThinker-AI-App/
 │   ├── babel.config.js               # Babel configuration file
 │   ├── package.json                  # Project dependencies and scripts
 │   ├── tsconfig.json                 # TypeScript configuration file
+│ 
 ├── kubernetes/                       # Kubernetes configuration files
 │   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
