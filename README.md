@@ -700,7 +700,7 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 
 ---
 
-**Happy Coding and Analyzing! 🎶**
+**Happy Coding and Analyzing! 🚀**
 
 **Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024.**
 
