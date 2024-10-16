@@ -699,7 +699,6 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 - If you find this project helpful or you learned something from the source code, consider giving it a star ⭐️. I would greatly appreciate it! 🚀
 
 ---
-
 **Happy Coding and Analyzing! 🚀**
 
 **Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024.**
