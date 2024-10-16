@@ -339,6 +339,7 @@ DocuThinker-AI-App/
 │   ├── package.json                  # Project dependencies and scripts
 │   ├── tsconfig.json                 # TypeScript configuration file
 ├── k8s/                              # Kubernetes configuration files
+│   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
 │   ├── backend-service.yaml          # Service configuration for the backend
 │   ├── frontend-deployment.yaml      # Deployment configuration for the frontend
@@ -647,7 +648,7 @@ If successful, you should see the Jenkins pipeline running and deploying the app
 <h2 id="kubernetes">🚢 Kubernetes Integration</h2>
 
 - We are using **Kubernetes** for container orchestration and scaling. The app can be deployed on a Kubernetes cluster for high availability and scalability.
-- The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `k8s` directory.
+- The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `kubernetes` directory.
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
 
