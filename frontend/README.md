@@ -3,6 +3,7 @@
 Welcome to the **Frontend** of the **DocuThinker** application! This React-based frontend integrates with the DocuThinker backend, allowing users to upload documents, chat with an AI, and extract key insights from their documents. The frontend also provides various authentication functionalities such as registration, login, and password recovery.
 
 ## Table of Contents
+
 - [Overview](#overview)
 - [File Structure](#file-structure)
 - [Prerequisites](#prerequisites)
@@ -18,6 +19,7 @@ Welcome to the **Frontend** of the **DocuThinker** application! This React-based
 ## Overview
 
 The **DocuThinker Frontend** is built using **React** and **Material-UI** to create a clean and responsive interface. It allows users to:
+
 - Upload documents (PDF or Word) for AI-based summarization and key insights generation.
 - Register, log in, and reset their passwords.
 - View and interact with the document processing results in a user-friendly way.
@@ -175,6 +177,7 @@ DocuThinker-AI-App/
 ```
 
 ### Key Folders
+
 - **assets/**: Contains static assets such as images, fonts, etc.
 - **components/**: Reusable React components like `Navbar`, `Footer`, and `GoogleAnalytics`.
 - **pages/**: React components representing the different pages of the app (e.g., `Home`, `LandingPage`, `Login`).
@@ -183,6 +186,7 @@ DocuThinker-AI-App/
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your machine:
+
 - **Node.js** (v14 or higher)
 - **npm** or **yarn**
 - **Backend API** (Ensure that the backend is set up and running. You can find the backend setup guide in the [backend directory](../backend/README.md)).
@@ -192,6 +196,7 @@ Before you begin, ensure you have the following installed on your machine:
 To get started, follow these steps:
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
    cd DocuThinker-AI-App/frontend
@@ -219,10 +224,13 @@ REACT_APP_GOOGLE_ANALYTICS_ID=G-XXXXXX            # Google Analytics ID (optiona
 ## Running the App
 
 1. **Start the development server**:
+
    ```bash
    npm start
    ```
+
    or if using **yarn**:
+
    ```bash
    yarn start
    ```
@@ -234,15 +242,19 @@ REACT_APP_GOOGLE_ANALYTICS_ID=G-XXXXXX            # Google Analytics ID (optiona
 Here are the most important scripts available in the `package.json`:
 
 - **Start**:
+
   ```bash
   npm start
   ```
+
   Starts the React app in development mode.
 
 - **Build**:
+
   ```bash
   npm run build
   ```
+
   Builds the app for production in the `build/` directory.
 
 - **Test**:
@@ -264,12 +276,15 @@ Here are the most important scripts available in the `package.json`:
 Here are some screenshots of the **DocuThinker Frontend**:
 
 ### Landing Page
+
 [Placeholder for Landing Page Screenshot - Centered]
 
 ### Document Upload
+
 [Placeholder for Document Upload Screenshot - Centered]
 
 ### Login Page
+
 [Placeholder for Login Page Screenshot - Centered]
 
 > **Note**: Replace the placeholders with actual screenshots once you have them. You can take screenshots using your browser or a screenshot tool.

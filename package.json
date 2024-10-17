@@ -13,12 +13,14 @@
   },
   "private": false,
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
+    "start": "cd frontend && npm start",
+    "build": "cd frontend && npm run build",
+    "test": "cd frontend && npm test",
+    "eject": "cd frontend && npm run eject",
     "server": "nodemon backend/index.js",
-    "frontend": "cd frontend && npm start"
+    "frontend": "cd frontend && npm start",
+    "backend": "nodemon backend/index.js",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
@@ -36,6 +38,7 @@
     "googleapis": "^144.0.0",
     "mammoth": "^1.8.0",
     "pdf-parse": "^1.1.1",
+    "prettier": "^3.3.3",
     "react": "^18",
     "react-dom": "^18",
     "react-helmet": "^6.1.0",

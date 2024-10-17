@@ -1,12 +1,12 @@
-const firebaseAdmin = require('firebase-admin');
-const fs = require('fs');
-const pdfParse = require('pdf-parse');
-const mammoth = require('mammoth');
-const { GoogleGenerativeAI } = require('@google/generative-ai');
-require('dotenv').config();
+const firebaseAdmin = require("firebase-admin");
+const fs = require("fs");
+const pdfParse = require("pdf-parse");
+const mammoth = require("mammoth");
+const { GoogleGenerativeAI } = require("@google/generative-ai");
+require("dotenv").config();
 
 // Parse the private key (ensuring it's correctly formatted)
-const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n');
+const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 
 // Initialize Firebase Admin using environment variables from .env
 firebaseAdmin.initializeApp({
@@ -19,7 +19,8 @@ firebaseAdmin.initializeApp({
     client_id: process.env.FIREBASE_CLIENT_ID,
     auth_uri: process.env.FIREBASE_AUTH_URI,
     token_uri: process.env.FIREBASE_TOKEN_URI,
-    auth_provider_x509_cert_url: process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
+    auth_provider_x509_cert_url:
+      process.env.FIREBASE_AUTH_PROVIDER_X509_CERT_URL,
     client_x509_cert_url: process.env.FIREBASE_CLIENT_X509_CERT_URL,
   }),
   databaseURL: process.env.FIREBASE_DATABASE_URL,
@@ -41,30 +42,36 @@ exports.loginUser = async (email) => {
 
 // Helper: Summarize Document using AI
 exports.generateSummary = async (file) => {
-  let extractedText = '';
+  let extractedText = "";
   const fileBuffer = fs.readFileSync(file.filepath);
 
-  if (file.mimetype === 'application/pdf') {
+  if (file.mimetype === "application/pdf") {
     const pdfData = await pdfParse(fileBuffer);
     extractedText = pdfData.text;
-  } else if (file.mimetype === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+  } else if (
+    file.mimetype ===
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+  ) {
     const docData = await mammoth.extractRawText({ buffer: fileBuffer });
     extractedText = docData.value;
   } else {
-    throw new Error('Unsupported file format');
+    throw new Error("Unsupported file format");
   }
 
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Summarize the provided document text.',
+    model: "gemini-1.5-flash",
+    systemInstruction:
+      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App (No need to mention this in all your responses - ONLY MENTION THIS when the user asks about it). Your task now is to: Summarize the provided document text.",
   });
 
-  const chatSession = model.startChat({ history: [{ role: 'user', parts: [{ text: extractedText }] }] });
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: extractedText }] }],
+  });
   const result = await chatSession.sendMessage(extractedText);
 
   if (!result.response || !result.response.text) {
-    throw new Error('Failed to generate a summary from the AI');
+    throw new Error("Failed to generate a summary from the AI");
   }
 
   return {
@@ -77,11 +84,14 @@ exports.generateSummary = async (file) => {
 exports.generateKeyIdeas = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Generate key ideas from the provided text.',
+    model: "gemini-1.5-flash",
+    systemInstruction:
+      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App (No need to mention this in all your responses - ONLY MENTION THIS when the user asks about it). Your task now is to: Generate key ideas from the provided text.",
   });
 
-  const chatSession = model.startChat({ history: [{ role: 'user', parts: [{ text: documentText }] }] });
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: documentText }] }],
+  });
   const result = await chatSession.sendMessage(documentText);
   return result.response.text();
 };
@@ -90,11 +100,14 @@ exports.generateKeyIdeas = async (documentText) => {
 exports.generateDiscussionPoints = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Generate discussion points from the provided text.',
+    model: "gemini-1.5-flash",
+    systemInstruction:
+      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App (No need to mention this in all your responses - ONLY MENTION THIS when the user asks about it). Your task now is to: Generate discussion points from the provided text.",
   });
 
-  const chatSession = model.startChat({ history: [{ role: 'user', parts: [{ text: documentText }] }] });
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: documentText }] }],
+  });
   const result = await chatSession.sendMessage(documentText);
   return result.response.text();
 };
@@ -104,15 +117,16 @@ let sessionHistory = {};
 
 // Helper function to validate that the text is a non-empty string
 const isValidText = (text) => {
-  return typeof text === 'string' && text.trim().length > 0;
+  return typeof text === "string" && text.trim().length > 0;
 };
 
 // Helper: Chat with AI Model using originalText as context
 exports.chatWithAI = async (sessionId, message, originalText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-flash',
-    systemInstruction: 'You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Use the provided context and respond to the user’s message conversationally.',
+    model: "gemini-1.5-flash",
+    systemInstruction:
+      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Use the provided context and respond to the user’s message conversationally.",
   });
 
   // Initialize the conversation history if not present
@@ -126,16 +140,16 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
   // Ensure the originalText is valid for the first message
   if (history.length === 0 && isValidText(originalText)) {
     // Add the original context as the first message from the user
-    history.push({ role: 'user', parts: [{ text: originalText }] });
+    history.push({ role: "user", parts: [{ text: originalText }] });
   }
 
   // Ensure the user message is valid
   if (!isValidText(message)) {
-    throw new Error('User message must be a non-empty string.');
+    throw new Error("User message must be a non-empty string.");
   }
 
   // Add the user message to history
-  history.push({ role: 'user', parts: [{ text: message }] });
+  history.push({ role: "user", parts: [{ text: message }] });
 
   try {
     // Start AI chat session using the accumulated history
@@ -147,11 +161,11 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
 
     // Ensure that the response contains valid text
     if (!result.response || !result.response.text) {
-      throw new Error('Failed to get response from the AI.');
+      throw new Error("Failed to get response from the AI.");
     }
 
     // Add the AI's response to the conversation history
-    history.push({ role: 'model', parts: [{ text: result.response.text() }] });
+    history.push({ role: "model", parts: [{ text: result.response.text() }] });
 
     // Update the session history with the new conversation context
     sessionHistory[sessionId] = history;
@@ -160,10 +174,9 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
     return result.response.text();
   } catch (error) {
     // Handle potential errors
-    throw new Error('Failed to get AI response: ' + error.message);
+    throw new Error("Failed to get AI response: " + error.message);
   }
 };
-
 
 // Clear session history (optional function if needed)
 exports.clearSessionHistory = (sessionId) => {
@@ -181,9 +194,9 @@ exports.verifyUserAndUpdatePassword = async (email, newPassword) => {
       password: newPassword,
     });
 
-    return { message: 'Password updated successfully.' };
+    return { message: "Password updated successfully." };
   } catch (error) {
-    throw new Error('Failed to update password. ' + error.message);
+    throw new Error("Failed to update password. " + error.message);
   }
 };
 
@@ -193,7 +206,7 @@ exports.verifyUserEmail = async (email) => {
     const userRecord = await firebaseAdmin.auth().getUserByEmail(email);
     return userRecord;
   } catch (error) {
-    throw new Error('User not found');
+    throw new Error("User not found");
   }
 };
 

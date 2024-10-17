@@ -36,9 +36,9 @@ m. **You** means the individual or entity exercising the Licensed Rights under t
 
 1. Subject to the terms and conditions of this Public License, the Licensor hereby grants You a worldwide, royalty-free, non-sublicensable, non-exclusive, irrevocable license to exercise the Licensed Rights in the Licensed Material to:
 
-    a. reproduce and Share the Licensed Material, in whole or in part, for NonCommercial purposes only; and
+   a. reproduce and Share the Licensed Material, in whole or in part, for NonCommercial purposes only; and
 
-    b. produce, reproduce, and Share Adapted Material for NonCommercial purposes only.
+   b. produce, reproduce, and Share Adapted Material for NonCommercial purposes only.
 
 2. **Exceptions and Limitations.** For the avoidance of doubt, where Exceptions and Limitations apply to Your use, this Public License does not apply, and You do not need to comply with its terms and conditions.
 
@@ -48,9 +48,9 @@ m. **You** means the individual or entity exercising the Licensed Rights under t
 
 5. **Downstream recipients.**
 
-    a. **Offer from the Licensor – Licensed Material.** Every recipient of the Licensed Material automatically receives an offer from the Licensor to exercise the Licensed Rights under the terms and conditions of this Public License.
+   a. **Offer from the Licensor – Licensed Material.** Every recipient of the Licensed Material automatically receives an offer from the Licensor to exercise the Licensed Rights under the terms and conditions of this Public License.
 
-    b. **No downstream restrictions.** You may not offer or impose any additional or different terms or conditions on, or apply any Effective Technological Measures to, the Licensed Material if doing so restricts exercise of the Licensed Rights by any recipient of the Licensed Material.
+   b. **No downstream restrictions.** You may not offer or impose any additional or different terms or conditions on, or apply any Effective Technological Measures to, the Licensed Material if doing so restricts exercise of the Licensed Rights by any recipient of the Licensed Material.
 
 6. **No endorsement.** Nothing in this Public License constitutes or may be construed as permission to assert or imply that You are, or that Your use of the Licensed Material is, connected with, or sponsored, endorsed, or granted official status by, the Licensor or others designated to receive attribution as provided in Section 3(a)(1)(A)(i).
 
@@ -68,7 +68,7 @@ Your exercise of the Licensed Rights is expressly made subject to the following 
 
 ### a. Attribution.
 
-1. If You Share the Licensed Material (including in modified form), You must:
+1.  If You Share the Licensed Material (including in modified form), You must:
 
     a. retain the following if it is supplied by the Licensor with the Licensed Material:
 
@@ -86,19 +86,19 @@ Your exercise of the Licensed Rights is expressly made subject to the following 
 
     c. indicate the Licensed Material is licensed under this Public License, and include the text of, or the URI or hyperlink to, this Public License.
 
-2. You may satisfy the conditions in Section 3(a)(1) in any reasonable manner based on the medium, means, and context in which You Share the Licensed Material. For example, it may be reasonable to satisfy the conditions by providing a URI or hyperlink to a resource that includes the required information.
+2.  You may satisfy the conditions in Section 3(a)(1) in any reasonable manner based on the medium, means, and context in which You Share the Licensed Material. For example, it may be reasonable to satisfy the conditions by providing a URI or hyperlink to a resource that includes the required information.
 
-3. If requested by the Licensor, You must remove any of the information required by Section 3(a)(1)(A) to the extent reasonably practicable.
+3.  If requested by the Licensor, You must remove any of the information required by Section 3(a)(1)(A) to the extent reasonably practicable.
 
 ### b. ShareAlike.
 
 1. In addition to the conditions in Section 3(a), if You Share Adapted Material You produce, the following conditions also apply.
 
-    a. The Adapter's License You apply must be a Creative Commons license with the same License Elements, this version or later, or a BY-NC Compatible License.
+   a. The Adapter's License You apply must be a Creative Commons license with the same License Elements, this version or later, or a BY-NC Compatible License.
 
-    b. You must include the text of, or the URI or hyperlink to, the Adapter's License You apply. You may satisfy this condition in any reasonable manner based on the medium, means, and context in which You Share Adapted Material.
+   b. You must include the text of, or the URI or hyperlink to, the Adapter's License You apply. You may satisfy this condition in any reasonable manner based on the medium, means, and context in which You Share Adapted Material.
 
-    c. You may not offer or impose any additional or different terms or conditions on, or apply any Effective Technological Measures to, Adapted Material that restrict exercise of the rights granted under the Adapter's License You apply.
+   c. You may not offer or impose any additional or different terms or conditions on, or apply any Effective Technological Measures to, Adapted Material that restrict exercise of the rights granted under the Adapter's License You apply.
 
 ## Section 4 – Sui Generis Database Rights.
 

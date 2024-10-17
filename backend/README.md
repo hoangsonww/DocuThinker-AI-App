@@ -5,6 +5,7 @@ The **DocuThinker Backend** is the server-side component of the DocuThinker appl
 The backend is currently hosted on Render and can be accessed at [https://docuthinker-ai-app.onrender.com](https://docuthinker-ai-app.onrender.com).
 
 ## Table of Contents
+
 - [Features](#features)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
@@ -29,6 +30,7 @@ The backend is currently hosted on Render and can be accessed at [https://docuth
 ## Prerequisites
 
 Ensure you have the following installed on your machine:
+
 - **Node.js** (v14 or higher)
 - **npm** or **yarn**
 - **Firebase Admin SDK** credentials
@@ -38,6 +40,7 @@ Ensure you have the following installed on your machine:
 ## Installation
 
 1. **Clone the repository**:
+
    ```bash
    git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
    cd DocuThinker-AI-App/backend
@@ -78,10 +81,13 @@ Make sure to replace these values with your Firebase and Google Generative AI cr
 ## Running the Server
 
 1. **Start the development server**:
+
    ```bash
    npm run dev
    ```
+
    or if using **yarn**:
+
    ```bash
    yarn dev
    ```
@@ -125,7 +131,7 @@ Here you’ll find all the available routes, their request formats, and response
 The backend of **DocuThinker** provides the following API endpoints:
 
 | **Method** | **Endpoint**                         | **Description**                                                                                     |
-|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
@@ -150,6 +156,7 @@ The backend of **DocuThinker** provides the following API endpoints:
 Routes that require authentication (such as uploading documents or generating insights) need a **Bearer token** provided in the `Authorization` header.
 
 Example:
+
 ```bash
 Authorization: Bearer <your-jwt-token>
 ```

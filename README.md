@@ -14,23 +14,23 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**🖼️ User Interfaces**](#user-interface)
 - [**📂 Complete File Structure**](#complete-file-structure)
 - [**🛠️ Getting Started**](#getting-started)
-    - [**Prerequisites**](#prerequisites)
-    - [**Frontend Installation**](#frontend-installation)
-    - [**Backend Installation**](#backend-installation)
-    - [**Running the Mobile App**](#running-the-mobile-app)
+  - [**Prerequisites**](#prerequisites)
+  - [**Frontend Installation**](#frontend-installation)
+  - [**Backend Installation**](#backend-installation)
+  - [**Running the Mobile App**](#running-the-mobile-app)
 - [**📋 API Endpoints**](#api-endpoints)
-    - [**API Documentation**](#api-documentation)
-    - [**API Architecture**](#api-architecture)
-    - [**API Testing**](#api-testing)
-    - [**Error Handling**](#error-handling)
-    - [**Example Request to Register a User**](#example-request-to-register-a-user)
+  - [**API Documentation**](#api-documentation)
+  - [**API Architecture**](#api-architecture)
+  - [**API Testing**](#api-testing)
+  - [**Error Handling**](#error-handling)
+  - [**Example Request to Register a User**](#example-request-to-register-a-user)
 - [**📱 Mobile App**](#mobile-app)
 - [**📦 Containerization**](#containerization)
 - [**🚀 Deployment**](#deployment)
-    - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
-    - [**Live Deployments**](#live-deployments)
-    - [**Backend Deployment (Render)**](#backend-deployment-render)
-    - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
+  - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
+  - [**Live Deployments**](#live-deployments)
+  - [**Backend Deployment (Render)**](#backend-deployment-render)
+  - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
 - [**🔗 Jenkins Integration**](#jenkins)
 - [**🚢 Kubernetes Integration**](#kubernetes)
 - [**🔧 Contributing**](#contributing)
@@ -292,7 +292,7 @@ DocuThinker-AI-App/
 │   ├── index.js                      # Main entry point for the server
 │   ├── Dockerfile                    # Docker configuration file
 │   └── README.md                     # Backend README file
-│ 
+│
 ├── frontend/
 │   ├── public/
 │   │   ├── index.html                # Main HTML template
@@ -340,7 +340,7 @@ DocuThinker-AI-App/
 │   ├── babel.config.js               # Babel configuration file
 │   ├── package.json                  # Project dependencies and scripts
 │   └── tsconfig.json                 # TypeScript configuration file
-│ 
+│
 ├── kubernetes/                       # Kubernetes configuration files
 │   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
@@ -350,7 +350,7 @@ DocuThinker-AI-App/
 │   ├── firebase-deployment.yaml      # Deployment configuration for Firebase
 │   ├── firebase-service.yaml         # Service configuration for Firebase
 │   └── configmap.yaml                # ConfigMap configuration for environment variables
-│ 
+│
 ├── images/                           # Images for the README
 ├── .env                              # Environment variables file for the whole app
 ├── docker-compose.yml                # Docker Compose file for containerization
@@ -390,17 +390,20 @@ Ensure you have the following tools installed:
 ### **Frontend Installation**
 
 1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
-    cd DocuThinker-AI-App/backend
-    ```
+
+   ```bash
+   git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
+   cd DocuThinker-AI-App/backend
+   ```
 
 2. **Navigate to the frontend directory**:
+
    ```bash
    cd frontend
    ```
 
 3. **Install dependencies**:
+
    ```bash
    npm install
    ```
@@ -409,24 +412,20 @@ Ensure you have the following tools installed:
    ```bash
    npm start
    ```
-   
 5. **Build the Frontend React app (for production)**:
    ```bash
    npm run build
    ```
-   
 6. **Alternatively, you can use `yarn` to install dependencies and run the app**:
    ```bash
    yarn install
    yarn start
    ```
-   
 7. **Or, for your convenience, if you have already installed the dependencies, you can directly run the app in the root directory using**:
    ```bash
    npm run frontend
    ```
-    This way, you don't have to navigate to the `frontend` directory every time you want to run the app.
-   
+   This way, you don't have to navigate to the `frontend` directory every time you want to run the app.
 8. **The app will run on `http://localhost:3000`**. You can access it in your browser.
 
 ### **Backend Installation**
@@ -434,11 +433,13 @@ Ensure you have the following tools installed:
 Note that this is optional since we are deploying the backend on **Render**. However, you can (and should) run the backend locally for development purposes.
 
 1. **Navigate to the root (not `backend`) directory**:
+
    ```bash
    cd backend
    ```
 
 2. **Install dependencies**:
+
    ```bash
    npm install
    ```
@@ -447,9 +448,8 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    npm run server
    ```
-   
 4. **The backend code is in the `backend` directory**. Feel free to explore the API endpoints and controllers.
-   
+
 **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
 
 ### **Running the Mobile App**
@@ -458,17 +458,14 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    cd mobile-app
    ```
-   
 2. **Install dependencies**:
    ```bash
     npm install
-    ```
-   
+   ```
 3. **Start the Expo server**:
-    ```bash
-    npx expo start
-    ```
-   
+   ```bash
+   npx expo start
+   ```
 4. **Run the app on an emulator or physical device**: Follow the instructions in the terminal to run the app on an emulator or physical device.
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
@@ -476,7 +473,7 @@ Note that this is optional since we are deploying the backend on **Render**. How
 The backend of **DocuThinker** provides several API endpoints for user authentication, document management, and AI-powered insights. These endpoints are used by the frontend to interact with the backend server:
 
 | **Method** | **Endpoint**                         | **Description**                                                                                     |
-|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
@@ -586,7 +583,6 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
    ```bash
    docker compose up --build
    ```
-   
 2. The app will be containerized and ready to run on port 3000.
 
 <h2 id="deployment">🚀 Deployment</h2>
@@ -594,11 +590,13 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
 ### **Frontend Deployment (Vercel)**
 
 1. **Install the Vercel CLI**:
+
    ```bash
    npm install -g vercel
    ```
 
 2. **Deploy the frontend**:
+
    ```bash
    vercel
    ```
@@ -634,14 +632,12 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
    ```bash
    brew install jenkins
    ```
-   
 2. **Start Jenkins**:
    ```bash
    brew services start jenkins
    ```
-   
 3. **Access Jenkins**:
-    Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
+   Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
 
 4. **Follow the instructions to set up Jenkins and create a new pipeline**.
 
@@ -668,18 +664,15 @@ We welcome contributions from the community! Follow these steps to contribute:
    ```bash
    git checkout -b feature/your-feature
    ```
-   
 3. **Commit your changes**:
    ```bash
    git commit -m "Add your feature"
    ```
-   
 4. **Push the changes**:
    ```bash
    git push origin feature/your-feature
    ```
-   
-5. **Submit a pull request**: Please submit a pull request from your forked repository to the main repository. I will review your changes and merge them into the main branch shortly. 
+5. **Submit a pull request**: Please submit a pull request from your forked repository to the main repository. I will review your changes and merge them into the main branch shortly.
 
 Thank you for contributing to **DocuThinker**! 🎉
 

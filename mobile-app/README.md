@@ -120,20 +120,18 @@ Contributions are welcome! Here's how you can help:
    git clone git clone https://github.com/hoangsonww/DocuThinker-AI-App.git
    cd DocuThinker-AI-App/mobile-app
    ```
-   
 2. Create a new branch:
    ```bash
     git checkout -b feature/your-branch-name
-    ```
-   
+   ```
 3. Make your changes and commit them:
    ```bash
     git add .
     git commit -m 'Add some feature'
-    ```
-   
+   ```
 4. Push to the original branch:
-    ```bash
+
+   ```bash
    git push origin feature/your-branch-name
    ```
 

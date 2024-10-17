@@ -1,7 +1,7 @@
 // next.config.mjs
 
 const nextConfig = {
-  reactStrictMode: true,  // Strict mode for catching potential problems in React
+  reactStrictMode: true, // Strict mode for catching potential problems in React
 
   // Environment variables
   env: {
@@ -16,10 +16,10 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/api/:path*',
+        source: "/api/:path*",
         headers: [
-          { key: 'Access-Control-Allow-Origin', value: '*' },
-          { key: 'Access-Control-Allow-Methods', value: 'GET,POST,OPTIONS' },
+          { key: "Access-Control-Allow-Origin", value: "*" },
+          { key: "Access-Control-Allow-Methods", value: "GET,POST,OPTIONS" },
         ],
       },
     ];
@@ -27,7 +27,7 @@ const nextConfig = {
 
   // Enable image domains if needed for external image sources
   images: {
-    domains: ['example.com'],
+    domains: ["example.com"],
   },
 
   // Optional: Custom Webpack configuration
