@@ -132,6 +132,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 <p align="center">
   <img src="images/upload.png" alt="Document Upload Page" width="100%" style="border-radius: 8px">
 </p>
+
 ### **Document Upload Page - Dark Mode**
 
 <p align="center">
