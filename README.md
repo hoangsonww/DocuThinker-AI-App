@@ -271,6 +271,18 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
   <img src="images/navigation-drawer.png" alt="Navigation Drawer" width="50%" style="border-radius: 8px">
 </p>
 
+### **404 Not Found Page**
+
+<p align="center">
+  <img src="images/404.png" alt="404 Not Found Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **404 Not Found Page - Dark Mode**
+
+<p align="center">
+  <img src="images/404-dark.png" alt="404 Not Found Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
 ### **Footer**
 
 <p align="center">
