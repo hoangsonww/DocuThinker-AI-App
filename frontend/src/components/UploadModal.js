@@ -136,12 +136,9 @@ const UploadModal = ({
 
   return (
     <>
+      <div style={{ position: "relative", width: "100%", height: "100%", display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
       <Box
         sx={{
-          position: "fixed",
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)",
           width: { xs: "90%", sm: "70%", md: "400px" },
           maxHeight: "90vh",
           padding: { xs: 2, sm: 4 },
@@ -294,6 +291,7 @@ const UploadModal = ({
         onFileSelect={handleFileFromGoogleDrive}
         theme={theme}
       />
+      </div>
     </>
   );
 };
