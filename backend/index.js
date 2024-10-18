@@ -39,6 +39,7 @@ const corsOptions = {
     "http://localhost:3002",
     "http://localhost:3000",
     "https://docuthinker-fullstack-app.vercel.app",
+    "https://docuthinker-ai-app.netlify.app",
   ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true,
