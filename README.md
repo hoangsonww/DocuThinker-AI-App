@@ -719,5 +719,4 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 **Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024.**
 
 ---
-
 [🔝 Back to Top](#docuthinker---ai-powered-document-analysis-and-summarization-app)
