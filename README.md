@@ -595,7 +595,10 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
    ```bash
    docker compose up --build
    ```
+   
 2. The app will be containerized and ready to run on port 3000.
+
+You can also view the image in the **Docker Hub** repository **[here](https://hub.docker.com/repository/docker/hoangsonw/docuthinker-ai-app/)**.
 
 <h2 id="deployment">🚀 Deployment</h2>
 
