@@ -9,6 +9,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 ## **📚 Table of Contents**
 
 - [**📖 Overview**](#-overview)
+- [**🚀 Live Deployments**](#live-deployments)
 - [**✨ Features**](#features)
 - [**⚙️ Technologies**](#technologies)
 - [**🖼️ User Interfaces**](#user-interface)
@@ -28,9 +29,9 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**📦 Containerization**](#containerization)
 - [**🚀 Deployment**](#deployment)
   - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
-  - [**Live Deployments**](#live-deployments)
   - [**Backend Deployment (Render)**](#backend-deployment-render)
   - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
+- [**⚖️ Load Balancing & Caching**](#load-balancing)
 - [**🔗 Jenkins Integration**](#jenkins)
 - [**🚢 Kubernetes Integration**](#kubernetes)
 - [**🔧 Contributing**](#contributing)
@@ -51,6 +52,19 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 [![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green)](https://docuthinker-ai-app.netlify.app)
 [![Firebase Functional](https://img.shields.io/badge/Firebase-Functional-green)](https://firebase.google.com)
 [![MongoDB Atlas Connected](https://img.shields.io/badge/MongoDB%20Atlas-Connected-green)](https://www.mongodb.com/cloud/atlas)
+
+<h2 id="live-deployments">🚀 Live Deployments</h2>
+
+We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
+
+- **Frontend**: Deployed on **Vercel**.
+- **Backend**: Deployed on **Render**. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
+
+Feel free to explore the live app and test the functionalities. You can upload documents, generate summaries, and chat with an AI using the live app.
+
+**Note**: The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. Additionally, the app is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
+
+**Also:** We are using **Netlify** for backups and testing. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
 
 <h2 id="features">✨ Features</h2>
 
@@ -485,7 +499,7 @@ Note that this is optional since we are deploying the backend on **Render**. How
 The backend of **DocuThinker** provides several API endpoints for user authentication, document management, and AI-powered insights. These endpoints are used by the frontend to interact with the backend server:
 
 | **Method** | **Endpoint**                         | **Description**                                                                                     |
-| ---------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
+|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
@@ -618,12 +632,6 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
 
 3. **Follow the instructions in your terminal to complete the deployment**.
 
-### **Live Deployments**
-
-- We have deployed the app live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
-- Additionally, we are also using **Netlify** for backups and testing. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
-- The mobile app will be deployed on the **App Store** and **Google Play Store** soon.
-
 ### **Backend Deployment (Render)**
 
 - The backend can be deployed on platforms like **Heroku**, **Render**, or **Vercel**.
@@ -635,6 +643,22 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
 - Please note that we are currently on the **Free Tier** of **Render**. This means that the backend server may take a few seconds to wake up if it has been inactive for a while.
 
 - Therefore, the first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. It is completely normal to take up to 2 minutes for the first API call to respond.
+
+- Also, the **Free Tier** of **Render** only allocates **512MB and 0.1 CPU**. This may result in slower response times for API calls and document processing.
+
+- Additionally, during high traffic periods, the server may take longer to respond, although we have employed [NGINX](#load-balancing) for load balancing and caching.
+
+<h2 id="load-balancing">⚖️ Load Balancing & Caching</h2>
+
+- We are using **NGINX** for load balancing and caching to improve the performance and scalability of the app.
+  - The **NGINX** configuration file is included in the repository for easy deployment. You can find the file in the `nginx` directory.
+  - Feel free to explore the **NGINX** configuration file and deploy it on your own server for load balancing and caching.
+  - **NGINX** can also be used for SSL termination, reverse proxying, and serving static files. More advanced configurations can be added to enhance the performance of the app.
+  - You can also use **Cloudflare** or **AWS CloudFront** for content delivery and caching to improve the speed and reliability of the app, but we are currently using **NGINX** for load balancing and caching due to costs and simplicity.
+- We are also using **Docker** with **NGINX** to deploy the **NGINX** configuration file and run the server in a containerized environment. The server is deployed and hosted on **Render**.
+- Additionally, we are using **Redis** for in-memory caching to store frequently accessed data and improve the performance of the app.
+  - **Redis** can be used for caching user sessions, API responses, and other data to reduce the load on the database and improve response times.
+  - You can set up your own **Redis** server or use a managed service like **Redis Labs** or **AWS ElastiCache** for caching.
 
 <h2 id="jenkins">🔗 Jenkins Integration</h2>
 
