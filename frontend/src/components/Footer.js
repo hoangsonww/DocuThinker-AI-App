@@ -119,7 +119,7 @@ const Footer = () => {
       <Box sx={{ display: "flex", justifyContent: "center", gap: 2, mb: 2 }}>
         <IconButton
           component="a"
-          href="https://github.com/hoangsonww"
+          href="https://github.com/hoangsonww/DocuThinker-AI-App"
           target="_blank"
           rel="noopener noreferrer"
           sx={{ color: "white" }}

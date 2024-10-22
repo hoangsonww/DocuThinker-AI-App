@@ -205,6 +205,32 @@ const Register = ({ theme }) => {
             "Register"
           )}
         </Button>
+
+        {/* Login Link */}
+        <Typography
+          variant="body1"
+          sx={{
+            mt: 3,
+            font: "inherit",
+            color: theme === "dark" ? "white" : "black",
+          }}
+        >
+          Already have an account?{" "}
+          <Button
+            color="primary"
+            sx={{
+              padding: 0,
+              font: "inherit",
+              '&:hover': {
+                bgcolor: "#f57c00",
+                color: "white",
+              }
+            }}
+            onClick={() => navigate("/login")}
+          >
+            Login
+          </Button>
+        </Typography>
       </form>
     </Box>
   );
