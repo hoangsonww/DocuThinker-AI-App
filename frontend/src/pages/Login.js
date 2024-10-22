@@ -203,6 +203,29 @@ const Login = ({ theme, onLogin }) => {
             Forgot Password?
           </Link>
         </Box>
+
+        {/* Register Link */}
+        <Box
+          sx={{ marginTop: "1.5rem", textAlign: "center", color: "#f57c00" }}
+        >
+          <Link
+            component="button"
+            variant="body2"
+            sx={{
+              color: "#f57c00",
+              cursor: "pointer",
+              textDecoration: "none",
+              font: "inherit",
+              "&:hover": {
+                textDecoration: "underline",
+                backgroundColor: "transparent",
+              },
+            }}
+            onClick={() => navigate("/register")}
+          >
+            Don't have an account? Register
+          </Link>
+        </Box>
       </Box>
     </Box>
   );
