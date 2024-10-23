@@ -1,5 +1,3 @@
-// next.config.mjs
-
 const nextConfig = {
   reactStrictMode: true, // Strict mode for catching potential problems in React
 
