@@ -158,12 +158,22 @@ const GoogleDriveFileSelectorModal = ({
         />
 
         {loading ? (
-          <CircularProgress
+          <Box
             sx={{
-              textAlign: "center !important",
-              color: theme === "dark" ? "white" : "#f57c00",
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              width: "100%",
+              height: "100%",
+              minHeight: "150px",
             }}
-          />
+          >
+            <CircularProgress
+              sx={{
+                color: theme === "dark" ? "white" : "#f57c00",
+              }}
+            />
+          </Box>
         ) : (
           <Box sx={{ maxHeight: "300px", overflowY: "auto", width: "100%" }}>
             {driveFiles.length > 0 ? (
@@ -192,7 +202,6 @@ const GoogleDriveFileSelectorModal = ({
                         size={24}
                         sx={{
                           color: theme === "dark" ? "white" : "black",
-                          textAlign: "center !important",
                         }}
                       />
                     ) : (
