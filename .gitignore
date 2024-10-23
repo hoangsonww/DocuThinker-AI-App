@@ -39,4 +39,8 @@ next-env.d.ts
 .env
 /backend/firebase-admin-sdk.json
 
-.vercel
+# vercel
+/.vercel
+
+# Hide sensitive database configuration files
+./.idea/dataSources.xml

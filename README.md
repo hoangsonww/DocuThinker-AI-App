@@ -104,6 +104,11 @@ Feel free to explore the live app and test the functionalities. You can upload d
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
   - **OAuth2**: Authentication framework for securing API endpoints.
+- **AI/ML Services**:
+  - **Google Cloud Natural Language API**: Machine learning models for text analysis.
+  - **Google Gemini API**: AI-powered chatbot for conversational interfaces and document summarization.
+  - **Google AI Studio**: Tools for building and deploying machine learning models.
+  - **NLP**: Natural Language Processing for customized chat/text analysis and summarization models.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
@@ -310,6 +315,12 @@ The **DocuThinker** app is organized into separate subdirectories for the fronte
 ```
 DocuThinker-AI-App/
 ├── backend/
+│   ├── ai_ml/
+│   │   ├── chat.js                   # Chatbot integration for AI chat functionality
+│   │   ├── analyzer.js               # Document analyzer for generating key ideas and discussion points
+│   │   ├── textStatistics.js         # Text statistics for analyzing document content
+│   │   ├── documentClassifier.js     # Document classifier for categorizing documents
+│   │   └── summarizer.js             # Document summarizer for generating summaries
 │   ├── controllers.js                # Controls the flow of data and logic
 │   ├── models.js                     # Models for interacting with database and AI/ML services
 │   ├── views.js                      # Output formatting for success and error responses
@@ -377,6 +388,10 @@ DocuThinker-AI-App/
 │   ├── firebase-service.yaml         # Service configuration for Firebase
 │   └── configmap.yaml                # ConfigMap configuration for environment variables
 │
+├── nginx/  
+│   ├── nginx.conf                    # NGINX configuration file for load balancing and caching
+│   └── Dockerfile                    # Docker configuration file for NGINX
+│
 ├── images/                           # Images for the README
 ├── .env                              # Environment variables file for the whole app
 ├── docker-compose.yml                # Docker Compose file for containerization
@@ -389,7 +404,8 @@ DocuThinker-AI-App/
 ├── vercel.json                       # Vercel configuration file
 ├── .gitignore                        # Git ignore file
 ├── LICENSE.md                        # License file for the project
-└── README.md                         # Comprehensive README for the whole app
+├── README.md                         # Comprehensive README for the whole app
+└── (and many more files...)          # Additional files and directories not listed here
 ```
 
 <h2 id="getting-started">🛠️ Getting Started</h2>
@@ -409,9 +425,12 @@ Ensure you have the following tools installed:
 - **Expo CLI** for running the mobile app
 - **React Native CLI** for building the mobile app
 - **Firebase SDK** for mobile app integration
+- **Firebase API Keys and Secrets** for authentication
 - **Expo Go** app for testing the mobile app on a physical device
 - **Tailwind CSS** for styling the frontend
 - **.env** file with necessary API keys (You can contact me to get the `.env` file - but you should obtain your own API keys for production).
+
+Additionally, **basic fullstack development knowledge and AI/ML concepts** are recommended to understand the app's architecture and functionalities.
 
 ### **Frontend Installation**
 
@@ -438,20 +457,25 @@ Ensure you have the following tools installed:
    ```bash
    npm start
    ```
+   
 5. **Build the Frontend React app (for production)**:
    ```bash
    npm run build
    ```
+
 6. **Alternatively, you can use `yarn` to install dependencies and run the app**:
    ```bash
    yarn install
    yarn start
    ```
+   
 7. **Or, for your convenience, if you have already installed the dependencies, you can directly run the app in the root directory using**:
    ```bash
    npm run frontend
    ```
+   
    This way, you don't have to navigate to the `frontend` directory every time you want to run the app.
+
 8. **The app will run on `http://localhost:3000`**. You can access it in your browser.
 
 ### **Backend Installation**
@@ -474,6 +498,7 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    npm run server
    ```
+   
 4. **The backend code is in the `backend` directory**. Feel free to explore the API endpoints and controllers.
 
 **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
@@ -484,14 +509,17 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    cd mobile-app
    ```
+   
 2. **Install dependencies**:
    ```bash
     npm install
    ```
+   
 3. **Start the Expo server**:
    ```bash
    npx expo start
    ```
+   
 4. **Run the app on an emulator or physical device**: Follow the instructions in the terminal to run the app on an emulator or physical device.
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
@@ -525,6 +553,7 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 | POST       | `/update-social-media`               | Update the social media links of the user associated with `userId`.                                 |
 | POST       | `/update-profile`                    | Update the user's profile information.                                                              |
 | POST       | `/update-document/{userId}/{docId}`  | Update the document details in Firestore.                                                           |
+| POST       | `/update-document-summary`           | Update the summary of a document in Firestore.                                                      |
 
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
@@ -671,10 +700,12 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
    ```bash
    brew install jenkins
    ```
+   
 2. **Start Jenkins**:
    ```bash
    brew services start jenkins
    ```
+   
 3. **Access Jenkins**:
    Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
 
@@ -703,14 +734,17 @@ We welcome contributions from the community! Follow these steps to contribute:
    ```bash
    git checkout -b feature/your-feature
    ```
+   
 3. **Commit your changes**:
    ```bash
    git commit -m "Add your feature"
    ```
+   
 4. **Push the changes**:
    ```bash
    git push origin feature/your-feature
    ```
+   
 5. **Submit a pull request**: Please submit a pull request from your forked repository to the main repository. I will review your changes and merge them into the main branch shortly.
 
 Thank you for contributing to **DocuThinker**! 🎉
@@ -730,7 +764,7 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 
 <h2 id="author">👨‍💻 Author</h2>
 
-- **[Son Nguyen](https://github.com/hoangsonww)**
+- **[Son Nguyen](https://github.com/hoangsonww)** - An aspiring Software Developer & Data Scientist
 - Feel free to connect with me on **[LinkedIn](https://www.linkedin.com/in/hoangsonw/)**.
 - If you have any questions or feedback, please feel free to reach out to me at **[hoangson091104@gmail.com](mailto:hoangson091104@gmail.com)**.
 - Also, check out my **[portfolio](https://sonnguyenhoang.com/)** for more projects and articles.
