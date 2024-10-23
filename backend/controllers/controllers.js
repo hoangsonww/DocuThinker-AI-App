@@ -8,8 +8,8 @@ const {
   chatWithAI,
   verifyUserEmail,
   verifyUserAndUpdatePassword,
-} = require("./models");
-const { sendErrorResponse, sendSuccessResponse } = require("./views");
+} = require("../models/models");
+const { sendErrorResponse, sendSuccessResponse } = require("../views/views");
 const { IncomingForm } = require("formidable");
 const { v4: uuidv4 } = require("uuid");
 const firebaseAdmin = require("firebase-admin");

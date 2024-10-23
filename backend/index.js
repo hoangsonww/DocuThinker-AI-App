@@ -27,22 +27,16 @@ const {
   updateTheme,
   updateSocialMedia,
   getSocialMedia,
-} = require("./controllers");
+} = require("./controllers/controllers");
 
 const app = express();
 app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-  origin: [
-    "http://localhost:3001",
-    "http://localhost:3002",
-    "http://localhost:3000",
-    "https://docuthinker-fullstack-app.vercel.app",
-    "https://docuthinker-ai-app.netlify.app",
-  ],
+  origin: true, // Allow all origins
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true,
+  credentials: true, // Allow credentials (cookies, authentication)
 };
 
 app.use(cors(corsOptions));
@@ -95,7 +89,7 @@ const swaggerOptions = {
   },
   apis: [
     path.resolve(__dirname, "index.js"),
-    path.resolve(__dirname, "controllers.js"),
+    path.resolve(__dirname, "controllers/controllers.js"),
   ],
 };
 

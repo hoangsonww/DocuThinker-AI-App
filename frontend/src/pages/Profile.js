@@ -220,6 +220,7 @@ const Profile = ({ theme }) => {
         backgroundColor: theme === "dark" ? "#222" : "#f4f4f4",
         paddingTop: 8,
         paddingBottom: 12,
+        transition: "background-color 0.3s ease",
       }}
     >
       <Box
@@ -231,6 +232,7 @@ const Profile = ({ theme }) => {
           width: "400px",
           textAlign: "center",
           boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
+          transition: "background-color 0.3s ease",
         }}
       >
         {/* Avatar Section */}

@@ -11,7 +11,7 @@ const HowToUse = ({ theme }) => {
         borderRadius: "12px",
         boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
         backgroundColor: theme === "dark" ? "#1e1e1e" : "#fff",
-        transition: "background-color 0.3s ease, color 0.3s ease",
+        transition: "background-color 0.3s ease",
       }}
     >
       {/* Page Title */}
@@ -24,6 +24,7 @@ const HowToUse = ({ theme }) => {
           color: "#f57c00",
           textAlign: "center",
           fontSize: "2rem",
+          transition: "background-color 0.3s ease",
         }}
       >
         How to Use DocuThinker
