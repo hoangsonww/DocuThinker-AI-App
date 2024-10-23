@@ -1,7 +1,7 @@
 {
-  "name": "docuthinker-fullstack-app",
+  "name": "docuthinker-fullstack-app-backed",
   "version": "1.1.0",
-  "description": "This is a fullstack application for DocuThinker",
+  "description": "Backend for DocuThinker AI App",
   "license": "MIT",
   "author": "Son Nguyen",
   "repository": {
@@ -13,14 +13,12 @@
   },
   "private": false,
   "scripts": {
-    "start": "cd frontend && npm start",
-    "build": "cd frontend && npm run build",
-    "test": "cd frontend && npm test",
-    "eject": "cd frontend && npm run eject",
-    "server": "nodemon backend/index.js",
-    "frontend": "cd frontend && npm start",
-    "backend": "nodemon backend/index.js",
-    "format": "prettier --write **/*.{js,ts,tsx,json,css}"
+    "start": "nodemon index.js",
+    "build": "nodemon index.js",
+    "test": "nodemon index.js",
+    "server": "nodemon index.js",
+    "backend": "nodemon index.js",
+    "format": "prettier --write **/*.js"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",

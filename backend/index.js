@@ -99,7 +99,7 @@ app.use(
   swaggerUi.serve,
   swaggerUi.setup(swaggerDocs, {
     customSiteTitle: "DocuThinker API Docs",
-  })
+  }),
 );
 
 // Redirect root route to /api-docs
