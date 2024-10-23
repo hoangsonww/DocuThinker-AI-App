@@ -4,20 +4,31 @@
  * @returns {object} - An object containing various statistical measures.
  */
 const getTextStatistics = (text) => {
-  const words = text.toLowerCase().replace(/[^a-z\s]/g, '').split(/\s+/).filter(word => word.length > 0);
+  const words = text
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, "")
+    .split(/\s+/)
+    .filter((word) => word.length > 0);
   const wordCount = words.length;
   const sentenceCount = (text.match(/[^.!?]+[.!?]+/g) || []).length;
-  const averageWordLength = words.reduce((sum, word) => sum + word.length, 0) / wordCount;
+  const averageWordLength =
+    words.reduce((sum, word) => sum + word.length, 0) / wordCount;
 
   // Calculate the Flesch-Kincaid Readability Score (approximation)
-  const syllableCount = words.reduce((count, word) => count + countSyllables(word), 0);
-  const fleschKincaidScore = 206.835 - 1.015 * (wordCount / sentenceCount) - 84.6 * (syllableCount / wordCount);
+  const syllableCount = words.reduce(
+    (count, word) => count + countSyllables(word),
+    0,
+  );
+  const fleschKincaidScore =
+    206.835 -
+    1.015 * (wordCount / sentenceCount) -
+    84.6 * (syllableCount / wordCount);
 
   return {
     wordCount,
     sentenceCount,
     averageWordLength,
-    fleschKincaidScore: parseFloat(fleschKincaidScore.toFixed(2))
+    fleschKincaidScore: parseFloat(fleschKincaidScore.toFixed(2)),
   };
 };
 
@@ -29,7 +40,7 @@ const getTextStatistics = (text) => {
 const countSyllables = (word) => {
   word = word.toLowerCase();
   if (word.length <= 3) return 1; // Basic rule: words with 3 or fewer letters have 1 syllable
-  const vowels = 'aeiouy';
+  const vowels = "aeiouy";
   let syllableCount = 0;
   let previousIsVowel = false;
 
@@ -42,7 +53,7 @@ const countSyllables = (word) => {
   }
 
   // Subtract silent 'e' at the end of words like 'cake' or 'bike'
-  if (word.endsWith('e')) {
+  if (word.endsWith("e")) {
     syllableCount--;
   }
 

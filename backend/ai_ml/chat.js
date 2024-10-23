@@ -1,11 +1,11 @@
-const { summarizeText } = require('./summarizer');
-const { analyzeText } = require('./analyzer');
-const readline = require('readline');
+const { summarizeText } = require("./summarizer");
+const { analyzeText } = require("./analyzer");
+const readline = require("readline");
 
 // Create readline interface to simulate chat-like interaction in the console
 const rl = readline.createInterface({
   input: process.stdin,
-  output: process.stdout
+  output: process.stdout,
 });
 
 /**
@@ -16,8 +16,8 @@ const startChat = () => {
   console.log("Type your text and press enter to summarize and analyze it.");
   console.log("Type 'exit' to quit the program.");
 
-  rl.on('line', (input) => {
-    if (input.toLowerCase() === 'exit') {
+  rl.on("line", (input) => {
+    if (input.toLowerCase() === "exit") {
       console.log("Goodbye!");
       rl.close();
     } else {
@@ -30,7 +30,7 @@ const startChat = () => {
 
       console.log("\n--- Analysis ---");
       console.log(`Sentiment Score: ${analysis.sentiment.score}`);
-      console.log(`Keywords: ${analysis.keywords.join(', ')}`);
+      console.log(`Keywords: ${analysis.keywords.join(", ")}`);
       console.log("\n");
 
       console.log("Enter more text or type 'exit' to quit:");

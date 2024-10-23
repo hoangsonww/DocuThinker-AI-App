@@ -221,10 +221,10 @@ const Register = ({ theme }) => {
             sx={{
               padding: 0,
               font: "inherit",
-              '&:hover': {
+              "&:hover": {
                 bgcolor: "#f57c00",
                 color: "white",
-              }
+              },
             }}
             onClick={() => navigate("/login")}
           >

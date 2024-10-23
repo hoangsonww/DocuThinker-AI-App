@@ -1,4 +1,4 @@
-const Sentiment = require('sentiment');
+const Sentiment = require("sentiment");
 const sentiment = new Sentiment();
 
 /**
@@ -11,12 +11,23 @@ const analyzeText = (text) => {
   const sentimentResult = sentiment.analyze(text);
 
   // Extract keywords by filtering words based on length and excluding common stopwords
-  const stopwords = ['the', 'and', 'for', 'with', 'that', 'this', 'from', 'these', 'those', 'there'];
+  const stopwords = [
+    "the",
+    "and",
+    "for",
+    "with",
+    "that",
+    "this",
+    "from",
+    "these",
+    "those",
+    "there",
+  ];
   const keywords = text
     .toLowerCase()
-    .replace(/[^a-z\s]/g, '')
+    .replace(/[^a-z\s]/g, "")
     .split(/\s+/)
-    .filter(word => word.length > 4 && !stopwords.includes(word));
+    .filter((word) => word.length > 4 && !stopwords.includes(word));
 
   return {
     sentiment: sentimentResult,

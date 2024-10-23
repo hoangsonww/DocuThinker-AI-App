@@ -20,7 +20,7 @@
     "server": "nodemon backend/index.js",
     "frontend": "cd frontend && npm start",
     "backend": "nodemon backend/index.js",
-    "format": "prettier --write **/*.{js,ts,tsx,json,css}"
+    "format": "prettier --write \"**/*.{js,ts,tsx,json,css,html,md}\""
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",

@@ -388,7 +388,7 @@ DocuThinker-AI-App/
 │   ├── firebase-service.yaml         # Service configuration for Firebase
 │   └── configmap.yaml                # ConfigMap configuration for environment variables
 │
-├── nginx/  
+├── nginx/
 │   ├── nginx.conf                    # NGINX configuration file for load balancing and caching
 │   └── Dockerfile                    # Docker configuration file for NGINX
 │
@@ -457,8 +457,8 @@ Additionally, **basic fullstack development knowledge and AI/ML concepts** are r
    ```bash
    npm start
    ```
-   
 5. **Build the Frontend React app (for production)**:
+
    ```bash
    npm run build
    ```
@@ -468,12 +468,12 @@ Additionally, **basic fullstack development knowledge and AI/ML concepts** are r
    yarn install
    yarn start
    ```
-   
 7. **Or, for your convenience, if you have already installed the dependencies, you can directly run the app in the root directory using**:
+
    ```bash
    npm run frontend
    ```
-   
+
    This way, you don't have to navigate to the `frontend` directory every time you want to run the app.
 
 8. **The app will run on `http://localhost:3000`**. You can access it in your browser.
@@ -498,7 +498,6 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    npm run server
    ```
-   
 4. **The backend code is in the `backend` directory**. Feel free to explore the API endpoints and controllers.
 
 **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
@@ -509,17 +508,14 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    cd mobile-app
    ```
-   
 2. **Install dependencies**:
    ```bash
     npm install
    ```
-   
 3. **Start the Expo server**:
    ```bash
    npx expo start
    ```
-   
 4. **Run the app on an emulator or physical device**: Follow the instructions in the terminal to run the app on an emulator or physical device.
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
@@ -638,7 +634,6 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
    ```bash
    docker compose up --build
    ```
-   
 2. The app will be containerized and ready to run on port 3000.
 
 You can also view the image in the **Docker Hub** repository **[here](https://hub.docker.com/repository/docker/hoangsonw/docuthinker-ai-app/)**.
@@ -700,12 +695,10 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
    ```bash
    brew install jenkins
    ```
-   
 2. **Start Jenkins**:
    ```bash
    brew services start jenkins
    ```
-   
 3. **Access Jenkins**:
    Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
 
@@ -734,17 +727,14 @@ We welcome contributions from the community! Follow these steps to contribute:
    ```bash
    git checkout -b feature/your-feature
    ```
-   
 3. **Commit your changes**:
    ```bash
    git commit -m "Add your feature"
    ```
-   
 4. **Push the changes**:
    ```bash
    git push origin feature/your-feature
    ```
-   
 5. **Submit a pull request**: Please submit a pull request from your forked repository to the main repository. I will review your changes and merge them into the main branch shortly.
 
 Thank you for contributing to **DocuThinker**! 🎉
@@ -777,4 +767,5 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 **Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024.**
 
 ---
+
 [🔝 Back to Top](#docuthinker---ai-powered-document-analysis-and-summarization-app)
