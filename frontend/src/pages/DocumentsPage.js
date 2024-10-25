@@ -395,7 +395,7 @@ const DocumentsPage = ({ theme }) => {
         <DialogTitle
           id="alert-dialog-title"
           sx={{
-            backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+            backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
             color: theme === "dark" ? "#fff" : "#000",
             font: "inherit",
             fontSize: "24px",
@@ -405,7 +405,7 @@ const DocumentsPage = ({ theme }) => {
         </DialogTitle>
         <DialogContent
           sx={{
-            backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+            backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
             color: theme === "dark" ? "#ddd" : "#000",
           }}
         >
@@ -421,7 +421,7 @@ const DocumentsPage = ({ theme }) => {
         </DialogContent>
         <DialogActions
           sx={{
-            backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+            backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
           }}
         >
           <Button
