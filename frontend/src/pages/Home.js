@@ -1400,18 +1400,71 @@ const Home = ({ theme }) => {
         onClose={handleCloseConfirmDialog}
         aria-labelledby="confirm-dialog-title"
         aria-describedby="confirm-dialog-description"
+        PaperProps={{
+          style: {
+            backgroundColor: theme === "dark" ? "#222" : "#fff",
+            color: theme === "dark" ? "#fff" : "#000",
+            borderRadius: "8px",
+          },
+        }}
       >
-        <DialogTitle id="confirm-dialog-title">{"Confirm Reload"}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="confirm-dialog-description">
+        <DialogTitle
+          id="confirm-dialog-title"
+          sx={{
+            backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
+            color: theme === "dark" ? "#fff" : "#000",
+            font: "inherit",
+            fontSize: "24px",
+          }}
+        >
+          {"Confirm Leaving Page"}
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
+            color: theme === "dark" ? "#ddd" : "#000",
+          }}
+        >
+          <DialogContentText
+            id="confirm-dialog-description"
+            sx={{
+              color: theme === "dark" ? "#ddd" : "#000",
+              font: "inherit",
+            }}
+          >
             Are you sure you want to upload a new document? This will reload the page and any unsaved changes will be lost.
           </DialogContentText>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseConfirmDialog} color="primary">
+        <DialogActions
+          sx={{
+            backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
+          }}
+        >
+          <Button
+            onClick={handleCloseConfirmDialog}
+            color="primary"
+            sx={{
+              color: theme === "dark" ? "#fff" : "#000",
+              font: "inherit",
+              "&:hover": {
+                backgroundColor: theme === "dark" ? "#555" : "#f5f5f5",
+              },
+            }}
+          >
             Cancel
           </Button>
-          <Button onClick={handleConfirmReload} color="secondary" autoFocus>
+          <Button
+            onClick={handleConfirmReload}
+            color="secondary"
+            autoFocus
+            sx={{
+              color: theme === "dark" ? "#f57c00" : "red",
+              font: "inherit",
+              "&:hover": {
+                backgroundColor: theme === "dark" ? "#555" : "#f5f5f5",
+              },
+            }}
+          >
             Confirm
           </Button>
         </DialogActions>
