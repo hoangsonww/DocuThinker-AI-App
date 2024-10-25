@@ -525,38 +525,38 @@ Note that this is optional since we are deploying the backend on **Render**. How
 The backend of **DocuThinker** provides several API endpoints for user authentication, document management, and AI-powered insights. These endpoints are used by the frontend to interact with the backend server:
 
 | **Method** | **Endpoint**                         | **Description**                                                                                     |
-|------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
-| POST | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
-| POST | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
-| POST | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
-| POST | `/generate-key-ideas`                | Generate key ideas from the document text.                                                          |
-| POST | `/generate-discussion-points`        | Generate discussion points from the document text.                                                  |
-| POST | `/chat`                              | Chat with AI using the original document text as context.                                           |
-| POST | `/forgot-password`                   | Reset a user's password in Firebase Authentication.                                                 |
-| POST | `/verify-email`                      | Verify if a user's email exists in Firestore.                                                       |
-| GET  | `/documents/{userId}`                | Retrieve all documents associated with the given `userId`.                                          |
-| GET  | `/documents/{userId}/{docId}`        | Retrieve a specific document by `userId` and `docId`.                                               |
-| GET  | `/document-details/{userId}/{docId}` | Retrieve document details (title, original text, summary) by `userId` and `docId`.                  |
-| DELETE | `/delete-document/{userId}/{docId}`  | Delete a specific document by `userId` and `docId`.                                                 |
-| DELETE | `/delete-all-documents/{userId}`     | Delete all documents associated with the given `userId`.                                            |
-| POST | `/update-email`                      | Update a user's email in both Firebase Authentication and Firestore.                                |
-| POST | `/update-password`                   | Update a user's password in Firebase Authentication.                                                |
-| GET  | `/days-since-joined/{userId}`        | Get the number of days since the user associated with `userId` joined the service.                  |
-| GET  | `/document-count/{userId}`           | Retrieve the number of documents associated with the given `userId`.                                |
-| GET  | `/user-email/{userId}`               | Retrieve the email of a user associated with `userId`.                                              |
-| POST | `/update-document-title`             | Update the title of a document in Firestore.                                                        |
-| PUT  | `/update-theme`                      | Update the theme of the app.                                                                        |
-| GET  | `/user-joined-date/{userId}`         | Get date when the user associated with `userId` joined the service.                                 |
-| GET  | `/social-media/{userId}`             | Get the social media links of the user associated with `userId`.                                    |
-| POST | `/update-social-media`               | Update the social media links of the user associated with `userId`.                                 |
-| POST | `/update-profile`                    | Update the user's profile information.                                                              |
-| POST | `/update-document/{userId}/{docId}`  | Update the document details in Firestore.                                                           |
-| POST | `/update-document-summary`           | Update the summary of a document in Firestore.                                                      |
-| POST | `/sentiment-analysis`           | Analyzes the sentiment of the provided document text              |
-| POST | `/bullet-summary`               | Generates a summary of the document text in bullet points         |
-| POST | `/summary-in-language`          | Generates a summary in the specified language                     |
-| POST | `/content-rewriting`            | Rewrites or rephrases the provided document text based on a style |
-| POST | `/actionable-recommendations`   | Generates actionable recommendations based on the document text   |
+|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
+| POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
+| POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
+| POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
+| POST       | `/generate-key-ideas`                | Generate key ideas from the document text.                                                          |
+| POST       | `/generate-discussion-points`        | Generate discussion points from the document text.                                                  |
+| POST       | `/chat`                              | Chat with AI using the original document text as context.                                           |
+| POST       | `/forgot-password`                   | Reset a user's password in Firebase Authentication.                                                 |
+| POST       | `/verify-email`                      | Verify if a user's email exists in Firestore.                                                       |
+| GET        | `/documents/{userId}`                | Retrieve all documents associated with the given `userId`.                                          |
+| GET        | `/documents/{userId}/{docId}`        | Retrieve a specific document by `userId` and `docId`.                                               |
+| GET        | `/document-details/{userId}/{docId}` | Retrieve document details (title, original text, summary) by `userId` and `docId`.                  |
+| DELETE     | `/delete-document/{userId}/{docId}`  | Delete a specific document by `userId` and `docId`.                                                 |
+| DELETE     | `/delete-all-documents/{userId}`     | Delete all documents associated with the given `userId`.                                            |
+| POST       | `/update-email`                      | Update a user's email in both Firebase Authentication and Firestore.                                |
+| POST       | `/update-password`                   | Update a user's password in Firebase Authentication.                                                |
+| GET        | `/days-since-joined/{userId}`        | Get the number of days since the user associated with `userId` joined the service.                  |
+| GET        | `/document-count/{userId}`           | Retrieve the number of documents associated with the given `userId`.                                |
+| GET        | `/user-email/{userId}`               | Retrieve the email of a user associated with `userId`.                                              |
+| POST       | `/update-document-title`             | Update the title of a document in Firestore.                                                        |
+| PUT        | `/update-theme`                      | Update the theme of the app.                                                                        |
+| GET        | `/user-joined-date/{userId}`         | Get date when the user associated with `userId` joined the service.                                 |
+| GET        | `/social-media/{userId}`             | Get the social media links of the user associated with `userId`.                                    |
+| POST       | `/update-social-media`               | Update the social media links of the user associated with `userId`.                                 |
+| POST       | `/update-profile`                    | Update the user's profile information.                                                              |
+| POST       | `/update-document/{userId}/{docId}`  | Update the document details in Firestore.                                                           |
+| POST       | `/update-document-summary`           | Update the summary of a document in Firestore.                                                      |
+| POST       | `/sentiment-analysis`                | Analyzes the sentiment of the provided document text                                                |
+| POST       | `/bullet-summary`                    | Generates a summary of the document text in bullet points                                           |
+| POST       | `/summary-in-language`               | Generates a summary in the specified language                                                       |
+| POST       | `/content-rewriting`                 | Rewrites or rephrases the provided document text based on a style                                   |
+| POST       | `/actionable-recommendations`        | Generates actionable recommendations based on the document text                                     |
 
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
