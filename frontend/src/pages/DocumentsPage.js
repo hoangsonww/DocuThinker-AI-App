@@ -161,7 +161,6 @@ const DocumentsPage = ({ theme }) => {
     }
   };
 
-
   const handleEditDocument = (docId, currentTitle) => {
     setEditingDocId(docId);
     setNewTitle(currentTitle);
