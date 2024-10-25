@@ -622,7 +622,9 @@ exports.searchDocuments = async (req, res) => {
       // Safely extract title if it's an array
       const title = Array.isArray(doc.title) ? doc.title.join(" ") : doc.title;
       // Check if title and originalText are strings before processing them
-      const titleMatch = typeof title === "string" && title.toLowerCase().includes(searchTerm.toLowerCase());
+      const titleMatch =
+        typeof title === "string" &&
+        title.toLowerCase().includes(searchTerm.toLowerCase());
 
       return titleMatch;
     });
@@ -635,9 +637,10 @@ exports.searchDocuments = async (req, res) => {
     const response = matchingDocuments.map((doc) => ({
       docId: doc.id,
       title: Array.isArray(doc.title) ? doc.title.join(" ") : doc.title,
-      snippet: typeof doc.originalText === "string"
-        ? doc.originalText.substring(0, 150) + "..."
-        : "",
+      snippet:
+        typeof doc.originalText === "string"
+          ? doc.originalText.substring(0, 150) + "..."
+          : "",
     }));
 
     sendSuccessResponse(res, 200, "Documents retrieved successfully", response);
@@ -1313,7 +1316,6 @@ exports.updateSocialMedia = async (req, res) => {
   }
 };
 
-
 /**
  * @swagger
  * /sentiment-analysis:
@@ -1357,7 +1359,11 @@ exports.sentimentAnalysis = async (req, res) => {
   try {
     const { documentText } = req.body;
 
-    if (!documentText || typeof documentText !== "string" || documentText.trim() === "") {
+    if (
+      !documentText ||
+      typeof documentText !== "string" ||
+      documentText.trim() === ""
+    ) {
       return res.status(400).send({ error: "Invalid document text" });
     }
 
@@ -1412,7 +1418,11 @@ exports.bulletSummary = async (req, res) => {
   try {
     const { documentText } = req.body;
 
-    if (!documentText || typeof documentText !== "string" || documentText.trim() === "") {
+    if (
+      !documentText ||
+      typeof documentText !== "string" ||
+      documentText.trim() === ""
+    ) {
       return res.status(400).send({ error: "Invalid document text" });
     }
 
@@ -1468,12 +1478,23 @@ exports.summaryInLanguage = async (req, res) => {
   try {
     const { documentText, language } = req.body;
 
-    if (!documentText || typeof documentText !== "string" || documentText.trim() === "" ||
-      !language || typeof language !== "string" || language.trim() === "") {
-      return res.status(400).send({ error: "Invalid document text or language" });
+    if (
+      !documentText ||
+      typeof documentText !== "string" ||
+      documentText.trim() === "" ||
+      !language ||
+      typeof language !== "string" ||
+      language.trim() === ""
+    ) {
+      return res
+        .status(400)
+        .send({ error: "Invalid document text or language" });
     }
 
-    const translatedSummary = await generateSummaryInLanguage(documentText, language);
+    const translatedSummary = await generateSummaryInLanguage(
+      documentText,
+      language,
+    );
 
     res.status(200).send({ summary: translatedSummary });
   } catch (error) {
@@ -1525,8 +1546,14 @@ exports.contentRewriting = async (req, res) => {
   try {
     const { documentText, style } = req.body;
 
-    if (!documentText || typeof documentText !== "string" || documentText.trim() === "" ||
-      !style || typeof style !== "string" || style.trim() === "") {
+    if (
+      !documentText ||
+      typeof documentText !== "string" ||
+      documentText.trim() === "" ||
+      !style ||
+      typeof style !== "string" ||
+      style.trim() === ""
+    ) {
       return res.status(400).send({ error: "Invalid document text or style" });
     }
 
@@ -1578,11 +1605,16 @@ exports.actionableRecommendations = async (req, res) => {
   try {
     const { documentText } = req.body;
 
-    if (!documentText || typeof documentText !== "string" || documentText.trim() === "") {
+    if (
+      !documentText ||
+      typeof documentText !== "string" ||
+      documentText.trim() === ""
+    ) {
       return res.status(400).send({ error: "Invalid document text" });
     }
 
-    const recommendations = await generateActionableRecommendations(documentText);
+    const recommendations =
+      await generateActionableRecommendations(documentText);
 
     res.status(200).send({ recommendations });
   } catch (error) {

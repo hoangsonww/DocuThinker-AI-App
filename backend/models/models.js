@@ -61,8 +61,7 @@ exports.generateSummary = async (file) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction:
-      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in paragraphs (not bullet points).`,
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in paragraphs (not bullet points).`,
   });
 
   const chatSession = model.startChat({
@@ -85,8 +84,7 @@ exports.generateKeyIdeas = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction:
-      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate key ideas from the provided text.`,
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate key ideas from the provided text.`,
   });
 
   const chatSession = model.startChat({
@@ -101,8 +99,7 @@ exports.generateDiscussionPoints = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction:
-      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate discussion points from the provided text.`,
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate discussion points from the provided text.`,
   });
 
   const chatSession = model.startChat({
@@ -125,8 +122,7 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction:
-      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Use the provided context and respond to the user’s message conversationally.`,
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Use the provided context and respond to the user’s message conversationally.`,
   });
 
   // Initialize the conversation history if not present
@@ -233,7 +229,7 @@ exports.analyzeSentiment = async (documentText) => {
     let responseText = result.response.text();
 
     // Strip the ```json and ``` markers if they exist
-    responseText = responseText.replace(/```json|```/g, '').trim();
+    responseText = responseText.replace(/```json|```/g, "").trim();
 
     // Parse the cleaned JSON string
     const response = JSON.parse(responseText);
@@ -253,8 +249,7 @@ exports.generateBulletSummary = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction:
-      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in bullet points.`,
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in bullet points.`,
   });
 
   const chatSession = model.startChat({
@@ -323,7 +318,9 @@ exports.generateActionableRecommendations = async (documentText) => {
   const result = await chatSession.sendMessage(documentText);
 
   if (!result.response || !result.response.text) {
-    throw new Error("Failed to generate actionable recommendations using the AI");
+    throw new Error(
+      "Failed to generate actionable recommendations using the AI",
+    );
   }
 
   return result.response.text();

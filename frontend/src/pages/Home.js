@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -43,12 +43,52 @@ const Home = ({ theme }) => {
   const [loadingLanguageSummary, setLoadingLanguageSummary] = useState(false);
   const [languageSummary, setLanguageSummary] = useState("");
   const languages = [
-    "Arabic", "Bengali", "Bulgarian", "Chinese (Simplified / Traditional)", "Croatian", "Czech", "Danish",
-    "Dutch", "English", "Estonian", "Farsi", "Finnish", "French", "German", "Greek", "Gujarati", "Hebrew",
-    "Hindi", "Hungarian", "Indonesian", "Italian", "Japanese", "Kannada", "Korean", "Latvian", "Lithuanian",
-    "Malayalam", "Marathi", "Norwegian", "Polish", "Portuguese", "Romanian", "Russian", "Serbian", "Slovak",
-    "Slovenian", "Spanish", "Swahili", "Swedish", "Tamil", "Telugu", "Thai", "Turkish", "Ukrainian", "Urdu",
-    "Vietnamese"
+    "Arabic",
+    "Bengali",
+    "Bulgarian",
+    "Chinese (Simplified / Traditional)",
+    "Croatian",
+    "Czech",
+    "Danish",
+    "Dutch",
+    "English",
+    "Estonian",
+    "Farsi",
+    "Finnish",
+    "French",
+    "German",
+    "Greek",
+    "Gujarati",
+    "Hebrew",
+    "Hindi",
+    "Hungarian",
+    "Indonesian",
+    "Italian",
+    "Japanese",
+    "Kannada",
+    "Korean",
+    "Latvian",
+    "Lithuanian",
+    "Malayalam",
+    "Marathi",
+    "Norwegian",
+    "Polish",
+    "Portuguese",
+    "Romanian",
+    "Russian",
+    "Serbian",
+    "Slovak",
+    "Slovenian",
+    "Spanish",
+    "Swahili",
+    "Swedish",
+    "Tamil",
+    "Telugu",
+    "Thai",
+    "Turkish",
+    "Ukrainian",
+    "Urdu",
+    "Vietnamese",
   ];
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [loadingLanguage, setLoadingLanguage] = useState(false);
@@ -68,10 +108,12 @@ const Home = ({ theme }) => {
         "https://docuthinker-ai-app.onrender.com/actionable-recommendations",
         {
           documentText: originalText,
-        }
+        },
       );
 
-      const formattedRecommendations = formatAsMarkdown(response.data.recommendations);
+      const formattedRecommendations = formatAsMarkdown(
+        response.data.recommendations,
+      );
       setRecommendations(formattedRecommendations);
       recommendationsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
@@ -89,7 +131,7 @@ const Home = ({ theme }) => {
         {
           documentText: originalText,
           style: desiredStyle,
-        }
+        },
       );
 
       setRewrittenContent(response.data.rewrittenContent);
@@ -114,7 +156,8 @@ const Home = ({ theme }) => {
   const handleCopyToClipboard = (text) => {
     // Strip markdown before copying
     const plainText = stripMarkdown(text);
-    navigator.clipboard.writeText(plainText)
+    navigator.clipboard
+      .writeText(plainText)
       .then(() => {
         setSnackbarOpen(true);
       })
@@ -132,10 +175,13 @@ const Home = ({ theme }) => {
     setLoadingLanguageSummary(true);
     setLoadingLanguage(true);
     try {
-      const response = await axios.post("https://docuthinker-ai-app.onrender.com/summary-in-language", {
-        documentText: originalText,
-        language,
-      });
+      const response = await axios.post(
+        "https://docuthinker-ai-app.onrender.com/summary-in-language",
+        {
+          documentText: originalText,
+          language,
+        },
+      );
       const formattedLanguageSummary = formatAsMarkdown(response.data.summary);
       setLanguageSummary(formattedLanguageSummary);
       setLanguageModalOpen(false);
@@ -150,12 +196,19 @@ const Home = ({ theme }) => {
   const fetchSentiment = async (text) => {
     setLoadingSentiment(true); // Start loading
     try {
-      const response = await axios.post("https://docuthinker-ai-app.onrender.com/sentiment-analysis", {
-        documentText: text,
-      });
+      const response = await axios.post(
+        "https://docuthinker-ai-app.onrender.com/sentiment-analysis",
+        {
+          documentText: text,
+        },
+      );
 
       // Check if the response data contains the expected properties
-      if (response.data && typeof response.data.sentimentScore === "number" && response.data.description) {
+      if (
+        response.data &&
+        typeof response.data.sentimentScore === "number" &&
+        response.data.description
+      ) {
         setSentiment({
           score: response.data.sentimentScore,
           description: response.data.description,
@@ -240,7 +293,7 @@ const Home = ({ theme }) => {
         "https://docuthinker-ai-app.onrender.com/bullet-summary",
         {
           documentText: originalText,
-        }
+        },
       );
       const formattedBulletSummary = formatAsMarkdown(response.data.summary);
       setBulletSummary(formattedBulletSummary);
@@ -426,12 +479,23 @@ const Home = ({ theme }) => {
                 marginBottom: 2,
               }}
             >
-              <Typography variant="h6" sx={{ mb: 1, font: 'inherit', color: theme === 'dark' ? 'white' : 'black', fontWeight: 'bold', fontSize: "20px" }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  mb: 1,
+                  font: "inherit",
+                  color: theme === "dark" ? "white" : "black",
+                  fontWeight: "bold",
+                  fontSize: "20px",
+                }}
+              >
                 Sentiment Analysis
               </Typography>
 
               {loadingSentiment ? (
-                <CircularProgress sx={{ color: theme === "dark" ? "white" : "black" }} />
+                <CircularProgress
+                  sx={{ color: theme === "dark" ? "white" : "black" }}
+                />
               ) : (
                 <>
                   <LinearProgress
@@ -442,11 +506,22 @@ const Home = ({ theme }) => {
                       borderRadius: 5,
                       backgroundColor: "#ccc",
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: sentiment.score > 0 ? "#4caf50" : sentiment.score < 0 ? "#f44336" : "#f57c00",
+                        backgroundColor:
+                          sentiment.score > 0
+                            ? "#4caf50"
+                            : sentiment.score < 0
+                              ? "#f44336"
+                              : "#f57c00",
                       },
                     }}
                   />
-                  <Typography sx={{ mt: 1, font: 'inherit', color: theme === 'dark' ? 'white' : 'black' }}>
+                  <Typography
+                    sx={{
+                      mt: 1,
+                      font: "inherit",
+                      color: theme === "dark" ? "white" : "black",
+                    }}
+                  >
                     Sentiment Score: {sentiment.score} - {sentiment.description}
                   </Typography>
                 </>
@@ -933,13 +1008,37 @@ const Home = ({ theme }) => {
                   overflowY: "auto",
                 }}
               >
-                <Typography variant="h6" sx={{ mb: 2, font: "inherit", textAlign: "center", fontSize: '22px', color: theme === "dark" ? "white" : "black" }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    mb: 2,
+                    font: "inherit",
+                    textAlign: "center",
+                    fontSize: "22px",
+                    color: theme === "dark" ? "white" : "black",
+                  }}
+                >
                   Select a Language
                 </Typography>
-                <IconButton onClick={() => setLanguageModalOpen(false)} sx={{ position: "absolute", top: 8, right: 8 }}>
-                  <CloseIcon sx={{ color: theme === "dark" ? "white" : "black", "&:hover": { color: "#f57c00" } }} />
+                <IconButton
+                  onClick={() => setLanguageModalOpen(false)}
+                  sx={{ position: "absolute", top: 8, right: 8 }}
+                >
+                  <CloseIcon
+                    sx={{
+                      color: theme === "dark" ? "white" : "black",
+                      "&:hover": { color: "#f57c00" },
+                    }}
+                  />
                 </IconButton>
-                <Box sx={{ display: "grid", gap: 2, gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))" }}>
+                <Box
+                  sx={{
+                    display: "grid",
+                    gap: 2,
+                    gridTemplateColumns:
+                      "repeat(auto-fill, minmax(150px, 1fr))",
+                  }}
+                >
                   {languages.map((lang) => (
                     <Button
                       key={lang}
@@ -1019,7 +1118,9 @@ const Home = ({ theme }) => {
                   >
                     Copy
                   </Button>
-                  <Box sx={{ paddingTop: "24px" }}> {/* Padding to prevent overlap */}
+                  <Box sx={{ paddingTop: "24px" }}>
+                    {" "}
+                    {/* Padding to prevent overlap */}
                     <ReactMarkdown
                       components={{
                         h1: ({ node, ...props }) => (
@@ -1342,7 +1443,13 @@ const Home = ({ theme }) => {
           >
             <Typography
               variant="h6"
-              sx={{ color: theme === "dark" ? "white" : "black", mb: 4, font: "inherit", fontSize: "22px", fontWeight: "bold" }}
+              sx={{
+                color: theme === "dark" ? "white" : "black",
+                mb: 4,
+                font: "inherit",
+                fontSize: "22px",
+                fontWeight: "bold",
+              }}
             >
               Enter Desired Style
             </Typography>
@@ -1430,7 +1537,8 @@ const Home = ({ theme }) => {
               font: "inherit",
             }}
           >
-            Are you sure you want to upload a new document? This will reload the page and any unsaved changes will be lost.
+            Are you sure you want to upload a new document? This will reload the
+            page and any unsaved changes will be lost.
           </DialogContentText>
         </DialogContent>
         <DialogActions

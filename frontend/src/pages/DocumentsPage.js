@@ -53,7 +53,7 @@ const DocumentsPage = ({ theme }) => {
     setSearchLoading(true);
     try {
       const response = await axios.get(
-        `https://docuthinker-ai-app.onrender.com/search-documents/${userId}?searchTerm=${encodeURIComponent(searchTerm)}`
+        `https://docuthinker-ai-app.onrender.com/search-documents/${userId}?searchTerm=${encodeURIComponent(searchTerm)}`,
       );
 
       const results = Object.keys(response.data)
@@ -151,7 +151,9 @@ const DocumentsPage = ({ theme }) => {
 
   const handleConfirmDeleteAllDocuments = async () => {
     try {
-      await axios.delete(`https://docuthinker-ai-app.onrender.com/documents/${userId}`);
+      await axios.delete(
+        `https://docuthinker-ai-app.onrender.com/documents/${userId}`,
+      );
       setDocuments([]);
       handleCloseDeleteAllDialog();
     } catch (error) {
@@ -168,7 +170,9 @@ const DocumentsPage = ({ theme }) => {
   const handleSaveTitle = async (docId) => {
     try {
       // Find the current document by docId
-      const currentDoc = documents.find((doc) => doc.id === docId || doc.docId === docId);
+      const currentDoc = documents.find(
+        (doc) => doc.id === docId || doc.docId === docId,
+      );
 
       // Check if the new title is different from the current title
       if (currentDoc && currentDoc.title === newTitle) {
@@ -185,18 +189,20 @@ const DocumentsPage = ({ theme }) => {
           userId,
           docId,
           newTitle,
-        }
+        },
       );
 
       // Update the title in the documents array
       const updatedDocuments = documents.map((doc) =>
-        (doc.id === docId || doc.docId === docId) ? { ...doc, title: newTitle } : doc
+        doc.id === docId || doc.docId === docId
+          ? { ...doc, title: newTitle }
+          : doc,
       );
       setDocuments(updatedDocuments);
 
       // Update the title in the searchResults array
       const updatedSearchResults = searchResults.map((doc) =>
-        doc.docId === docId ? { ...doc, title: newTitle } : doc
+        doc.docId === docId ? { ...doc, title: newTitle } : doc,
       );
       setSearchResults(updatedSearchResults);
 
@@ -675,7 +681,8 @@ const DocumentsPage = ({ theme }) => {
               font: "inherit",
             }}
           >
-            Are you sure you want to delete all documents? This action cannot be undone.
+            Are you sure you want to delete all documents? This action cannot be
+            undone.
           </DialogContentText>
         </DialogContent>
         <DialogActions

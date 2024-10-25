@@ -32,7 +32,7 @@ const {
   summaryInLanguage,
   bulletSummary,
   contentRewriting,
-  searchDocuments
+  searchDocuments,
 } = require("./controllers/controllers");
 
 const app = express();

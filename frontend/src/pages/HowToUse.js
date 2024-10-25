@@ -271,10 +271,10 @@ const HowToUse = ({ theme }) => {
                   color: theme === "dark" ? "white" : "#333",
                 }}
               >
-                Use the 'Change Language' feature to translate the summary
-                into a different language. This feature is helpful for
-                multilingual users or when you need to share the summary with
-                others who speak a different language.
+                Use the 'Change Language' feature to translate the summary into
+                a different language. This feature is helpful for multilingual
+                users or when you need to share the summary with others who
+                speak a different language.
               </Typography>
             }
           />
