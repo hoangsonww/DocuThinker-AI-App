@@ -619,11 +619,12 @@ exports.searchDocuments = async (req, res) => {
 
     // Filter documents that match the search term in the title or content
     const matchingDocuments = documents.filter((doc) => {
+      // Safely extract title if it's an array
+      const title = Array.isArray(doc.title) ? doc.title.join(" ") : doc.title;
       // Check if title and originalText are strings before processing them
-      const titleMatch = typeof doc.title === "string" && doc.title.toLowerCase().includes(searchTerm.toLowerCase());
-      const textMatch = typeof doc.originalText === "string" && doc.originalText.toLowerCase().includes(searchTerm.toLowerCase());
+      const titleMatch = typeof title === "string" && title.toLowerCase().includes(searchTerm.toLowerCase());
 
-      return titleMatch || textMatch;
+      return titleMatch;
     });
 
     if (matchingDocuments.length === 0) {
@@ -633,7 +634,7 @@ exports.searchDocuments = async (req, res) => {
     // Format the response with relevant document details
     const response = matchingDocuments.map((doc) => ({
       docId: doc.id,
-      title: doc.title,
+      title: Array.isArray(doc.title) ? doc.title.join(" ") : doc.title,
       snippet: typeof doc.originalText === "string"
         ? doc.originalText.substring(0, 150) + "..."
         : "",
