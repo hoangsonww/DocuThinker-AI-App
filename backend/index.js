@@ -74,8 +74,12 @@ const swaggerOptions = {
         description: "Production server",
       },
       {
+        url: "http://localhost:3000",
+        description: "Local server - ensure you have the backend running",
+      },
+      {
         url: "http://127.0.0.1:3000",
-        description: "Local server",
+        description: "Local server - ensure you have the backend running",
       },
     ],
     components: {
