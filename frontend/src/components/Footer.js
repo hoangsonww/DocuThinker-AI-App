@@ -10,12 +10,14 @@ const activeLinkStyle = {
   borderBottom: "3px solid white",
   textDecoration: "none",
   color: "white",
+  fontFamily: "Poppins, sans-serif",
   fontSize: "16px",
 };
 
 const defaultLinkStyle = {
   textDecoration: "none",
   color: "white",
+  fontFamily: "Poppins, sans-serif",
   fontSize: "16px",
   transition: "all 0.3s ease", // Smooth transition effect
 };
@@ -73,6 +75,7 @@ const Footer = () => {
                   transform: "scale(1.05)", // Increase size on hover
                 },
                 transition: "transform 0.2s ease",
+                fontFamily: "Poppins, sans-serif",
               }}
             >
               {link.label}
@@ -120,7 +123,14 @@ const Footer = () => {
       </Box>
 
       {/* Footer Text */}
-      <Typography variant="body2" sx={{ color: "white", font: "inherit" }}>
+      <Typography
+        variant="body2"
+        sx={{
+          color: "white",
+          fontFamily: "Poppins, sans-serif",
+          font: "inherit",
+        }}
+      >
         © {new Date().getFullYear()} DocuThinker. All rights reserved.
       </Typography>
     </Box>

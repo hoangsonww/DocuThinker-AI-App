@@ -288,6 +288,7 @@ const DocumentsPage = ({ theme }) => {
           variant="outlined"
           size="small"
           placeholder="Search documents..."
+          title="Search documents"
           sx={{
             marginTop: { xs: 2, md: 0 },
             width: { xs: "100%", md: "40%" },
