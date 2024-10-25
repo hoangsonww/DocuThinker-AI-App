@@ -38,7 +38,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**🚢 Kubernetes Integration**](#kubernetes)
 - [**🔧 Contributing**](#contributing)
 - [**📝 License**](#license)
-- [**📚 Alternative Documentation**](#alternative-docs)
+- [**📚 Additional Documentation**](#alternative-docs)
 - [**👨‍💻 Author**](#author)
 
 <h2 id="-overview">📖 Overview</h2>
@@ -101,16 +101,20 @@ Feel free to explore the live app and test the functionalities. You can upload d
   - **Webpack**: Module bundler for JavaScript applications.
 - **Backend**:
   - **Express**: Web application framework for Node.js.
+  - **Redis**: In-memory data structure store for caching.
   - **Firebase Admin SDK**: Firebase services for server-side applications.
   - **Node.js**: JavaScript runtime for building scalable network applications.
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
   - **OAuth2**: Authentication framework for securing API endpoints.
+  - **Middleware**: Firebase authentication middleware for securing routes.
 - **AI/ML Services**:
   - **Google Cloud Natural Language API**: Machine learning models for text analysis.
   - **Google Gemini API**: AI-powered chatbot for conversational interfaces and document summarization.
   - **Google AI Studio**: Tools for building and deploying machine learning models.
   - **NLP**: Natural Language Processing for customized chat/text analysis and summarization models.
+  - **NER**: Named Entity Recognition for identifying entities in text.
+  - **POS Tagging**: Part-of-Speech Tagging for analyzing word types in text.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
@@ -125,6 +129,8 @@ Feel free to explore the live app and test the functionalities. You can upload d
 - **Containerization**:
   - **Docker**: Containerization platform for building, shipping, and running applications.
   - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.
+- **Load Balancing & Caching**:
+  - **NGINX**: Web server for load balancing, reverse proxying, and caching.
 - **CI/CD & Deployment**:
   - **GitHub Actions**: Automated workflows for testing and deployment.
   - **Jenkins**: Automation server for continuous integration and deployment.
@@ -318,11 +324,14 @@ The **DocuThinker** app is organized into separate subdirectories for the fronte
 DocuThinker-AI-App/
 ├── backend/
 │   ├── ai_ml/
+│   │   ├── perform_ner_pos.py        # Named Entity Recognition and Part-of-Speech Tagging
+│   │   ├── sen_analysis.py           # Sentiment analysis for document text
 │   │   ├── chat.js                   # Chatbot integration for AI chat functionality
 │   │   ├── analyzer.js               # Document analyzer for generating key ideas and discussion points
 │   │   ├── textStatistics.js         # Text statistics for analyzing document content
 │   │   ├── documentClassifier.js     # Document classifier for categorizing documents
-│   │   └── summarizer.js             # Document summarizer for generating summaries
+│   │   ├── summarizer.js             # Document summarizer for generating summaries
+│   │   └── (and many more files...)  # Additional AI/ML services
 │   ├── controllers.js                # Controls the flow of data and logic
 │   ├── models.js                     # Models for interacting with database and AI/ML services
 │   ├── views.js                      # Output formatting for success and error responses
@@ -752,7 +761,7 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial 
 
 The **DocuThinker** open-source project is for educational purposes only and should not be used for commercial applications. Feel free to use it for learning and personal projects!
 
-<h2 id="alternative-docs">📚 Alternative Documentation</h2>
+<h2 id="alternative-docs">📚 Additional Documentation</h2>
 
 - **[Alternative General Documentations](https://hoangsonww.github.io/DocuThinker-AI-App/)**
 - **[Backend README](backend/README.md)**

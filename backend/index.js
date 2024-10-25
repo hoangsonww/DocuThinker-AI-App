@@ -3,6 +3,8 @@ const cors = require("cors");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const path = require("path");
+const redis = require("redis");
+require("dotenv").config();
 const {
   registerUser,
   loginUser,
@@ -46,6 +48,34 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Initialize Redis client
+const redisClient = redis.createClient({
+  url: process.env.REDIS_URL,
+  socket: {
+    tls: true,
+    rejectUnauthorized: false,
+  },
+});
+
+redisClient.connect();
+
+redisClient.on("connect", () => {
+  console.log("Connected to Redis successfully!");
+});
+
+redisClient.on("error", (err) => {
+  console.error("Redis connection error:", err);
+});
+
+// Adding a simple key to Redis on connection (for testing purposes)
+redisClient.set("connectionTest", "connected", (err, reply) => {
+  if (err) {
+    console.error("Failed to set key in Redis:", err);
+  } else {
+    console.log("Successfully added key in Redis:", reply);
+  }
+});
 
 // Swagger setup
 const swaggerOptions = {
