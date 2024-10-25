@@ -1309,6 +1309,7 @@ exports.updateSocialMedia = async (req, res) => {
   }
 };
 
+
 /**
  * @swagger
  * /sentiment-analysis:
@@ -1352,11 +1353,11 @@ exports.sentimentAnalysis = async (req, res) => {
   try {
     const { documentText } = req.body;
 
-    if (!isValidText(documentText)) {
+    if (!documentText || typeof documentText !== "string" || documentText.trim() === "") {
       return res.status(400).send({ error: "Invalid document text" });
     }
 
-    const sentimentResult = await exports.analyzeSentiment(documentText);
+    const sentimentResult = await analyzeSentiment(documentText);
 
     res.status(200).send({
       sentimentScore: sentimentResult.sentimentScore,
@@ -1407,11 +1408,11 @@ exports.bulletSummary = async (req, res) => {
   try {
     const { documentText } = req.body;
 
-    if (!isValidText(documentText)) {
+    if (!documentText || typeof documentText !== "string" || documentText.trim() === "") {
       return res.status(400).send({ error: "Invalid document text" });
     }
 
-    const bulletSummary = await exports.generateBulletSummary(documentText);
+    const bulletSummary = await generateBulletSummary(documentText);
 
     res.status(200).send({ summary: bulletSummary });
   } catch (error) {
@@ -1463,14 +1464,12 @@ exports.summaryInLanguage = async (req, res) => {
   try {
     const { documentText, language } = req.body;
 
-    if (!isValidText(documentText) || !isValidText(language)) {
+    if (!documentText || typeof documentText !== "string" || documentText.trim() === "" ||
+      !language || typeof language !== "string" || language.trim() === "") {
       return res.status(400).send({ error: "Invalid document text or language" });
     }
 
-    const translatedSummary = await exports.generateSummaryInLanguage(
-      documentText,
-      language
-    );
+    const translatedSummary = await generateSummaryInLanguage(documentText, language);
 
     res.status(200).send({ summary: translatedSummary });
   } catch (error) {
@@ -1522,11 +1521,12 @@ exports.contentRewriting = async (req, res) => {
   try {
     const { documentText, style } = req.body;
 
-    if (!isValidText(documentText) || !isValidText(style)) {
+    if (!documentText || typeof documentText !== "string" || documentText.trim() === "" ||
+      !style || typeof style !== "string" || style.trim() === "") {
       return res.status(400).send({ error: "Invalid document text or style" });
     }
 
-    const rewrittenContent = await exports.rewriteContent(documentText, style);
+    const rewrittenContent = await rewriteContent(documentText, style);
 
     res.status(200).send({ rewrittenContent });
   } catch (error) {
@@ -1574,11 +1574,11 @@ exports.actionableRecommendations = async (req, res) => {
   try {
     const { documentText } = req.body;
 
-    if (!isValidText(documentText)) {
+    if (!documentText || typeof documentText !== "string" || documentText.trim() === "") {
       return res.status(400).send({ error: "Invalid document text" });
     }
 
-    const recommendations = await exports.generateActionableRecommendations(documentText);
+    const recommendations = await generateActionableRecommendations(documentText);
 
     res.status(200).send({ recommendations });
   } catch (error) {
