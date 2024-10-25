@@ -211,12 +211,12 @@ exports.verifyUserEmail = async (email) => {
 };
 
 // Helper: Sentiment Analysis using AI
+// Helper: Sentiment Analysis using AI
 exports.analyzeSentiment = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
-    systemInstruction:
-      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Analyze the sentiment of the provided text. Provide a sentiment score between -1 (very negative) to +1 (very positive) and a brief description.`,
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Analyze the sentiment of the provided text. Return the result as a JSON object with two properties: "score" between -1 (very negative) to +1 (very positive) and "description" as a brief summary of the sentiment.`,
   });
 
   const chatSession = model.startChat({
@@ -228,13 +228,24 @@ exports.analyzeSentiment = async (documentText) => {
     throw new Error("Failed to perform sentiment analysis from the AI");
   }
 
-  // Example response parsing to include a sentiment score and description
-  // (Assuming model provides something like `{ score: 0.75, description: "Positive sentiment" }`)
-  const response = JSON.parse(result.response.text());
-  return {
-    sentimentScore: response.score,
-    description: response.description,
-  };
+  // Extract and parse the response text into JSON format
+  try {
+    let responseText = result.response.text();
+
+    // Strip the ```json and ``` markers if they exist
+    responseText = responseText.replace(/```json|```/g, '').trim();
+
+    // Parse the cleaned JSON string
+    const response = JSON.parse(responseText);
+
+    return {
+      sentimentScore: response.score,
+      description: response.description,
+    };
+  } catch (error) {
+    console.error("Error parsing sentiment response:", error);
+    throw new Error("Failed to parse sentiment analysis response");
+  }
 };
 
 // Helper: Generate Summary in Bullet Points
