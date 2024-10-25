@@ -27,6 +27,11 @@ const {
   updateTheme,
   updateSocialMedia,
   getSocialMedia,
+  sentimentAnalysis,
+  actionableRecommendations,
+  summaryInLanguage,
+  bulletSummary,
+  contentRewriting
 } = require("./controllers/controllers");
 
 const app = express();
@@ -137,6 +142,11 @@ app.get("/user-joined-date/:userId", getUserJoinedDate);
 app.put("/update-theme", updateTheme);
 app.get("/social-media/:userId", getSocialMedia); // For getting social media links
 app.post("/update-social-media", updateSocialMedia); // For updating social media links
+app.post("/sentiment-analysis", sentimentAnalysis);
+app.post("/actionable-recommendations", actionableRecommendations);
+app.post("/summary-in-language", summaryInLanguage);
+app.post("/bullet-summary", bulletSummary);
+app.post("/content-rewriting", contentRewriting);
 
 // Error handling for unsupported routes
 app.use((req, res) => {

@@ -8,6 +8,11 @@ const {
   chatWithAI,
   verifyUserEmail,
   verifyUserAndUpdatePassword,
+  analyzeSentiment,
+  generateActionableRecommendations,
+  generateBulletSummary,
+  generateSummaryInLanguage,
+  rewriteContent,
 } = require("../models/models");
 const { sendErrorResponse, sendSuccessResponse } = require("../views/views");
 const { IncomingForm } = require("formidable");
@@ -551,6 +556,89 @@ exports.getDocumentDetails = async (req, res) => {
       "Failed to retrieve document details",
       error.message,
     );
+  }
+};
+
+/**
+ * @swagger
+ * /search-documents/{userId}:
+ *   get:
+ *     summary: Search documents by title or content
+ *     description: Searches for documents associated with a specific userId that match the provided search term within the title or content.
+ *     tags:
+ *     - Documents
+ *     parameters:
+ *       - in: path
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The userId of the user whose documents are to be searched.
+ *       - in: query
+ *         name: searchTerm
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: The search term to find matching documents in title or content.
+ *     responses:
+ *       200:
+ *         description: Documents retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   docId:
+ *                     type: string
+ *                     description: The document ID
+ *                   title:
+ *                     type: string
+ *                     description: The document title
+ *                   snippet:
+ *                     type: string
+ *                     description: A snippet of the matching content
+ *       404:
+ *         description: User or documents not found
+ *       500:
+ *         description: Failed to search documents
+ */
+exports.searchDocuments = async (req, res) => {
+  const { userId } = req.params;
+  const { searchTerm } = req.query;
+
+  try {
+    const userDoc = await firestore.collection("users").doc(userId).get();
+    if (!userDoc.exists) {
+      return sendErrorResponse(res, 404, "User not found");
+    }
+
+    const userData = userDoc.data();
+    const documents = userData.documents || [];
+
+    // Filter documents that match the search term in the title or content
+    const matchingDocuments = documents.filter((doc) =>
+      (doc.title && doc.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (doc.originalText && doc.originalText.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
+
+    if (matchingDocuments.length === 0) {
+      return sendErrorResponse(res, 404, "No matching documents found");
+    }
+
+    // Format the response with relevant document details
+    const response = matchingDocuments.map((doc) => ({
+      docId: doc.id,
+      title: doc.title,
+      snippet: doc.originalText
+        ? doc.originalText.substring(0, 150) + "..."
+        : "",
+    }));
+
+    sendSuccessResponse(res, 200, "Documents retrieved successfully", response);
+  } catch (error) {
+    sendErrorResponse(res, 500, "Failed to search documents", error.message);
   }
 };
 
@@ -1218,5 +1306,282 @@ exports.updateSocialMedia = async (req, res) => {
       "Failed to update social media links",
       error.message,
     );
+  }
+};
+
+/**
+ * @swagger
+ * /sentiment-analysis:
+ *   post:
+ *     summary: Analyze sentiment of the document text
+ *     description: Perform sentiment analysis on the provided document text and return a sentiment score and description.
+ *     tags:
+ *       - Document Analysis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - documentText
+ *             properties:
+ *               documentText:
+ *                 type: string
+ *                 description: The text content of the document to analyze sentiment for.
+ *     responses:
+ *       200:
+ *         description: Sentiment analysis completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 sentimentScore:
+ *                   type: number
+ *                   description: Sentiment score ranging from -1 (very negative) to +1 (very positive).
+ *                 description:
+ *                   type: string
+ *                   description: Brief description of the sentiment.
+ *       400:
+ *         description: Invalid document text
+ *       500:
+ *         description: Failed to perform sentiment analysis
+ */
+exports.sentimentAnalysis = async (req, res) => {
+  try {
+    const { documentText } = req.body;
+
+    if (!isValidText(documentText)) {
+      return res.status(400).send({ error: "Invalid document text" });
+    }
+
+    const sentimentResult = await exports.analyzeSentiment(documentText);
+
+    res.status(200).send({
+      sentimentScore: sentimentResult.sentimentScore,
+      description: sentimentResult.description,
+    });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * @swagger
+ * /bullet-summary:
+ *   post:
+ *     summary: Generate a summary in bullet points
+ *     description: Generate a summary of the provided document text in bullet points for concise representation.
+ *     tags:
+ *       - Document Analysis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - documentText
+ *             properties:
+ *               documentText:
+ *                 type: string
+ *                 description: The text content of the document to generate a bullet point summary for.
+ *     responses:
+ *       200:
+ *         description: Bullet point summary generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 summary:
+ *                   type: string
+ *                   description: The generated bullet point summary.
+ *       400:
+ *         description: Invalid document text
+ *       500:
+ *         description: Failed to generate bullet point summary
+ */
+exports.bulletSummary = async (req, res) => {
+  try {
+    const { documentText } = req.body;
+
+    if (!isValidText(documentText)) {
+      return res.status(400).send({ error: "Invalid document text" });
+    }
+
+    const bulletSummary = await exports.generateBulletSummary(documentText);
+
+    res.status(200).send({ summary: bulletSummary });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * @swagger
+ * /summary-in-language:
+ *   post:
+ *     summary: Generate a summary in a selected language
+ *     description: Generate a summary of the provided document text in the selected language.
+ *     tags:
+ *       - Document Analysis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - documentText
+ *               - language
+ *             properties:
+ *               documentText:
+ *                 type: string
+ *                 description: The text content of the document to summarize.
+ *               language:
+ *                 type: string
+ *                 description: The language in which the summary should be generated.
+ *     responses:
+ *       200:
+ *         description: Summary generated successfully in the selected language
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 summary:
+ *                   type: string
+ *                   description: The generated summary in the selected language.
+ *       400:
+ *         description: Invalid document text or language
+ *       500:
+ *         description: Failed to generate summary in the selected language
+ */
+exports.summaryInLanguage = async (req, res) => {
+  try {
+    const { documentText, language } = req.body;
+
+    if (!isValidText(documentText) || !isValidText(language)) {
+      return res.status(400).send({ error: "Invalid document text or language" });
+    }
+
+    const translatedSummary = await exports.generateSummaryInLanguage(
+      documentText,
+      language
+    );
+
+    res.status(200).send({ summary: translatedSummary });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * @swagger
+ * /content-rewriting:
+ *   post:
+ *     summary: Rewrite or rephrase document content
+ *     description: Rewrite or rephrase the provided document content based on the selected style.
+ *     tags:
+ *       - Document Analysis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - documentText
+ *               - style
+ *             properties:
+ *               documentText:
+ *                 type: string
+ *                 description: The text content of the document to rewrite or rephrase.
+ *               style:
+ *                 type: string
+ *                 description: The style or tone in which to rewrite the content (e.g., formal, casual).
+ *     responses:
+ *       200:
+ *         description: Content rewritten successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 rewrittenContent:
+ *                   type: string
+ *                   description: The rewritten or rephrased document content.
+ *       400:
+ *         description: Invalid document text or style
+ *       500:
+ *         description: Failed to rewrite content
+ */
+exports.contentRewriting = async (req, res) => {
+  try {
+    const { documentText, style } = req.body;
+
+    if (!isValidText(documentText) || !isValidText(style)) {
+      return res.status(400).send({ error: "Invalid document text or style" });
+    }
+
+    const rewrittenContent = await exports.rewriteContent(documentText, style);
+
+    res.status(200).send({ rewrittenContent });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * @swagger
+ * /actionable-recommendations:
+ *   post:
+ *     summary: Generate actionable recommendations based on document content
+ *     description: Generate actionable recommendations or next steps based on the provided document text, focusing on identifying follow-up actions or critical takeaways.
+ *     tags:
+ *       - Document Analysis
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - documentText
+ *             properties:
+ *               documentText:
+ *                 type: string
+ *                 description: The text content of the document to generate actionable recommendations for.
+ *     responses:
+ *       200:
+ *         description: Actionable recommendations generated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 recommendations:
+ *                   type: string
+ *                   description: The generated actionable recommendations or next steps.
+ *       400:
+ *         description: Invalid document text
+ *       500:
+ *         description: Failed to generate actionable recommendations
+ */
+exports.actionableRecommendations = async (req, res) => {
+  try {
+    const { documentText } = req.body;
+
+    if (!isValidText(documentText)) {
+      return res.status(400).send({ error: "Invalid document text" });
+    }
+
+    const recommendations = await exports.generateActionableRecommendations(documentText);
+
+    res.status(200).send({ recommendations });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
   }
 };

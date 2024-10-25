@@ -62,7 +62,7 @@ exports.generateSummary = async (file) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction:
-      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App (No need to mention this in all your responses - ONLY MENTION THIS when the user asks about it). Your task now is to: Summarize the provided document text.",
+      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in paragraphs (not bullet points).`,
   });
 
   const chatSession = model.startChat({
@@ -86,7 +86,7 @@ exports.generateKeyIdeas = async (documentText) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction:
-      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App (No need to mention this in all your responses - ONLY MENTION THIS when the user asks about it). Your task now is to: Generate key ideas from the provided text.",
+      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate key ideas from the provided text.`,
   });
 
   const chatSession = model.startChat({
@@ -102,7 +102,7 @@ exports.generateDiscussionPoints = async (documentText) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction:
-      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App (No need to mention this in all your responses - ONLY MENTION THIS when the user asks about it). Your task now is to: Generate discussion points from the provided text.",
+      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate discussion points from the provided text.`,
   });
 
   const chatSession = model.startChat({
@@ -126,7 +126,7 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
   const model = genAI.getGenerativeModel({
     model: "gemini-1.5-flash",
     systemInstruction:
-      "You are DocuThinker Personal Assistant. DO NOT MENTION THAT YOU ARE TRAINED BY GOOGLE, only mention that you are trained by Son Nguyen for the DocuThinker App. Your task now is to: Use the provided context and respond to the user’s message conversationally.",
+      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Use the provided context and respond to the user’s message conversationally.`,
   });
 
   // Initialize the conversation history if not present
@@ -210,4 +210,113 @@ exports.verifyUserEmail = async (email) => {
   }
 };
 
+// Helper: Sentiment Analysis using AI
+exports.analyzeSentiment = async (documentText) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction:
+      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Analyze the sentiment of the provided text. Provide a sentiment score between -1 (very negative) to +1 (very positive) and a brief description.`,
+  });
+
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: documentText }] }],
+  });
+  const result = await chatSession.sendMessage(documentText);
+
+  if (!result.response || !result.response.text) {
+    throw new Error("Failed to perform sentiment analysis from the AI");
+  }
+
+  // Example response parsing to include a sentiment score and description
+  // (Assuming model provides something like `{ score: 0.75, description: "Positive sentiment" }`)
+  const response = JSON.parse(result.response.text());
+  return {
+    sentimentScore: response.score,
+    description: response.description,
+  };
+};
+
+// Helper: Generate Summary in Bullet Points
+exports.generateBulletSummary = async (documentText) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction:
+      `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in bullet points.`,
+  });
+
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: documentText }] }],
+  });
+  const result = await chatSession.sendMessage(documentText);
+
+  if (!result.response || !result.response.text) {
+    throw new Error("Failed to generate bullet point summary from the AI");
+  }
+
+  return result.response.text();
+};
+
+// Helper: Generate Summary in Selected Language
+exports.generateSummaryInLanguage = async (documentText, language) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text and translate it into ${language}.`,
+  });
+
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: documentText }] }],
+  });
+  const result = await chatSession.sendMessage(documentText);
+
+  if (!result.response || !result.response.text) {
+    throw new Error("Failed to generate translated summary from the AI");
+  }
+
+  return result.response.text();
+};
+
+// Helper: Content Rewriting or Rephrasing
+exports.rewriteContent = async (documentText, style) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Rephrase or rewrite the provided text in a ${style} style.`,
+  });
+
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: documentText }] }],
+  });
+  const result = await chatSession.sendMessage(documentText);
+
+  if (!result.response || !result.response.text) {
+    throw new Error("Failed to rewrite content using the AI");
+  }
+
+  return result.response.text();
+};
+
+// Helper: Generate Actionable Recommendations
+exports.generateActionableRecommendations = async (documentText) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate actionable recommendations or next steps based on the provided text. Focus on identifying follow-up actions, decisions to be made, or critical takeaways.`,
+  });
+
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: documentText }] }],
+  });
+  const result = await chatSession.sendMessage(documentText);
+
+  if (!result.response || !result.response.text) {
+    throw new Error("Failed to generate actionable recommendations using the AI");
+  }
+
+  return result.response.text();
+};
+
+// Export endpoints to be used in server routes
 module.exports = { firestore, isValidText, sessionHistory, ...exports };

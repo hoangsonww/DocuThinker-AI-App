@@ -219,7 +219,7 @@ const Profile = ({ theme }) => {
         height: "100vh",
         backgroundColor: theme === "dark" ? "#222" : "#f4f4f4",
         paddingTop: 8,
-        paddingBottom: 12,
+        paddingBottom: 20,
         transition: "background-color 0.3s ease",
       }}
     >
@@ -379,6 +379,18 @@ const Profile = ({ theme }) => {
                 onChange={handleSocialMediaChange}
                 onKeyPress={(e) => handleKeyPress(e, platform)}
                 sx={{ font: "inherit", textAlign: "center", flexGrow: 1 }}
+                inputProps={{
+                  style: {
+                    fontFamily: "Poppins, sans-serif",
+                    color: theme === "dark" ? "white" : "black",
+                  },
+                }}
+                InputLabelProps={{
+                  style: {
+                    fontFamily: "Poppins, sans-serif",
+                    color: theme === "dark" ? "white" : "black",
+                  },
+                }}
               />
             ) : (
               <>
@@ -412,7 +424,7 @@ const Profile = ({ theme }) => {
               }
             >
               {editingField === platform ? (
-                <SaveIcon sx={{ color: "#000" }} />
+                <SaveIcon sx={{ color: theme === "dark" ? "#fff" : "#000" }} />
               ) : (
                 <EditIcon sx={{ color: theme === "dark" ? "#fff" : "#000" }} />
               )}
