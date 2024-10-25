@@ -11,6 +11,11 @@ import {
   IconButton,
   TextField,
   Pagination,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
 import { Delete, Visibility, Edit, Save } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +29,7 @@ const DocumentsPage = ({ theme }) => {
   const [documentsPerPage] = useState(5);
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
+  const [openDeleteAllDialog, setOpenDeleteAllDialog] = useState(false);
 
   useEffect(() => {
     if (!userId) {
@@ -86,16 +92,25 @@ const DocumentsPage = ({ theme }) => {
     }
   };
 
-  const handleDeleteAllDocuments = async () => {
+  const handleOpenDeleteAllDialog = () => {
+    setOpenDeleteAllDialog(true);
+  };
+
+  const handleCloseDeleteAllDialog = () => {
+    setOpenDeleteAllDialog(false);
+  };
+
+  const handleConfirmDeleteAllDocuments = async () => {
     try {
-      await axios.delete(
-        `https://docuthinker-ai-app.onrender.com/documents/${userId}`,
-      );
+      await axios.delete(`https://docuthinker-ai-app.onrender.com/documents/${userId}`);
       setDocuments([]);
+      handleCloseDeleteAllDialog();
     } catch (error) {
       console.error("Error deleting all documents:", error);
+      handleCloseDeleteAllDialog();
     }
   };
+
 
   const handleEditDocument = (docId, currentTitle) => {
     setEditingDocId(docId);
@@ -348,7 +363,7 @@ const DocumentsPage = ({ theme }) => {
           <Button
             variant="contained"
             color="secondary"
-            onClick={handleDeleteAllDocuments}
+            onClick={handleOpenDeleteAllDialog}
             sx={{ mt: 2, font: "inherit", mr: 2 }}
           >
             Delete All Documents
@@ -363,6 +378,80 @@ const DocumentsPage = ({ theme }) => {
           </Button>
         </>
       )}
+
+      <Dialog
+        open={openDeleteAllDialog}
+        onClose={handleCloseDeleteAllDialog}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+        PaperProps={{
+          style: {
+            backgroundColor: theme === "dark" ? "#333" : "#fff",
+            color: theme === "dark" ? "#fff" : "#000",
+            borderRadius: "8px",
+          },
+        }}
+      >
+        <DialogTitle
+          id="alert-dialog-title"
+          sx={{
+            backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+            color: theme === "dark" ? "#fff" : "#000",
+            font: "inherit",
+            fontSize: "24px",
+          }}
+        >
+          {"Confirm Delete All Documents"}
+        </DialogTitle>
+        <DialogContent
+          sx={{
+            backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+            color: theme === "dark" ? "#ddd" : "#000",
+          }}
+        >
+          <DialogContentText
+            id="alert-dialog-description"
+            sx={{
+              color: theme === "dark" ? "#ddd" : "#000",
+              font: "inherit",
+            }}
+          >
+            Are you sure you want to delete all documents? This action cannot be undone.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions
+          sx={{
+            backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+          }}
+        >
+          <Button
+            onClick={handleCloseDeleteAllDialog}
+            sx={{
+              color: theme === "dark" ? "#fff" : "#000",
+              font: "inherit",
+              "&:hover": {
+                backgroundColor: theme === "dark" ? "#555" : "#f5f5f5",
+              },
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmDeleteAllDocuments}
+            color="secondary"
+            autoFocus
+            sx={{
+              color: theme === "dark" ? "#f57c00" : "red",
+              font: "inherit",
+              "&:hover": {
+                backgroundColor: theme === "dark" ? "#555" : "#f5f5f5",
+              },
+            }}
+          >
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
