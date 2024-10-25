@@ -30,6 +30,55 @@ const DocumentsPage = ({ theme }) => {
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
   const [openDeleteAllDialog, setOpenDeleteAllDialog] = useState(false);
+  const [searchResults, setSearchResults] = useState([]);
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (searchTerm.trim() !== "") {
+        handleSearchChange();
+      } else {
+        setSearchResults([]);
+      }
+    }, 300);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [searchTerm]);
+
+  const handleSearchChange = async () => {
+    setSearchLoading(true);
+    try {
+      const response = await axios.get(
+        `https://docuthinker-ai-app.onrender.com/search-documents/${userId}?searchTerm=${encodeURIComponent(searchTerm)}`
+      );
+
+      const results = Object.keys(response.data)
+        .filter((key) => key !== "message")
+        .map((key) => {
+          // Handle title as either an array or string
+          const title = Array.isArray(response.data[key].title)
+            ? response.data[key].title.join(" ")
+            : response.data[key].title;
+
+          return {
+            docId: response.data[key].docId,
+            title: title,
+            snippet: response.data[key].snippet,
+          };
+        });
+
+      setSearchResults(results);
+      console.log("Search results:", results);
+    } catch (error) {
+      console.error("Error searching documents:", error);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
 
   useEffect(() => {
     if (!userId) {
@@ -87,6 +136,7 @@ const DocumentsPage = ({ theme }) => {
         `https://docuthinker-ai-app.onrender.com/documents/${userId}/${docId}`,
       );
       setDocuments(documents.filter((doc) => doc.id !== docId));
+      setSearchResults(searchResults.filter((doc) => doc.docId !== docId));
     } catch (error) {
       console.error("Error deleting document:", error);
     }
@@ -119,21 +169,42 @@ const DocumentsPage = ({ theme }) => {
 
   const handleSaveTitle = async (docId) => {
     try {
+      // Find the current document by docId
+      const currentDoc = documents.find((doc) => doc.id === docId || doc.docId === docId);
+
+      // Check if the new title is different from the current title
+      if (currentDoc && currentDoc.title === newTitle) {
+        // If the title hasn't changed, close the editing state without sending the request
+        setEditingDocId(null);
+        setNewTitle("");
+        return;
+      }
+
+      // If title is modified, send the request to update the title on the server
       await axios.post(
         `https://docuthinker-ai-app.onrender.com/update-document-title`,
         {
           userId,
           docId,
           newTitle,
-        },
+        }
       );
 
+      // Update the title in the documents array
       const updatedDocuments = documents.map((doc) =>
-        doc.id === docId ? { ...doc, title: [newTitle] } : doc,
+        (doc.id === docId || doc.docId === docId) ? { ...doc, title: newTitle } : doc
       );
-
       setDocuments(updatedDocuments);
+
+      // Update the title in the searchResults array
+      const updatedSearchResults = searchResults.map((doc) =>
+        doc.docId === docId ? { ...doc, title: newTitle } : doc
+      );
+      setSearchResults(updatedSearchResults);
+
+      // Reset the editing state
       setEditingDocId(null);
+      setNewTitle("");
     } catch (error) {
       console.error("Error updating document title:", error);
     }
@@ -191,18 +262,194 @@ const DocumentsPage = ({ theme }) => {
 
   return (
     <Box p={4}>
-      <Typography
-        variant="h4"
-        gutterBottom
+      <Box
         sx={{
-          font: "inherit",
-          fontWeight: "bold",
-          fontSize: "34px",
-          color: theme === "dark" ? "white" : "black",
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: { xs: "flex-start", md: "center" },
+          justifyContent: "space-between",
+          width: "100%",
+          mb: 2,
         }}
       >
-        Your Analyzed Documents
-      </Typography>
+        <Typography
+          variant="h4"
+          gutterBottom
+          sx={{
+            font: "inherit",
+            fontWeight: "bold",
+            fontSize: "34px",
+            color: theme === "dark" ? "white" : "black",
+          }}
+        >
+          Your Analyzed Documents
+        </Typography>
+        <TextField
+          value={searchTerm}
+          onChange={(event) => setSearchTerm(event.target.value)}
+          variant="outlined"
+          size="small"
+          placeholder="Search documents..."
+          sx={{
+            marginTop: { xs: 2, md: 0 },
+            width: { xs: "100%", md: "40%" },
+            bgcolor: theme === "dark" ? "#333" : "#fff",
+            "& .MuiOutlinedInput-input": {
+              color: theme === "dark" ? "#fff" : "#000",
+            },
+            "& .MuiOutlinedInput-root": {
+              "& fieldset": {
+                borderColor: theme === "dark" ? "#444" : "#ccc",
+              },
+              "&:hover fieldset": {
+                borderColor: theme === "dark" ? "#666" : "#999",
+              },
+            },
+          }}
+        />
+      </Box>
+
+      {searchLoading ? (
+        <CircularProgress sx={{ display: "block", margin: "20px auto" }} />
+      ) : (
+        <>
+          {searchTerm && searchResults.length === 0 ? (
+            <Typography
+              sx={{
+                textAlign: "center",
+                font: "inherit",
+                fontWeight: "bold",
+                fontSize: "18px",
+                color: theme === "dark" ? "#fff" : "#000",
+                marginTop: 4,
+                marginBottom: 2,
+              }}
+            >
+              No results found
+            </Typography>
+          ) : (
+            searchResults.slice(0, 5).length > 0 && (
+              <List>
+                {searchResults.slice(0, 5).map((doc) => (
+                  <ListItem
+                    key={doc.docId}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-start",
+                      borderRadius: "8px",
+                      gap: 1,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      "@media (min-width:600px)": {
+                        flexDirection: "row",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                      },
+                      "&:hover": {
+                        bgcolor: theme === "dark" ? "#333" : "#f5f5f5",
+                        transition: "background-color 0.3s ease",
+                      },
+                    }}
+                  >
+                    {editingDocId === doc.docId ? (
+                      <TextField
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                        onKeyPress={(e) => handleKeyPress(e, doc.docId)}
+                        variant="outlined"
+                        size="small"
+                        label={`Enter new title`}
+                        sx={{ mb: 1, width: "100%" }}
+                        inputProps={{
+                          style: {
+                            fontFamily: "Poppins, sans-serif",
+                            color: theme === "dark" ? "white" : "black",
+                          },
+                        }}
+                        InputLabelProps={{
+                          style: {
+                            fontFamily: "Poppins, sans-serif",
+                            color: theme === "dark" ? "white" : "#000",
+                          },
+                        }}
+                      />
+                    ) : (
+                      <ListItemText
+                        primary={
+                          <Typography
+                            sx={{
+                              font: "inherit",
+                              wordBreak: "break-word",
+                              color: theme === "dark" ? "white" : "black",
+                            }}
+                          >
+                            {doc.title}
+                          </Typography>
+                        }
+                        secondary={
+                          <Typography
+                            sx={{
+                              font: "inherit",
+                              color: theme === "dark" ? "#ccc" : "#555",
+                            }}
+                          >
+                            {doc.snippet}
+                          </Typography>
+                        }
+                      />
+                    )}
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "row",
+                        gap: 1,
+                        mt: { xs: 1, sm: 0 },
+                      }}
+                    >
+                      {editingDocId === doc.docId ? (
+                        <IconButton
+                          onClick={() => handleSaveTitle(doc.docId)}
+                          title={`Save ${doc.title}`}
+                          sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                        >
+                          <Save />
+                        </IconButton>
+                      ) : (
+                        <>
+                          <IconButton
+                            onClick={() => handleViewDocument(doc.docId)}
+                            title={`View ${doc.title}`}
+                            sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                          >
+                            <Visibility />
+                          </IconButton>
+                          <IconButton
+                            onClick={() =>
+                              handleEditDocument(doc.docId, doc.title)
+                            }
+                            title={`Edit ${doc.title}`}
+                            sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                          >
+                            <Edit />
+                          </IconButton>
+                          <IconButton
+                            onClick={() => handleDeleteDocument(doc.docId)}
+                            sx={{ color: "red" }}
+                            title={`Delete ${doc.title}`}
+                          >
+                            <Delete />
+                          </IconButton>
+                        </>
+                      )}
+                    </Box>
+                  </ListItem>
+                ))}
+              </List>
+            )
+          )}
+        </>
+      )}
 
       <div
         style={{
