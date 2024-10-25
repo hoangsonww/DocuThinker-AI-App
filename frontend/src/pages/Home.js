@@ -24,6 +24,8 @@ import CloseIcon from "@mui/icons-material/Close";
 const Home = ({ theme }) => {
   const keyIdeasRef = useRef(null);
   const discussionPointsRef = useRef(null);
+  const languageRef = useRef(null);
+  const rewriteRef = useRef(null);
   const [summary, setSummary] = useState("");
   const [originalText, setOriginalText] = useState("");
   const [keyIdeas, setKeyIdeas] = useState("");
@@ -101,6 +103,12 @@ const Home = ({ theme }) => {
   const recommendationsRef = useRef(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
 
+  const handleKeyPress = (event) => {
+    if (event.key === "Enter") {
+      handleRewriteContent();
+    }
+  }
+
   const handleGenerateRecommendations = async () => {
     setLoadingRecommendations(true);
     try {
@@ -136,6 +144,7 @@ const Home = ({ theme }) => {
 
       setRewrittenContent(response.data.rewrittenContent);
       setShowRewriteModal(false);
+      rewriteRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error("Failed to rewrite content:", error);
     } finally {
@@ -144,7 +153,6 @@ const Home = ({ theme }) => {
   };
 
   const stripMarkdown = (markdownText) => {
-    // Basic regex to remove some common Markdown patterns:
     return markdownText
       .replace(/[#*_~`>+-]/g, "") // Remove Markdown symbols like #, *, _, ~, `, >, +, -.
       .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1") // Remove Markdown links but keep text.
@@ -185,6 +193,7 @@ const Home = ({ theme }) => {
       const formattedLanguageSummary = formatAsMarkdown(response.data.summary);
       setLanguageSummary(formattedLanguageSummary);
       setLanguageModalOpen(false);
+      languageRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error("Failed to generate summary in language:", error);
     } finally {
@@ -1080,7 +1089,7 @@ const Home = ({ theme }) => {
             )}
 
             {languageSummary && (
-              <Box sx={{ marginTop: 2 }}>
+              <Box ref={languageRef} sx={{ marginTop: 2 }}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -1195,7 +1204,7 @@ const Home = ({ theme }) => {
             )}
 
             {rewrittenContent && (
-              <Box sx={{ marginTop: 2 }}>
+              <Box ref={rewriteRef} sx={{ marginTop: 2 }}>
                 <Typography
                   variant="h6"
                   sx={{
@@ -1459,6 +1468,7 @@ const Home = ({ theme }) => {
               label="Style (e.g., formal, casual)"
               value={desiredStyle}
               onChange={(e) => setDesiredStyle(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleRewriteContent()}
               sx={{ mb: 2 }}
               inputProps={{
                 style: {
