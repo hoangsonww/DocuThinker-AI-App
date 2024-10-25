@@ -72,7 +72,6 @@ const DocumentsPage = ({ theme }) => {
         });
 
       setSearchResults(results);
-      console.log("Search results:", results);
     } catch (error) {
       console.error("Error searching documents:", error);
     } finally {
@@ -293,6 +292,7 @@ const DocumentsPage = ({ theme }) => {
             marginTop: { xs: 2, md: 0 },
             width: { xs: "100%", md: "40%" },
             bgcolor: theme === "dark" ? "#333" : "#fff",
+            transition: "background-color 0.3s ease",
             "& .MuiOutlinedInput-input": {
               color: theme === "dark" ? "#fff" : "#000",
             },
@@ -303,6 +303,18 @@ const DocumentsPage = ({ theme }) => {
               "&:hover fieldset": {
                 borderColor: theme === "dark" ? "#666" : "#999",
               },
+            },
+          }}
+          inputProps={{
+            style: {
+              fontFamily: "Poppins, sans-serif",
+              color: theme === "dark" ? "white" : "black",
+            },
+          }}
+          InputLabelProps={{
+            style: {
+              fontFamily: "Poppins, sans-serif",
+              color: theme === "dark" ? "white" : "#000",
             },
           }}
         />

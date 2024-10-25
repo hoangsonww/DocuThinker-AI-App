@@ -147,8 +147,6 @@ const Home = ({ theme }) => {
     }
   };
 
-  console.log("documentFile:", documentFile);
-
   const fetchSentiment = async (text) => {
     setLoadingSentiment(true); // Start loading
     try {
