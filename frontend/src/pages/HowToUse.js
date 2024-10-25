@@ -229,7 +229,167 @@ const HowToUse = ({ theme }) => {
                   color: theme === "dark" ? "white" : "black",
                 }}
               >
-                6. Create an Account to Save Uploaded Documents
+                6. Generate Bullet-Point Summary
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Click the 'Generate Bullet-Point Summary' button to get a
+                concise list of bullet points summarizing the document. This
+                feature is useful for creating quick notes or study guides.
+              </Typography>
+            }
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                7. Customize the Summary Language
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Use the 'Change Language' feature to translate the summary
+                into a different language. This feature is helpful for
+                multilingual users or when you need to share the summary with
+                others who speak a different language.
+              </Typography>
+            }
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                8. Sentiment Analysis
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Use the 'Sentiment Analysis' feature to analyze the overall
+                sentiment of the document. The AI will provide insights on
+                whether the document has a positive, negative, or neutral tone.
+                This feature is useful for understanding the emotional context
+                of the text.
+              </Typography>
+            }
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                9. Actionable Recommendations
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Get actionable recommendations based on the document content.
+                The AI will suggest next steps, improvements, or actions to take
+                based on the information in the document. Use this feature to
+                enhance your decision-making process or guide your next steps.
+              </Typography>
+            }
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                10. Rewrite Content Automatically
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Simply specify the tone or style you want, and the AI will
+                rewrite the content of the document accordingly. This feature is
+                useful for creating variations of the text, adjusting the
+                writing style, or generating content for different audiences.
+              </Typography>
+            }
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                11. Create an Account to Save Uploaded Documents
               </Typography>
             }
             secondary={
@@ -246,6 +406,39 @@ const HowToUse = ({ theme }) => {
                 higher upload limit. Visit the <strong>Register</strong> page to
                 create an account and then log in to access your saved
                 documents.
+              </Typography>
+            }
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                12. Document Search for Easy Retrieval
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Use the document search feature to quickly find and retrieve
+                specific documents. You can search by title, content, or date
+                uploaded to locate the document you need. This feature is
+                helpful for organizing and managing your uploaded documents
+                (only available for registered and signed in users).
               </Typography>
             }
           />
