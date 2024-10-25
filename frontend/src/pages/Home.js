@@ -107,7 +107,7 @@ const Home = ({ theme }) => {
     if (event.key === "Enter") {
       handleRewriteContent();
     }
-  }
+  };
 
   const handleGenerateRecommendations = async () => {
     setLoadingRecommendations(true);
