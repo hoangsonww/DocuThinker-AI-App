@@ -553,6 +553,7 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 | POST       | `/update-document/{userId}/{docId}`  | Update the document details in Firestore.                                                           |
 | POST       | `/update-document-summary`           | Update the summary of a document in Firestore.                                                      |
 
+
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
 ### API Documentation
