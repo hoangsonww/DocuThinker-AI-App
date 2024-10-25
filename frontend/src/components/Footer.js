@@ -10,11 +10,14 @@ const activeLinkStyle = {
   borderBottom: "3px solid white",
   textDecoration: "none",
   color: "white",
+  fontSize: "16px",
 };
 
 const defaultLinkStyle = {
   textDecoration: "none",
   color: "white",
+  fontSize: "16px",
+  transition: "all 0.3s ease", // Smooth transition effect
 };
 
 const Footer = () => {
@@ -43,76 +46,39 @@ const Footer = () => {
           flexWrap: "wrap",
         }}
       >
-        <NavLink
-          to="/home"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          Home
-        </NavLink>
-        <NavLink
-          to="/how-to-use"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          How to Use
-        </NavLink>
-        <NavLink
-          to="/documents"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          Documents
-        </NavLink>
-        <NavLink
-          to="/profile"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          Profile
-        </NavLink>
-        <NavLink
-          to="/login"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          Login
-        </NavLink>
-        <NavLink
-          to="/register"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          Register
-        </NavLink>
-        <NavLink
-          to="/"
-          style={isLandingActive ? activeLinkStyle : defaultLinkStyle} // Handle both / and /landing
-        >
-          Landing
-        </NavLink>
-        <NavLink
-          to="/privacy-policy"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          Privacy Policy
-        </NavLink>
-        <NavLink
-          to="/terms-of-service"
-          style={({ isActive }) =>
-            isActive ? activeLinkStyle : defaultLinkStyle
-          }
-        >
-          Terms of Service
-        </NavLink>
+        {[
+          { to: "/home", label: "Home" },
+          { to: "/how-to-use", label: "How to Use" },
+          { to: "/documents", label: "Documents" },
+          { to: "/profile", label: "Profile" },
+          { to: "/login", label: "Login" },
+          { to: "/register", label: "Register" },
+          { to: "/", label: "Landing", isLanding: true },
+          { to: "/privacy-policy", label: "Privacy Policy" },
+          { to: "/terms-of-service", label: "Terms of Service" },
+        ].map((link) => (
+          <NavLink
+            key={link.to}
+            to={link.to}
+            style={({ isActive }) =>
+              (link.isLanding && isLandingActive) || isActive
+                ? activeLinkStyle
+                : defaultLinkStyle
+            }
+            className="nav-link"
+          >
+            <Typography
+              sx={{
+                "&:hover": {
+                  transform: "scale(1.05)", // Increase size on hover
+                },
+                transition: "transform 0.2s ease",
+              }}
+            >
+              {link.label}
+            </Typography>
+          </NavLink>
+        ))}
       </Box>
 
       {/* Social Media Icons */}
