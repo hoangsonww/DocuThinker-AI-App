@@ -339,6 +339,8 @@ const DocumentsPage = ({ theme }) => {
               No results found
             </Typography>
           ) : (
+
+
             searchResults.slice(0, 5).length > 0 && (
               <List>
                 {searchResults.slice(0, 5).map((doc) => (
