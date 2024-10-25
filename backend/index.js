@@ -31,7 +31,8 @@ const {
   actionableRecommendations,
   summaryInLanguage,
   bulletSummary,
-  contentRewriting
+  contentRewriting,
+  searchDocuments
 } = require("./controllers/controllers");
 
 const app = express();
@@ -147,6 +148,7 @@ app.post("/actionable-recommendations", actionableRecommendations);
 app.post("/summary-in-language", summaryInLanguage);
 app.post("/bullet-summary", bulletSummary);
 app.post("/content-rewriting", contentRewriting);
+app.post("/search-documents", searchDocuments);
 
 // Error handling for unsupported routes
 app.use((req, res) => {
