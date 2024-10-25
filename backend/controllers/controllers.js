@@ -618,10 +618,13 @@ exports.searchDocuments = async (req, res) => {
     const documents = userData.documents || [];
 
     // Filter documents that match the search term in the title or content
-    const matchingDocuments = documents.filter((doc) =>
-      (doc.title && doc.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (doc.originalText && doc.originalText.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const matchingDocuments = documents.filter((doc) => {
+      // Check if title and originalText are strings before processing them
+      const titleMatch = typeof doc.title === "string" && doc.title.toLowerCase().includes(searchTerm.toLowerCase());
+      const textMatch = typeof doc.originalText === "string" && doc.originalText.toLowerCase().includes(searchTerm.toLowerCase());
+
+      return titleMatch || textMatch;
+    });
 
     if (matchingDocuments.length === 0) {
       return sendErrorResponse(res, 404, "No matching documents found");
@@ -631,7 +634,7 @@ exports.searchDocuments = async (req, res) => {
     const response = matchingDocuments.map((doc) => ({
       docId: doc.id,
       title: doc.title,
-      snippet: doc.originalText
+      snippet: typeof doc.originalText === "string"
         ? doc.originalText.substring(0, 150) + "..."
         : "",
     }));

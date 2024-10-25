@@ -152,7 +152,7 @@ app.post("/actionable-recommendations", actionableRecommendations);
 app.post("/summary-in-language", summaryInLanguage);
 app.post("/bullet-summary", bulletSummary);
 app.post("/content-rewriting", contentRewriting);
-app.post("/search-documents", searchDocuments);
+app.get("/search-documents/:userId", searchDocuments);
 
 // Error handling for unsupported routes
 app.use((req, res) => {
