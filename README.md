@@ -188,12 +188,6 @@ Feel free to explore the live app and test the functionalities. You can upload d
   <img src="images/home-dark.png" alt="Home Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
-### **Home Page - With Key Ideas**
-
-<p align="center">
-  <img src="images/home-with-key-idea.png" alt="Home Page - With Key Ideas" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Chat Modal**
 
 <p align="center">
@@ -216,6 +210,12 @@ Feel free to explore the live app and test the functionalities. You can upload d
 
 <p align="center">
   <img src="images/documents-dark.png" alt="Documents Page - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Document Page - Search Results**
+
+<p align="center">
+  <img src="images/documents-search.png" alt="Document Page - Search Results" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Profile Page**
