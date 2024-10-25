@@ -442,7 +442,7 @@ const Home = ({ theme }) => {
                       borderRadius: 5,
                       backgroundColor: "#ccc",
                       "& .MuiLinearProgress-bar": {
-                        backgroundColor: sentiment.score > 0 ? "#4caf50" : "#f44336",
+                        backgroundColor: sentiment.score > 0 ? "#4caf50" : sentiment.score < 0 ? "#f44336" : "#f57c00",
                       },
                     }}
                   />
