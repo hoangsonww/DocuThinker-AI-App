@@ -98,7 +98,9 @@ const UploadModal = ({
   });
 
   const handleUpload = async () => {
-    if (!file || !title) return;
+    if (!file || !title) {
+      alert("Please select a file to upload and provide a title.");
+    }
 
     const formData = new FormData();
     formData.append("File", file);
