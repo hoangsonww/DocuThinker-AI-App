@@ -164,11 +164,21 @@ app.use((err, req, res, next) => {
   console.error("Global error handler:", err.stack);
   res
     .status(500)
-    .json({ error: "An internal error occurred", details: err.message });
+    .json({ error: "An internal server error occurred", details: err.message });
+});
+
+// Error handling for unauthorized requests
+app.use((err, req, res, next) => {
+  if (err.name === "UnauthorizedError") {
+    res.status(401).json({ error: "Unauthorized request" });
+  }
+
+  next();
 });
 
 // Start the server
 const port = process.env.PORT || 3000;
+
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server ready on port ${port}.`);
 });
