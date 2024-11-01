@@ -5,6 +5,7 @@ const swaggerUi = require("swagger-ui-express");
 const path = require("path");
 const redis = require("redis");
 require("dotenv").config();
+
 const {
   registerUser,
   loginUser,
