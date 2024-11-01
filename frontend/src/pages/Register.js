@@ -6,7 +6,10 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +17,8 @@ const Register = ({ theme }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -49,9 +54,17 @@ const Register = ({ theme }) => {
       console.log(response.data);
     } catch (err) {
       setLoading(false);
-      setError("Registration failed. Please try again.");
+      setError(err.response?.data.details || err.message);
       console.log(err.response?.data || err.message);
     }
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
+  const handleToggleConfirmPasswordVisibility = () => {
+    setShowConfirmPassword((prev) => !prev);
   };
 
   return (
@@ -133,7 +146,7 @@ const Register = ({ theme }) => {
           variant="outlined"
           fullWidth
           required
-          type="password"
+          type={showPassword ? "text" : "password"}
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           sx={{
@@ -143,7 +156,18 @@ const Register = ({ theme }) => {
             borderRadius: "8px",
             input: { color: theme === "dark" ? "white" : "black" },
           }}
-          inputProps={{
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle password visibility"
+                  onClick={handleTogglePasswordVisibility}
+                  edge="end"
+                >
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
             style: { fontFamily: "Poppins, sans-serif" },
           }}
           InputLabelProps={{
@@ -158,7 +182,7 @@ const Register = ({ theme }) => {
           variant="outlined"
           fullWidth
           required
-          type="password"
+          type={showConfirmPassword ? "text" : "password"}
           value={confirmPassword}
           onChange={(e) => setConfirmPassword(e.target.value)}
           sx={{
@@ -168,11 +192,19 @@ const Register = ({ theme }) => {
             borderRadius: "8px",
             input: { color: theme === "dark" ? "white" : "black" },
           }}
-          inputProps={{
-            style: {
-              fontFamily: "Poppins, sans-serif",
-              color: theme === "dark" ? "white" : "black",
-            },
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton
+                  aria-label="toggle confirm password visibility"
+                  onClick={handleToggleConfirmPasswordVisibility}
+                  edge="end"
+                >
+                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+            style: { fontFamily: "Poppins, sans-serif" },
           }}
           InputLabelProps={{
             style: {

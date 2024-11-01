@@ -38,8 +38,8 @@ const Profile = ({ theme }) => {
   const userId = localStorage.getItem("userId");
   const avatarUrl = "/OIP.jpg";
   const today = new Date().toLocaleDateString();
-
-  console.log(updatingSocialMedia);
+  const [loadingSocialMedia, setLoadingSocialMedia] = useState(true);
+  const [loadingEmail, setLoadingEmail] = useState(false);
 
   useEffect(() => {
     if (userId) {
@@ -97,6 +97,7 @@ const Profile = ({ theme }) => {
   const handleUpdateEmail = async () => {
     setUpdatingEmail(true);
     setError("");
+    setLoadingEmail(true);
 
     try {
       await axios.post("https://docuthinker-ai-app.onrender.com/update-email", {
@@ -109,11 +110,13 @@ const Profile = ({ theme }) => {
       setError("Failed to update email. Please try again.");
     } finally {
       setUpdatingEmail(false);
+      setLoadingEmail(false);
     }
   };
 
   const handleUpdateSocialMedia = async () => {
     setUpdatingSocialMedia(true);
+    setLoadingSocialMedia(true);
     try {
       await axios.post(
         "https://docuthinker-ai-app.onrender.com/update-social-media",
@@ -128,6 +131,7 @@ const Profile = ({ theme }) => {
       setError("Failed to update social media links.");
     } finally {
       setUpdatingSocialMedia(false);
+      setLoadingSocialMedia(false);
     }
   };
 
@@ -314,20 +318,31 @@ const Profile = ({ theme }) => {
                 },
               }}
             />
-            <Button
-              onClick={handleUpdateEmail}
-              variant="contained"
-              color="primary"
-              fullWidth
-              disabled={updatingEmail}
-              sx={{ font: "inherit" }}
-            >
-              {updatingEmail ? (
-                <CircularProgress size={24} sx={{ color: "white" }} />
-              ) : (
-                "Update Email"
+            <Box sx={{ position: "relative" }}>
+              <Button
+                onClick={handleUpdateEmail}
+                variant="contained"
+                color="primary"
+                fullWidth
+                disabled={updatingEmail}
+                sx={{ font: "inherit" }}
+              >
+                {updatingEmail ? "Updating..." : "Update Email"}
+              </Button>
+              {updatingEmail && (
+                <CircularProgress
+                  size={24}
+                  sx={{
+                    color: "white",
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    marginTop: "-12px",
+                    marginLeft: "-12px",
+                  }}
+                />
               )}
-            </Button>
+            </Box>
             {error && (
               <Typography color="error" sx={{ mt: 1, font: "inherit" }}>
                 {error}
@@ -356,7 +371,6 @@ const Profile = ({ theme }) => {
           <strong>Today's Date:</strong> {today}
         </Typography>
 
-        {/* Social Media Fields */}
         {["github", "linkedin", "facebook", "instagram"].map((platform) => (
           <Box
             sx={{
@@ -368,16 +382,19 @@ const Profile = ({ theme }) => {
             }}
             key={platform}
           >
+            {/* Platform Icon */}
             {platform === "github" && <GitHub sx={{ mr: 1 }} />}
             {platform === "linkedin" && <LinkedIn sx={{ mr: 1 }} />}
             {platform === "facebook" && <Facebook sx={{ mr: 1 }} />}
             {platform === "instagram" && <Instagram sx={{ mr: 1 }} />}
+
+            {/* Editable TextField or Displayed Link */}
             {editingField === platform ? (
               <TextField
                 name={platform}
                 value={socialMedia[platform]}
-                onChange={handleSocialMediaChange}
-                onKeyPress={(e) => handleKeyPress(e, platform)}
+                onChange={handleSocialMediaChange} // Existing handler
+                onKeyPress={(e) => handleKeyPress(e, platform)} // Existing handler
                 sx={{ font: "inherit", textAlign: "center", flexGrow: 1 }}
                 inputProps={{
                   style: {
@@ -405,7 +422,7 @@ const Profile = ({ theme }) => {
                   {platform.charAt(0).toUpperCase() + platform.slice(1)}:
                 </Typography>
                 <Button
-                  href={formatLink(platform, socialMedia[platform])}
+                  href={formatLink(platform, socialMedia[platform])} // Existing function
                   target="_blank"
                   sx={{
                     fontWeight: "bold",
@@ -414,21 +431,25 @@ const Profile = ({ theme }) => {
                     wordWrap: "break-word",
                   }}
                 >
-                  {getUsername(socialMedia[platform]) || "Not Set"}
+                  {getUsername(socialMedia[platform]) || "Not Set"} {/* Existing function */}
                 </Button>
               </>
             )}
-            <IconButton
-              onClick={() =>
-                setEditingField(editingField === platform ? null : platform)
-              }
-            >
-              {editingField === platform ? (
-                <SaveIcon sx={{ color: theme === "dark" ? "#fff" : "#000" }} />
+
+            {/* Edit or Save Icon Button with Loading State */}
+            {editingField === platform ? (
+              loadingSocialMedia ? ( // Show spinner if loading state is true
+                <CircularProgress size={24} sx={{ ml: 1 }} />
               ) : (
+                <IconButton onClick={() => setEditingField(null)}> {/* Save handler */}
+                  <SaveIcon sx={{ color: theme === "dark" ? "#fff" : "#000" }} />
+                </IconButton>
+              )
+            ) : (
+              <IconButton onClick={() => setEditingField(platform)}>
                 <EditIcon sx={{ color: theme === "dark" ? "#fff" : "#000" }} />
-              )}
-            </IconButton>
+              </IconButton>
+            )}
           </Box>
         ))}
 

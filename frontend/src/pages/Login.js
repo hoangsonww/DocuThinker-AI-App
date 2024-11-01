@@ -7,13 +7,17 @@ import {
   CircularProgress,
   Alert,
   Link,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const Login = ({ theme, onLogin }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -30,7 +34,7 @@ const Login = ({ theme, onLogin }) => {
           headers: {
             "Content-Type": "application/json",
           },
-        },
+        }
       );
 
       onLogin();
@@ -48,6 +52,10 @@ const Login = ({ theme, onLogin }) => {
         setError("Login failed. Please try again.");
       }
     }
+  };
+
+  const handleTogglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
   };
 
   return (
@@ -92,7 +100,7 @@ const Login = ({ theme, onLogin }) => {
         {error && (
           <Alert
             severity="error"
-            sx={{ marginBottom: "1.5rem", font: "inherit" }}
+            sx={{ marginBottom: "1.5rem", font: "inherit", textAlign: "center" }}
           >
             {error}
           </Alert>
@@ -132,7 +140,7 @@ const Login = ({ theme, onLogin }) => {
           {/* Password Input */}
           <TextField
             label="Password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             fullWidth
             required
             sx={{
@@ -143,7 +151,18 @@ const Login = ({ theme, onLogin }) => {
             }}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            inputProps={{
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleTogglePasswordVisibility}
+                    edge="end"
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
               style: {
                 fontFamily: "Poppins, sans-serif",
                 color: theme === "dark" ? "white" : "black",

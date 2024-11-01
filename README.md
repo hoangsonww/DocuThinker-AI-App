@@ -178,12 +178,6 @@ Feel free to explore the live app and test the functionalities. You can upload d
   <img src="images/drive-upload.png" alt="Google Drive Document Selection" width="100%" style="border-radius: 8px">
 </p>
 
-### **Google Drive Document Selection - Dark Mode**
-
-<p align="center">
-  <img src="images/drive-upload-dark.png" alt="Google Drive Document Selection - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Home Page**
 
 <p align="center">

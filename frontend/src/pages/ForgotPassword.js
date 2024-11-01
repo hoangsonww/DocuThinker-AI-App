@@ -6,7 +6,10 @@ import {
   Typography,
   CircularProgress,
   Alert,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
@@ -14,6 +17,8 @@ const ForgotPassword = ({ theme }) => {
   const [email, setEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmNewPassword, setShowConfirmNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailVerified, setEmailVerified] = useState(false);
   const [success, setSuccess] = useState("");
@@ -67,6 +72,14 @@ const ForgotPassword = ({ theme }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleToggleNewPasswordVisibility = () => {
+    setShowNewPassword((prev) => !prev);
+  };
+
+  const handleToggleConfirmNewPasswordVisibility = () => {
+    setShowConfirmNewPassword((prev) => !prev);
   };
 
   return (
@@ -183,7 +196,7 @@ const ForgotPassword = ({ theme }) => {
           <form onSubmit={handleUpdatePassword}>
             <TextField
               label="New Password"
-              type="password"
+              type={showNewPassword ? "text" : "password"}
               fullWidth
               required
               sx={{
@@ -194,7 +207,18 @@ const ForgotPassword = ({ theme }) => {
               }}
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
-              inputProps={{
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle password visibility"
+                      onClick={handleToggleNewPasswordVisibility}
+                      edge="end"
+                    >
+                      {showNewPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
                 style: {
                   fontFamily: "Poppins, sans-serif",
                   color: theme === "dark" ? "white" : "black",
@@ -210,7 +234,7 @@ const ForgotPassword = ({ theme }) => {
 
             <TextField
               label="Confirm New Password"
-              type="password"
+              type={showConfirmNewPassword ? "text" : "password"}
               fullWidth
               required
               sx={{
@@ -221,7 +245,18 @@ const ForgotPassword = ({ theme }) => {
               }}
               value={confirmNewPassword}
               onChange={(e) => setConfirmNewPassword(e.target.value)}
-              inputProps={{
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      aria-label="toggle confirm password visibility"
+                      onClick={handleToggleConfirmNewPasswordVisibility}
+                      edge="end"
+                    >
+                      {showConfirmNewPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
                 style: {
                   fontFamily: "Poppins, sans-serif",
                   color: theme === "dark" ? "white" : "black",

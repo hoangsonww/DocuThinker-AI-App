@@ -80,6 +80,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
+          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
         }}
       >
         <HomeIcon sx={{ marginRight: 1 }} /> Home
@@ -95,6 +96,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
+          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
         }}
       >
         <HelpOutlineIcon sx={{ marginRight: 1 }} /> How to Use
@@ -110,6 +112,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
+          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
         }}
       >
         <DescriptionIcon sx={{ marginRight: 1 }} /> Documents
@@ -125,6 +128,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
+          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
         }}
       >
         <PersonIcon sx={{ marginRight: 1 }} /> Profile
@@ -157,6 +161,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
             textTransform: "none",
             display: "flex",
             alignItems: "center",
+            "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
           }}
         >
           <LoginIcon sx={{ marginRight: 1 }} /> Login
@@ -173,6 +178,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
+          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
         }}
       >
         <AppRegistrationIcon sx={{ marginRight: 1 }} /> Register
@@ -246,7 +252,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/home"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black" },
+                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                 borderRadius: "8px",
               }}
             >
@@ -267,7 +273,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/how-to-use"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black" },
+                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                 borderRadius: "8px",
               }}
             >
@@ -288,7 +294,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/documents"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black" },
+                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                 borderRadius: "8px",
               }}
             >
@@ -309,7 +315,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/profile"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black" },
+                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                 borderRadius: "8px",
               }}
             >
@@ -329,8 +335,9 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
                 onClick={handleLogout}
                 sx={{
                   color: "red",
-                  "&:hover": { color: "red" },
+                  "&:hover": { color: "red", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                   borderRadius: "8px",
+                  cursor: "pointer",
                 }}
               >
                 <ListItemIcon sx={{ minWidth: "40px", color: "red" }}>
@@ -345,7 +352,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
                 to="/login"
                 sx={{
                   color: theme === "dark" ? "white" : "black",
-                  "&:hover": { color: theme === "dark" ? "white" : "black" },
+                  "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                   borderRadius: "8px",
                 }}
               >
@@ -367,7 +374,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/register"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black" },
+                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                 borderRadius: "8px",
               }}
             >
@@ -387,7 +394,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               onClick={toggleDrawer(false)}
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black" },
+                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
                 borderRadius: "8px",
                 cursor: "pointer",
               }}

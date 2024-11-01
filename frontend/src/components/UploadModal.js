@@ -100,6 +100,7 @@ const UploadModal = ({
   const handleUpload = async () => {
     if (!file || !title) {
       alert("Please select a file to upload and provide a title.");
+      return;
     }
 
     const formData = new FormData();
@@ -196,7 +197,9 @@ const UploadModal = ({
                 transition: "color 0.3s ease",
               }}
             >
-              Drag & drop a file here, or click to select
+              {file
+                ? "Drag & drop a new file here, or click to select a new file"
+                : "Drag & drop a file here, or click to select"}
             </Typography>
           </Box>
 

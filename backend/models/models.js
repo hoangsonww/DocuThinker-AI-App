@@ -3,6 +3,11 @@ const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const multer = require("multer");
+const {
+  GoogleAIFileManager,
+  FileState,
+} = require("@google/generative-ai/server");
 require("dotenv").config();
 
 // Parse the private key (ensuring it's correctly formatted)
@@ -76,6 +81,72 @@ exports.generateSummary = async (file) => {
   return {
     summary: result.response.text(),
     originalText: extractedText,
+  };
+};
+
+// Multer setup for handling file uploads
+const upload = multer({ dest: "uploads/" });
+
+// Helper: Process Audio using Gemini API
+exports.processAudio = async (file, context) => {
+  const fileBuffer = fs.readFileSync(file.filepath);
+  const mimeType = file.mimetype;
+
+  // Accept both "audio/wav", "audio/wave", and "audio/mp3" formats
+  if (!["audio/wav", "audio/wave", "audio/mp3"].includes(mimeType)) {
+    throw new Error(
+      "Unsupported audio format. Please upload a WAV or MP3 file.",
+    );
+  }
+
+  const fileManager = new GoogleAIFileManager(process.env.GOOGLE_AI_API_KEY);
+
+  // Upload file to Gemini
+  const uploadResult = await fileManager.uploadFile(file.filepath, {
+    mimeType: mimeType,
+    displayName: "User Uploaded Audio",
+  });
+
+  let uploadedFile = await fileManager.getFile(uploadResult.file.name);
+  while (uploadedFile.state === FileState.PROCESSING) {
+    await new Promise((resolve) => setTimeout(resolve, 10000)); // Wait for 10 seconds before re-checking the state
+    uploadedFile = await fileManager.getFile(uploadResult.file.name);
+  }
+
+  if (uploadedFile.state === FileState.FAILED) {
+    throw new Error("Audio processing failed.");
+  }
+
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+
+  // Generate transcription or summary with context if provided
+  const prompt = [
+    {
+      fileData: {
+        fileUri: uploadedFile.uri,
+        mimeType: mimeType,
+      },
+    },
+    {
+      text: `${process.env.AI_INSTRUCTIONS}. Please respond conversationally to the user and do what the user asks you 
+      to do. If the user asks a question, provide a detailed answer.${
+        context
+          ? " Here is some additional context (may be about a document being referred to by the user): " +
+            context
+          : ""
+      }`,
+    },
+  ];
+
+  const result = await model.generateContent(prompt);
+
+  if (!result.response || !result.response.text) {
+    throw new Error("Failed to generate a summary from the AI");
+  }
+
+  return {
+    summary: result.response.text(),
   };
 };
 

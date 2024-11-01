@@ -13,6 +13,7 @@ const {
   generateBulletSummary,
   generateSummaryInLanguage,
   rewriteContent,
+  processAudio,
 } = require("../models/models");
 const { sendErrorResponse, sendSuccessResponse } = require("../views/views");
 const { IncomingForm } = require("formidable");
@@ -188,6 +189,71 @@ exports.uploadDocument = async (req, res) => {
           error.message,
         );
       }
+    }
+  });
+};
+
+/**
+ * @swagger
+ * /process-audio:
+ *   post:
+ *     summary: Upload an audio file for processing
+ *     description: Upload an audio file to be summarized or transcribed by the AI. Optionally, provide additional text context for the model to consider.
+ *     tags:
+ *     - Audio
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               File:
+ *                 type: string
+ *                 format: binary
+ *                 description: The audio file to be uploaded (WAV or MP3 format).
+ *               context:
+ *                 type: string
+ *                 description: Additional text-based context to assist the AI in generating a more accurate response (optional).
+ *     responses:
+ *       200:
+ *         description: Audio processed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 summary:
+ *                   type: string
+ *                   description: The generated summary or response from the AI.
+ *       400:
+ *         description: No audio file uploaded
+ *       500:
+ *         description: Failed to process audio
+ */
+exports.processAudioFile = async (req, res) => {
+  const form = new IncomingForm();
+  await form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return sendErrorResponse(res, 500, "Error parsing the file", err);
+    } else if (!files.File) {
+      return sendErrorResponse(res, 400, "No audio file uploaded");
+    }
+
+    // Extract optional context text from the fields
+    const context = fields.context || "";
+
+    try {
+      // Process the uploaded audio file using the processAudio function
+      const result = await processAudio(files.File[0], context);
+      // Pass context to the processAudio function
+
+      // Send success response with the summary
+      sendSuccessResponse(res, 200, "Audio processed successfully", {
+        summary: result.summary,
+      });
+    } catch (error) {
+      sendErrorResponse(res, 500, "Failed to process audio", error.message);
     }
   });
 };

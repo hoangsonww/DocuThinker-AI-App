@@ -108,6 +108,9 @@ const ChatModal = ({ theme }) => {
               top: 8,
               right: 8,
               color: theme === "dark" ? "white" : "black",
+              "&:hover": {
+                color: "#f57c00",
+              },
             }}
           >
             <CloseIcon />

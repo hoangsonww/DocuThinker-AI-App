@@ -7,6 +7,7 @@ import {
   Grid,
   Card,
   CardContent,
+  CardActions,
 } from "@mui/material";
 import { Link } from "react-router-dom";
 import { keyframes } from "@emotion/react";
@@ -17,7 +18,7 @@ const slideUp = keyframes`
         opacity: 0;
     }
     to {
-        transform: translateY(0); 
+        transform: translateY(0);
         opacity: 1;
     }
 `;
@@ -110,8 +111,50 @@ const LandingPage = ({ theme }) => {
               description:
                 "Engage in conversation with our AI to get clarifications and insights about your documents.",
               buttonText: "Chat Now",
-              link: "/",
+              link: "/home",
             },
+            {
+              title: "Voice Chat with AI",
+              description:
+                "Use voice commands to interact with our AI and get instant responses.",
+              buttonText: "Try Voice Chat",
+              link: "/home",
+            },
+            {
+              title: "Document Summarization in Multiple Languages",
+              description:
+                "Support for multiple languages to generate summaries and insights from documents.",
+              buttonText: "Try Now",
+              link: "/home",
+            },
+            {
+              title: "Rewrite Content with AI",
+              description:
+                "Simply choose a desired style and let our AI rewrite your content in seconds.",
+              buttonText: "Learn More",
+              link: "/home",
+            },
+            {
+              title: "Get Actionable Recommendations",
+              description:
+                "Receive actionable recommendations based on the content of your documents.",
+              buttonText: "Get Recommendations",
+              link: "/home",
+            },
+            {
+              title: "Sentiment Analysis",
+              description:
+                "Analyze the sentiment of your documents and get a detailed report.",
+              buttonText: "Analyze Sentiment",
+              link: "/home",
+            },
+            {
+              title: "Document Storage and Management",
+              description:
+                "Securely store, manage, and easily access your documents with our cloud-based solution.",
+              buttonText: "Sign Up",
+              link: "/register",
+            }
           ].map((feature, index) => (
             <Grid
               item
@@ -126,6 +169,8 @@ const LandingPage = ({ theme }) => {
             >
               <Card
                 sx={{
+                  display: "flex",
+                  flexDirection: "column",
                   boxShadow: 3,
                   borderRadius: 2,
                   height: "100%",
@@ -136,7 +181,7 @@ const LandingPage = ({ theme }) => {
                   },
                 }}
               >
-                <CardContent>
+                <CardContent sx={{ flexGrow: 1 }}>
                   <Typography
                     variant="h5"
                     sx={{
@@ -159,6 +204,8 @@ const LandingPage = ({ theme }) => {
                   >
                     {feature.description}
                   </Typography>
+                </CardContent>
+                <CardActions sx={{ justifyContent: "left", mt: "auto", mb: 2, ml: 1 }}>
                   <Button
                     component={Link}
                     to={feature.link}
@@ -174,7 +221,7 @@ const LandingPage = ({ theme }) => {
                   >
                     {feature.buttonText}
                   </Button>
-                </CardContent>
+                </CardActions>
               </Card>
             </Grid>
           ))}
@@ -186,18 +233,18 @@ const LandingPage = ({ theme }) => {
             marginTop: "4rem",
             padding: "2rem",
             textAlign: "center",
-            backgroundColor: isDarkMode ? "#333" : "#fff",
+            backgroundColor: "#f57c00", // Inverted background color
             borderRadius: 2,
             boxShadow: 3,
             transition: "background-color 0.3s ease",
             animation: `${slideUp} 0.8s ease-out`,
+            color: "white", // White text color
           }}
         >
           <Typography
             variant="h5"
             sx={{
               marginBottom: "1rem",
-              color: "#f57c00",
               font: "inherit",
               fontWeight: 600,
               fontSize: "1.5rem",
@@ -211,7 +258,7 @@ const LandingPage = ({ theme }) => {
               maxWidth: "800px",
               margin: "0 auto",
               font: "inherit",
-              color: isDarkMode ? "white" : "black",
+              color: "white", // Ensure the text is white
             }}
           >
             Our platform is designed to simplify document analysis, provide

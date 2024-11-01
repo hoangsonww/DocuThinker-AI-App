@@ -13,6 +13,8 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  Modal,
+  Fade,
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
 import UploadModal from "../components/UploadModal";
@@ -20,6 +22,7 @@ import ChatModal from "../components/ChatModal";
 import axios from "axios";
 import { useLocation } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
+import MicRecorder from "mic-recorder-to-mp3";
 
 const Home = ({ theme }) => {
   const keyIdeasRef = useRef(null);
@@ -102,10 +105,90 @@ const Home = ({ theme }) => {
   const [recommendations, setRecommendations] = useState("");
   const recommendationsRef = useRef(null);
   const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [loadingAudio, setLoadingAudio] = useState(false);
+  const [audioResponse, setAudioResponse] = useState("");
+  const [showAudioModal, setShowAudioModal] = useState(false);
+  const [recording, setRecording] = useState(false);
+  const [file, setFile] = useState(null);
+  const [recordingMessage, setRecordingMessage] = useState("Recording Audio");
+  const [audioBlob, setAudioBlob] = useState(null);
+  const recorder = useRef(new MicRecorder({ bitRate: 128 }));
+  const audioRef = useRef(null);
 
-  const handleKeyPress = (event) => {
-    if (event.key === "Enter") {
-      handleRewriteContent();
+  // Update recording message dots animation
+  useEffect(() => {
+    let dots = 0;
+    if (recording) {
+      const interval = setInterval(() => {
+        setRecordingMessage(`Recording Audio${".".repeat(dots)}`);
+        dots = (dots + 1) % 4;
+      }, 500);
+      return () => clearInterval(interval);
+    }
+  }, [recording]);
+
+  const handleUploadFile = (event) => {
+    const uploadedFile = event.target.files[0];
+    setFile(uploadedFile);
+    setAudioBlob(null);
+  };
+
+  const handleRecordStart = () => {
+    setFile(null);
+    setAudioBlob(null);
+    recorder.current
+      .start()
+      .then(() => {
+        setRecording(true);
+      })
+      .catch(console.error);
+  };
+
+  const handleRecordStop = () => {
+    recorder.current
+      .stop()
+      .getMp3()
+      .then(([buffer, blob]) => {
+        const recordingFile = new File(buffer, "recording.wav", {
+          type: "audio/wav",
+          lastModified: Date.now(),
+        });
+        setFile(recordingFile);
+        setAudioBlob(blob);
+        setRecording(false);
+      })
+      .catch(console.error);
+  };
+
+  const handleSendAudio = async () => {
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("File", file);
+
+    // Adding context to FormData if the `summary` variable is defined
+    if (summary) {
+      formData.append("context", summary);
+    }
+
+    try {
+      setLoadingAudio(true);
+      const response = await axios.post(
+        "https://docuthinker-ai-app.onrender.com/process-audio",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
+      setAudioResponse(response.data.summary);
+      audioRef.current?.scrollIntoView({ behavior: "smooth" });
+    } catch (error) {
+      console.error("Error processing audio:", error);
+    } finally {
+      setLoadingAudio(false);
+      setShowAudioModal(false);
     }
   };
 
@@ -531,7 +614,7 @@ const Home = ({ theme }) => {
                       color: theme === "dark" ? "white" : "black",
                     }}
                   >
-                    Sentiment Score: {sentiment.score} - {sentiment.description}
+                    Sentiment Score: <strong>{sentiment.score}</strong> - {sentiment.description}
                   </Typography>
                 </>
               )}
@@ -597,6 +680,17 @@ const Home = ({ theme }) => {
               </Button>
               <ChatModal theme={theme} />
               <Button
+                onClick={() => setShowAudioModal(true)}
+                sx={{
+                  bgcolor: "#f57c00",
+                  color: "white",
+                  font: "inherit",
+                  borderRadius: "12px",
+                }}
+              >
+                Voice Chat
+              </Button>
+              <Button
                 onClick={() => setLanguageModalOpen(true)}
                 sx={{
                   bgcolor: "#f57c00",
@@ -646,6 +740,154 @@ const Home = ({ theme }) => {
                 Upload New Document
               </Button>
             </Box>
+
+            {/* Modal for Upload or Record */}
+            <Modal
+              open={showAudioModal}
+              onClose={() => setShowAudioModal(false)}
+            >
+              <Fade in={showAudioModal}>
+                <Box
+                  sx={{
+                    bgcolor: theme === "dark" ? "#222" : "white",
+                    color: theme === "dark" ? "white" : "black",
+                    borderRadius: "12px",
+                    width: "400px",
+                    maxWidth: "90%",
+                    p: 3,
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translate(-50%, -50%)",
+                    boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                >
+                  <IconButton
+                    sx={{
+                      position: "absolute",
+                      top: 8,
+                      right: 8,
+                      color: theme === "dark" ? "white" : "black",
+                      "&:hover": { color: "#f57c00" },
+                  }}
+                    onClick={() => setShowAudioModal(false)}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                  <Typography
+                    variant="h6"
+                    sx={{
+                      font: "inherit",
+                      fontSize: "22px",
+                      fontWeight: "bold",
+                      color: theme === "dark" ? "white" : "black",
+                    }}
+                  >
+                    Upload or Record Audio
+                  </Typography>
+
+                  <Typography variant="body1" sx={{ mb: 2, font: "inherit", textAlign: "center", fontSize: "14px", color: theme === "dark" ? "white" : "black" }}>
+                    Record your audio or upload an audio file to talk to our AI with your voice!
+                  </Typography>
+
+                  <Button
+                    variant="contained"
+                    component="label"
+                    sx={{
+                      mb: 1,
+                      width: "100%",
+                      bgcolor: "#1976d2",
+                      "&:hover": { bgcolor: "#1565c0" },
+                      cursor: recording ? "not-allowed" : "pointer",
+                      font: "inherit",
+                    }}
+                    disabled={recording}
+                  >
+                    {file && !recording
+                      ? "Upload New Audio File"
+                      : "Upload Audio File"}
+                    <input
+                      type="file"
+                      accept="audio/*"
+                      hidden
+                      onChange={handleUploadFile}
+                    />
+                  </Button>
+                  {file && !recording && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "gray",
+                        font: "inherit",
+                        textAlign: "center",
+                      }}
+                    >
+                      {file.name}
+                    </Typography>
+                  )}
+
+                  <Button
+                    variant="contained"
+                    onClick={recording ? handleRecordStop : handleRecordStart}
+                    sx={{
+                      width: "100%",
+                      bgcolor: recording ? "#d32f2f" : "#4caf50",
+                      "&:hover": { bgcolor: recording ? "#c62828" : "#388e3c" },
+                      font: "inherit",
+                    }}
+                  >
+                    {recording
+                      ? "Stop Recording"
+                      : file
+                        ? "Remove Audio and Record Again"
+                        : "Record Audio"}
+                  </Button>
+                  {recording && (
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        color: "red",
+                        font: "inherit",
+                        textAlign: "center",
+                      }}
+                    >
+                      {recordingMessage}
+                    </Typography>
+                  )}
+
+                  {audioBlob && !recording && (
+                    <audio
+                      controls
+                      src={URL.createObjectURL(audioBlob)}
+                      style={{ width: "100%" }}
+                    />
+                  )}
+
+                  <Button
+                    variant="contained"
+                    disabled={!file || loadingAudio} // Disable if no file is selected or if loading
+                    onClick={handleSendAudio}
+                    sx={{
+                      mt: 2,
+                      width: "50%",
+                      alignSelf: "center",
+                      font: "inherit",
+                      bgcolor: "#f57c00",
+                      "&:hover": { bgcolor: "#ef6c00" },
+                    }}
+                  >
+                    {loadingAudio ? (
+                      <CircularProgress size={24} sx={{ color: "white" }} />
+                    ) : (
+                      "SEND"
+                    )}
+                  </Button>
+                </Box>
+              </Fade>
+            </Modal>
 
             {/* Display key ideas and discussion points as Markdown */}
             {keyIdeas && (
@@ -999,6 +1241,51 @@ const Home = ({ theme }) => {
               </Box>
             )}
 
+            {/* Display AI Response */}
+            {audioResponse && (
+              <Box ref={audioRef} sx={{ marginTop: 2 }}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    font: "inherit",
+                    fontWeight: "bold",
+                    fontSize: "20px",
+                    mb: 2,
+                    color: theme === "dark" ? "white" : "black",
+                  }}
+                >
+                  Audio Summary
+                </Typography>
+                <Box
+                  sx={{
+                    border: "1px solid #f57c00",
+                    padding: 2,
+                    paddingTop: 2,
+                    borderRadius: "12px",
+                    position: "relative",
+                  }}
+                >
+                  <Button
+                    onClick={() => handleCopyToClipboard(audioResponse)}
+                    sx={{
+                      bgcolor: "#f57c00",
+                      color: "white",
+                      font: "inherit",
+                      borderRadius: "8px",
+                      fontSize: "12px",
+                      padding: "2px 8px",
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                    }}
+                  >
+                    Copy
+                  </Button>
+                  <ReactMarkdown>{audioResponse}</ReactMarkdown>
+                </Box>
+              </Box>
+            )}
+
             {languageModalOpen && (
               <Box
                 sx={{
@@ -1010,7 +1297,7 @@ const Home = ({ theme }) => {
                   color: theme === "dark" ? "#fff" : "#000",
                   borderRadius: "12px",
                   padding: 4,
-                  boxShadow: 24,
+                  boxShadow: "0 0 10px rgba(0, 0, 0, 0.4)",
                   zIndex: 1000,
                   maxHeight: "80vh",
                   maxwidth: "90vw",
@@ -1332,6 +1619,7 @@ const Home = ({ theme }) => {
                   sx={{
                     border: "1px solid #f57c00",
                     padding: 2,
+                    paddingTop: 4,
                     borderRadius: "12px",
                     position: "relative",
                   }}
@@ -1444,17 +1732,32 @@ const Home = ({ theme }) => {
         >
           <Box
             sx={{
+              position: "relative",
               width: { xs: "90%", sm: "400px" },
               bgcolor: theme === "dark" ? "#222" : "#fff",
               padding: 4,
               borderRadius: 4,
             }}
           >
+            {/* Close Button */}
+            <IconButton
+              onClick={() => setShowRewriteModal(false)}
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                color: theme === "dark" ? "white" : "black",
+                "&:hover": { color: "#f57c00" },
+              }}
+            >
+              <CloseIcon />
+            </IconButton>
+
             <Typography
               variant="h6"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                mb: 4,
+                mb: 2,
                 font: "inherit",
                 fontSize: "22px",
                 fontWeight: "bold",
@@ -1469,7 +1772,7 @@ const Home = ({ theme }) => {
               value={desiredStyle}
               onChange={(e) => setDesiredStyle(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleRewriteContent()}
-              sx={{ mb: 2 }}
+              sx={{ mb: 4 }}
               inputProps={{
                 style: {
                   fontFamily: "Poppins, sans-serif",
@@ -1509,6 +1812,7 @@ const Home = ({ theme }) => {
           </Box>
         </Box>
       )}
+
 
       <Dialog
         open={openConfirmDialog}
