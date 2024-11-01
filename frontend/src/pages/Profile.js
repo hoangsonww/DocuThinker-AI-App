@@ -33,12 +33,14 @@ const Profile = ({ theme }) => {
     instagram: "",
   });
   const [editingField, setEditingField] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [updatingSocialMedia, setUpdatingSocialMedia] = useState(false);
   const [error, setError] = useState("");
   const userId = localStorage.getItem("userId");
   const avatarUrl = "/OIP.jpg";
   const today = new Date().toLocaleDateString();
   const [loadingSocialMedia, setLoadingSocialMedia] = useState(true);
+  // eslint-disable-next-line no-unused-vars
   const [loadingEmail, setLoadingEmail] = useState(false);
 
   useEffect(() => {

@@ -35,6 +35,7 @@ const Home = ({ theme }) => {
   const [discussionPoints, setDiscussionPoints] = useState("");
   const [loadingKeyIdeas, setLoadingKeyIdeas] = useState(false);
   const [loadingDiscussionPoints, setLoadingDiscussionPoints] = useState(false);
+  // eslint-disable-next-line no-unused-vars
   const [documentFile, setDocumentFile] = useState(null);
   const [sentiment, setSentiment] = useState({ score: 0, description: "" });
   const [hasFetchedSentiment, setHasFetchedSentiment] = useState(false);
@@ -45,6 +46,7 @@ const Home = ({ theme }) => {
   const bulletSummaryRef = useRef(null);
   const [languageModalOpen, setLanguageModalOpen] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState("");
+  // eslint-disable-next-line no-unused-vars
   const [loadingLanguageSummary, setLoadingLanguageSummary] = useState(false);
   const [languageSummary, setLanguageSummary] = useState("");
   const languages = [
