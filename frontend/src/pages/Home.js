@@ -1267,7 +1267,7 @@ const Home = ({ theme }) => {
                     color: theme === "dark" ? "white" : "black",
                   }}
                 >
-                  Audio Summary
+                  Voice Chat Response
                 </Typography>
                 <Box
                   sx={{
