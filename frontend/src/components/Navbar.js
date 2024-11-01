@@ -252,7 +252,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/home"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                "&:hover": {
+                  color: theme === "dark" ? "white" : "black",
+                  bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                },
                 borderRadius: "8px",
               }}
             >
@@ -273,7 +276,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/how-to-use"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                "&:hover": {
+                  color: theme === "dark" ? "white" : "black",
+                  bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                },
                 borderRadius: "8px",
               }}
             >
@@ -294,7 +300,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/documents"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                "&:hover": {
+                  color: theme === "dark" ? "white" : "black",
+                  bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                },
                 borderRadius: "8px",
               }}
             >
@@ -315,7 +324,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/profile"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                "&:hover": {
+                  color: theme === "dark" ? "white" : "black",
+                  bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                },
                 borderRadius: "8px",
               }}
             >
@@ -335,7 +347,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
                 onClick={handleLogout}
                 sx={{
                   color: "red",
-                  "&:hover": { color: "red", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                  "&:hover": {
+                    color: "red",
+                    bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                  },
                   borderRadius: "8px",
                   cursor: "pointer",
                 }}
@@ -352,7 +367,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
                 to="/login"
                 sx={{
                   color: theme === "dark" ? "white" : "black",
-                  "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                  "&:hover": {
+                    color: theme === "dark" ? "white" : "black",
+                    bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                  },
                   borderRadius: "8px",
                 }}
               >
@@ -374,7 +392,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               to="/register"
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                "&:hover": {
+                  color: theme === "dark" ? "white" : "black",
+                  bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                },
                 borderRadius: "8px",
               }}
             >
@@ -394,7 +415,10 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
               onClick={toggleDrawer(false)}
               sx={{
                 color: theme === "dark" ? "white" : "black",
-                "&:hover": { color: theme === "dark" ? "white" : "black", bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+                "&:hover": {
+                  color: theme === "dark" ? "white" : "black",
+                  bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                },
                 borderRadius: "8px",
                 cursor: "pointer",
               }}

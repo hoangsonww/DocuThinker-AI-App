@@ -614,7 +614,8 @@ const Home = ({ theme }) => {
                       color: theme === "dark" ? "white" : "black",
                     }}
                   >
-                    Sentiment Score: <strong>{sentiment.score}</strong> - {sentiment.description}
+                    Sentiment Score: <strong>{sentiment.score}</strong> -{" "}
+                    {sentiment.description}
                   </Typography>
                 </>
               )}
@@ -772,7 +773,7 @@ const Home = ({ theme }) => {
                       right: 8,
                       color: theme === "dark" ? "white" : "black",
                       "&:hover": { color: "#f57c00" },
-                  }}
+                    }}
                     onClick={() => setShowAudioModal(false)}
                   >
                     <CloseIcon />
@@ -789,8 +790,18 @@ const Home = ({ theme }) => {
                     Upload or Record Audio
                   </Typography>
 
-                  <Typography variant="body1" sx={{ mb: 2, font: "inherit", textAlign: "center", fontSize: "14px", color: theme === "dark" ? "white" : "black" }}>
-                    Record your audio or upload an audio file to talk to our AI with your voice!
+                  <Typography
+                    variant="body1"
+                    sx={{
+                      mb: 2,
+                      font: "inherit",
+                      textAlign: "center",
+                      fontSize: "14px",
+                      color: theme === "dark" ? "white" : "black",
+                    }}
+                  >
+                    Record your audio or upload an audio file to talk to our AI
+                    with your voice!
                   </Typography>
 
                   <Button
@@ -1812,7 +1823,6 @@ const Home = ({ theme }) => {
           </Box>
         </Box>
       )}
-
 
       <Dialog
         open={openConfirmDialog}

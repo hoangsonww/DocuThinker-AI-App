@@ -253,7 +253,11 @@ const ForgotPassword = ({ theme }) => {
                       onClick={handleToggleConfirmNewPasswordVisibility}
                       edge="end"
                     >
-                      {showConfirmNewPassword ? <VisibilityOff /> : <Visibility />}
+                      {showConfirmNewPassword ? (
+                        <VisibilityOff />
+                      ) : (
+                        <Visibility />
+                      )}
                     </IconButton>
                   </InputAdornment>
                 ),

@@ -154,7 +154,7 @@ const LandingPage = ({ theme }) => {
                 "Securely store, manage, and easily access your documents with our cloud-based solution.",
               buttonText: "Sign Up",
               link: "/register",
-            }
+            },
           ].map((feature, index) => (
             <Grid
               item
@@ -205,7 +205,9 @@ const LandingPage = ({ theme }) => {
                     {feature.description}
                   </Typography>
                 </CardContent>
-                <CardActions sx={{ justifyContent: "left", mt: "auto", mb: 2, ml: 1 }}>
+                <CardActions
+                  sx={{ justifyContent: "left", mt: "auto", mb: 2, ml: 1 }}
+                >
                   <Button
                     component={Link}
                     to={feature.link}

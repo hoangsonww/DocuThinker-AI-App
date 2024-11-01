@@ -34,7 +34,7 @@ const Login = ({ theme, onLogin }) => {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       onLogin();
@@ -100,7 +100,11 @@ const Login = ({ theme, onLogin }) => {
         {error && (
           <Alert
             severity="error"
-            sx={{ marginBottom: "1.5rem", font: "inherit", textAlign: "center" }}
+            sx={{
+              marginBottom: "1.5rem",
+              font: "inherit",
+              textAlign: "center",
+            }}
           >
             {error}
           </Alert>

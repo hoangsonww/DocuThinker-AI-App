@@ -431,7 +431,8 @@ const Profile = ({ theme }) => {
                     wordWrap: "break-word",
                   }}
                 >
-                  {getUsername(socialMedia[platform]) || "Not Set"} {/* Existing function */}
+                  {getUsername(socialMedia[platform]) || "Not Set"}{" "}
+                  {/* Existing function */}
                 </Button>
               </>
             )}
@@ -441,8 +442,12 @@ const Profile = ({ theme }) => {
               loadingSocialMedia ? ( // Show spinner if loading state is true
                 <CircularProgress size={24} sx={{ ml: 1 }} />
               ) : (
-                <IconButton onClick={() => setEditingField(null)}> {/* Save handler */}
-                  <SaveIcon sx={{ color: theme === "dark" ? "#fff" : "#000" }} />
+                <IconButton onClick={() => setEditingField(null)}>
+                  {" "}
+                  {/* Save handler */}
+                  <SaveIcon
+                    sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                  />
                 </IconButton>
               )
             ) : (
