@@ -162,6 +162,7 @@ const Login = ({ theme, onLogin }) => {
                     aria-label="toggle password visibility"
                     onClick={handleTogglePasswordVisibility}
                     edge="end"
+                    sx={{ color: theme === "dark" ? "white" : "#333" }}
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>

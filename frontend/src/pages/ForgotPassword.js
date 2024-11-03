@@ -214,6 +214,7 @@ const ForgotPassword = ({ theme }) => {
                       aria-label="toggle password visibility"
                       onClick={handleToggleNewPasswordVisibility}
                       edge="end"
+                      sx={{ color: theme === "dark" ? "white" : "#333" }}
                     >
                       {showNewPassword ? <VisibilityOff /> : <Visibility />}
                     </IconButton>
@@ -252,6 +253,7 @@ const ForgotPassword = ({ theme }) => {
                       aria-label="toggle confirm password visibility"
                       onClick={handleToggleConfirmNewPasswordVisibility}
                       edge="end"
+                      sx={{ color: theme === "dark" ? "white" : "#333" }}
                     >
                       {showConfirmNewPassword ? (
                         <VisibilityOff />

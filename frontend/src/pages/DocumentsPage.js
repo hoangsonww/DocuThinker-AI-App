@@ -33,7 +33,6 @@ const DocumentsPage = ({ theme }) => {
   const [searchResults, setSearchResults] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   useEffect(() => {
     const handler = setTimeout(() => {
@@ -47,6 +46,7 @@ const DocumentsPage = ({ theme }) => {
     return () => {
       clearTimeout(handler);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
   const handleSearchChange = async () => {
@@ -298,17 +298,21 @@ const DocumentsPage = ({ theme }) => {
           sx={{
             marginTop: { xs: 2, md: 0 },
             width: { xs: "100%", md: "40%" },
+            borderRadius: "8px",
             bgcolor: theme === "dark" ? "#333" : "#fff",
             transition: "background-color 0.3s ease",
             "& .MuiOutlinedInput-input": {
               color: theme === "dark" ? "#fff" : "#000",
+              borderRadius: "8px",
             },
             "& .MuiOutlinedInput-root": {
               "& fieldset": {
                 borderColor: theme === "dark" ? "#444" : "#ccc",
+                borderRadius: "8px",
               },
               "&:hover fieldset": {
                 borderColor: theme === "dark" ? "#666" : "#999",
+                borderRadius: "8px",
               },
             },
           }}
