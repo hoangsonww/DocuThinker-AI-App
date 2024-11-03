@@ -327,7 +327,7 @@ DocuThinker-AI-App/
 │   │   ├── summarizer.js             # Document summarizer for generating summaries
 │   │   └── (and many more files...)  # Additional AI/ML services
 │   ├── controllers.js                # Controls the flow of data and logic
-│   ├── models.js                     # Models for interacting with database and AI/ML services
+│   ├── services.js                     # Models for interacting with database and AI/ML services
 │   ├── views.js                      # Output formatting for success and error responses
 │   ├── .env                          # Environment variables (git-ignored)
 │   ├── firebase-admin-sdk.json       # Firebase Admin SDK credentials (git-ignored)

@@ -14,7 +14,7 @@ const {
   generateSummaryInLanguage,
   rewriteContent,
   processAudio,
-} = require("../models/models");
+} = require("../services/services");
 const { sendErrorResponse, sendSuccessResponse } = require("../views/views");
 const { IncomingForm } = require("formidable");
 const { v4: uuidv4 } = require("uuid");

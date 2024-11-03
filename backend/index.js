@@ -52,32 +52,37 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Initialize Redis client
-const redisClient = redis.createClient({
-  url: process.env.REDIS_URL,
-  socket: {
-    tls: true,
-    rejectUnauthorized: false,
-  },
-});
+let redisClient;
+try {
+  redisClient = redis.createClient({
+    url: process.env.REDIS_URL,
+    socket: {
+      tls: true,
+      rejectUnauthorized: false,
+    },
+  });
 
-redisClient.connect();
+  redisClient.connect();
 
-redisClient.on("connect", () => {
-  console.log("Connected to Redis successfully!");
-});
+  redisClient.on("connect", () => {
+    console.log("Connected to Redis successfully!");
+  });
 
-redisClient.on("error", (err) => {
-  console.error("Redis connection error:", err);
-});
+  redisClient.on("error", (err) => {
+    console.error("Redis connection error:", err);
+  });
 
-// Adding a simple key to Redis on connection (for testing purposes)
-redisClient.set("connectionTest", "connected", (err, reply) => {
-  if (err) {
-    console.error("Failed to set key in Redis:", err);
-  } else {
-    console.log("Successfully added key in Redis:", reply);
-  }
-});
+  // Adding a simple key to Redis on connection (for testing connection)
+  redisClient.set("connectionTest", "connected", (err, reply) => {
+    if (err) {
+      console.error("Failed to set key in Redis:", err);
+    } else {
+      console.log("Successfully added key in Redis:", reply);
+    }
+  });
+} catch (err) {
+  console.error("Failed to initialize Redis:", err.message);
+}
 
 // Swagger setup
 const swaggerOptions = {
