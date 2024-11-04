@@ -326,14 +326,21 @@ DocuThinker-AI-App/
 │   │   ├── documentClassifier.js     # Document classifier for categorizing documents
 │   │   ├── summarizer.js             # Document summarizer for generating summaries
 │   │   └── (and many more files...)  # Additional AI/ML services
-│   ├── controllers.js                # Controls the flow of data and logic
-│   ├── models.js                     # Data models for interacting with the database
-│   ├── services.js                   # Models for interacting with database and AI/ML services
-│   ├── views.js                      # Output formatting for success and error responses
+│   ├── middleware/
+│   │   └── jwt.js                    # Authentication middleware with JWT for the app's backend
+│   ├── controllers/
+│   │   └── controllers.js            # Controls the flow of data and logic
+│   ├── models/
+│   │   └── models.js                 # Data models for interacting with the database
+│   ├── services/
+│   │   └── services.js               # Models for interacting with database and AI/ML services
+│   ├── views/
+│   │   └── views.js                  # Output formatting for success and error responses
 │   ├── .env                          # Environment variables (git-ignored)
 │   ├── firebase-admin-sdk.json       # Firebase Admin SDK credentials (git-ignored)
 │   ├── index.js                      # Main entry point for the server
 │   ├── Dockerfile                    # Docker configuration file
+│   ├── manage_server.sh              # Shell script to manage and start the backend server
 │   └── README.md                     # Backend README file
 │
 ├── frontend/
@@ -368,6 +375,7 @@ DocuThinker-AI-App/
 │   ├── package.json                  # Project dependencies and scripts
 │   ├── craco.config.js               # Craco configuration file
 │   ├── Dockerfile                    # Docker configuration file
+│   ├── manage_frontend.sh            # Shell script for managing and starting the frontend
 │   ├── README.md                     # Frontend README file
 │   └── package.lock                  # Lock file for dependencies
 │
@@ -408,6 +416,8 @@ DocuThinker-AI-App/
 ├── tailwind.config.js                # Tailwind CSS configuration file
 ├── render.yaml                       # Render configuration file
 ├── vercel.json                       # Vercel configuration file
+├── manage_docuthinker.sh             # Shell script for managing and starting the app (both frontend & backend)
+├── jenkins_cicd.sh                   # Shell script for managing the Jenkins CI/CD pipeline
 ├── .gitignore                        # Git ignore file
 ├── LICENSE.md                        # License file for the project
 ├── README.md                         # Comprehensive README for the whole app
