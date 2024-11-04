@@ -75,6 +75,11 @@ Feel free to explore the live app and test the functionalities. You can upload d
 - **Document Upload & Summarization**: Upload PDFs or Word documents for AI-generated summaries.
 - **Key Insights & Discussion Points**: Generate important ideas and topics for discussion from your documents.
 - **AI Chat Integration**: Chat with an AI using your document’s original context.
+- **Sentiment Analysis**: Analyze the sentiment of your document text.
+- **Different Languages Summarization**: Generate summaries in different languages.
+- **Content Rewriting**: Rewrite or rephrase your document text based on a specific style.
+- **Actionable Recommendations**: Get actionable recommendations based on your document text.
+- **Voice Chat Integration**: Chat with the AI using voice commands for a hands-free experience.
 - **User Authentication**: Secure registration, login, and password reset functionality.
 - **Responsive Design**: Seamless experience across both desktop and mobile devices.
 - **Profile Management**: Update email, password, and view document history.
@@ -82,7 +87,6 @@ Feel free to explore the live app and test the functionalities. You can upload d
 - **Document Deletion**: Delete individual documents or all documents associated with your account.
 - **Mobile App Integration**: React Native mobile app for on-the-go document management.
 - **Dark Mode Support**: Toggle between light and dark themes.
-- **How To Use Guide**: Detailed instructions on how to use the app effectively.
 - **API Documentation**: Swagger documentation for all API endpoints.
 - **Authentication Middleware**: Secure routes with Firebase authentication middleware.
 - **Containerization**: Dockerized the app for easy deployment and scaling.
@@ -539,7 +543,7 @@ Note that this is optional since we are deploying the backend on **Render**. How
 The backend of **DocuThinker** provides several API endpoints for user authentication, document management, and AI-powered insights. These endpoints are used by the frontend to interact with the backend server:
 
 | **Method** | **Endpoint**                         | **Description**                                                                                     |
-| ---------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
+|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
@@ -571,6 +575,7 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 | POST       | `/summary-in-language`               | Generates a summary in the specified language                                                       |
 | POST       | `/content-rewriting`                 | Rewrites or rephrases the provided document text based on a style                                   |
 | POST       | `/actionable-recommendations`        | Generates actionable recommendations based on the document text                                     |
+| POST       | `/process-audio`                     | Chat with the AI using voice commands for a hands-free experience                                   |
 
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
