@@ -103,7 +103,8 @@ Here’s a breakdown of the file structure:
 DocuThinker-AI-App/
 ├── backend/
 │   ├── controllers.js        # Controls the flow of data and logic
-│   ├── models.js             # Models for interacting with database and AI/ML services
+│   ├── models.js             # Represents the data, logic, and rules of the application
+│   ├── services.js           # Models for interacting with database and AI/ML services
 │   ├── views.js              # Output formatting for success and error responses
 │   ├── .env                  # Environment variables (git-ignored)
 │   ├── index.js              # Main entry point for the server
