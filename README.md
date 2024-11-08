@@ -709,6 +709,7 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
   - Feel free to explore the **NGINX** configuration file and deploy it on your own server for load balancing and caching.
   - **NGINX** can also be used for SSL termination, reverse proxying, and serving static files. More advanced configurations can be added to enhance the performance of the app.
   - You can also use **Cloudflare** or **AWS CloudFront** for content delivery and caching to improve the speed and reliability of the app, but we are currently using **NGINX** for load balancing and caching due to costs and simplicity.
+  - For more information, refer to the **[NGINX Directory](nginx/README.md)**.
 - We are also using **Docker** with **NGINX** to deploy the **NGINX** configuration file and run the server in a containerized environment. The server is deployed and hosted on **Render**.
 - Additionally, we are using **Redis** for in-memory caching to store frequently accessed data and improve the performance of the app.
   - **Redis** can be used for caching user sessions, API responses, and other data to reduce the load on the database and improve response times.
