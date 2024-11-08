@@ -803,7 +803,9 @@ const Home = ({ theme }) => {
                     }}
                   >
                     Record your audio or upload an audio file to talk to our AI
-                    with your voice!
+                    with your voice. Our AI does not have access to your
+                    conversation history so please be specific with your
+                    queries!
                   </Typography>
 
                   <Button
@@ -1276,6 +1278,7 @@ const Home = ({ theme }) => {
                     paddingTop: 2,
                     borderRadius: "12px",
                     position: "relative",
+                    color: theme === "dark" ? "white" : "black",
                   }}
                 >
                   <Button

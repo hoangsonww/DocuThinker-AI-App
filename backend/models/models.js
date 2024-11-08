@@ -75,9 +75,12 @@ const Document = {
    * @param {object} doc - Document data (e.g., id, title, summary, etc.)
    */
   async add(userId, doc) {
-    await firestore.collection("users").doc(userId).update({
-      documents: firebaseAdmin.firestore.FieldValue.arrayUnion(doc),
-    });
+    await firestore
+      .collection("users")
+      .doc(userId)
+      .update({
+        documents: firebaseAdmin.firestore.FieldValue.arrayUnion(doc),
+      });
   },
 
   /**
@@ -90,9 +93,11 @@ const Document = {
     const userDoc = await firestore.collection("users").doc(userId).get();
     if (!userDoc.exists) throw new Error("User not found");
 
-    const documents = userDoc.data().documents.map((doc) =>
-      doc.id === docId ? { ...doc, title: newTitle } : doc
-    );
+    const documents = userDoc
+      .data()
+      .documents.map((doc) =>
+        doc.id === docId ? { ...doc, title: newTitle } : doc,
+      );
 
     await firestore.collection("users").doc(userId).update({ documents });
   },
@@ -107,9 +112,7 @@ const Document = {
     const userDoc = await firestore.collection("users").doc(userId).get();
     if (!userDoc.exists) throw new Error("User not found");
 
-    return userDoc
-      .data()
-      .documents.find((doc) => doc.id === docId) || null;
+    return userDoc.data().documents.find((doc) => doc.id === docId) || null;
   },
 
   /**
