@@ -543,7 +543,7 @@ Note that this is optional since we are deploying the backend on **Render**. How
 The backend of **DocuThinker** provides several API endpoints for user authentication, document management, and AI-powered insights. These endpoints are used by the frontend to interact with the backend server:
 
 | **Method** | **Endpoint**                         | **Description**                                                                                     |
-|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
+| ---------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |

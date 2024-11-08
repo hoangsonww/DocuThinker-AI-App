@@ -17,19 +17,23 @@ This directory contains all necessary files to set up an NGINX server using Dock
 ## Setup and Usage
 
 1. **Build the Docker Image** (optional, if `docker-compose` is configured to build automatically):
+
    ```bash
    docker build -t custom-nginx .
    ```
 
 2. **Run the NGINX Server** using Docker Compose:
+
    ```bash
    docker-compose up -d
    ```
+
    This command will start the NGINX server in detached mode. The `docker-compose.yml` file will handle the setup, including any volume mappings, port configurations, and network settings.
 
 3. **Access the NGINX Server**:
-  - By default, NGINX should be accessible at `http://localhost:80` (or the port specified in `nginx.conf`).
-  - Adjust `nginx.conf` if you need custom settings for server name, proxying, or different ports.
+
+- By default, NGINX should be accessible at `http://localhost:80` (or the port specified in `nginx.conf`).
+- Adjust `nginx.conf` if you need custom settings for server name, proxying, or different ports.
 
 4. **Stop the NGINX Server**:
    ```bash
@@ -40,6 +44,7 @@ This directory contains all necessary files to set up an NGINX server using Dock
 ## Configuration
 
 - **nginx.conf**: Modify this file to customize NGINX behavior. Some common changes include:
+
   - Updating the listening port.
   - Adding server names or aliases.
   - Configuring reverse proxy settings.
@@ -49,6 +54,7 @@ This directory contains all necessary files to set up an NGINX server using Dock
 ## Troubleshooting
 
 - **View Logs**: To see logs for the NGINX container, use:
+
   ```bash
   docker-compose logs -f
   ```
