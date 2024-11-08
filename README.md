@@ -592,6 +592,11 @@ For example, our API endpoints documentation looks like this:
 - We use **Node.js** and **Express** to build the backend server for **DocuThinker**.
 - The backend API is structured using **Express** and **Firebase Admin SDK** for user authentication and data storage.
 - We use the MVC (Model-View-Controller) pattern to separate concerns and improve code organization.
+  - **Models**: Schema definitions for interacting with the database.
+  - **Controllers**: Handle the business logic and interact with the models.
+  - **Views**: Format the output and responses for the API endpoints.
+  - **Services**: Interact with the database and AI/ML services for document analysis and summarization.
+  - **Middlewares**: Secure routes with Firebase authentication and JWT middleware.
 - The API endpoints are designed to be RESTful and follow best practices for error handling and response formatting.
 - The **Microservices Architecture** is also used to handle asynchronous tasks and improve scalability.
 - The API routes are secured using Firebase authentication middleware to ensure that only authenticated users can access the endpoints.
