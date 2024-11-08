@@ -441,6 +441,8 @@ Ensure you have the following tools installed:
 - **Docker** for containerization (optional)
 - **Postman** for API testing (optional)
 - **Expo CLI** for running the mobile app
+- **Jenkins** for CI/CD (optional)
+- **Kubernetes** for container orchestration (optional)
 - **React Native CLI** for building the mobile app
 - **Firebase SDK** for mobile app integration
 - **Firebase API Keys and Secrets** for authentication
