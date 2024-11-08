@@ -57,7 +57,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
-We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
+We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
 
 - **Frontend**: Deployed on **Vercel**.
 - **Backend**: Deployed on **Render**. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
