@@ -75,17 +75,20 @@ Feel free to explore the live app and test the functionalities. You can upload d
 - **Document Upload & Summarization**: Upload PDFs or Word documents for AI-generated summaries.
 - **Key Insights & Discussion Points**: Generate important ideas and topics for discussion from your documents.
 - **AI Chat Integration**: Chat with an AI using your document’s original context.
+- **Voice Chat with AI**: Chat with an AI using voice commands for a more interactive experience.
+- **Sentiment Analysis**: Analyze the sentiment of your document text for emotional insights.
+- **Multiple Language Support**: Summarize documents in different languages for global users.
+- **Content Rewriting**: Rewrite or rephrase document text based on a specific style or tone.
+- **Actionable Recommendations**: Get actionable recommendations based on your document content.
+- **Bullet Point Summaries**: Generate bullet point summaries for quick insights and understanding.
+- **Document Categorization**: Categorize documents based on their content for easy organization.
+- **Profile Management**: Update your profile information, social media links, and theme settings.
 - **User Authentication**: Secure registration, login, and password reset functionality.
-- **Responsive Design**: Seamless experience across both desktop and mobile devices.
-- **Profile Management**: Update email, password, and view document history.
 - **Document History**: View all uploaded documents and their details.
-- **Document Deletion**: Delete individual documents or all documents associated with your account.
 - **Mobile App Integration**: React Native mobile app for on-the-go document management.
-- **Dark Mode Support**: Toggle between light and dark themes.
-- **How To Use Guide**: Detailed instructions on how to use the app effectively.
-- **API Documentation**: Swagger documentation for all API endpoints.
-- **Authentication Middleware**: Secure routes with Firebase authentication middleware.
-- **Containerization**: Dockerized the app for easy deployment and scaling.
+- **API Documentation**: Swagger (OpenAPI) documentation for all API endpoints.
+- **Authentication Middleware**: Secure routes with JWT and Firebase authentication middleware.
+- **Containerization**: Dockerized the app with Docker & K8s for easy deployment and scaling.
 - **Continuous Integration**: Automated testing and deployment with GitHub Actions & Jenkins.
 
 <h2 id="technologies">⚙️ Technologies</h2>
@@ -106,11 +109,10 @@ Feel free to explore the live app and test the functionalities. You can upload d
   - **Node.js**: JavaScript runtime for building scalable network applications.
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
-  - **OAuth2**: Authentication framework for securing API endpoints.
-  - **Middleware**: Firebase authentication middleware for securing routes.
+  - **Middlewares**: Firebase authentication middleware for securing routes and JWT middleware for token verification.
 - **AI/ML Services**:
   - **Google Cloud Natural Language API**: Machine learning models for text analysis.
-  - **Google Gemini API**: AI-powered chatbot for conversational interfaces and document summarization.
+  - **Google Gemini API**: AI-powered chatbot for enhanced user interaction.
   - **Google AI Studio**: Tools for building and deploying machine learning models.
   - **NLP**: Natural Language Processing for customized chat/text analysis and summarization models.
   - **NER**: Named Entity Recognition for identifying entities in text.
