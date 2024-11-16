@@ -1,4 +1,4 @@
-import React from "react";
+import React, {Fragment} from "react";
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
 
 const HowToUse = ({ theme }) => {
@@ -472,6 +472,39 @@ const HowToUse = ({ theme }) => {
                 button to start a conversation with the AI. You can ask
                 questions, seek clarifications, or discuss the document content
                 using voice commands. Or ask anything you have in mind!
+              </Typography>
+            }
+          />
+        </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                14. Manage Your Uploaded Documents and Profile
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Visit the 'Documents' page to manage your uploaded documents,
+                including viewing, downloading, or deleting them. You can also
+                update your profile information, update your email, change your
+                social accounts, and more by visiting the 'Profile' page.
+                (Only available for registered and signed in users).
               </Typography>
             }
           />
