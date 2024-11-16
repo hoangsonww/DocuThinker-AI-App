@@ -443,6 +443,38 @@ const HowToUse = ({ theme }) => {
             }
           />
         </ListItem>
+
+        <ListItem>
+          <ListItemText
+              disableTypography
+              primary={
+                <Typography
+                    sx={{
+                      fontFamily: "Poppins, sans-serif",
+                      fontWeight: "bold",
+                      fontSize: "1.1rem",
+                      color: theme === "dark" ? "white" : "black",
+                    }}
+                >
+                  13. Voice Chat with AI
+                </Typography>
+              }
+              secondary={
+                <Typography
+                    sx={{
+                      fontFamily: "Poppins, sans-serif",
+                      fontSize: "1rem",
+                      color: theme === "dark" ? "white" : "#333",
+                    }}
+                >
+                  Use the 'Voice Chat with AI' feature to ask questions or get
+                  information from the AI using your voice. This feature is
+                  useful for hands-free interactions or when you prefer to speak
+                  instead of typing.
+                </Typography>
+              }
+          />
+        </ListItem>
       </List>
 
       {/* Extra Info */}

@@ -132,10 +132,10 @@ exports.processAudio = async (file, context) => {
       text: `${process.env.AI_INSTRUCTIONS}. Please respond conversationally to the user and do what the user asks you 
       to do. If the user asks a question, provide a detailed answer.${
         context
-          ? " Here is some additional context (may be about a document being referred to by the user): " +
+          ? " Here is some additional context about the document being referred to by the user. Answer based on this document: " +
             context
           : ""
-      }`,
+      }.`,
     },
   ];
 
