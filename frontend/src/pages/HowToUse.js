@@ -443,6 +443,39 @@ const HowToUse = ({ theme }) => {
             }
           />
         </ListItem>
+
+        <ListItem>
+          <ListItemText
+            disableTypography
+            primary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontWeight: "bold",
+                  fontSize: "1.1rem",
+                  color: theme === "dark" ? "white" : "black",
+                }}
+              >
+                13. Voice Chat with AI
+              </Typography>
+            }
+            secondary={
+              <Typography
+                sx={{
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "1rem",
+                  color: theme === "dark" ? "white" : "#333",
+                }}
+              >
+                Use the voice chat feature to interact with the AI using your
+                voice. Simply upload a document, then click the 'Voice Chat'
+                button to start a conversation with the AI. You can ask
+                questions, seek clarifications, or discuss the document content
+                using voice commands. Or ask anything you have in mind!
+              </Typography>
+            }
+          />
+        </ListItem>
       </List>
 
       {/* Extra Info */}
@@ -473,6 +506,7 @@ const HowToUse = ({ theme }) => {
         <ul style={{ paddingLeft: "20px", marginTop: "8px", font: "inherit" }}>
           <li>PDF files</li>
           <li>DOCX (Word) files</li>
+          <li>DOC (Word 97-2003) files</li>
         </ul>
         Ensure your document is in one of these formats before uploading to
         guarantee smooth processing.
