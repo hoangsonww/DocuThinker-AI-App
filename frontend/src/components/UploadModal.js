@@ -22,16 +22,16 @@ const UploadModal = ({
   setDocumentFile,
   theme,
 }) => {
+  // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [file, setFile] = useState(null);
+  // eslint-disable-next-line no-unused-vars
   const [isUploaded, setIsUploaded] = useState(false);
   const [title, setTitle] = useState("");
   const [googleAuth, setGoogleAuth] = useState(null);
   const [isGoogleAuthReady, setIsGoogleAuthReady] = useState(false);
   const [driveModalOpen, setDriveModalOpen] = useState(false);
-
-  console.log(open, isUploaded);
 
   const initClient = () => {
     return new Promise((resolve, reject) => {
