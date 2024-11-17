@@ -1,4 +1,4 @@
-import React, {Fragment} from "react";
+import React from "react";
 import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
 
 const HowToUse = ({ theme }) => {
