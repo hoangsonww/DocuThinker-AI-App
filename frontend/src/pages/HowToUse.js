@@ -503,8 +503,8 @@ const HowToUse = ({ theme }) => {
                 Visit the 'Documents' page to manage your uploaded documents,
                 including viewing, downloading, or deleting them. You can also
                 update your profile information, update your email, change your
-                social accounts, and more by visiting the 'Profile' page.
-                (Only available for registered and signed in users).
+                social accounts, and more by visiting the 'Profile' page. (Only
+                available for registered and signed in users).
               </Typography>
             }
           />
