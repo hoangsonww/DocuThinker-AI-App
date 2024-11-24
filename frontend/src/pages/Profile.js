@@ -154,10 +154,13 @@ const Profile = ({ theme }) => {
         ...socialMedia,
       };
 
-      await axios.post("https://docuthinker-ai-app.onrender.com/update-social-media", {
-        userId,
-        ...socialMediaToSend, // Spread the updated social media object
-      });
+      await axios.post(
+        "https://docuthinker-ai-app.onrender.com/update-social-media",
+        {
+          userId,
+          ...socialMediaToSend, // Spread the updated social media object
+        },
+      );
 
       setError("");
       setEditingField(null); // Close the editing mode
