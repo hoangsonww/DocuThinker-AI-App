@@ -1352,7 +1352,7 @@ exports.getSocialMedia = async (req, res) => {
  *         description: Failed to update social media links
  */
 exports.updateSocialMedia = async (req, res) => {
-  const { userId, github, linkedin, facebook, instagram } = req.body;
+  const { userId, github, linkedin, facebook, instagram, twitter } = req.body;
 
   try {
     const userRef = firestore.collection("users").doc(userId);
@@ -1362,15 +1362,20 @@ exports.updateSocialMedia = async (req, res) => {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    // Update social media links in Firestore
-    await userRef.update({
-      socialMedia: {
-        github: github || "",
-        linkedin: linkedin || "",
-        facebook: facebook || "",
-        instagram: instagram || "",
-      },
-    });
+    // Get the current socialMedia data
+    const currentData = userDoc.data().socialMedia || {};
+
+    // Merge with the new data
+    const updatedData = {
+      github: github !== undefined ? github : currentData.github,
+      linkedin: linkedin !== undefined ? linkedin : currentData.linkedin,
+      facebook: facebook !== undefined ? facebook : currentData.facebook,
+      instagram: instagram !== undefined ? instagram : currentData.instagram,
+      twitter: twitter !== undefined ? twitter : currentData.twitter,
+    };
+
+    // Update the social media links in Firestore
+    await userRef.update({ socialMedia: updatedData });
 
     sendSuccessResponse(res, 200, "Social media links updated successfully");
   } catch (error) {

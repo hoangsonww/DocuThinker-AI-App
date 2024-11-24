@@ -12,6 +12,7 @@ import {
   LinkedIn,
   Facebook,
   Instagram,
+  Twitter,
   Edit as EditIcon,
   Save as SaveIcon,
 } from "@mui/icons-material";
@@ -31,6 +32,7 @@ const Profile = ({ theme }) => {
     linkedin: "",
     facebook: "",
     instagram: "",
+    twitter: "",
   });
   const [editingField, setEditingField] = useState(null);
   // eslint-disable-next-line no-unused-vars
@@ -39,9 +41,17 @@ const Profile = ({ theme }) => {
   const userId = localStorage.getItem("userId");
   const avatarUrl = "/OIP.jpg";
   const today = new Date().toLocaleDateString();
+  // eslint-disable-next-line no-unused-vars
   const [loadingSocialMedia, setLoadingSocialMedia] = useState(true);
   // eslint-disable-next-line no-unused-vars
   const [loadingEmail, setLoadingEmail] = useState(false);
+  const [loadingPlatform, setLoadingPlatform] = useState({
+    github: false,
+    linkedin: false,
+    facebook: false,
+    instagram: false,
+    twitter: false,
+  });
 
   useEffect(() => {
     if (userId) {
@@ -116,24 +126,45 @@ const Profile = ({ theme }) => {
     }
   };
 
-  const handleUpdateSocialMedia = async () => {
-    setUpdatingSocialMedia(true);
-    setLoadingSocialMedia(true);
-    try {
-      await axios.post(
-        "https://docuthinker-ai-app.onrender.com/update-social-media",
-        {
-          userId,
-          ...socialMedia,
-        },
+  const handleSocialMediaChange = (e) => {
+    const platform = e.target.name;
+    const value = e.target.value;
+
+    // Extract username from the full URL if entered
+    const extractUsername = (url) => {
+      const match = url.match(
+        /(?:https?:\/\/)?(?:www\.)?(?:github\.com|linkedin\.com\/in|facebook\.com|instagram\.com|twitter\.com|x\.com)\/([\w-]+)/i,
       );
+      return match ? match[1] : url; // If a match is found, return the username; otherwise, return the input as is
+    };
+
+    setSocialMedia({
+      ...socialMedia,
+      [platform]: extractUsername(value),
+    });
+  };
+
+  const handleUpdateSocialMedia = async (platform) => {
+    setLoadingPlatform((prevState) => ({ ...prevState, [platform]: true }));
+    setError("");
+
+    try {
+      // Ensure only usernames are sent to the backend
+      const socialMediaToSend = {
+        ...socialMedia,
+      };
+
+      await axios.post("http://localhost:3000/update-social-media", {
+        userId,
+        ...socialMediaToSend, // Spread the updated social media object
+      });
+
       setError("");
-      setEditingField(null);
+      setEditingField(null); // Close the editing mode
     } catch (err) {
-      setError("Failed to update social media links.");
+      setError(`Failed to update ${platform} link.`);
     } finally {
-      setUpdatingSocialMedia(false);
-      setLoadingSocialMedia(false);
+      setLoadingPlatform((prevState) => ({ ...prevState, [platform]: false }));
     }
   };
 
@@ -143,6 +174,7 @@ const Profile = ({ theme }) => {
       linkedin: "https://linkedin.com/in/",
       facebook: "https://facebook.com/",
       instagram: "https://instagram.com/",
+      twitter: "https://twitter.com/",
     };
     return username ? baseUrls[platform] + username : "";
   };
@@ -150,18 +182,11 @@ const Profile = ({ theme }) => {
   const getUsername = (url) => {
     if (url) {
       const match = url.match(
-        /(?:https?:\/\/)?(?:www\.)?(?:github|linkedin|facebook|instagram)\.com\/([\w-]+)/,
+        /(?:https?:\/\/)?(?:www\.)?(?:github\.com|linkedin\.com\/in|facebook\.com|instagram\.com|twitter\.com|x\.com)\/([\w-]+)/i,
       );
       return match ? match[1] : url;
     }
     return "";
-  };
-
-  const handleSocialMediaChange = (e) => {
-    setSocialMedia({
-      ...socialMedia,
-      [e.target.name]: e.target.value,
-    });
   };
 
   const handleKeyPress = (event, platform) => {
@@ -291,7 +316,10 @@ const Profile = ({ theme }) => {
           </Typography>
           <IconButton onClick={() => setIsEditingEmail(true)}>
             <EditIcon
-              sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+              sx={{
+                color: theme === "dark" ? "#fff" : "#000",
+                "&:hover": { color: "#f57c00" },
+              }}
               title="Edit Email Address"
             />
           </IconButton>
@@ -373,92 +401,97 @@ const Profile = ({ theme }) => {
           <strong>Today's Date:</strong> {today}
         </Typography>
 
-        {["github", "linkedin", "facebook", "instagram"].map((platform) => (
-          <Box
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              mb: 1,
-              flexWrap: "nowrap",
-            }}
-            key={platform}
-          >
-            {/* Platform Icon */}
-            {platform === "github" && <GitHub sx={{ mr: 1 }} />}
-            {platform === "linkedin" && <LinkedIn sx={{ mr: 1 }} />}
-            {platform === "facebook" && <Facebook sx={{ mr: 1 }} />}
-            {platform === "instagram" && <Instagram sx={{ mr: 1 }} />}
-
-            {/* Editable TextField or Displayed Link */}
-            {editingField === platform ? (
-              <TextField
-                name={platform}
-                value={socialMedia[platform]}
-                onChange={handleSocialMediaChange} // Existing handler
-                onKeyPress={(e) => handleKeyPress(e, platform)} // Existing handler
-                sx={{ font: "inherit", textAlign: "center", flexGrow: 1 }}
-                inputProps={{
-                  style: {
-                    fontFamily: "Poppins, sans-serif",
-                    color: theme === "dark" ? "white" : "black",
-                  },
-                }}
-                InputLabelProps={{
-                  style: {
-                    fontFamily: "Poppins, sans-serif",
-                    color: theme === "dark" ? "white" : "black",
-                  },
-                }}
-              />
-            ) : (
-              <>
-                <Typography
-                  sx={{
-                    fontWeight: "bold",
-                    mr: 1,
-                    font: "inherit",
-                    textAlign: "center",
+        {["github", "linkedin", "facebook", "instagram", "twitter"].map(
+          (platform) => (
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 1,
+                flexWrap: "nowrap",
+              }}
+              key={platform}
+            >
+              {/* Platform Icon */}
+              {platform === "github" && <GitHub sx={{ mr: 1 }} />}
+              {platform === "linkedin" && <LinkedIn sx={{ mr: 1 }} />}
+              {platform === "facebook" && <Facebook sx={{ mr: 1 }} />}
+              {platform === "instagram" && <Instagram sx={{ mr: 1 }} />}
+              {platform === "twitter" && <Twitter sx={{ mr: 1 }} />}{" "}
+              {/* Add Twitter */}
+              {/* Editable TextField or Displayed Link */}
+              {editingField === platform ? (
+                <TextField
+                  name={platform}
+                  value={socialMedia[platform]}
+                  label="Enter Username"
+                  onChange={handleSocialMediaChange} // Existing handler
+                  onKeyPress={(e) => handleKeyPress(e, platform)} // Existing handler
+                  sx={{ font: "inherit", textAlign: "center", flexGrow: 1 }}
+                  inputProps={{
+                    style: {
+                      fontFamily: "Poppins, sans-serif",
+                      color: theme === "dark" ? "white" : "black",
+                    },
                   }}
-                >
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}:
-                </Typography>
-                <Button
-                  href={formatLink(platform, socialMedia[platform])} // Existing function
-                  target="_blank"
-                  sx={{
-                    fontWeight: "bold",
-                    font: "inherit",
-                    textTransform: "none",
-                    wordWrap: "break-word",
+                  InputLabelProps={{
+                    style: {
+                      fontFamily: "Poppins, sans-serif",
+                      color: theme === "dark" ? "white" : "black",
+                    },
                   }}
-                >
-                  {getUsername(socialMedia[platform]) || "Not Set"}{" "}
-                  {/* Existing function */}
-                </Button>
-              </>
-            )}
-
-            {/* Edit or Save Icon Button with Loading State */}
-            {editingField === platform ? (
-              loadingSocialMedia ? ( // Show spinner if loading state is true
-                <CircularProgress size={24} sx={{ ml: 1 }} />
+                />
               ) : (
-                <IconButton onClick={() => setEditingField(null)}>
-                  {" "}
-                  {/* Save handler */}
-                  <SaveIcon
-                    sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                <>
+                  <Typography
+                    sx={{
+                      fontWeight: "bold",
+                      mr: 1,
+                      font: "inherit",
+                      textAlign: "center",
+                    }}
+                  >
+                    {platform.charAt(0).toUpperCase() + platform.slice(1)}:
+                  </Typography>
+                  <Button
+                    href={formatLink(platform, socialMedia[platform])}
+                    target="_blank"
+                    sx={{
+                      fontWeight: "bold",
+                      font: "inherit",
+                      textTransform: "none",
+                      wordWrap: "break-word",
+                    }}
+                  >
+                    {getUsername(socialMedia[platform]) || "Not Set"}{" "}
+                  </Button>
+                </>
+              )}
+              {/* Edit or Save Icon Button with Loading State */}
+              {editingField === platform ? (
+                loadingPlatform[platform] ? ( // Check if the specific platform is loading
+                  <CircularProgress size={24} sx={{ ml: 1 }} />
+                ) : (
+                  <IconButton onClick={() => handleUpdateSocialMedia(platform)}>
+                    <SaveIcon
+                      sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                    />
+                  </IconButton>
+                )
+              ) : (
+                <IconButton onClick={() => setEditingField(platform)}>
+                  <EditIcon
+                    sx={{
+                      color: theme === "dark" ? "#fff" : "#000",
+                      "&:hover": { color: "#f57c00" },
+                    }}
                   />
                 </IconButton>
-              )
-            ) : (
-              <IconButton onClick={() => setEditingField(platform)}>
-                <EditIcon sx={{ color: theme === "dark" ? "#fff" : "#000" }} />
-              </IconButton>
-            )}
-          </Box>
-        ))}
+              )}
+            </Box>
+          ),
+        )}
 
         {/* Thank you message */}
         <Typography

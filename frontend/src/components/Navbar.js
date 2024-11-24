@@ -242,7 +242,14 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
 
         <IconButton
           onClick={onThemeToggle}
-          sx={{ marginLeft: 2, color: theme === "dark" ? "white" : "black", '&:hover': { transform: "scale(1.1)", transition: "transform 0.2s ease" } }}
+          sx={{
+            marginLeft: 2,
+            color: theme === "dark" ? "white" : "black",
+            "&:hover": {
+              transform: "scale(1.1)",
+              transition: "transform 0.2s ease",
+            },
+          }}
         >
           {theme === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
