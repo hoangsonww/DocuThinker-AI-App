@@ -570,20 +570,20 @@ const DocumentsPage = ({ theme }) => {
                     <IconButton
                       onClick={() => handleViewDocument(doc.id)}
                       title={`View ${doc.title}`}
-                      sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                      sx={{ color: theme === "dark" ? "#fff" : "#000", '&:hover': { transform: "scale(1.15)", transition: "transform 0.2s ease" } }}
                     >
                       <Visibility />
                     </IconButton>
                     <IconButton
                       onClick={() => handleEditDocument(doc.id, doc.title)}
                       title={`Edit ${doc.title}`}
-                      sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                      sx={{ color: theme === "dark" ? "#fff" : "#000", '&:hover': { transform: "scale(1.15)", transition: "transform 0.2s ease" } }}
                     >
                       <Edit />
                     </IconButton>
                     <IconButton
                       onClick={() => handleDeleteDocument(doc.id)}
-                      sx={{ color: "red" }}
+                      sx={{ color: "red", '&:hover': { transform: "scale(1.15)", transition: "transform 0.2s ease" } }}
                       title={`Delete ${doc.title}`}
                     >
                       <Delete />

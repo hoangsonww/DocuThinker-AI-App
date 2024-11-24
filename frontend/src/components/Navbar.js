@@ -80,7 +80,11 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
-          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+          transition: "transform 0.2s ease",
+          "&:hover": {
+            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+            transform: { xs: "none", md: "scale(1.04)" },
+          },
         }}
       >
         <HomeIcon sx={{ marginRight: 1 }} /> Home
@@ -96,7 +100,11 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
-          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+          transition: "transform 0.2s ease",
+          "&:hover": {
+            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+            transform: { xs: "none", md: "scale(1.04)" },
+          },
         }}
       >
         <HelpOutlineIcon sx={{ marginRight: 1 }} /> How to Use
@@ -112,7 +120,11 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
-          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+          transition: "transform 0.2s ease",
+          "&:hover": {
+            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+            transform: { xs: "none", md: "scale(1.04)" },
+          },
         }}
       >
         <DescriptionIcon sx={{ marginRight: 1 }} /> Documents
@@ -128,7 +140,11 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
-          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+          transition: "transform 0.2s ease",
+          "&:hover": {
+            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+            transform: { xs: "none", md: "scale(1.04)" },
+          },
         }}
       >
         <PersonIcon sx={{ marginRight: 1 }} /> Profile
@@ -139,12 +155,13 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           onClick={handleLogout}
           sx={{
             color: "red",
-            "&:hover": { color: "white" },
+            "&:hover": { color: "white", transform: "scale(1.04)" },
             marginRight: 2,
             font: "inherit",
             textTransform: "none",
             display: "flex",
             alignItems: "center",
+            transition: "transform 0.2s ease",
           }}
         >
           <ExitToAppIcon sx={{ marginRight: 1 }} /> Logout
@@ -161,7 +178,11 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
             textTransform: "none",
             display: "flex",
             alignItems: "center",
-            "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+            transition: "transform 0.2s ease",
+            "&:hover": {
+              bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+              transform: { xs: "none", md: "scale(1.04)" },
+            },
           }}
         >
           <LoginIcon sx={{ marginRight: 1 }} /> Login
@@ -178,7 +199,11 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           textTransform: "none",
           display: "flex",
           alignItems: "center",
-          "&:hover": { bgcolor: theme === "dark" ? "#444" : "#f5f5f5" },
+          transition: "transform 0.2s ease",
+          "&:hover": {
+            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+            transform: { xs: "none", md: "scale(1.04)" },
+          },
         }}
       >
         <AppRegistrationIcon sx={{ marginRight: 1 }} /> Register
@@ -217,7 +242,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
 
         <IconButton
           onClick={onThemeToggle}
-          sx={{ marginLeft: 2, color: theme === "dark" ? "white" : "black" }}
+          sx={{ marginLeft: 2, color: theme === "dark" ? "white" : "black", '&:hover': { transform: "scale(1.1)", transition: "transform 0.2s ease" } }}
         >
           {theme === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
