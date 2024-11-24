@@ -154,7 +154,7 @@ const Profile = ({ theme }) => {
         ...socialMedia,
       };
 
-      await axios.post("http://localhost:3000/update-social-media", {
+      await axios.post("https://docuthinker-ai-app.onrender.com/update-social-media", {
         userId,
         ...socialMediaToSend, // Spread the updated social media object
       });
