@@ -35,6 +35,11 @@ const Home = ({ theme }) => {
   const [discussionPoints, setDiscussionPoints] = useState("");
   const [loadingKeyIdeas, setLoadingKeyIdeas] = useState(false);
   const [loadingDiscussionPoints, setLoadingDiscussionPoints] = useState(false);
+  const [showRefineModal, setShowRefineModal] = useState(false);
+  const [refinementInstructions, setRefinementInstructions] = useState("");
+  const [refinedSummary, setRefinedSummary] = useState("");
+  const refinedRef = useRef(null);
+  const [loadingRefinement, setLoadingRefinement] = useState(false);
   // eslint-disable-next-line no-unused-vars
   const [documentFile, setDocumentFile] = useState(null);
   const [sentiment, setSentiment] = useState({ score: 0, description: "" });
@@ -96,6 +101,8 @@ const Home = ({ theme }) => {
     "Ukrainian",
     "Urdu",
     "Vietnamese",
+    "Welsh",
+    "Zulu",
   ];
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [loadingLanguage, setLoadingLanguage] = useState(false);
@@ -160,6 +167,26 @@ const Home = ({ theme }) => {
         setRecording(false);
       })
       .catch(console.error);
+  };
+
+  const handleRefineSummary = async () => {
+    setLoadingRefinement(true);
+    try {
+      const response = await axios.post(
+        "https://docuthinker-ai-app.onrender.com/refine-summary",
+        {
+          summary, // Use the existing summary from state
+          refinementInstructions,
+        },
+      );
+      setRefinedSummary(response.data.refinedSummary); // Store the refined summary
+      setShowRefineModal(false); // Close the modal
+      refinedRef.current?.scrollIntoView({ behavior: "smooth" });
+    } catch (error) {
+      console.error("Failed to refine summary:", error);
+    } finally {
+      setLoadingRefinement(false);
+    }
   };
 
   const handleSendAudio = async () => {
@@ -730,6 +757,17 @@ const Home = ({ theme }) => {
                 ) : (
                   "Generate Recommendations"
                 )}
+              </Button>
+              <Button
+                onClick={() => setShowRefineModal(true)}
+                sx={{
+                  bgcolor: "#f57c00",
+                  color: "white",
+                  font: "inherit",
+                  borderRadius: "12px",
+                }}
+              >
+                Refine Summary
               </Button>
               <Button
                 onClick={handleUploadNewDocument}
@@ -1316,7 +1354,8 @@ const Home = ({ theme }) => {
                   boxShadow: "0 0 10px rgba(0, 0, 0, 0.4)",
                   zIndex: 1000,
                   maxHeight: "80vh",
-                  maxwidth: "90vw",
+                  width: "80vw", // Default width for mobile
+                  maxWidth: { xs: "80vw", sm: "600px" }, // Responsive max-width
                   overflowY: "auto",
                 }}
               >
@@ -1327,6 +1366,7 @@ const Home = ({ theme }) => {
                     font: "inherit",
                     textAlign: "center",
                     fontSize: "22px",
+                    fontWeight: "bold",
                     color: theme === "dark" ? "white" : "black",
                   }}
                 >
@@ -1617,6 +1657,46 @@ const Home = ({ theme }) => {
               </Box>
             )}
 
+            {refinedSummary && (
+              <Box sx={{ marginTop: 2 }} ref={refinedRef}>
+                <Typography
+                  variant="h6"
+                  sx={{
+                    font: "inherit",
+                    fontWeight: "bold",
+                    fontSize: "20px",
+                    mb: 2,
+                    color: theme === "dark" ? "white" : "black",
+                  }}
+                >
+                  Refined Summary
+                </Typography>
+                <Box
+                  sx={{
+                    border: "1px solid #f57c00",
+                    padding: 2,
+                    borderRadius: "12px",
+                  }}
+                >
+                  <ReactMarkdown
+                    components={{
+                      p: ({ node, ...props }) => (
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            color: theme === "dark" ? "white" : "black",
+                          }}
+                          {...props}
+                        />
+                      ),
+                    }}
+                  >
+                    {refinedSummary}
+                  </ReactMarkdown>
+                </Box>
+              </Box>
+            )}
+
             {recommendations && (
               <Box ref={recommendationsRef} sx={{ marginTop: 2 }}>
                 <Typography
@@ -1828,6 +1908,107 @@ const Home = ({ theme }) => {
           </Box>
         </Box>
       )}
+
+      <Modal open={showRefineModal} onClose={() => setShowRefineModal(false)}>
+        <Fade in={showRefineModal}>
+          <Box
+            sx={{
+              bgcolor: theme === "dark" ? "#222" : "white",
+              color: theme === "dark" ? "white" : "black",
+              borderRadius: "12px",
+              width: "400px",
+              maxWidth: "90%",
+              p: 3,
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.4)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
+            {/* Close Button */}
+            <IconButton
+              sx={{
+                position: "absolute",
+                top: 8,
+                right: 8,
+                color: theme === "dark" ? "white" : "black",
+                "&:hover": { color: "#f57c00" },
+              }}
+              onClick={() => setShowRefineModal(false)}
+            >
+              <CloseIcon />
+            </IconButton>
+
+            <Typography
+              variant="h6"
+              sx={{
+                font: "inherit",
+                fontSize: "22px",
+                fontWeight: "bold",
+                color: theme === "dark" ? "white" : "black",
+              }}
+            >
+              Refine Summary
+            </Typography>
+
+            <Typography
+              variant="body1"
+              sx={{
+                font: "inherit",
+                textAlign: "center",
+                fontSize: "14px",
+                color: theme === "dark" ? "white" : "black",
+              }}
+            >
+              Specify how you'd like the summary refined.
+            </Typography>
+
+            <TextField
+              label="Refinement Instructions"
+              value={refinementInstructions}
+              onChange={(e) => setRefinementInstructions(e.target.value)}
+              onKeyPress={(e) => e.key === "Enter" && handleRefineSummary()}
+              fullWidth
+              rows={2}
+              sx={{ mb: 2 }}
+              inputProps={{
+                style: {
+                  fontFamily: "Poppins, sans-serif",
+                  color: theme === "dark" ? "white" : "black",
+                },
+              }}
+              InputLabelProps={{
+                style: {
+                  fontFamily: "Poppins, sans-serif",
+                  color: theme === "dark" ? "white" : "#000",
+                },
+              }}
+            />
+
+            <Button
+              variant="contained"
+              onClick={handleRefineSummary}
+              disabled={loadingRefinement || !refinementInstructions.trim()}
+              sx={{
+                width: "100%",
+                bgcolor: "#f57c00",
+                "&:hover": { bgcolor: "#ef6c00" },
+                font: "inherit",
+              }}
+            >
+              {loadingRefinement ? (
+                <CircularProgress size={24} sx={{ color: "white" }} />
+              ) : (
+                "Refine Summary"
+              )}
+            </Button>
+          </Box>
+        </Fade>
+      </Modal>
 
       <Dialog
         open={openConfirmDialog}

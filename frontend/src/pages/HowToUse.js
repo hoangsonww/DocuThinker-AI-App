@@ -86,8 +86,9 @@ const HowToUse = ({ theme }) => {
                 }}
               >
                 Click the upload box on the home page to drag and drop your
-                document or select one from your device. We support both PDF and
-                DOCX formats.
+                document or select one from your device. Alternatively, you can
+                use Google Drive to import your document. We support PDF and
+                DOCX (Word) files.
               </Typography>
             }
           />

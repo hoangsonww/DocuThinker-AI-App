@@ -14,6 +14,7 @@ const {
   generateSummaryInLanguage,
   rewriteContent,
   processAudio,
+  refineSummary,
 } = require("../services/services");
 const { sendErrorResponse, sendSuccessResponse } = require("../views/views");
 const { IncomingForm } = require("formidable");
@@ -1683,6 +1684,73 @@ exports.actionableRecommendations = async (req, res) => {
       await generateActionableRecommendations(documentText);
 
     res.status(200).send({ recommendations });
+  } catch (error) {
+    res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * @swagger
+ * /refine-summary:
+ *   post:
+ *     summary: Refine a summary based on user instructions
+ *     description: Takes an initial summary and refinement instructions from the user, and returns a refined summary based on those instructions.
+ *     tags:
+ *       - Document Refinement
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - summary
+ *               - refinementInstructions
+ *             properties:
+ *               summary:
+ *                 type: string
+ *                 description: The initial summary that needs refinement.
+ *               refinementInstructions:
+ *                 type: string
+ *                 description: Instructions on how to refine the summary (e.g., "Make it more concise and formal").
+ *     responses:
+ *       200:
+ *         description: Summary refined successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 refinedSummary:
+ *                   type: string
+ *                   description: The refined summary based on the user's instructions.
+ *       400:
+ *         description: Invalid summary or refinement instructions
+ *       500:
+ *         description: Failed to refine the summary
+ */
+exports.refineSummary = async (req, res) => {
+  try {
+    const { summary, refinementInstructions } = req.body;
+
+    // Validate inputs
+    if (
+      !summary ||
+      typeof summary !== "string" ||
+      summary.trim() === "" ||
+      !refinementInstructions ||
+      typeof refinementInstructions !== "string" ||
+      refinementInstructions.trim() === ""
+    ) {
+      return res
+        .status(400)
+        .send({ error: "Invalid summary or refinement instructions" });
+    }
+
+    // Call the helper function to refine the summary
+    const refinedSummary = await refineSummary(summary, refinementInstructions);
+
+    res.status(200).send({ refinedSummary });
   } catch (error) {
     res.status(500).send({ error: error.message });
   }

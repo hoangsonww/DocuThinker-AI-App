@@ -397,5 +397,32 @@ exports.generateActionableRecommendations = async (documentText) => {
   return result.response.text();
 };
 
+// Helper: Refine Summary based on User Instructions
+exports.refineSummary = async (summary, refinementInstructions) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
+  const model = genAI.getGenerativeModel({
+    model: "gemini-1.5-flash",
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Refine the provided summary based on the user's instructions.`,
+  });
+
+  // Combine the user input into a single prompt
+  const refinementPrompt = `
+    Summary: ${summary}
+    Refinement Instructions: ${refinementInstructions}
+    Please refine the summary as per the instructions.`;
+
+  const chatSession = model.startChat({
+    history: [{ role: "user", parts: [{ text: refinementPrompt }] }],
+  });
+
+  const result = await chatSession.sendMessage(refinementPrompt);
+
+  if (!result.response || !result.response.text) {
+    throw new Error("Failed to refine the summary using the AI");
+  }
+
+  return result.response.text();
+};
+
 // Export endpoints to be used in server routes
 module.exports = { firestore, isValidText, sessionHistory, ...exports };

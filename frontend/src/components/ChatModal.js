@@ -123,6 +123,7 @@ const ChatModal = ({ theme }) => {
               font: "inherit",
               fontSize: "20px",
               textAlign: "center",
+              fontWeight: "bold",
               color: theme === "dark" ? "white" : "black",
             }}
           >

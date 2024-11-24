@@ -37,6 +37,7 @@ const {
   contentRewriting,
   searchDocuments,
   processAudioFile,
+  refineSummary,
 } = require("./controllers/controllers");
 
 const app = express();
@@ -191,6 +192,7 @@ app.post("/bullet-summary", bulletSummary);
 app.post("/content-rewriting", contentRewriting);
 app.get("/search-documents/:userId", searchDocuments);
 app.post("/process-audio", processAudioFile);
+app.post("/refine-summary", refineSummary);
 
 // Error handling for unsupported routes
 app.use((req, res) => {
