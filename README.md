@@ -57,8 +57,6 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 [![Dockerized](https://img.shields.io/badge/Dockerized-Yes-blue?&logo=docker)](https://www.docker.com)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Yes-blue?&logo=kubernetes)](https://kubernetes.io)
 [![Jenkins CI/CD](https://img.shields.io/badge/Jenkins-CI%2FCD-blue?&logo=jenkins)](https://www.jenkins.io)
-[![Swagger Documentation](https://img.shields.io/badge/Swagger-Documentation-blue?&logo=swagger)](https://docuthinker-ai-app.onrender.com/api-docs)
-[![Redoc Documentation](https://img.shields.io/badge/Redoc-Documentation-blue?&logo=redoc)](https://docuthinker-ai-app.onrender.com/api-docs/redoc)
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
