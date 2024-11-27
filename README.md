@@ -49,11 +49,16 @@ The **DocuThinker** app is designed to provide users with a simple, AI-powered d
 
 It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
 
-[![Deployed with Vercel](https://img.shields.io/badge/Deployed%20with-Vercel-green?style=flat-square&logo=vercel)](https://docuthinker-fullstack-app.vercel.app)
-[![Render Success](https://img.shields.io/badge/Render-Success-green?style=flat-square&logo=render)](https://docuthinker-ai-app.onrender.com/)
-[![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green?style=flat-square&logo=netlify)](https://docuthinker-ai-app.netlify.app)
-[![Firebase Functional](https://img.shields.io/badge/Firebase-Functional-green?style=flat-square&logo=firebase)](https://firebase.google.com)
-[![MongoDB Atlas Connected](https://img.shields.io/badge/MongoDB%20Atlas-Connected-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/cloud/atlas)
+[![Deployed with Vercel](https://img.shields.io/badge/Deployed%20with-Vercel-green?&logo=vercel)](https://docuthinker-fullstack-app.vercel.app)
+[![Render Success](https://img.shields.io/badge/Render-Success-green?&logo=render)](https://docuthinker-ai-app.onrender.com/)
+[![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green?&logo=netlify)](https://docuthinker-ai-app.netlify.app)
+[![Firebase Functional](https://img.shields.io/badge/Firebase-Functional-green?&logo=firebase)](https://firebase.google.com)
+[![MongoDB Atlas Connected](https://img.shields.io/badge/MongoDB%20Atlas-Connected-green?&logo=mongodb)](https://www.mongodb.com/cloud/atlas)
+[![Dockerized](https://img.shields.io/badge/Dockerized-Yes-blue?&logo=docker)](https://www.docker.com)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-Yes-blue?&logo=kubernetes)](https://kubernetes.io)
+[![Jenkins CI/CD](https://img.shields.io/badge/Jenkins-CI%2FCD-blue?&logo=jenkins)](https://www.jenkins.io)
+[![Swagger Documentation](https://img.shields.io/badge/Swagger-Documentation-blue?&logo=swagger)](https://docuthinker-ai-app.onrender.com/api-docs)
+[![Redoc Documentation](https://img.shields.io/badge/Redoc-Documentation-blue?&logo=redoc)](https://docuthinker-ai-app.onrender.com/api-docs/redoc)
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
