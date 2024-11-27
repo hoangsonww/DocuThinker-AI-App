@@ -3,7 +3,7 @@
 Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application that integrates an AI-powered document processing backend with a React-based frontend. The app allows users to upload documents for summarization, generate key insights, and chat with an AI based on the document's content.
 
 <p align="center">
-  <a href="https://docuthinker-fullstack-app.vercel.app/" style="cursor: pointer">
+  <a href="https://docuthinker.vercel.app" style="cursor: pointer">
     <img src="images/logo.png" alt="DocuThinker Logo" width="50%" style="border-radius: 8px">
   </a>
 </p>
@@ -59,7 +59,7 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 
 We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
 
-- **Frontend**: Deployed on **Vercel**.
+- **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**.
 - **Backend**: Deployed on **Render**. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
 
 Feel free to explore the live app and test the functionalities. You can upload documents, generate summaries, and chat with an AI using the live app.
