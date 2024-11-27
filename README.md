@@ -787,6 +787,8 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 
 <h2 id="author">👨‍💻 Author</h2>
 
+Here are some information about me:
+
 - **[Son Nguyen](https://github.com/hoangsonww)** - An aspiring Software Developer & Data Scientist
 - Feel free to connect with me on **[LinkedIn](https://www.linkedin.com/in/hoangsonw/)**.
 - If you have any questions or feedback, please feel free to reach out to me at **[hoangson091104@gmail.com](mailto:hoangson091104@gmail.com)**.
