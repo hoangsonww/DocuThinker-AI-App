@@ -260,7 +260,7 @@ const LandingPage = ({ theme }) => {
               maxWidth: "800px",
               margin: "0 auto",
               font: "inherit",
-              color: "white", // Ensure the text is white
+              color: "white",
             }}
           >
             Our platform is designed to simplify document analysis, provide
@@ -269,7 +269,7 @@ const LandingPage = ({ theme }) => {
           </Typography>
           <Button
             component={Link}
-            to="/"
+            to="/home"
             variant="contained"
             sx={{
               backgroundColor: "#f57c00",
