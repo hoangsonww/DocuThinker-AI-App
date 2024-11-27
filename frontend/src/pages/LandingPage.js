@@ -267,6 +267,26 @@ const LandingPage = ({ theme }) => {
             valuable insights, and enhance productivity. Experience the future
             of document management with AI-powered features.
           </Typography>
+          <Button
+            component={Link}
+            to="/"
+            variant="contained"
+            sx={{
+              backgroundColor: "#f57c00",
+              color: "white",
+              padding: "0.75rem 1.5rem",
+              fontSize: "1rem",
+              fontWeight: 600,
+              marginTop: "1rem",
+              font: "inherit",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#ee8d00",
+              },
+            }}
+          >
+            Get Started
+          </Button>
         </Box>
 
         {/* Learn More Section */}
