@@ -288,6 +288,7 @@ const DocumentsPage = ({ theme }) => {
         >
           Your Analyzed Documents
         </Typography>
+
         <TextField
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
