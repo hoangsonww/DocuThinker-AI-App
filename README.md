@@ -780,6 +780,8 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 
 <h2 id="alternative-docs">📚 Additional Documentation</h2>
 
+For more information on the **DocuThinker** app, please refer to the following resources:
+
 - **[Alternative General Documentations](https://hoangsonww.github.io/DocuThinker-AI-App/)**
 - **[Backend README](backend/README.md)**
 - **[Frontend README](frontend/README.md)**
