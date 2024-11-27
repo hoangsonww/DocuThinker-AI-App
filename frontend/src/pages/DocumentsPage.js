@@ -293,7 +293,7 @@ const DocumentsPage = ({ theme }) => {
           onChange={(event) => setSearchTerm(event.target.value)}
           variant="outlined"
           size="small"
-          placeholder="Search documents..."
+          label="Search documents..."
           title="Search documents"
           sx={{
             marginTop: { xs: 2, md: 0 },
