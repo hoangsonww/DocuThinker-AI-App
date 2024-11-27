@@ -1879,6 +1879,9 @@ const Home = ({ theme }) => {
                 style: {
                   fontFamily: "Poppins, sans-serif",
                   color: theme === "dark" ? "white" : "#000",
+                  backgroundColor: theme === "dark" ? "black" : "white",
+                  padding: "0 4px",
+                  transform: "translate(14px, -6px) scale(0.75)",
                 },
               }}
             />
@@ -1985,6 +1988,9 @@ const Home = ({ theme }) => {
                 style: {
                   fontFamily: "Poppins, sans-serif",
                   color: theme === "dark" ? "white" : "#000",
+                  backgroundColor: theme === "dark" ? "black" : "white",
+                  padding: "0 4px",
+                  transform: "translate(14px, -6px) scale(0.75)",
                 },
               }}
             />
