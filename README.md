@@ -49,11 +49,11 @@ The **DocuThinker** app is designed to provide users with a simple, AI-powered d
 
 It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
 
-[![Deployed with Vercel](https://img.shields.io/badge/Deployed%20with-Vercel-green)](https://docuthinker-fullstack-app.vercel.app)
-[![Render Success](https://img.shields.io/badge/Render-Success-green)](https://docuthinker-ai-app.onrender.com/)
-[![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green)](https://docuthinker-ai-app.netlify.app)
-[![Firebase Functional](https://img.shields.io/badge/Firebase-Functional-green)](https://firebase.google.com)
-[![MongoDB Atlas Connected](https://img.shields.io/badge/MongoDB%20Atlas-Connected-green)](https://www.mongodb.com/cloud/atlas)
+[![Deployed with Vercel](https://img.shields.io/badge/Deployed%20with-Vercel-green?style=flat-square&logo=vercel)](https://docuthinker-fullstack-app.vercel.app)
+[![Render Success](https://img.shields.io/badge/Render-Success-green?style=flat-square&logo=render)](https://docuthinker-ai-app.onrender.com/)
+[![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green?style=flat-square&logo=netlify)](https://docuthinker-ai-app.netlify.app)
+[![Firebase Functional](https://img.shields.io/badge/Firebase-Functional-green?style=flat-square&logo=firebase)](https://firebase.google.com)
+[![MongoDB Atlas Connected](https://img.shields.io/badge/MongoDB%20Atlas-Connected-green?style=flat-square&logo=mongodb)](https://www.mongodb.com/cloud/atlas)
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
