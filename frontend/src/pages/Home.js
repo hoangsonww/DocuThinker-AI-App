@@ -175,12 +175,12 @@ const Home = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-ai-app.onrender.com/refine-summary",
         {
-          summary, // Use the existing summary from state
+          summary,
           refinementInstructions,
         },
       );
-      setRefinedSummary(response.data.refinedSummary); // Store the refined summary
-      setShowRefineModal(false); // Close the modal
+      setRefinedSummary(response.data.refinedSummary);
+      setShowRefineModal(false);
       refinedRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       console.error("Failed to refine summary:", error);
@@ -341,7 +341,7 @@ const Home = ({ theme }) => {
     } catch (error) {
       console.error("Failed to fetch sentiment:", error);
     } finally {
-      setLoadingSentiment(false); // End loading
+      setLoadingSentiment(false);
     }
   };
 
@@ -355,9 +355,9 @@ const Home = ({ theme }) => {
 
   useEffect(() => {
     if (originalText && !hasFetchedSentiment) {
-      setLoadingSentiment(true); // Start loading
+      setLoadingSentiment(true);
       fetchSentiment(originalText).then(() => {
-        setLoadingSentiment(false); // Stop loading after fetch completes
+        setLoadingSentiment(false);
       });
     }
   }, [originalText, hasFetchedSentiment]);
@@ -427,15 +427,15 @@ const Home = ({ theme }) => {
   };
 
   const handleUploadNewDocument = () => {
-    setOpenConfirmDialog(true); // Open the dialog
+    setOpenConfirmDialog(true);
   };
 
   const handleConfirmReload = () => {
-    window.location.reload(); // Confirm and reload the page
+    window.location.reload();
   };
 
   const handleCloseConfirmDialog = () => {
-    setOpenConfirmDialog(false); // Close the dialog without reloading
+    setOpenConfirmDialog(false);
   };
 
   return (
@@ -921,7 +921,7 @@ const Home = ({ theme }) => {
 
                   <Button
                     variant="contained"
-                    disabled={!file || loadingAudio} // Disable if no file is selected or if loading
+                    disabled={!file || loadingAudio}
                     onClick={handleSendAudio}
                     sx={{
                       mt: 2,
@@ -984,7 +984,7 @@ const Home = ({ theme }) => {
                   </Button>
                   <Box
                     sx={{
-                      paddingTop: "24px", // Add padding to prevent text overlap with the button
+                      paddingTop: "24px",
                     }}
                   >
                     <ReactMarkdown
@@ -1101,7 +1101,7 @@ const Home = ({ theme }) => {
                   </Button>
                   <Box
                     sx={{
-                      paddingTop: "24px", // Add padding to prevent text overlap with the button
+                      paddingTop: "24px",
                     }}
                   >
                     <ReactMarkdown
@@ -1218,7 +1218,7 @@ const Home = ({ theme }) => {
                   </Button>
                   <Box
                     sx={{
-                      paddingTop: "24px", // Add padding to prevent text overlap with the button
+                      paddingTop: "24px",
                     }}
                   >
                     <ReactMarkdown
@@ -1354,8 +1354,8 @@ const Home = ({ theme }) => {
                   boxShadow: "0 0 10px rgba(0, 0, 0, 0.4)",
                   zIndex: 1000,
                   maxHeight: "80vh",
-                  width: "80vw", // Default width for mobile
-                  maxWidth: { xs: "80vw", sm: "600px" }, // Responsive max-width
+                  width: "80vw",
+                  maxWidth: { xs: "80vw", sm: "600px" },
                   overflowY: "auto",
                 }}
               >
@@ -1424,7 +1424,7 @@ const Home = ({ theme }) => {
                     font: "inherit",
                     borderRadius: "12px",
                   }}
-                  disabled={loadingLanguage} // Disable close button while loading
+                  disabled={loadingLanguage}
                 >
                   Close
                 </Button>

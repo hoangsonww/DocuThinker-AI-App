@@ -235,12 +235,12 @@ const LandingPage = ({ theme }) => {
             marginTop: "4rem",
             padding: "2rem",
             textAlign: "center",
-            backgroundColor: "#f57c00", // Inverted background color
+            backgroundColor: "#f57c00",
             borderRadius: 2,
             boxShadow: 3,
             transition: "background-color 0.3s ease",
             animation: `${slideUp} 0.8s ease-out`,
-            color: "white", // White text color
+            color: "white",
           }}
         >
           <Typography
