@@ -49,6 +49,18 @@ The **DocuThinker** app is designed to provide users with a simple, AI-powered d
 
 It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
 
+<h2 id="live-deployments">🚀 Live Deployments</h2>
+
+We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
+
+- **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**.
+- **Backend**: Deployed on **Render**. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
+- **Backup**: We have a backup of the app on **Netlify**. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
+
+**Note**: The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. Additionally, the app is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
+
+### Live Statuses
+
 [![Deployed with Vercel](https://img.shields.io/badge/Deployed%20with-Vercel-green?&logo=vercel)](https://docuthinker-fullstack-app.vercel.app)
 [![Render Success](https://img.shields.io/badge/Render-Success-green?&logo=render)](https://docuthinker-ai-app.onrender.com/)
 [![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green?&logo=netlify)](https://docuthinker-ai-app.netlify.app)
@@ -57,19 +69,6 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 [![Dockerized](https://img.shields.io/badge/Dockerized-Yes-blue?&logo=docker)](https://www.docker.com)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Yes-blue?&logo=kubernetes)](https://kubernetes.io)
 [![Jenkins CI/CD](https://img.shields.io/badge/Jenkins-CI%2FCD-blue?&logo=jenkins)](https://www.jenkins.io)
-
-<h2 id="live-deployments">🚀 Live Deployments</h2>
-
-We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
-
-- **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**.
-- **Backend**: Deployed on **Render**. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
-
-Feel free to explore the live app and test the functionalities. You can upload documents, generate summaries, and chat with an AI using the live app.
-
-**Note**: The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. Additionally, the app is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
-
-**Also:** We are using **Netlify** for backups and testing. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
 
 <h2 id="features">✨ Features</h2>
 
