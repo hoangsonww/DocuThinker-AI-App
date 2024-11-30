@@ -71,7 +71,7 @@ const LandingPage = ({ theme }) => {
           </Typography>
           <Button
             component={Link}
-            to="/how-to-use"
+            to="/home"
             variant="contained"
             sx={{
               backgroundColor: "#f57c00",
@@ -85,7 +85,7 @@ const LandingPage = ({ theme }) => {
               },
             }}
           >
-            How to Use
+            Get Started
           </Button>
         </Box>
 
@@ -103,7 +103,7 @@ const LandingPage = ({ theme }) => {
               title: "Generate Insights",
               description:
                 "Get key ideas and discussion points extracted from your documents effortlessly.",
-              buttonText: "Get Started",
+              buttonText: "Get Insights",
               link: "/home",
             },
             {
@@ -289,7 +289,7 @@ const LandingPage = ({ theme }) => {
           </Button>
         </Box>
 
-        {/* Learn More Section */}
+        {/* How To Use Section */}
         <Box
           sx={{
             marginTop: "4rem",
@@ -312,7 +312,7 @@ const LandingPage = ({ theme }) => {
               fontSize: "1.5rem",
             }}
           >
-            Learn More
+            How to Use DocuThinker
           </Typography>
           <Typography
             variant="body1"
@@ -323,7 +323,66 @@ const LandingPage = ({ theme }) => {
               color: isDarkMode ? "white" : "black",
             }}
           >
-            Visit our documentation to explore the features, functionalities,
+            Refer to our user guide to learn how to upload documents, generate
+            insights, chat with AI, and access other features of DocuThinker.
+          </Typography>
+          <Button
+            href="/how-to-use"
+            variant="contained"
+            sx={{
+              backgroundColor: "#f57c00",
+              color: "white",
+              padding: "0.75rem 1.5rem",
+              fontSize: "1rem",
+              fontWeight: 600,
+              marginTop: "1rem",
+              font: "inherit",
+              transition: "all 0.3s ease",
+              "&:hover": {
+                backgroundColor: "#ee8d00",
+              },
+            }}
+          >
+            How to Use
+          </Button>
+        </Box>
+
+        {/* Learn More Section */}
+        <Box
+          sx={{
+            marginTop: "4rem",
+            padding: "2rem",
+            textAlign: "center",
+            backgroundColor: "#f57c00",
+            borderRadius: 2,
+            boxShadow: 3,
+            transition: "background-color 0.3s ease",
+            animation: `${slideUp} 0.8s ease-out`,
+            color: "white",
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{
+              marginBottom: "1rem",
+              color: "#fff",
+              font: "inherit",
+              fontWeight: 600,
+              fontSize: "1.5rem",
+            }}
+          >
+            Learn More
+          </Typography>
+          <Typography
+            variant="body1"
+            sx={{
+              maxWidth: "800px",
+              margin: "0 auto",
+              font: "inherit",
+              color: "#fff"
+            }}
+          >
+            Visit our documentation and source code to explore the features, functionalities,
             and how to get started with DocuThinker.
           </Typography>
           <Button
