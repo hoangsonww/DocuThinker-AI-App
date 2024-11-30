@@ -379,11 +379,11 @@ const LandingPage = ({ theme }) => {
               maxWidth: "800px",
               margin: "0 auto",
               font: "inherit",
-              color: "#fff"
+              color: "#fff",
             }}
           >
-            Visit our documentation and source code to explore the features, functionalities,
-            and how to get started with DocuThinker.
+            Visit our documentation and source code to explore the features,
+            functionalities, and how to get started with DocuThinker.
           </Typography>
           <Button
             href="https://github.com/hoangsonww/DocuThinker-AI-App"
