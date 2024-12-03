@@ -27,6 +27,33 @@ const Profile = ({ theme }) => {
   const [loading, setLoading] = useState(true);
   const [updatingEmail, setUpdatingEmail] = useState(false);
   const [joinedDate, setJoinedDate] = useState("");
+  const avatarImages = [
+    "/OIP.jpg",
+    "/OIP2.webp",
+    "/OIP3.png",
+    "/OIP4.png",
+    "/OIP5.png",
+    "/OIP6.webp",
+    "/OIP7.webp",
+    "/OIP8.webp",
+    "/OIP9.webp",
+    "/OIP10.webp",
+    "/OIP11.webp",
+    "/OIP12.webp",
+    "/OIP13.webp",
+    "/OIP14.webp",
+    "/OIP15.webp",
+    "/OIP16.webp",
+    "/OIP17.webp",
+    "/OIP18.webp",
+    "/OIP19.webp",
+    "/OIP20.webp",
+    "/OIP21.webp",
+    "/OIP22.webp",
+    "/OIP23.webp",
+    "/OIP24.webp",
+    "/OIP25.webp",
+  ];
   const [socialMedia, setSocialMedia] = useState({
     github: "",
     linkedin: "",
@@ -39,7 +66,7 @@ const Profile = ({ theme }) => {
   const [updatingSocialMedia, setUpdatingSocialMedia] = useState(false);
   const [error, setError] = useState("");
   const userId = localStorage.getItem("userId");
-  const avatarUrl = "/OIP.jpg";
+  const [randomAvatar, setRandomAvatar] = useState("");
   const today = new Date().toLocaleDateString();
   // eslint-disable-next-line no-unused-vars
   const [loadingSocialMedia, setLoadingSocialMedia] = useState(true);
@@ -54,6 +81,10 @@ const Profile = ({ theme }) => {
   });
 
   useEffect(() => {
+    setRandomAvatar(
+      avatarImages[Math.floor(Math.random() * avatarImages.length)],
+    );
+
     if (userId) {
       const fetchData = async () => {
         try {
@@ -104,6 +135,7 @@ const Profile = ({ theme }) => {
     } else {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const handleUpdateEmail = async () => {
@@ -281,7 +313,7 @@ const Profile = ({ theme }) => {
           }}
         >
           <img
-            src={avatarUrl}
+            src={randomAvatar}
             alt="User Avatar"
             style={{ width: "100%", height: "100%", objectFit: "cover" }}
           />
