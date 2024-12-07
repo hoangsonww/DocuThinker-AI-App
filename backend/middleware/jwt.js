@@ -1,7 +1,13 @@
 const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
-// Middleware to verify JWT token
+/**
+ * Middleware to authenticate the user using JWT token
+ * @param req - Request object
+ * @param res - Response object
+ * @param next - Next middleware function
+ * @returns {*} - Response object or next middleware function
+ */
 const authenticateToken = (req, res, next) => {
   // Get the token from the Authorization header
   const authHeader = req.headers["authorization"];
@@ -20,7 +26,11 @@ const authenticateToken = (req, res, next) => {
   });
 };
 
-// Function to generate JWT token
+/**
+ * Generate JWT token
+ * @param user - User object
+ * @returns {string} - JWT token
+ */
 const generateToken = (user) => {
   return jwt.sign(user, process.env.JWT_SECRET, { expiresIn: "1h" });
 };

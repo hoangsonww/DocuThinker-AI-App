@@ -13,6 +13,9 @@ require("dotenv").config();
 // Parse the private key (ensuring it's correctly formatted)
 const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 
+// Multer setup for handling file uploads
+const upload = multer({ dest: "uploads/" });
+
 // Initialize Firebase Admin using environment variables from .env
 firebaseAdmin.initializeApp({
   credential: firebaseAdmin.credential.cert({
@@ -34,18 +37,31 @@ firebaseAdmin.initializeApp({
 // Firestore for storing user documents
 const firestore = firebaseAdmin.firestore();
 
-// Helper: Create a new user
+/**
+ * Create a new user in Firebase Auth
+ * @param email - User email
+ * @param password - User password
+ * @returns {Promise<UserRecord>} - Firebase Auth User Record
+ */
 exports.createUser = async (email, password) => {
   return await firebaseAdmin.auth().createUser({ email, password });
 };
 
-// Helper: Login user and generate custom token
+/**
+ * Login user and generate custom token
+ * @param email - User email
+ * @returns {Promise<string>} - Custom token for the user
+ */
 exports.loginUser = async (email) => {
   const user = await firebaseAdmin.auth().getUserByEmail(email);
   return await firebaseAdmin.auth().createCustomToken(user.uid);
 };
 
-// Helper: Summarize Document using AI
+/**
+ * Upload a file and generate a summary
+ * @param file - File object with filepath and mimetype
+ * @returns {Promise<{summary: string, originalText: string}>} - Generated summary and original text
+ */
 exports.generateSummary = async (file) => {
   let extractedText = "";
   const fileBuffer = fs.readFileSync(file.filepath);
@@ -84,10 +100,12 @@ exports.generateSummary = async (file) => {
   };
 };
 
-// Multer setup for handling file uploads
-const upload = multer({ dest: "uploads/" });
-
-// Helper: Process Audio using Gemini API
+/**
+ * Process an audio file and generate a summary
+ * @param file - File object with filepath and mimetype
+ * @param context - Additional context for the AI model
+ * @returns {Promise<{summary: string}>} - Generated summary
+ */
 exports.processAudio = async (file, context) => {
   const fileBuffer = fs.readFileSync(file.filepath);
   const mimeType = file.mimetype;
@@ -150,7 +168,11 @@ exports.processAudio = async (file, context) => {
   };
 };
 
-// Helper: Generate Key Ideas
+/**
+ * Process a text document and generate key ideas
+ * @param documentText - Text content of the document
+ * @returns {Promise<string>} - Generated key ideas
+ */
 exports.generateKeyIdeas = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -165,7 +187,11 @@ exports.generateKeyIdeas = async (documentText) => {
   return result.response.text();
 };
 
-// Helper: Generate Discussion Points
+/**
+ * Process a text document and generate discussion points
+ * @param documentText - Text content of the document
+ * @returns {Promise<string>} - Generated discussion points
+ */
 exports.generateDiscussionPoints = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -183,12 +209,22 @@ exports.generateDiscussionPoints = async (documentText) => {
 // In-memory store for conversation history per session
 let sessionHistory = {};
 
-// Helper function to validate that the text is a non-empty string
+/**
+ * Check if the text is valid (non-empty string)
+ * @param text - Text to validate
+ * @returns {boolean} - Whether the text is valid
+ */
 const isValidText = (text) => {
   return typeof text === "string" && text.trim().length > 0;
 };
 
-// Helper: Chat with AI Model using originalText as context
+/**
+ * Chat with the AI using the provided message
+ * @param sessionId - Unique session ID for the conversation
+ * @param message - User message to send to the AI
+ * @param originalText - Original text for the conversation
+ * @returns {Promise<string>} - AI response message
+ */
 exports.chatWithAI = async (sessionId, message, originalText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -245,12 +281,20 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
   }
 };
 
-// Clear session history (optional function if needed)
+/**
+ * Clear the conversation history for a given session
+ * @param sessionId - Unique session ID for the conversation
+ */
 exports.clearSessionHistory = (sessionId) => {
   delete sessionHistory[sessionId];
 };
 
-// Helper: Check if User Exists and Update Password
+/**
+ * Verify user email and update the password
+ * @param email - User email
+ * @param newPassword - New password for the user
+ * @returns {Promise<{message: string}>} - Success message
+ */
 exports.verifyUserAndUpdatePassword = async (email, newPassword) => {
   try {
     // Check if the user exists in Firebase
@@ -267,7 +311,11 @@ exports.verifyUserAndUpdatePassword = async (email, newPassword) => {
   }
 };
 
-// Helper: Verify if User Email Exists
+/**
+ * Verify user email and update the email
+ * @param email - User email
+ * @returns {Promise<UserRecord>} - Firebase Auth User Record
+ */
 exports.verifyUserEmail = async (email) => {
   try {
     const userRecord = await firebaseAdmin.auth().getUserByEmail(email);
@@ -277,8 +325,11 @@ exports.verifyUserEmail = async (email) => {
   }
 };
 
-// Helper: Sentiment Analysis using AI
-// Helper: Sentiment Analysis using AI
+/**
+ * Update user email in Firebase Auth
+ * @param documentText - Text content of the document
+ * @returns {Promise<{sentimentScore, description}>} - Sentiment analysis result
+ */
 exports.analyzeSentiment = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -315,7 +366,11 @@ exports.analyzeSentiment = async (documentText) => {
   }
 };
 
-// Helper: Generate Summary in Bullet Points
+/**
+ * Generate bullet point summary from the document text
+ * @param documentText - Text content of the document
+ * @returns {Promise<string>} - Generated bullet point summary
+ */
 exports.generateBulletSummary = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -335,7 +390,12 @@ exports.generateBulletSummary = async (documentText) => {
   return result.response.text();
 };
 
-// Helper: Generate Summary in Selected Language
+/**
+ * Generate a summary in a specific language
+ * @param documentText - Text content of the document
+ * @param language - Target language for the summary
+ * @returns {Promise<string>} - Generated summary in the specified language
+ */
 exports.generateSummaryInLanguage = async (documentText, language) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -355,7 +415,12 @@ exports.generateSummaryInLanguage = async (documentText, language) => {
   return result.response.text();
 };
 
-// Helper: Content Rewriting or Rephrasing
+/**
+ * Rewrite content in a specific style
+ * @param documentText - Text content to rewrite
+ * @param style - Target style for rewriting the content
+ * @returns {Promise<string>} - Rewritten content in the specified style
+ */
 exports.rewriteContent = async (documentText, style) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -375,7 +440,11 @@ exports.rewriteContent = async (documentText, style) => {
   return result.response.text();
 };
 
-// Helper: Generate Actionable Recommendations
+/**
+ * Generate actionable recommendations based on the document text
+ * @param documentText - Text content of the document
+ * @returns {Promise<string>} - Generated actionable recommendations
+ */
 exports.generateActionableRecommendations = async (documentText) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -397,7 +466,12 @@ exports.generateActionableRecommendations = async (documentText) => {
   return result.response.text();
 };
 
-// Helper: Refine Summary based on User Instructions
+/**
+ * Refine the summary based on the user's instructions
+ * @param summary - Original summary to refine
+ * @param refinementInstructions - Instructions for refining the summary
+ * @returns {Promise<string>} - Refined summary based on the instructions
+ */
 exports.refineSummary = async (summary, refinementInstructions) => {
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
