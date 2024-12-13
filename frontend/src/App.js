@@ -45,6 +45,7 @@ function useTrackPageView() {
   }, [location]);
 }
 
+// Launches the app
 function App() {
   const [theme, setTheme] = useState(getStoredTheme());
   const [isLoggedIn, setIsLoggedIn] = useState(false);
