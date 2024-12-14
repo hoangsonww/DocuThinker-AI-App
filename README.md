@@ -23,6 +23,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
   - [**Running the Mobile App**](#running-the-mobile-app)
 - [**📋 API Endpoints**](#api-endpoints)
   - [**API Documentation**](#api-documentation)
+    - [**Detailed Guide for Using the `openapi.yaml` file**](#detailed-guide-for-using-the-openapiyaml-file)
   - [**API Architecture**](#api-architecture)
   - [**API Testing**](#api-testing)
   - [**Error Handling**](#error-handling)
