@@ -1,10 +1,9 @@
 const express = require("express");
 const cors = require("cors");
-const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
-const path = require("path");
 const redis = require("redis");
 require("dotenv").config();
+const swaggerDocs = require("./swagger/swagger");
 
 const {
   registerUser,
@@ -45,9 +44,9 @@ app.use(express.json());
 
 // CORS configuration
 const corsOptions = {
-  origin: true, // Allow all origins
+  origin: true,
   methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true, // Allow credentials (cookies, authentication)
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
@@ -73,7 +72,6 @@ try {
     console.error("Redis connection error:", err);
   });
 
-  // Adding a simple key to Redis on connection (for testing connection)
   redisClient.set("connectionTest", "connected", (err, reply) => {
     if (err) {
       console.error("Failed to set key in Redis:", err);
@@ -86,63 +84,6 @@ try {
 }
 
 // Swagger setup
-const swaggerOptions = {
-  swaggerDefinition: {
-    openapi: "3.0.0",
-    info: {
-      title: "DocuThinker API Documentation",
-      version: "1.1.0",
-      description:
-        "Comprehensive API documentation for the DocuThinker application.",
-      termsOfService:
-        "https://docuthinker-fullstack-app.vercel.app/terms-of-service",
-      contact: {
-        name: "DocuThinker",
-        url: "https://docuthinker-fullstack-app.vercel.app/",
-        email: "hoangson091104@gmail.com",
-      },
-      license: {
-        name: "MIT License",
-        url: "https://opensource.org/licenses/MIT",
-      },
-    },
-    servers: [
-      {
-        url: "https://docuthinker-ai-app.onrender.com/",
-        description: "Production server",
-      },
-      {
-        url: "http://localhost:3000",
-        description: "Local server - ensure you have the backend running",
-      },
-      {
-        url: "http://127.0.0.1:3000",
-        description: "Local server - ensure you have the backend running",
-      },
-    ],
-    components: {
-      securitySchemes: {
-        BearerAuth: {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-        },
-      },
-    },
-    security: [
-      {
-        BearerAuth: [],
-      },
-    ],
-  },
-  apis: [
-    path.resolve(__dirname, "index.js"),
-    path.resolve(__dirname, "controllers/controllers.js"),
-    path.resolve(__dirname, "models/models.js"),
-  ],
-};
-
-const swaggerDocs = swaggerJsdoc(swaggerOptions);
 app.use(
   "/api-docs",
   swaggerUi.serve,
@@ -171,21 +112,21 @@ app.post("/generate-discussion-points", generateDiscussionPoints);
 app.post("/chat", chatWithAI);
 app.post("/forgot-password", forgotPassword);
 app.post("/verify-email", verifyEmail);
-app.get("/documents/:userId", getAllDocuments); // Retrieve all documents
-app.get("/documents/:userId/:docId", getDocumentById); // Retrieve specific document by ID
-app.get("/document-details/:userId/:docId", getDocumentDetails); // Retrieve document details by ID
-app.delete("/documents/:userId/:docId", deleteDocument); // Delete a specific document
-app.delete("/documents/:userId", deleteAllDocuments); // Delete all documents for a user
-app.post("/update-email", updateUserEmail); // Update email
-app.post("/update-password", updateUserPassword); // Update password
-app.get("/days-since-joined/:userId", getDaysSinceJoined); // Retrieve days since joined
-app.get("/document-count/:userId", getDocumentCount); // Retrieve document count
+app.get("/documents/:userId", getAllDocuments);
+app.get("/documents/:userId/:docId", getDocumentById);
+app.get("/document-details/:userId/:docId", getDocumentDetails);
+app.delete("/documents/:userId/:docId", deleteDocument);
+app.delete("/documents/:userId", deleteAllDocuments);
+app.post("/update-email", updateUserEmail);
+app.post("/update-password", updateUserPassword);
+app.get("/days-since-joined/:userId", getDaysSinceJoined);
+app.get("/document-count/:userId", getDocumentCount);
 app.get("/users/:userId", getUserEmail);
 app.post("/update-document-title", updateDocumentTitle);
 app.get("/user-joined-date/:userId", getUserJoinedDate);
 app.put("/update-theme", updateTheme);
-app.get("/social-media/:userId", getSocialMedia); // For getting social media links
-app.post("/update-social-media", updateSocialMedia); // For updating social media links
+app.get("/social-media/:userId", getSocialMedia);
+app.post("/update-social-media", updateSocialMedia);
 app.post("/sentiment-analysis", sentimentAnalysis);
 app.post("/actionable-recommendations", actionableRecommendations);
 app.post("/summary-in-language", summaryInLanguage);
@@ -208,7 +149,6 @@ app.use((err, req, res, next) => {
     .json({ error: "An internal server error occurred", details: err.message });
 });
 
-// Error handling for unauthorized requests
 app.use((err, req, res, next) => {
   if (err.name === "UnauthorizedError") {
     res.status(401).json({ error: "Unauthorized request" });
