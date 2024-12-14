@@ -71,6 +71,7 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
 [![Dockerized](https://img.shields.io/badge/Dockerized-Yes-blue?&logo=docker)](https://www.docker.com)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Yes-blue?&logo=kubernetes)](https://kubernetes.io)
 [![Jenkins CI/CD](https://img.shields.io/badge/Jenkins-CI%2FCD-blue?&logo=jenkins)](https://www.jenkins.io)
+[![Swagger & OpenAPI](https://img.shields.io/badge/Swagger%20%26%20OpenAPI-Documented-blue?&logo=swagger)](https://swagger.io)
 
 <h2 id="features">✨ Features</h2>
 
@@ -132,6 +133,7 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
   - **React Navigation**: Routing and navigation for React Native apps.
 - **API Documentation**:
   - **Swagger**: OpenAPI documentation for all API endpoints.
+  - **OpenAPI**: Specification for building APIs with RESTful architecture.
 - **Containerization**:
   - **Docker**: Containerization platform for building, shipping, and running applications.
   - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.

@@ -1,0 +1,671 @@
+openapi: 3.0.0
+info:
+  title: DocuThinker API
+  description: Comprehensive API documentation for the DocuThinker application.
+  version: 1.1.0
+  termsOfService: https://docuthinker-fullstack-app.vercel.app/terms-of-service
+  contact:
+    name: DocuThinker
+    url: https://docuthinker-fullstack-app.vercel.app/
+    email: hoangson091104@gmail.com
+  license:
+    name: MIT License
+    url: https://opensource.org/licenses/MIT
+servers:
+  - url: https://docuthinker-ai-app.onrender.com/
+    description: Production server
+  - url: http://localhost:3000
+    description: Local server
+paths:
+  /register:
+    post:
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        201:
+          description: User successfully registered
+        400:
+          description: Invalid input
+  /login:
+    post:
+      summary: Login an existing user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+      responses:
+        200:
+          description: Login successful
+        401:
+          description: Unauthorized
+  /upload:
+    post:
+      summary: Upload a document
+      operationId: uploadDocument
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                documentContent:
+                  type: string
+              required:
+                - userId
+                - documentContent
+      responses:
+        201:
+          description: Document uploaded successfully
+        400:
+          description: Invalid input
+  /generate-key-ideas:
+    post:
+      summary: Generate key ideas from a document
+      operationId: generateKeyIdeas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentId:
+                  type: string
+              required:
+                - documentId
+      responses:
+        200:
+          description: Key ideas generated successfully
+        404:
+          description: Document not found
+  /generate-discussion-points:
+    post:
+      summary: Generate discussion points for a document
+      operationId: generateDiscussionPoints
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentId:
+                  type: string
+              required:
+                - documentId
+      responses:
+        200:
+          description: Discussion points generated successfully
+        404:
+          description: Document not found
+  /chat:
+    post:
+      summary: Chat with AI
+      operationId: chatWithAI
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                message:
+                  type: string
+              required:
+                - userId
+                - message
+      responses:
+        200:
+          description: Chat response from AI
+        400:
+          description: Invalid input
+  /forgot-password:
+    post:
+      summary: Request password reset
+      operationId: forgotPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+                - email
+      responses:
+        200:
+          description: Password reset email sent
+        404:
+          description: Email not found
+  /verify-email:
+    post:
+      summary: Verify user email
+      operationId: verifyEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                token:
+                  type: string
+              required:
+                - token
+      responses:
+        200:
+          description: Email verified successfully
+        400:
+          description: Invalid token
+  /documents/{userId}:
+    get:
+      summary: Retrieve all documents for a user
+      operationId: getAllDocuments
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Documents retrieved successfully
+        404:
+          description: User not found
+    delete:
+      summary: Delete all documents for a user
+      operationId: deleteAllDocuments
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: All documents deleted successfully
+        404:
+          description: User not found
+  /documents/{userId}/{docId}:
+    get:
+      summary: Retrieve a specific document by ID
+      operationId: getDocumentById
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: docId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Document retrieved successfully
+        404:
+          description: Document not found
+    delete:
+      summary: Delete a specific document
+      operationId: deleteDocument
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: docId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Document deleted successfully
+        404:
+          description: Document not found
+  /document-details/{userId}/{docId}:
+    get:
+      summary: Retrieve document details
+      operationId: getDocumentDetails
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: docId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Document details retrieved successfully
+        404:
+          description: Document not found
+  /update-email:
+    post:
+      summary: Update user email
+      operationId: updateUserEmail
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                newEmail:
+                  type: string
+              required:
+                - userId
+                - newEmail
+      responses:
+        200:
+          description: Email updated successfully
+        404:
+          description: User not found
+  /update-password:
+    post:
+      summary: Update user password
+      operationId: updateUserPassword
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                newPassword:
+                  type: string
+              required:
+                - userId
+                - newPassword
+      responses:
+        200:
+          description: Password updated successfully
+        404:
+          description: User not found
+  /days-since-joined/{userId}:
+    get:
+      summary: Get days since user joined
+      operationId: getDaysSinceJoined
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Days since user joined retrieved successfully
+        404:
+          description: User not found
+  /document-count/{userId}:
+    get:
+      summary: Get document count for a user
+      operationId: getDocumentCount
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Document count retrieved successfully
+        404:
+          description: User not found
+  /users/{userId}:
+    get:
+      summary: Get user email
+      operationId: getUserEmail
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User email retrieved successfully
+        404:
+          description: User not found
+  /update-document-title:
+    post:
+      summary: Update document title
+      operationId: updateDocumentTitle
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                docId:
+                  type: string
+                newTitle:
+                  type: string
+              required:
+                - docId
+                - newTitle
+      responses:
+        200:
+          description: Document title updated successfully
+        404:
+          description: Document not found
+  /user-joined-date/{userId}:
+    get:
+      summary: Get user joined date
+      operationId: getUserJoinedDate
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: User joined date retrieved successfully
+        404:
+          description: User not found
+  /update-theme:
+    put:
+      summary: Update user theme preferences
+      operationId: updateTheme
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                theme:
+                  type: string
+              required:
+                - userId
+                - theme
+      responses:
+        200:
+          description: Theme updated successfully
+        404:
+          description: User not found
+  /social-media/{userId}:
+    get:
+      summary: Get user's social media links
+      operationId: getSocialMedia
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Social media links retrieved successfully
+        404:
+          description: User not found
+  /update-social-media:
+    post:
+      summary: Update user's social media links
+      operationId: updateSocialMedia
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                socialMedia:
+                  type: object
+                  additionalProperties:
+                    type: string
+              required:
+                - userId
+                - socialMedia
+      responses:
+        200:
+          description: Social media links updated successfully
+        404:
+          description: User not found
+  /sentiment-analysis:
+    post:
+      summary: Perform sentiment analysis on text
+      operationId: sentimentAnalysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+              required:
+                - text
+      responses:
+        200:
+          description: Sentiment analysis completed successfully
+        400:
+          description: Invalid input
+  /actionable-recommendations:
+    post:
+      summary: Generate actionable recommendations
+      operationId: actionableRecommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentId:
+                  type: string
+              required:
+                - documentId
+      responses:
+        200:
+          description: Recommendations generated successfully
+        404:
+          description: Document not found
+  /summary-in-language:
+    post:
+      summary: Generate a summary in a specified language
+      operationId: summaryInLanguage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentId:
+                  type: string
+                language:
+                  type: string
+              required:
+                - documentId
+                - language
+      responses:
+        200:
+          description: Summary generated successfully
+        404:
+          description: Document not found
+  /bullet-summary:
+    post:
+      summary: Generate a bullet-point summary
+      operationId: bulletSummary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentId:
+                  type: string
+              required:
+                - documentId
+      responses:
+        200:
+          description: Bullet-point summary generated successfully
+        404:
+          description: Document not found
+  /content-rewriting:
+    post:
+      summary: Rewrite content for better readability
+      operationId: contentRewriting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                documentId:
+                  type: string
+                style:
+                  type: string
+              required:
+                - documentId
+                - style
+      responses:
+        200:
+          description: Content rewritten successfully
+        404:
+          description: Document not found
+  /search-documents/{userId}:
+    get:
+      summary: Search for documents by a user
+      operationId: searchDocuments
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Search results retrieved successfully
+        404:
+          description: User or documents not found
+  /process-audio:
+    post:
+      summary: Process an audio file
+      operationId: processAudioFile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                audioFile:
+                  type: string
+                  format: binary
+              required:
+                - userId
+                - audioFile
+      responses:
+        200:
+          description: Audio processed successfully
+        400:
+          description: Invalid input
+  /refine-summary:
+    post:
+      summary: Refine a generated summary
+      operationId: refineSummary
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                summary:
+                  type: string
+                context:
+                  type: string
+              required:
+                - summary
+                - context
+      responses:
+        200:
+          description: Summary refined successfully
+        400:
+          description: Invalid input
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+        userId:
+          type: string
+        content:
+          type: string
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+        code:
+          type: integer
