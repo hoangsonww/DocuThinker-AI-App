@@ -549,7 +549,7 @@ Note that this is optional since we are deploying the backend on **Render**. How
 The backend of **DocuThinker** provides several API endpoints for user authentication, document management, and AI-powered insights. These endpoints are used by the frontend to interact with the backend server:
 
 | **Method** | **Endpoint**                         | **Description**                                                                                     |
-| ---------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
+|------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
@@ -594,6 +594,14 @@ For example, our API endpoints documentation looks like this:
 <p align="center">
   <img src="images/swagger.png" alt="Swagger Documentation" width="100%" style="border-radius: 8px">
 </p>
+
+Additionally, we also offer API file generation using **OpenAPI**. You can generate API files using the **OpenAPI** specification. Here is how:
+
+```bash
+npx openapi-generator-cli generate -i http://localhost:5000/api-docs -g typescript-fetch -o ./api
+```
+
+This will generate TypeScript files for the API endpoints in the `api` directory. Feel free to replace or modify the command as needed.
 
 ### **API Architecture**
 
