@@ -23,11 +23,6 @@ const nextConfig = {
     ];
   },
 
-  // Enable image domains if needed for external image sources
-  images: {
-    domains: ["example.com"],
-  },
-
   webpack(config) {
     return config;
   },
