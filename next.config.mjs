@@ -28,9 +28,7 @@ const nextConfig = {
     domains: ["example.com"],
   },
 
-  // Optional: Custom Webpack configuration
   webpack(config) {
-    // Modify the Webpack config if needed
     return config;
   },
 };
