@@ -20,6 +20,8 @@ paths:
   /register:
     post:
       summary: Register a new user
+      tags:
+        - User
       operationId: registerUser
       requestBody:
         required: true
@@ -43,6 +45,8 @@ paths:
   /login:
     post:
       summary: Login an existing user
+      tags:
+        - User
       operationId: loginUser
       requestBody:
         required: true
@@ -66,6 +70,8 @@ paths:
   /upload:
     post:
       summary: Upload a document
+      tags:
+        - Document
       operationId: uploadDocument
       requestBody:
         required: true
@@ -89,6 +95,8 @@ paths:
   /generate-key-ideas:
     post:
       summary: Generate key ideas from a document
+      tags:
+        - Document
       operationId: generateKeyIdeas
       requestBody:
         required: true
@@ -109,6 +117,8 @@ paths:
   /generate-discussion-points:
     post:
       summary: Generate discussion points for a document
+      tags:
+        - Document
       operationId: generateDiscussionPoints
       requestBody:
         required: true
@@ -129,6 +139,8 @@ paths:
   /chat:
     post:
       summary: Chat with AI
+      tags:
+        - Document
       operationId: chatWithAI
       requestBody:
         required: true
@@ -152,6 +164,8 @@ paths:
   /forgot-password:
     post:
       summary: Request password reset
+      tags:
+        - User
       operationId: forgotPassword
       requestBody:
         required: true
@@ -172,6 +186,8 @@ paths:
   /verify-email:
     post:
       summary: Verify user email
+      tags:
+        - User
       operationId: verifyEmail
       requestBody:
         required: true
@@ -192,6 +208,8 @@ paths:
   /documents/{userId}:
     get:
       summary: Retrieve all documents for a user
+      tags:
+        - Document
       operationId: getAllDocuments
       parameters:
         - name: userId
