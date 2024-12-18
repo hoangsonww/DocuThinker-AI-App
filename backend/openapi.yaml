@@ -96,7 +96,7 @@ paths:
     post:
       summary: Generate key ideas from a document
       tags:
-        - Document
+        - AI/Machine Learning
       operationId: generateKeyIdeas
       requestBody:
         required: true
@@ -118,7 +118,7 @@ paths:
     post:
       summary: Generate discussion points for a document
       tags:
-        - Document
+        - AI/Machine Learning
       operationId: generateDiscussionPoints
       requestBody:
         required: true
@@ -140,7 +140,7 @@ paths:
     post:
       summary: Chat with AI
       tags:
-        - Document
+        - AI/Machine Learning
       operationId: chatWithAI
       requestBody:
         required: true
@@ -519,7 +519,7 @@ paths:
     post:
       summary: Perform sentiment analysis on text
       tags:
-        - Document
+        - Document Analysis
       operationId: sentimentAnalysis
       requestBody:
         required: true
@@ -541,7 +541,7 @@ paths:
     post:
       summary: Generate actionable recommendations
       tags:
-        - Document
+        - Document Analysis
       operationId: actionableRecommendations
       requestBody:
         required: true
@@ -563,7 +563,7 @@ paths:
     post:
       summary: Generate a summary in a specified language
       tags:
-        - Document
+        - Document Analysis
       operationId: summaryInLanguage
       requestBody:
         required: true
@@ -588,7 +588,7 @@ paths:
     post:
       summary: Generate a bullet-point summary
       tags:
-        - Document
+        - Document Analysis
       operationId: bulletSummary
       requestBody:
         required: true
@@ -610,7 +610,7 @@ paths:
     post:
       summary: Rewrite content for better readability
       tags:
-        - Document
+        - Document Analysis
       operationId: contentRewriting
       requestBody:
         required: true
@@ -657,7 +657,7 @@ paths:
     post:
       summary: Process an audio file
       tags:
-        - Document
+        - Audio
       operationId: processAudioFile
       requestBody:
         required: true
@@ -683,7 +683,7 @@ paths:
     post:
       summary: Refine a generated summary
       tags:
-        - Document
+        - Document Analysis
       operationId: refineSummary
       requestBody:
         required: true
