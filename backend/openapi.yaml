@@ -224,6 +224,8 @@ paths:
           description: User not found
     delete:
       summary: Delete all documents for a user
+      tags:
+        - Document
       operationId: deleteAllDocuments
       parameters:
         - name: userId
@@ -239,6 +241,8 @@ paths:
   /documents/{userId}/{docId}:
     get:
       summary: Retrieve a specific document by ID
+      tags:
+        - Document
       operationId: getDocumentById
       parameters:
         - name: userId
@@ -258,6 +262,8 @@ paths:
           description: Document not found
     delete:
       summary: Delete a specific document
+      tags:
+        - Document
       operationId: deleteDocument
       parameters:
         - name: userId
@@ -278,6 +284,8 @@ paths:
   /document-details/{userId}/{docId}:
     get:
       summary: Retrieve document details
+      tags:
+        - Document
       operationId: getDocumentDetails
       parameters:
         - name: userId
