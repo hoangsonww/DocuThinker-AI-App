@@ -306,6 +306,8 @@ paths:
   /update-email:
     post:
       summary: Update user email
+      tags:
+        - User
       operationId: updateUserEmail
       requestBody:
         required: true
@@ -329,6 +331,8 @@ paths:
   /update-password:
     post:
       summary: Update user password
+      tags:
+        - User
       operationId: updateUserPassword
       requestBody:
         required: true
@@ -352,6 +356,8 @@ paths:
   /days-since-joined/{userId}:
     get:
       summary: Get days since user joined
+      tags:
+        - User
       operationId: getDaysSinceJoined
       parameters:
         - name: userId
@@ -367,6 +373,8 @@ paths:
   /document-count/{userId}:
     get:
       summary: Get document count for a user
+      tags:
+        - Document
       operationId: getDocumentCount
       parameters:
         - name: userId
@@ -382,6 +390,8 @@ paths:
   /users/{userId}:
     get:
       summary: Get user email
+      tags:
+        - User
       operationId: getUserEmail
       parameters:
         - name: userId
@@ -397,6 +407,8 @@ paths:
   /update-document-title:
     post:
       summary: Update document title
+      tags: 
+        - Document
       operationId: updateDocumentTitle
       requestBody:
         required: true
