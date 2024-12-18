@@ -58,7 +58,7 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
 - **Backend**: Deployed on **Render**. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
 - **Backup**: We have a backup of the app on **Netlify**. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
 
-> **Note**: The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. 
+> **Note**: The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up.
 
 > Additionally, the app is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
 
@@ -425,6 +425,7 @@ DocuThinker-AI-App/
 ├── tailwind.config.js                # Tailwind CSS configuration file
 ├── render.yaml                       # Render configuration file
 ├── vercel.json                       # Vercel configuration file
+├── openapi.yaml                      # OpenAPI specification for API documentation
 ├── manage_docuthinker.sh             # Shell script for managing and starting the app (both frontend & backend)
 ├── jenkins_cicd.sh                   # Shell script for managing the Jenkins CI/CD pipeline
 ├── .gitignore                        # Git ignore file
@@ -607,11 +608,13 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 #### Detailed Guide for Using the `openapi.yaml` File
 
 1. **View the API Documentation**
+
 - Open [Swagger Editor](https://editor.swagger.io/).
 - Upload the `openapi.yaml` file or paste its content.
 - Visualize and interact with the API documentation.
 
 2. **Test the API**
+
 - Import `openapi.yaml` into [Postman](https://www.postman.com/):
   - Open Postman → Import → Select `openapi.yaml`.
   - Test the API endpoints directly from Postman.
@@ -619,6 +622,7 @@ This will generate TypeScript files for the API endpoints in the `api` directory
   - Provide the file URL or upload it to view and test endpoints.
 
 3. **Generate Client Libraries**
+
 - Install OpenAPI Generator:
   ```bash
   npm install @openapitools/openapi-generator-cli -g
@@ -630,6 +634,7 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 - Replace `<language>` with the desired programming language.
 
 4. **Generate Server Stubs**
+
 - Generate a server stub:
   ```bash
   openapi-generator-cli generate -i openapi.yaml -g <framework> -o ./server
@@ -637,6 +642,7 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 - Replace `<framework>` with the desired framework.
 
 5. **Run a Mock Server**
+
 - Install Prism:
   ```bash
   npm install -g @stoplight/prism-cli
@@ -647,6 +653,7 @@ This will generate TypeScript files for the API endpoints in the `api` directory
   ```
 
 6. **Validate the OpenAPI File**
+
 - Use [Swagger Validator](https://validator.swagger.io/):
   - Upload `openapi.yaml` or paste its content to check for errors.
 
