@@ -345,6 +345,10 @@ DocuThinker-AI-App/
 │   │   └── services.js               # Models for interacting with database and AI/ML services
 │   ├── views/
 │   │   └── views.js                  # Output formatting for success and error responses
+│   ├── redis/
+│   │   └── redisClient.js            # Redis client for caching data in-memory
+│   ├── swagger/
+│   │   └── swagger.js                # Swagger documentation for API endpoints
 │   ├── .env                          # Environment variables (git-ignored)
 │   ├── firebase-admin-sdk.json       # Firebase Admin SDK credentials (git-ignored)
 │   ├── index.js                      # Main entry point for the server

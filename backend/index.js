@@ -1,9 +1,9 @@
 const express = require("express");
 const cors = require("cors");
 const swaggerUi = require("swagger-ui-express");
-const redis = require("redis");
 require("dotenv").config();
 const swaggerDocs = require("./swagger/swagger");
+const { initializeRedis, redisClient } = require("./redis/redisClient");
 
 const {
   registerUser,
@@ -52,36 +52,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 // Initialize Redis client
-let redisClient;
-try {
-  redisClient = redis.createClient({
-    url: process.env.REDIS_URL,
-    socket: {
-      tls: true,
-      rejectUnauthorized: false,
-    },
-  });
-
-  redisClient.connect();
-
-  redisClient.on("connect", () => {
-    console.log("Connected to Redis successfully!");
-  });
-
-  redisClient.on("error", (err) => {
-    console.error("Redis connection error:", err);
-  });
-
-  redisClient.set("connectionTest", "connected", (err, reply) => {
-    if (err) {
-      console.error("Failed to set key in Redis:", err);
-    } else {
-      console.log("Successfully added key in Redis:", reply);
-    }
-  });
-} catch (err) {
-  console.error("Failed to initialize Redis:", err.message);
-}
+initializeRedis();
 
 // Swagger setup
 app.use(
