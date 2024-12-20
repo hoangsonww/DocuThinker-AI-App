@@ -2,32 +2,37 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
     <url>
         <loc>https://docuthinker.vercel.app/</loc>
-        <lastmod>2024-12-01</lastmod>
+        <lastmod>2024-12-21</lastmod>
         <priority>1.00</priority>
     </url>
     <url>
         <loc>https://docuthinker.vercel.app/home</loc>
-        <lastmod>2024-12-01</lastmod>
+        <lastmod>2024-12-21</lastmod>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://docuthinker.vercel.app/how-to-use</loc>
-        <lastmod>2024-12-01</lastmod>
+        <lastmod>2024-12-21</lastmod>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://docuthinker.vercel.app/login</loc>
-        <lastmod>2024-12-01</lastmod>
+        <lastmod>2024-12-21</lastmod>
+        <priority>0.80</priority>
+    </url>
+    <url>
+        <loc>https://budget-manage-app.vercel.app/users</loc>
+        <lastmod>2024-12-21</lastmod>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://docuthinker.vercel.app/register</loc>
-        <lastmod>2024-12-01</lastmod>
+        <lastmod>2024-12-21</lastmod>
         <priority>0.80</priority>
     </url>
     <url>
         <loc>https://docuthinker.vercel.app/forgot-password</loc>
-        <lastmod>2024-12-01</lastmod>
+        <lastmod>2024-12-21</lastmod>
         <priority>0.60</priority>
     </url>
 </urlset>
