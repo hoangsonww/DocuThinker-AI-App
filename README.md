@@ -339,6 +339,9 @@ DocuThinker-AI-App/
 │   │   └── jwt.js                    # Authentication middleware with JWT for the app's backend
 │   ├── controllers/
 │   │   └── controllers.js            # Controls the flow of data and logic
+│   ├── graphql/
+│   │   ├── resolvers.js              # Resolvers for querying data from the database
+│   │   └── schema.js                 # GraphQL schema for querying data from the database
 │   ├── models/
 │   │   └── models.js                 # Data models for interacting with the database
 │   ├── services/
@@ -587,6 +590,7 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 | POST       | `/summary-in-language`               | Generates a summary in the specified language                                                       |
 | POST       | `/content-rewriting`                 | Rewrites or rephrases the provided document text based on a style                                   |
 | POST       | `/actionable-recommendations`        | Generates actionable recommendations based on the document text                                     |
+| GET        | `/graphql`                           | GraphQL endpoint for querying data from the database                                                |
 
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
