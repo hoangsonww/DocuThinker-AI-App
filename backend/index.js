@@ -4,6 +4,10 @@ const swaggerUi = require("swagger-ui-express");
 require("dotenv").config();
 const swaggerDocs = require("./swagger/swagger");
 const { initializeRedis, redisClient } = require("./redis/redisClient");
+const { graphqlHTTP } = require('express-graphql');
+const { makeExecutableSchema } = require('@graphql-tools/schema');
+const typeDefs = require('./graphql/schema');
+const resolvers = require('./graphql/resolvers');
 
 const {
   registerUser,
@@ -50,6 +54,17 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+// GraphQL endpoint
+app.use(
+  '/graphql',
+  graphqlHTTP({
+    schema,
+    graphiql: true,
+  })
+);
 
 // Initialize Redis client
 initializeRedis();
