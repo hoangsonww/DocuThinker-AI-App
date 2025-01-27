@@ -14,7 +14,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**🚀 Live Deployments**](#live-deployments)
 - [**✨ Features**](#features)
 - [**⚙️ Technologies**](#technologies)
-- [**🖼️ User Interfaces**](#user-interface)
+- [**🖼️ User Interface**](#user-interface)
 - [**📂 Complete File Structure**](#complete-file-structure)
 - [**🛠️ Getting Started**](#getting-started)
   - [**Prerequisites**](#prerequisites)
@@ -23,11 +23,11 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
   - [**Running the Mobile App**](#running-the-mobile-app)
 - [**📋 API Endpoints**](#api-endpoints)
   - [**API Documentation**](#api-documentation)
-    - [**Detailed Guide for Using the `openapi.yaml` file**](#detailed-guide-for-using-the-openapiyaml-file)
+  - [**Using the `openapi.yaml` File**](#using-the-openapiyaml-file)
   - [**API Architecture**](#api-architecture)
   - [**API Testing**](#api-testing)
   - [**Error Handling**](#error-handling)
-  - [**Example Request to Register a User**](#example-request-to-register-a-user)
+- [**🧰 GraphQL Integration**](#graphql-integration)
 - [**📱 Mobile App**](#mobile-app)
 - [**📦 Containerization**](#containerization)
 - [**🚀 Deployment**](#deployment)
@@ -69,6 +69,9 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
 [![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green?&logo=netlify)](https://docuthinker-ai-app.netlify.app)
 [![Firebase Functional](https://img.shields.io/badge/Firebase-Functional-green?&logo=firebase)](https://firebase.google.com)
 [![MongoDB Atlas Connected](https://img.shields.io/badge/MongoDB%20Atlas-Connected-green?&logo=mongodb)](https://www.mongodb.com/cloud/atlas)
+[![Redis Cache Enabled](https://img.shields.io/badge/Redis-Cache%20Enabled-green?&logo=redis)](https://redis.io)
+[![RabbitMQ Enabled](https://img.shields.io/badge/RabbitMQ-Enabled-green?&logo=rabbitmq)](https://www.rabbitmq.com)
+[![GraphQL API](https://img.shields.io/badge/GraphQL-API-green?&logo=graphql)](https://graphql.org)
 [![Dockerized](https://img.shields.io/badge/Dockerized-Yes-blue?&logo=docker)](https://www.docker.com)
 [![Kubernetes](https://img.shields.io/badge/Kubernetes-Yes-blue?&logo=kubernetes)](https://kubernetes.io)
 [![Jenkins CI/CD](https://img.shields.io/badge/Jenkins-CI%2FCD-blue?&logo=jenkins)](https://www.jenkins.io)
@@ -116,6 +119,8 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
   - **Firebase Authentication**: Secure user authentication with Firebase.
   - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
   - **Middlewares**: Firebase authentication middleware for securing routes and JWT middleware for token verification.
+  - **REST APIs**: Representational State Transfer for building APIs.
+  - **GraphQL**: Query language for APIs and runtime for executing queries.
 - **AI/ML Services**:
   - **Google Cloud Natural Language API**: Machine learning models for text analysis.
   - **Google Gemini API**: AI-powered chatbot for enhanced user interaction.
@@ -613,7 +618,7 @@ npx openapi-generator-cli generate -i http://localhost:5000/api-docs -g typescri
 
 This will generate TypeScript files for the API endpoints in the `api` directory. Feel free to replace or modify the command as needed.
 
-#### Detailed Guide for Using the `openapi.yaml` File
+### Using the `openapi.yaml` File
 
 1. **View the API Documentation**
 
@@ -664,8 +669,6 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 
 - Use [Swagger Validator](https://validator.swagger.io/):
   - Upload `openapi.yaml` or paste its content to check for errors.
-
-This guide enables you to view, test, and utilize the API.
 
 ### **API Architecture**
 
@@ -719,6 +722,115 @@ The backend APIs uses centralized error handling to capture and log errors. Resp
   "details": "Error details go here"
 }
 ```
+
+<h2 id="graphql-integration">🧰 GraphQL Integration</h2>
+
+### Introduction to GraphQL in Our Application
+
+Our application supports a fully-featured **GraphQL API** that allows clients to interact with the backend using flexible queries and mutations. This API provides powerful features for retrieving and managing data such as users, documents, and related information.
+
+### Key Features of the GraphQL API
+
+- Retrieve user details and associated documents.
+- Query specific documents using their IDs.
+- Perform mutations to create users, update document titles, and delete documents.
+- Flexible query structure allows you to fetch only the data you need.
+
+### Getting Started
+
+1. **GraphQL Endpoint**:  
+   The GraphQL endpoint is available at:
+   ```
+   https://docuthinker-ai-app.onrender.com/graphql
+   ```
+   Or, if you are running the backend locally, the endpoint will be:
+   ```
+   http://localhost:3000/graphql
+   ```
+
+2. **Testing the API**:  
+   You can use the built-in **GraphiQL Interface** to test queries and mutations. Simply visit the endpoint in your browser.
+   You should see the following interface:
+
+   <p align="center">
+     <img src="images/graphql.png" alt="GraphiQL Interface" width="100%" style="border-radius: 8px">
+   </p>
+
+   Now you can start querying the API using the available fields and mutations. Examples are below for your reference.
+
+### Example Queries and Mutations
+
+#### 1. Fetch a User and Their Documents
+This query retrieves a user's email and their documents, including titles and summaries:
+
+```graphql
+query GetUser {
+  getUser(id: "USER_ID") {
+    id
+    email
+    documents {
+      id
+      title
+      summary
+    }
+  }
+}
+```
+
+#### 2. Fetch a Specific Document
+Retrieve details of a document by its ID:
+
+```graphql
+query GetDocument {
+  getDocument(userId: "USER_ID", docId: "DOCUMENT_ID") {
+    id
+    title
+    summary
+    originalText
+  }
+}
+```
+
+#### 3. Create a New User
+Create a user with an email and password:
+
+```graphql
+mutation CreateUser {
+  createUser(email: "example@domain.com", password: "password123") {
+    id
+    email
+  }
+}
+```
+
+#### 4. Update a Document Title
+Change the title of a specific document:
+
+```graphql
+mutation UpdateDocumentTitle {
+  updateDocumentTitle(userId: "USER_ID", docId: "DOCUMENT_ID", title: ["Updated Title.pdf"]) {
+    id
+    title
+  }
+}
+```
+
+#### 5. Delete a Document
+Delete a document from a user's account:
+
+```graphql
+mutation DeleteDocument {
+  deleteDocument(userId: "USER_ID", docId: "DOCUMENT_ID")
+}
+```
+
+### Advanced Tips
+
+- **Use Fragments**: To reduce redundancy in queries, you can use GraphQL fragments to fetch reusable fields across multiple queries.
+- **Error Handling**: Properly handle errors in your GraphQL client by inspecting the `errors` field in the response.
+- **GraphQL Client Libraries**: Consider using libraries like [Apollo Client](https://www.apollographql.com/docs/react/) or [Relay](https://relay.dev/) to simplify API integration in your frontend.
+
+For more information about GraphQL, visit the [official documentation](https://graphql.org/). If you encounter any issues or have questions, feel free to open an issue in our repository.
 
 <h2 id="mobile-app">📱 Mobile App</h2>
 
