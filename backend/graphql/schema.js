@@ -1,5 +1,9 @@
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 
+/**
+ * GraphQL schema definition
+ * @type {string} GraphQL schema definition
+ */
 const typeDefs = `
   type User {
     id: ID!
@@ -28,6 +32,10 @@ const typeDefs = `
   }
 `;
 
+/**
+ * Resolvers for the GraphQL schema
+ * @type {{Query: {getUser(*, {id: *}): Promise<*&{id: *}>, getDocument(*, {userId: *, docId: *}): Promise<*>, listDocuments(*, {userId: *}): Promise<*>}, Mutation: {createUser(*, {email: *, password: *}): Promise<{id: *, email: *, createdAt: string, documents: []}>, deleteDocument(*, {userId: *, docId: *}): Promise<boolean>, updateDocumentTitle(*, {userId: *, docId: *, title: *}): Promise<*>}}} Resolvers for the GraphQL schema
+ */
 const resolvers = {
   Query: {
     async getUser(_, { id }) {
@@ -103,6 +111,10 @@ const resolvers = {
   },
 };
 
+/**
+ * GraphQL schema
+ * @type {GraphQLSchema} GraphQL schema
+ */
 const schema = makeExecutableSchema({
   typeDefs,
   resolvers,

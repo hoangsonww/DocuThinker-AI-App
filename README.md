@@ -12,6 +12,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 
 - [**📖 Overview**](#-overview)
 - [**🚀 Live Deployments**](#live-deployments)
+  - [**Live Statuses**](#live-statuses)
 - [**✨ Features**](#features)
 - [**⚙️ Technologies**](#technologies)
 - [**🖼️ User Interface**](#user-interface)
@@ -30,7 +31,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**🧰 GraphQL Integration**](#graphql-integration)
 - [**📱 Mobile App**](#mobile-app)
 - [**📦 Containerization**](#containerization)
-- [**🚀 Deployment**](#deployment)
+- [**🚧 Deployment**](#deployment)
   - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
   - [**Backend Deployment (Render)**](#backend-deployment-render)
   - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
@@ -516,29 +517,29 @@ Additionally, **basic fullstack development knowledge and AI/ML concepts** are r
 
    This way, you don't have to navigate to the `frontend` directory every time you want to run the app.
 
-8. **The app will run on `http://localhost:3000`**. You can access it in your browser.
+8. **The app's frontend will run on `http://localhost:3000`**. You can now access it in your browser.
 
 ### **Backend Installation**
 
 Note that this is optional since we are deploying the backend on **Render**. However, you can (and should) run the backend locally for development purposes.
 
 1. **Navigate to the root (not `backend`) directory**:
-
    ```bash
    cd backend
    ```
-
+   
 2. **Install dependencies**:
-
    ```bash
    npm install
    ```
-
+   
 3. **Start the backend server**:
    ```bash
    npm run server
    ```
-4. **The backend code is in the `backend` directory**. Feel free to explore the API endpoints and controllers.
+   
+4. **The backend server will run on `http://localhost:3000`**. You can access the API endpoints in your browser or **Postman**.
+5. **Additionally, the backend code is in the `backend` directory**. Feel free to explore the API endpoints and controllers.
 
 **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
 
@@ -688,9 +689,7 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 ### **API Testing**
 
 - You can test the API endpoints using **Postman** or **Insomnia**. Simply make a POST request to the desired endpoint with the required parameters.
-
 - For example, you can test the `/upload` endpoint by sending a POST request with the document file as a form-data parameter.
-
 - Feel free to test all the API endpoints and explore the functionalities of the app.
 
 #### Example Request to Register a User:
@@ -761,6 +760,7 @@ Our application supports a fully-featured **GraphQL API** that allows clients to
 ### Example Queries and Mutations
 
 #### 1. Fetch a User and Their Documents
+
 This query retrieves a user's email and their documents, including titles and summaries:
 
 ```graphql
@@ -778,6 +778,7 @@ query GetUser {
 ```
 
 #### 2. Fetch a Specific Document
+
 Retrieve details of a document by its ID:
 
 ```graphql
@@ -792,6 +793,7 @@ query GetDocument {
 ```
 
 #### 3. Create a New User
+
 Create a user with an email and password:
 
 ```graphql
@@ -804,6 +806,7 @@ mutation CreateUser {
 ```
 
 #### 4. Update a Document Title
+
 Change the title of a specific document:
 
 ```graphql
@@ -816,6 +819,7 @@ mutation UpdateDocumentTitle {
 ```
 
 #### 5. Delete a Document
+
 Delete a document from a user's account:
 
 ```graphql
@@ -854,11 +858,12 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
    ```bash
    docker compose up --build
    ```
+
 2. The app will be containerized and ready to run on port 3000.
 
 You can also view the image in the **Docker Hub** repository **[here](https://hub.docker.com/repository/docker/hoangsonw/docuthinker-ai-app/)**.
 
-<h2 id="deployment">🚀 Deployment</h2>
+<h2 id="deployment">🚧 Deployment</h2>
 
 ### **Frontend Deployment (Vercel)**
 
@@ -969,7 +974,6 @@ The **DocuThinker** open-source project is for educational purposes only and sho
 <h2 id="alternative-docs">📚 Additional Documentation</h2>
 
 For more information on the **DocuThinker** app, please refer to the following resources:
-
 - **[Web-Based Documentation](https://hoangsonww.github.io/DocuThinker-AI-App/)**
 - **[Backend README](backend/README.md)**
 - **[Frontend README](frontend/README.md)**
@@ -978,7 +982,6 @@ For more information on the **DocuThinker** app, please refer to the following r
 <h2 id="author">👨‍💻 Author</h2>
 
 Here are some information about me:
-
 - **[Son Nguyen](https://github.com/hoangsonww)** - An aspiring Software Developer & Data Scientist
 - Feel free to connect with me on **[LinkedIn](https://www.linkedin.com/in/hoangsonw/)**.
 - If you have any questions or feedback, please feel free to reach out to me at **[hoangson091104@gmail.com](mailto:hoangson091104@gmail.com)**.
