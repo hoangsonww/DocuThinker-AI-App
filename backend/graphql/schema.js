@@ -46,9 +46,11 @@ const resolvers = {
      */
     async getUser(_, { id }) {
       const userDoc = await firestore.collection("users").doc(id).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       return { id, ...userDoc.data() };
     },
 
@@ -61,13 +63,17 @@ const resolvers = {
      */
     async getDocument(_, { userId, docId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       const document = userDoc.data().documents.find((doc) => doc.id === docId);
+
       if (!document) {
         throw new Error("Document not found");
       }
+
       return document;
     },
 
@@ -79,19 +85,29 @@ const resolvers = {
      */
     async listDocuments(_, { userId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       return userDoc.data().documents || [];
     },
   },
   Mutation: {
+    /**
+     * Create a new user
+     * @param _ The parent object
+     * @param email The user email
+     * @param password The user password
+     * @returns {Promise<{id, email: *, createdAt: string, documents: *[]}>} Created user object
+     */
     async createUser(_, { email, password }) {
       const newUser = await firestore.collection("users").add({
         email,
         createdAt: new Date().toISOString(),
         documents: [],
       });
+
       return {
         id: newUser.id,
         email,
