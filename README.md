@@ -494,6 +494,8 @@ Additionally, **basic fullstack development knowledge and AI/ML concepts** are r
    npm install
    ```
 
+   Or `npm install --legacy-peer-deps` if you face any peer dependency issues.
+
 4. **Start the Frontend React app**:
    ```bash
    npm start
@@ -532,7 +534,9 @@ Note that this is optional since we are deploying the backend on **Render**. How
    ```bash
    npm install
    ```
-   
+
+   Or `npm install --legacy-peer-deps` if you face any peer dependency issues.
+
 3. **Start the backend server**:
    ```bash
    npm run server
