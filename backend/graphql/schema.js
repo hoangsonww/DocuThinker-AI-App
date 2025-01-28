@@ -137,25 +137,39 @@ const resolvers = {
         .collection("users")
         .doc(userId)
         .update({ documents: updatedDocs });
+
       return true;
     },
 
-    
+    /**
+     * Update the title of a document
+     * @param _ The parent object
+     * @param userId The user ID
+     * @param docId The document ID
+     * @param title The new title for the document
+     * @returns {Promise<*>} The updated document
+     */
     async updateDocumentTitle(_, { userId, docId, title }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       const userData = userDoc.data();
       const docIndex = userData.documents.findIndex((doc) => doc.id === docId);
+
       if (docIndex === -1) {
         throw new Error("Document not found");
       }
+
       userData.documents[docIndex].title = title;
+
       await firestore
         .collection("users")
         .doc(userId)
         .update({ documents: userData.documents });
+      
       return userData.documents[docIndex];
     },
   },
