@@ -169,7 +169,7 @@ const resolvers = {
         .collection("users")
         .doc(userId)
         .update({ documents: userData.documents });
-      
+
       return userData.documents[docIndex];
     },
   },
