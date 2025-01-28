@@ -14,9 +14,11 @@ const resolvers = {
      */
     async getUser(_, { id }) {
       const userDoc = await firestore.collection("users").doc(id).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       return { id, ...userDoc.data() };
     },
 
@@ -29,13 +31,17 @@ const resolvers = {
      */
     async getDocument(_, { userId, docId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       const document = userDoc.data().documents.find((doc) => doc.id === docId);
+
       if (!document) {
         throw new Error("Document not found");
       }
+
       return document;
     },
 
@@ -48,9 +54,11 @@ const resolvers = {
      */
     async listDocuments(_, { userId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       return userDoc.data().documents || [];
     },
   },
@@ -70,6 +78,7 @@ const resolvers = {
         createdAt: new Date().toISOString(),
         documents: [],
       });
+
       return {
         id: newUser.id,
         email,
@@ -87,15 +96,19 @@ const resolvers = {
      */
     async deleteDocument(_, { userId, docId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       const userData = userDoc.data();
       const updatedDocs = userData.documents.filter((doc) => doc.id !== docId);
+
       await firestore
         .collection("users")
         .doc(userId)
         .update({ documents: updatedDocs });
+
       return true;
     },
 
