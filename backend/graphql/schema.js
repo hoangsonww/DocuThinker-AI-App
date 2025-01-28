@@ -70,7 +70,13 @@ const resolvers = {
       }
       return document;
     },
-    
+
+    /**
+     * List documents for a user
+     * @param _ The parent object
+     * @param userId The user ID
+     * @returns {Promise<*[]>} List of documents
+     */
     async listDocuments(_, { userId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
       if (!userDoc.exists) {
