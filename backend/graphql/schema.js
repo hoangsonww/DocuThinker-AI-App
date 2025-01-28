@@ -115,19 +115,32 @@ const resolvers = {
         documents: [],
       };
     },
+
+    /**
+     * Delete a document
+     * @param _ The parent object
+     * @param userId The user ID
+     * @param docId The document ID
+     * @returns {Promise<boolean>} True if the document was deleted
+     */
     async deleteDocument(_, { userId, docId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       const userData = userDoc.data();
       const updatedDocs = userData.documents.filter((doc) => doc.id !== docId);
+
       await firestore
         .collection("users")
         .doc(userId)
         .update({ documents: updatedDocs });
       return true;
     },
+
+    
     async updateDocumentTitle(_, { userId, docId, title }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
       if (!userDoc.exists) {
