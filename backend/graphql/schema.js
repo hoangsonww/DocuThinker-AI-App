@@ -38,6 +38,12 @@ const typeDefs = `
  */
 const resolvers = {
   Query: {
+    /**
+     * Get user by ID
+     * @param _ - Parent object
+     * @param id - User ID
+     * @returns {Promise<*&{id: *}>} User object
+     */
     async getUser(_, { id }) {
       const userDoc = await firestore.collection("users").doc(id).get();
       if (!userDoc.exists) {
@@ -45,6 +51,7 @@ const resolvers = {
       }
       return { id, ...userDoc.data() };
     },
+
     async getDocument(_, { userId, docId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
       if (!userDoc.exists) {
