@@ -122,19 +122,25 @@ const resolvers = {
      */
     async updateDocumentTitle(_, { userId, docId, title }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
+
       if (!userDoc.exists) {
         throw new Error("User not found");
       }
+
       const userData = userDoc.data();
       const docIndex = userData.documents.findIndex((doc) => doc.id === docId);
+
       if (docIndex === -1) {
         throw new Error("Document not found");
       }
+
       userData.documents[docIndex].title = title;
+
       await firestore
         .collection("users")
         .doc(userId)
         .update({ documents: userData.documents });
+
       return userData.documents[docIndex];
     },
   },
