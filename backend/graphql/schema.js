@@ -52,6 +52,13 @@ const resolvers = {
       return { id, ...userDoc.data() };
     },
 
+    /**
+     * Get document by user ID and document ID
+     * @param _ The parent object
+     * @param userId The user ID
+     * @param docId The document ID
+     * @returns {Promise<*>} Document object
+     */
     async getDocument(_, { userId, docId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
       if (!userDoc.exists) {
@@ -63,6 +70,7 @@ const resolvers = {
       }
       return document;
     },
+    
     async listDocuments(_, { userId }) {
       const userDoc = await firestore.collection("users").doc(userId).get();
       if (!userDoc.exists) {
