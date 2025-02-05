@@ -124,11 +124,13 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
   - **GraphQL**: Query language for APIs and runtime for executing queries.
 - **AI/ML Services**:
   - **Google Cloud Natural Language API**: Machine learning models for text analysis.
-  - **Google Gemini API**: AI-powered chatbot for enhanced user interaction.
+  - **Google Speech-to-Text API**: Speech recognition for voice chat integration & text extraction from audio.
   - **Google AI Studio**: Tools for building and deploying machine learning models.
   - **NLP**: Natural Language Processing for customized chat/text analysis and summarization models.
   - **NER**: Named Entity Recognition for identifying entities in text.
   - **POS Tagging**: Part-of-Speech Tagging for analyzing word types in text.
+  - **RAG**: Retrieval-Augmented Generation for generating responses in chat.
+  - **LangChain**: Handles document ingestion, text chunking, embedding storage, retrieval, summarization, and API chaining for generating insights from uploaded documents.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
