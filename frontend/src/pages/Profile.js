@@ -144,10 +144,13 @@ const Profile = ({ theme }) => {
     setLoadingEmail(true);
 
     try {
-      await axios.post("https://docuthinker-app-backend-api.vercel.app/update-email", {
-        userId,
-        newEmail,
-      });
+      await axios.post(
+        "https://docuthinker-app-backend-api.vercel.app/update-email",
+        {
+          userId,
+          newEmail,
+        },
+      );
       setEmail(newEmail);
       setIsEditingEmail(false);
     } catch (err) {
