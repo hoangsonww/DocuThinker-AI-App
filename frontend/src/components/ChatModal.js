@@ -36,7 +36,7 @@ const ChatModal = ({ theme }) => {
     try {
       setLoading(true);
       const res = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/chat",
+        "https://docuthinker-app-backend-api.vercel.app/chat",
         {
           message,
           originalText,

@@ -28,7 +28,7 @@ const Login = ({ theme, onLogin }) => {
     setError("");
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/login",
+        "https://docuthinker-app-backend-api.vercel.app/login",
         { email, password },
         {
           headers: {

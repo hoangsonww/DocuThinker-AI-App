@@ -14,7 +14,14 @@ require("dotenv").config();
 const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 
 // Multer setup for handling file uploads
-const upload = multer({ dest: "uploads/" });
+const uploadDir = "/tmp/uploads";
+
+// ✅ Ensure `/tmp/uploads` exists
+if (!fs.existsSync(uploadDir)) {
+  fs.mkdirSync(uploadDir, { recursive: true });
+}
+
+const upload = multer({ dest: uploadDir });
 
 // Initialize Firebase Admin using environment variables from .env
 firebaseAdmin.initializeApp({

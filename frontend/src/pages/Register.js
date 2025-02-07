@@ -37,7 +37,7 @@ const Register = ({ theme }) => {
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/register",
+        "https://docuthinker-app-backend-api.vercel.app/register",
         { email, password },
         { headers: { "Content-Type": "application/json" } },
       );

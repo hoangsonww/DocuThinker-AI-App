@@ -1,9 +1,10 @@
+const favicon = require("serve-favicon");
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
-const swaggerUi = require("swagger-ui-express");
 require("dotenv").config();
 const swaggerDocs = require("./swagger/swagger");
-const { initializeRedis, redisClient } = require("./redis/redisClient");
+const { initializeRedis } = require("./redis/redisClient");
 const { graphqlHTTP } = require("express-graphql");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 const typeDefs = require("./graphql/schema");
@@ -54,6 +55,7 @@ const corsOptions = {
 };
 
 app.use(cors(corsOptions));
+app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });
 
@@ -63,20 +65,67 @@ app.use(
   graphqlHTTP({
     schema,
     graphiql: true,
-  }),
+  })
 );
 
 // Initialize Redis client
 initializeRedis();
 
-// Swagger setup
-app.use(
-  "/api-docs",
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocs, {
-    customSiteTitle: "DocuThinker API Docs",
-  }),
-);
+/**
+ * Serve swagger.json
+ * This route returns the JSON definition for the API documentation.
+ */
+app.get("/swagger.json", (req, res) => {
+  res.json(swaggerDocs);
+});
+
+/**
+ * Serve Swagger UI from a CDN
+ * This route returns HTML that loads the Swagger UI assets from a CDN
+ * and points it to /swagger.json.
+ */
+app.get("/api-docs", (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="UTF-8" />
+        <title>DocuThinker API Docs</title>
+        <!-- Include the swagger-ui CSS from a CDN -->
+        <link rel="stylesheet" type="text/css" href="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui.css" />
+        <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@4.15.5/favicon-32x32.png" sizes="32x32" />
+        <link rel="icon" type="image/png" href="https://unpkg.com/swagger-ui-dist@4.15.5/favicon-16x16.png" sizes="16x16" />
+        <style>
+          body {
+            margin: 0;
+            padding: 0;
+          }
+        </style>
+      </head>
+      <body>
+        <div id="swagger-ui"></div>
+        <!-- Include the Swagger UI bundle and standalone preset from a CDN -->
+        <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-bundle.js"></script>
+        <script src="https://unpkg.com/swagger-ui-dist@4.15.5/swagger-ui-standalone-preset.js"></script>
+        <script>
+          window.onload = function() {
+            // Build a system
+            const ui = SwaggerUIBundle({
+              url: '/swagger.json',
+              dom_id: '#swagger-ui',
+              presets: [
+                SwaggerUIBundle.presets.apis,
+                SwaggerUIStandalonePreset
+              ],
+              layout: "StandaloneLayout"
+            })
+            window.ui = ui
+          }
+        </script>
+      </body>
+    </html>
+  `);
+});
 
 // Redirect root route to /api-docs
 app.get("/", (req, res) => {
@@ -139,15 +188,17 @@ app.use((err, req, res, next) => {
   if (err.name === "UnauthorizedError") {
     res.status(401).json({ error: "Unauthorized request" });
   }
-
   next();
 });
 
 // Start the server
 const port = process.env.PORT || 3000;
 
-app.listen(port, "0.0.0.0", () => {
-  console.log(`Server ready on port ${port}.`);
-});
+if (process.env.NODE_ENV !== "production") {
+  // For local development only.
+  app.listen(port, "0.0.0.0", () => {
+    console.log(`Server listening on port ${port}`);
+  });
+}
 
 module.exports = app;

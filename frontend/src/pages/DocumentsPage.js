@@ -53,7 +53,7 @@ const DocumentsPage = ({ theme }) => {
     setSearchLoading(true);
     try {
       const response = await axios.get(
-        `https://docuthinker-ai-app.onrender.com/search-documents/${userId}?searchTerm=${encodeURIComponent(searchTerm)}`,
+        `https://docuthinker-app-backend-api.vercel.app/search-documents/${userId}?searchTerm=${encodeURIComponent(searchTerm)}`,
       );
 
       const results = Object.keys(response.data)
@@ -88,7 +88,7 @@ const DocumentsPage = ({ theme }) => {
     const fetchDocuments = async () => {
       try {
         const response = await axios.get(
-          `https://docuthinker-ai-app.onrender.com/documents/${userId}`,
+          `https://docuthinker-app-backend-api.vercel.app/documents/${userId}`,
         );
         const documentsData = response.data;
         const documentsList = Object.keys(documentsData)
@@ -116,7 +116,7 @@ const DocumentsPage = ({ theme }) => {
   const handleViewDocument = async (docId) => {
     try {
       const response = await axios.get(
-        `https://docuthinker-ai-app.onrender.com/document-details/${userId}/${docId}`,
+        `https://docuthinker-app-backend-api.vercel.app/document-details/${userId}/${docId}`,
       );
       const { summary, originalText } = response.data;
       navigate("/home", { state: { summary, originalText } });
@@ -132,7 +132,7 @@ const DocumentsPage = ({ theme }) => {
   const handleDeleteDocument = async (docId) => {
     try {
       await axios.delete(
-        `https://docuthinker-ai-app.onrender.com/documents/${userId}/${docId}`,
+        `https://docuthinker-app-backend-api.vercel.app/documents/${userId}/${docId}`,
       );
       setDocuments(documents.filter((doc) => doc.id !== docId));
       setSearchResults(searchResults.filter((doc) => doc.docId !== docId));
@@ -152,7 +152,7 @@ const DocumentsPage = ({ theme }) => {
   const handleConfirmDeleteAllDocuments = async () => {
     try {
       await axios.delete(
-        `https://docuthinker-ai-app.onrender.com/documents/${userId}`,
+        `https://docuthinker-app-backend-api.vercel.app/documents/${userId}`,
       );
       setDocuments([]);
       handleCloseDeleteAllDialog();
@@ -184,7 +184,7 @@ const DocumentsPage = ({ theme }) => {
 
       // If title is modified, send the request to update the title on the server
       await axios.post(
-        `https://docuthinker-ai-app.onrender.com/update-document-title`,
+        `https://docuthinker-app-backend-api.vercel.app/update-document-title`,
         {
           userId,
           docId,

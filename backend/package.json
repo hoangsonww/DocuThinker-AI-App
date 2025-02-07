@@ -14,11 +14,12 @@
   "private": false,
   "scripts": {
     "start": "nodemon index.js",
-    "build": "nodemon index.js",
+    "build": "echo 'Skipping build step for Vercel'",
     "test": "nodemon index.js",
     "server": "nodemon index.js",
     "backend": "nodemon index.js",
-    "format": "prettier --write **/*.js"
+    "format": "prettier --write **/*.js",
+    "vercel-build": "npm install --force && npm run build"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
@@ -50,6 +51,7 @@
     "react-scripts": "^5.0.1",
     "redis": "^4.7.0",
     "sentiment": "^5.0.2",
+    "serve-favicon": "^2.5.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^10.0.0"

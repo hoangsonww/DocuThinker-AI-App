@@ -115,7 +115,7 @@ const UploadModal = ({
     try {
       setLoading(true);
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/upload",
+        "https://docuthinker-app-backend-api.vercel.app/upload",
         formData,
         {
           headers: {

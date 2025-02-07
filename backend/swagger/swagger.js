@@ -23,8 +23,12 @@ const swaggerOptions = {
     },
     servers: [
       {
-        url: "https://docuthinker-ai-app.onrender.com/",
+        url: "https://docuthinker-app-backend-api.vercel.app/",
         description: "Production server",
+      },
+      {
+        url: "https://docuthinker-ai-app.onrender.com/",
+        description: "Production server - Backup",
       },
       {
         url: "http://localhost:3000",

@@ -56,8 +56,9 @@ It is currently deployed live on **Vercel** and **Render**. You can access the l
 We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
 
 - **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**.
-- **Backend**: Deployed on **Render**. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
-- **Backup**: We have a backup of the app on **Netlify**. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
+  - **Backup Frontend**: We have a backup of the frontend on **Netlify**. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
+- **Backend**: Deployed on **Vercel**. You can access the live backend **[here](https://docuthinker-app-backend-api.vercel.app/)**.
+  - **Backup Backend API**: Deployed on **Render**. You can access the backup backend **[here](https://docuthinker-ai-app.onrender.com/)**.
 
 > **Note**: The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up.
 
@@ -109,7 +110,7 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
   - **Axios**: Promise-based HTTP client for making API requests.
   - **React Router**: Declarative routing for React applications.
   - **Context API**: State management for React applications.
-  - **Tailwind CSS**: Utility-first CSS framework for styling.
+  - **TailwindCSS**: Utility-first CSS framework for styling.
   - **Craco**: Create React App Configuration Override for customizing Webpack.
   - **Webpack**: Module bundler for JavaScript applications.
 - **Backend**:

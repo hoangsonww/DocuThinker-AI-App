@@ -34,7 +34,7 @@ const ForgotPassword = ({ theme }) => {
 
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/verify-email",
+        "https://docuthinker-app-backend-api.vercel.app/verify-email",
         { email },
       );
       setEmailVerified(true);
@@ -62,7 +62,7 @@ const ForgotPassword = ({ theme }) => {
 
     try {
       await axios.post(
-        "https://docuthinker-ai-app.onrender.com/forgot-password",
+        "https://docuthinker-app-backend-api.vercel.app/forgot-password",
         { email, newPassword },
       );
       setSuccess("Password updated successfully.");

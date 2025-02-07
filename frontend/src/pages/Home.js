@@ -173,7 +173,7 @@ const Home = ({ theme }) => {
     setLoadingRefinement(true);
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/refine-summary",
+        "https://docuthinker-app-backend-api.vercel.app/refine-summary",
         {
           summary,
           refinementInstructions,
@@ -203,7 +203,7 @@ const Home = ({ theme }) => {
     try {
       setLoadingAudio(true);
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/process-audio",
+        "https://docuthinker-app-backend-api.vercel.app/process-audio",
         formData,
         {
           headers: {
@@ -225,7 +225,7 @@ const Home = ({ theme }) => {
     setLoadingRecommendations(true);
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/actionable-recommendations",
+        "https://docuthinker-app-backend-api.vercel.app/actionable-recommendations",
         {
           documentText: originalText,
         },
@@ -247,7 +247,7 @@ const Home = ({ theme }) => {
     setLoadingRewrite(true);
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/content-rewriting",
+        "https://docuthinker-app-backend-api.vercel.app/content-rewriting",
         {
           documentText: originalText,
           style: desiredStyle,
@@ -296,7 +296,7 @@ const Home = ({ theme }) => {
     setLoadingLanguage(true);
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/summary-in-language",
+        "https://docuthinker-app-backend-api.vercel.app/summary-in-language",
         {
           documentText: originalText,
           language,
@@ -318,7 +318,7 @@ const Home = ({ theme }) => {
     setLoadingSentiment(true); // Start loading
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/sentiment-analysis",
+        "https://docuthinker-app-backend-api.vercel.app/sentiment-analysis",
         {
           documentText: text,
         },
@@ -371,7 +371,7 @@ const Home = ({ theme }) => {
     setLoadingKeyIdeas(true);
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/generate-key-ideas",
+        "https://docuthinker-app-backend-api.vercel.app/generate-key-ideas",
         {
           documentText: originalText,
         },
@@ -390,7 +390,7 @@ const Home = ({ theme }) => {
     setLoadingDiscussionPoints(true);
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/generate-discussion-points",
+        "https://docuthinker-app-backend-api.vercel.app/generate-discussion-points",
         {
           documentText: originalText,
         },
@@ -411,7 +411,7 @@ const Home = ({ theme }) => {
     setLoadingBulletSummary(true);
     try {
       const response = await axios.post(
-        "https://docuthinker-ai-app.onrender.com/bullet-summary",
+        "https://docuthinker-app-backend-api.vercel.app/bullet-summary",
         {
           documentText: originalText,
         },
