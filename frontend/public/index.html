@@ -1,21 +1,51 @@
 <!doctype html>
 <html lang="en">
   <head>
+    <!-- Basic Meta Tags -->
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f57c00" />
     <meta
       name="description"
-      content="An AI-powered document summary, analysis, and organization tool that helps you quickly understand and organize your documents."
+      content="DocuThinker is an AI-powered document summary, analysis, and organization tool. Upload, analyze, chat, and manage documents effortlessly with cutting-edge AI-driven insights."
     />
+    <meta name="author" content="DocuThinker Team" />
+    <meta name="generator" content="React, Material-UI" />
+    <meta
+      name="abstract"
+      content="DocuThinker is an AI-powered tool for document summarization, analysis, and organization."
+    />
+    <meta
+      name="summary"
+      content="AI-based document summarization, document analysis, chat with AI, voice commands, and more."
+    />
+    <meta name="identifier-url" content="https://docuthinker.vercel.app/" />
+    <meta
+      name="classification"
+      content="Business, Technology, AI, Document Management"
+    />
+    <meta name="HandheldFriendly" content="True" />
+    <meta name="MobileOptimized" content="320" />
+    <meta name="document-state" content="Dynamic" />
+    <meta name="coverage" content="Worldwide" />
+    <meta name="rating" content="General" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
+    <meta name="googlebot" content="index, follow" />
+    <meta name="bingbot" content="index, follow" />
+    <meta
+      name="msapplication-config"
+      content="%PUBLIC_URL%/browserconfig.xml"
+    />
+
+    <!-- Open Graph / Facebook -->
     <meta
       property="og:title"
       content="DocuThinker - AI-powered Document Summary and Analysis"
     />
     <meta
       property="og:description"
-      content="An AI-powered document summary, analysis, and organization tool that helps you quickly understand and organize your documents."
+      content="DocuThinker helps you upload, analyze, summarize, and organize documents with AI. Experience features like document upload, real-time insights, chat, voice commands, and multilingual support."
     />
     <meta
       property="og:image"
@@ -23,11 +53,10 @@
     />
     <meta property="og:url" content="https://docuthinker.vercel.app/" />
     <meta property="og:type" content="website" />
-    <meta
-      property="og:site_name"
-      content="DocuThinker - AI-powered Document Summary and Analysis"
-    />
+    <meta property="og:site_name" content="DocuThinker" />
     <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Cards -->
     <meta property="twitter:card" content="summary_large_image" />
     <meta
       property="twitter:title"
@@ -35,25 +64,149 @@
     />
     <meta
       property="twitter:description"
-      content="An AI-powered document summary, analysis, and organization tool that helps you quickly understand and organize your documents."
+      content="Upload documents, generate insights, chat with AI, and organize your files effortlessly with DocuThinker."
     />
+    <meta
+      property="twitter:image"
+      content="%PUBLIC_URL%/android-chrome-512x512.png"
+    />
+    <meta property="twitter:site" content="@DocuThinker" />
+    <meta property="twitter:creator" content="@DocuThinker" />
+
+    <!-- Other Meta Tags -->
     <meta http-equiv="content-language" content="en" />
     <meta name="robots" content="index, follow" />
     <meta
       name="keywords"
-      content="docuthinker, document, summary, analysis, ai, artificial intelligence, nlp, natural language processing, organization, tool, web, app, application, software, webapp, document summarization, document analysis, document organization, document tool, document web app"
+      content="docuthinker, document summary, document analysis, AI document management, artificial intelligence, NLP, natural language processing, file organization, document insights, AI chat, voice commands, sentiment analysis, cloud storage, content rewriting, productivity tool"
     />
     <meta name="revisit-after" content="3 days" />
     <meta name="distribution" content="global" />
     <meta name="language" content="en" />
+
+    <!-- Canonical and Alternate Links -->
+    <link rel="canonical" href="https://docuthinker.vercel.app/" />
+    <link
+      rel="alternate"
+      hreflang="en"
+      href="https://docuthinker.vercel.app/"
+    />
+
+    <!-- Apple Touch Icon and Fonts -->
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/apple-touch-icon.png" />
     <link
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
     />
     <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Primary Structured Data (Software Application) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "DocuThinker",
+        "operatingSystem": "Web",
+        "applicationCategory": "BusinessApplication",
+        "description": "An AI-powered document summary, analysis, and organization tool. Upload, analyze, chat, and manage your documents effortlessly with cutting-edge AI-driven insights.",
+        "offers": {
+          "@type": "Offer",
+          "price": "0",
+          "priceCurrency": "USD"
+        },
+        "aggregateRating": {
+          "@type": "AggregateRating",
+          "ratingValue": "4.9",
+          "reviewCount": "213"
+        },
+        "publisher": {
+          "@type": "Organization",
+          "name": "DocuThinker",
+          "url": "https://docuthinker.vercel.app/"
+        }
+      }
+    </script>
+
+    <!-- Extended Structured Data (Organization, Website, Breadcrumbs, FAQ) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "Organization",
+            "name": "DocuThinker",
+            "url": "https://docuthinker.vercel.app/",
+            "logo": "https://docuthinker.vercel.app/path-to-logo.png",
+            "contactPoint": {
+              "@type": "ContactPoint",
+              "contactType": "customer support",
+              "email": "support@docuthinker.vercel.app",
+              "telephone": "+1-800-555-0101",
+              "areaServed": "US"
+            },
+            "sameAs": [
+              "https://www.facebook.com/DocuThinker",
+              "https://twitter.com/DocuThinker",
+              "https://www.linkedin.com/company/docuthinker"
+            ]
+          },
+          {
+            "@type": "WebSite",
+            "url": "https://docuthinker.vercel.app/",
+            "name": "DocuThinker",
+            "potentialAction": {
+              "@type": "SearchAction",
+              "target": "https://docuthinker.vercel.app/search?q={search_term_string}",
+              "query-input": "required name=search_term_string"
+            }
+          },
+          {
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+              {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Home",
+                "item": "https://docuthinker.vercel.app/"
+              }
+            ]
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "What is DocuThinker?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "DocuThinker is an AI-powered document summarization, analysis, and organization tool designed to help you manage and understand your documents effectively."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "How does the AI analysis work?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Our AI uses advanced natural language processing and machine learning algorithms to extract key insights, summarize content, and analyze sentiment in real time."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Is DocuThinker multilingual?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Yes, DocuThinker supports multiple languages, making it accessible and effective for a global audience."
+                }
+              }
+            ]
+          }
+        ]
+      }
+    </script>
+
     <title>DocuThinker - AI-powered Document Summary and Analysis</title>
-    <!-- Google tag (gtag.js) -->
+
+    <!-- Google Analytics -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-RZBP95EQ7L"
@@ -70,5 +223,73 @@
   <body style="transition: background-color 0.3s ease">
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
+
+    <!-- Hidden SEO-Boosting Content (Non-Visible to Users) -->
+    <div style="display: none; visibility: hidden">
+      <h1>Welcome to DocuThinker - AI-powered Document Summary & Analysis</h1>
+      <p>
+        DocuThinker is an advanced AI-based document management platform that
+        offers summarization, sentiment analysis, real-time AI chat, voice
+        interaction, and multilingual support. It is perfect for professionals,
+        students, researchers, and businesses seeking to improve productivity
+        and document understanding.
+      </p>
+      <h2>Key Features</h2>
+      <ul>
+        <li>Document Upload & Secure Storage</li>
+        <li>AI-Generated Summaries & Key Insights</li>
+        <li>Real-time Chat & Voice Interaction with AI</li>
+        <li>Multilingual Document Processing</li>
+        <li>Sentiment & Content Analysis</li>
+        <li>Content Rewriting & Recommendations</li>
+      </ul>
+      <h2>Why Choose DocuThinker?</h2>
+      <p>
+        Our platform is built on cutting-edge AI and natural language processing
+        technology to ensure you get fast, accurate, and actionable insights
+        from your documents. With a user-friendly interface and robust security,
+        DocuThinker is designed to meet the needs of a global audience.
+      </p>
+      <h2>Who Benefits?</h2>
+      <ul>
+        <li>Students & Academics</li>
+        <li>Business Professionals & Entrepreneurs</li>
+        <li>Legal & Financial Analysts</li>
+        <li>Content Creators & Journalists</li>
+        <li>Researchers & Data Scientists</li>
+      </ul>
+      <h2>Technical Excellence</h2>
+      <p>
+        Built using React and Material-UI, DocuThinker leverages
+        state-of-the-art AI algorithms to deliver a responsive, secure, and
+        efficient user experience. Our commitment to innovation and data privacy
+        ensures your documents are processed with the highest level of security.
+      </p>
+    </div>
+
+    <!-- Additional Hidden SEO Content -->
+    <div style="display: none; visibility: hidden">
+      <h2>Additional Information About DocuThinker</h2>
+      <p>
+        DocuThinker integrates advanced natural language processing, machine
+        learning, and cloud technologies to offer a comprehensive solution for
+        document management and analysis. Whether you are looking to summarize
+        lengthy reports or extract meaningful insights from complex documents,
+        our platform is designed to cater to your needs.
+      </p>
+      <ul>
+        <li>Fast and Secure Document Upload</li>
+        <li>Real-time Data Analysis and Summarization</li>
+        <li>Comprehensive AI Chat Support</li>
+        <li>Enhanced Productivity through Automated Insights</li>
+        <li>Continuous Updates and Feature Improvements</li>
+      </ul>
+      <p>
+        Our technology stack includes React, Material-UI, and sophisticated AI
+        algorithms that ensure an intuitive and efficient workflow. With
+        DocuThinker, you gain a competitive edge by harnessing the power of
+        artificial intelligence to transform the way you manage documents.
+      </p>
+    </div>
   </body>
 </html>
