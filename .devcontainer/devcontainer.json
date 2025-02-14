@@ -1,0 +1,16 @@
+{
+  "name": "DocuThinker Dev Container",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "backend",
+  "workspaceFolder": "/app",
+  "extensions": [
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-azuretools.vscode-docker"
+  ],
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "/bin/sh"
+  },
+  "postCreateCommand": "npm install",
+  "remoteUser": "node"
+}

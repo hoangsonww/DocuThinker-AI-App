@@ -1,0 +1,47 @@
+version: "3"
+
+services:
+  backend:
+    container_name: docuthinker-backend
+    build:
+      context: ../backend
+      dockerfile: ../.devcontainer/Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+    volumes:
+      - ../backend:/app
+      - /app/node_modules
+    depends_on:
+      - firebase
+    networks:
+      - docuthinker-net
+
+  frontend:
+    container_name: docuthinker-frontend
+    build:
+      context: ../frontend
+      dockerfile: frontend.Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - REACT_APP_BACKEND_URL=http://backend:3000
+    volumes:
+      - ../frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    networks:
+      - docuthinker-net
+
+  firebase:
+    image: firebase:latest
+    volumes:
+      - ../backend/.env:/app/.env
+    networks:
+      - docuthinker-net
+
+networks:
+  docuthinker-net:
+    driver: bridge
