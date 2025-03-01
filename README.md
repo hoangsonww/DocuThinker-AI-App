@@ -156,6 +156,20 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
 
+Shield icons
+
+![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white&style=for-the-badge)
+![Material-UI](https://img.shields.io/badge/-Material--UI-0081CB?logo=material-ui&logoColor=white&style=for-the-badge)
+![Axios](https://img.shields.io/badge/-Axios-61DAFB?logo=axios&logoColor=white&style=for-the-badge)
+![React Router](https://img.shields.io/badge/-React%20Router-CA4245?logo=react-router&logoColor=white&style=for-the-badge)
+![Context API](https://img.shields.io/badge/-Context%20API-61DAFB?logo=react&logoColor=white&style=for-the-badge)
+![TailwindCSS](https://img.shields.io/badge/-TailwindCSS-38B2AC?logo=tailwind-css&logoColor=white&style=for-the-badge)
+![Craco](https://img.shields.io/badge/-Craco-61DAFB?logo=webpack&logoColor=white&style=for-the-badge)
+![Webpack](https://img.shields.io/badge/-Webpack-8DD6F9?logo=webpack&logoColor=white&style=for-the-badge)
+![Express](https://img.shields.io/badge/-Express-000000?logo=express&logoColor=white&style=for-the-badge)
+![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white&style=for-the-badge)
+
+
 <h2 id="user-interface">🖼️ User Interface</h2>
 
 **DocuThinker** features a clean and intuitive user interface designed to provide a seamless experience for users. The app supports both light and dark themes, responsive design, and easy navigation. Here are some screenshots of the app:
