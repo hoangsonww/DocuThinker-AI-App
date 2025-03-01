@@ -168,7 +168,13 @@ Shield icons
 ![Webpack](https://img.shields.io/badge/-Webpack-8DD6F9?logo=webpack&logoColor=white&style=for-the-badge)
 ![Express](https://img.shields.io/badge/-Express-000000?logo=express&logoColor=white&style=for-the-badge)
 ![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white&style=for-the-badge)
-
+![Firebase Admin SDK](https://img.shields.io/badge/-Firebase%20Admin%20SDK-FFCA28?logo=firebase&logoColor=white&style=for-the-badge)
+![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white&style=for-the-badge)
+![Firebase Authentication](https://img.shields.io/badge/-Firebase%20Authentication-FFCA28?logo=firebase&logoColor=white&style=for-the-badge)
+![Firebase Auth JWT](https://img.shields.io/badge/-Firebase%20Auth%20JWT-FFCA28?logo=firebase&logoColor=white&style=for-the-badge)
+![Middlewares](https://img.shields.io/badge/-Middlewares-000000?logo=middleware&logoColor=white&style=for-the-badge)
+![REST APIs](https://img.shields.io/badge/-REST%20APIs-FF7F50?logo=rest&logoColor=white&style=for-the-badge)
+![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white&style=for-the-badge)
 
 <h2 id="user-interface">🖼️ User Interface</h2>
 
