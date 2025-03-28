@@ -18,7 +18,12 @@ const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
 ];
 
-const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) => {
+const UploadModal = ({
+  setSummary,
+  setOriginalText,
+  setDocumentFile,
+  theme,
+}) => {
   // Local state variables
   // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = useState(true);
@@ -52,7 +57,9 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
           })
           .catch((error) => {
             console.error("Error initializing GAPI:", error);
-            setErrorMessage("Google API initialization failed: " + error.message);
+            setErrorMessage(
+              "Google API initialization failed: " + error.message,
+            );
             setOpenSnackbar(true);
             reject(error);
           });
@@ -103,7 +110,8 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
     onDrop,
     accept: {
       "application/pdf": [],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+        [],
     },
   });
 
@@ -132,7 +140,7 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        }
+        },
       );
       setLoading(false);
       const { summary, originalText } = response.data;
@@ -147,11 +155,16 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
       let errMsg = "";
       // Detect if error response exists and if it's a 413 Payload Too Large error
       if (error.response && error.response.status === 413) {
-        errMsg = "Payload Too Large. Please upload a file smaller than the allowed limit.";
+        errMsg =
+          "Payload Too Large. Please upload a file smaller than the allowed limit.";
       } else if (!error.response && file && file.size > 4 * 1024 * 1024) {
         // If no response exists and file size exceeds 4MB, assume it's a payload size issue.
         errMsg = "Payload Too Large. Please upload a file smaller than 4MB.";
-      } else if (error.response && error.response.data && error.response.data.error) {
+      } else if (
+        error.response &&
+        error.response.data &&
+        error.response.data.error
+      ) {
         errMsg = error.response.data.error;
       } else {
         errMsg = error.message;
@@ -205,6 +218,7 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
               fontSize: { xs: "16px", sm: "18px" },
               color: theme === "dark" ? "white" : "black",
               transition: "color 0.3s ease",
+              fontWeight: "bold",
             }}
           >
             Upload a document (PDF or DOCX)
@@ -321,7 +335,9 @@ const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) =>
             }}
           >
             <em>
-              Note: Please avoid uploading very large files as server limits may prevent processing. Processing may take up to 2 minutes during high traffic or inactivity.
+              Note: Please avoid uploading very large files as server limits may
+              prevent processing. Processing may take up to 2 minutes during
+              high traffic or inactivity.
             </em>
           </Typography>
         </Box>

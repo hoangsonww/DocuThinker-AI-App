@@ -8,10 +8,61 @@ import {
   IconButton,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import axios from "axios";
 import Spinner from "./Spinner";
 import ReactMarkdown from "react-markdown";
 import { v4 as uuidv4 } from "uuid";
+
+const AiMessage = ({ text, theme }) => {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      })
+      .catch((error) => {
+        console.error("Failed to copy text:", error);
+      });
+  };
+
+  return (
+    <Box
+      sx={{
+        position: "relative",
+        bgcolor: "#e0e0e0",
+        color: "black",
+        p: 1,
+        borderRadius: "12px",
+        maxWidth: "80%",
+        font: "inherit",
+      }}
+    >
+      <IconButton
+        onClick={handleCopy}
+        sx={{
+          position: "absolute",
+          top: 4,
+          right: 4,
+          p: 0.5,
+          color: copied ? "#4caf50" : "gray",
+          "&:hover": { color: "#f57c00" },
+        }}
+      >
+        {copied ? (
+          <CheckCircleIcon fontSize="small" />
+        ) : (
+          <ContentCopyIcon fontSize="small" />
+        )}
+      </IconButton>
+      <ReactMarkdown>{text}</ReactMarkdown>
+    </Box>
+  );
+};
 
 const ChatModal = ({ theme }) => {
   const [open, setOpen] = useState(false);
@@ -30,18 +81,13 @@ const ChatModal = ({ theme }) => {
   const handleChat = async () => {
     const originalText = localStorage.getItem("originalText");
     const sessionId = localStorage.getItem("sessionId");
-
     if (!message || !originalText || !sessionId) return;
 
     try {
       setLoading(true);
       const res = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/chat",
-        {
-          message,
-          originalText,
-          sessionId,
-        },
+        { message, originalText, sessionId },
       );
       setLoading(false);
       const aiResponse = res.data.response;
@@ -58,9 +104,13 @@ const ChatModal = ({ theme }) => {
   };
 
   const handleKeyDown = (event) => {
-    if (event.key === "Enter") {
-      handleChat();
-    }
+    if (event.key === "Enter") handleChat();
+  };
+
+  const handleCopyToClipboard = (text) => {
+    navigator.clipboard
+      .writeText(text)
+      .catch((error) => console.error("Failed to copy text:", error));
   };
 
   return (
@@ -108,9 +158,7 @@ const ChatModal = ({ theme }) => {
               top: 8,
               right: 8,
               color: theme === "dark" ? "white" : "black",
-              "&:hover": {
-                color: "#f57c00",
-              },
+              "&:hover": { color: "#f57c00" },
             }}
           >
             <CloseIcon />
@@ -148,24 +196,11 @@ const ChatModal = ({ theme }) => {
                 sx={{
                   textAlign: chat.sender === "User" ? "right" : "left",
                   marginBottom: 1,
-                  borderRadius: "12px",
                   font: "inherit",
                 }}
               >
                 {chat.sender === "AI" ? (
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      bgcolor: "#e0e0e0",
-                      color: "black",
-                      padding: 1,
-                      borderRadius: "12px",
-                      display: "inline-block",
-                      font: "inherit",
-                    }}
-                  >
-                    <ReactMarkdown>{chat.text}</ReactMarkdown>
-                  </Typography>
+                  <AiMessage text={chat.text} theme={theme} />
                 ) : (
                   <Typography
                     variant="body2"
@@ -226,10 +261,7 @@ const ChatModal = ({ theme }) => {
               font: "inherit",
               color: theme === "dark" ? "white" : "black",
               fontSize: "14px",
-              display: {
-                xs: "none",
-                md: "block",
-              },
+              display: { xs: "none", md: "block" },
             }}
           >
             <em>

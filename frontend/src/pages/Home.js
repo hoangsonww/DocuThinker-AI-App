@@ -191,7 +191,7 @@ const Home = ({ theme }) => {
       setShowRefineModal(false);
       refinedRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to refine summary:", error);
     } finally {
       setLoadingRefinement(false);
@@ -223,7 +223,9 @@ const Home = ({ theme }) => {
       setAudioResponse(response.data.summary);
       audioRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(
+        "Cannot process audio. Please ensure the audio is clear and audible, and try again.",
+      );
       console.error("Error processing audio:", error);
     } finally {
       setLoadingAudio(false);
@@ -247,7 +249,7 @@ const Home = ({ theme }) => {
       setRecommendations(formattedRecommendations);
       recommendationsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to generate recommendations:", error);
     } finally {
       setLoadingRecommendations(false);
@@ -269,7 +271,7 @@ const Home = ({ theme }) => {
       setShowRewriteModal(false);
       rewriteRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to rewrite content:", error);
     } finally {
       setLoadingRewrite(false);
@@ -295,7 +297,7 @@ const Home = ({ theme }) => {
       })
       .catch((error) => {
         console.error("Failed to copy text: ", error);
-        showErrorToast(error.message);
+        showErrorToast(error.message + ". Please try again.");
       });
   };
 
@@ -320,7 +322,7 @@ const Home = ({ theme }) => {
       setLanguageModalOpen(false);
       languageRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to generate summary in language:", error);
     } finally {
       setLoadingLanguageSummary(false);
@@ -353,9 +355,9 @@ const Home = ({ theme }) => {
         console.error("Unexpected response format:", response.data);
       }
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to fetch sentiment:", error);
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
     } finally {
       setLoadingSentiment(false);
     }
@@ -396,7 +398,7 @@ const Home = ({ theme }) => {
       setKeyIdeas(formattedKeyIdeas);
       keyIdeasRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to generate key ideas:", error);
     } finally {
       setLoadingKeyIdeas(false);
@@ -418,7 +420,7 @@ const Home = ({ theme }) => {
       setDiscussionPoints(formattedDiscussionPoints);
       discussionPointsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to generate discussion points:", error);
     } finally {
       setLoadingDiscussionPoints(false);
@@ -438,7 +440,7 @@ const Home = ({ theme }) => {
       setBulletSummary(formattedBulletSummary);
       bulletSummaryRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
-      showErrorToast(error.message);
+      showErrorToast(error.message + ". Please try again.");
       console.error("Failed to generate bullet-point summary:", error);
     } finally {
       setLoadingBulletSummary(false);
@@ -2055,6 +2057,7 @@ const Home = ({ theme }) => {
             color: theme === "dark" ? "#fff" : "#000",
             font: "inherit",
             fontSize: "24px",
+            fontWeight: "bold",
           }}
         >
           {"Confirm Leaving Page"}
@@ -2088,7 +2091,7 @@ const Home = ({ theme }) => {
               color: theme === "dark" ? "#fff" : "#000",
               font: "inherit",
               "&:hover": {
-                backgroundColor: theme === "dark" ? "#555" : "#f5f5f5",
+                backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
               },
             }}
           >
@@ -2102,7 +2105,7 @@ const Home = ({ theme }) => {
               color: theme === "dark" ? "#f57c00" : "red",
               font: "inherit",
               "&:hover": {
-                backgroundColor: theme === "dark" ? "#555" : "#f5f5f5",
+                backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
               },
             }}
           >
