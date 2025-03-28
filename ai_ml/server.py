@@ -5,7 +5,7 @@ import uvicorn
 # Import the core analysis function
 from ai_ml.backend import analyze_document
 
-app = FastAPI(title="Document Analysis API")
+app = FastAPI(title="Document Analysis Mockup API")
 
 class AnalysisRequest(BaseModel):
     document: str
