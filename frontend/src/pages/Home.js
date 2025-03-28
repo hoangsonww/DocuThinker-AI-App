@@ -584,6 +584,44 @@ const Home = ({ theme }) => {
                       {...props}
                     />
                   ),
+                  code: ({ node, inline, className, children, ...props }) => {
+                    return inline ? (
+                      <Box
+                        component="code"
+                        sx={{
+                          backgroundColor:
+                            theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                          color: theme === "dark" ? "#f8f8f2" : "#333",
+                          fontFamily: "monospace",
+                          fontSize: "0.875rem",
+                          borderRadius: "4px",
+                          px: "0.4em",
+                          py: "0.2em",
+                        }}
+                        {...props}
+                      >
+                        {children}
+                      </Box>
+                    ) : (
+                      <Box
+                        component="pre"
+                        sx={{
+                          backgroundColor:
+                            theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                          color: theme === "dark" ? "#f8f8f2" : "#333",
+                          fontFamily: "monospace",
+                          fontSize: "0.9rem",
+                          borderRadius: "8px",
+                          overflowX: "auto",
+                          p: "1rem",
+                          mb: "1rem",
+                        }}
+                        {...props}
+                      >
+                        <code className={className}>{children}</code>
+                      </Box>
+                    );
+                  },
                   p: ({ node, ...props }) => (
                     <Typography
                       sx={{
@@ -1120,6 +1158,50 @@ const Home = ({ theme }) => {
                             {...props}
                           />
                         ),
+                        code: ({
+                          node,
+                          inline,
+                          className,
+                          children,
+                          ...props
+                        }) => {
+                          return inline ? (
+                            <Box
+                              component="code"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.875rem",
+                                borderRadius: "4px",
+                                px: "0.4em",
+                                py: "0.2em",
+                              }}
+                              {...props}
+                            >
+                              {children}
+                            </Box>
+                          ) : (
+                            <Box
+                              component="pre"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.9rem",
+                                borderRadius: "8px",
+                                overflowX: "auto",
+                                p: "1rem",
+                                mb: "1rem",
+                              }}
+                              {...props}
+                            >
+                              <code className={className}>{children}</code>
+                            </Box>
+                          );
+                        },
                         p: ({ node, ...props }) => (
                           <Typography
                             sx={{
@@ -1323,6 +1405,50 @@ const Home = ({ theme }) => {
                             {...props}
                           />
                         ),
+                        code: ({
+                          node,
+                          inline,
+                          className,
+                          children,
+                          ...props
+                        }) => {
+                          return inline ? (
+                            <Box
+                              component="code"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.875rem",
+                                borderRadius: "4px",
+                                px: "0.4em",
+                                py: "0.2em",
+                              }}
+                              {...props}
+                            >
+                              {children}
+                            </Box>
+                          ) : (
+                            <Box
+                              component="pre"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.9rem",
+                                borderRadius: "8px",
+                                overflowX: "auto",
+                                p: "1rem",
+                                mb: "1rem",
+                              }}
+                              {...props}
+                            >
+                              <code className={className}>{children}</code>
+                            </Box>
+                          );
+                        },
                         ul: ({ node, ...props }) => (
                           <ul
                             style={{
@@ -1508,6 +1634,50 @@ const Home = ({ theme }) => {
                             {...props}
                           />
                         ),
+                        code: ({
+                          node,
+                          inline,
+                          className,
+                          children,
+                          ...props
+                        }) => {
+                          return inline ? (
+                            <Box
+                              component="code"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.875rem",
+                                borderRadius: "4px",
+                                px: "0.4em",
+                                py: "0.2em",
+                              }}
+                              {...props}
+                            >
+                              {children}
+                            </Box>
+                          ) : (
+                            <Box
+                              component="pre"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.9rem",
+                                borderRadius: "8px",
+                                overflowX: "auto",
+                                p: "1rem",
+                                mb: "1rem",
+                              }}
+                              {...props}
+                            >
+                              <code className={className}>{children}</code>
+                            </Box>
+                          );
+                        },
                         p: ({ node, ...props }) => (
                           <Typography
                             sx={{
@@ -1693,6 +1863,50 @@ const Home = ({ theme }) => {
                           {...props}
                         />
                       ),
+                      code: ({
+                        node,
+                        inline,
+                        className,
+                        children,
+                        ...props
+                      }) => {
+                        return inline ? (
+                          <Box
+                            component="code"
+                            sx={{
+                              backgroundColor:
+                                theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                              color: theme === "dark" ? "#f8f8f2" : "#333",
+                              fontFamily: "monospace",
+                              fontSize: "0.875rem",
+                              borderRadius: "4px",
+                              px: "0.4em",
+                              py: "0.2em",
+                            }}
+                            {...props}
+                          >
+                            {children}
+                          </Box>
+                        ) : (
+                          <Box
+                            component="pre"
+                            sx={{
+                              backgroundColor:
+                                theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                              color: theme === "dark" ? "#f8f8f2" : "#333",
+                              fontFamily: "monospace",
+                              fontSize: "0.9rem",
+                              borderRadius: "8px",
+                              overflowX: "auto",
+                              p: "1rem",
+                              mb: "1rem",
+                            }}
+                            {...props}
+                          >
+                            <code className={className}>{children}</code>
+                          </Box>
+                        );
+                      },
                       ul: ({ node, ...props }) => (
                         <ul
                           style={{
@@ -1966,6 +2180,50 @@ const Home = ({ theme }) => {
                             {...props}
                           />
                         ),
+                        code: ({
+                          node,
+                          inline,
+                          className,
+                          children,
+                          ...props
+                        }) => {
+                          return inline ? (
+                            <Box
+                              component="code"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.875rem",
+                                borderRadius: "4px",
+                                px: "0.4em",
+                                py: "0.2em",
+                              }}
+                              {...props}
+                            >
+                              {children}
+                            </Box>
+                          ) : (
+                            <Box
+                              component="pre"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.9rem",
+                                borderRadius: "8px",
+                                overflowX: "auto",
+                                p: "1rem",
+                                mb: "1rem",
+                              }}
+                              {...props}
+                            >
+                              <code className={className}>{children}</code>
+                            </Box>
+                          );
+                        },
                         p: ({ node, ...props }) => (
                           <Typography
                             sx={{
@@ -2140,6 +2398,50 @@ const Home = ({ theme }) => {
                           {...props}
                         />
                       ),
+                      code: ({
+                        node,
+                        inline,
+                        className,
+                        children,
+                        ...props
+                      }) => {
+                        return inline ? (
+                          <Box
+                            component="code"
+                            sx={{
+                              backgroundColor:
+                                theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                              color: theme === "dark" ? "#f8f8f2" : "#333",
+                              fontFamily: "monospace",
+                              fontSize: "0.875rem",
+                              borderRadius: "4px",
+                              px: "0.4em",
+                              py: "0.2em",
+                            }}
+                            {...props}
+                          >
+                            {children}
+                          </Box>
+                        ) : (
+                          <Box
+                            component="pre"
+                            sx={{
+                              backgroundColor:
+                                theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                              color: theme === "dark" ? "#f8f8f2" : "#333",
+                              fontFamily: "monospace",
+                              fontSize: "0.9rem",
+                              borderRadius: "8px",
+                              overflowX: "auto",
+                              p: "1rem",
+                              mb: "1rem",
+                            }}
+                            {...props}
+                          >
+                            <code className={className}>{children}</code>
+                          </Box>
+                        );
+                      },
                       p: ({ node, ...props }) => (
                         <Typography
                           sx={{
@@ -2320,6 +2622,50 @@ const Home = ({ theme }) => {
                             {...props}
                           />
                         ),
+                        code: ({
+                          node,
+                          inline,
+                          className,
+                          children,
+                          ...props
+                        }) => {
+                          return inline ? (
+                            <Box
+                              component="code"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.875rem",
+                                borderRadius: "4px",
+                                px: "0.4em",
+                                py: "0.2em",
+                              }}
+                              {...props}
+                            >
+                              {children}
+                            </Box>
+                          ) : (
+                            <Box
+                              component="pre"
+                              sx={{
+                                backgroundColor:
+                                  theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                                color: theme === "dark" ? "#f8f8f2" : "#333",
+                                fontFamily: "monospace",
+                                fontSize: "0.9rem",
+                                borderRadius: "8px",
+                                overflowX: "auto",
+                                p: "1rem",
+                                mb: "1rem",
+                              }}
+                              {...props}
+                            >
+                              <code className={className}>{children}</code>
+                            </Box>
+                          );
+                        },
                         p: ({ node, ...props }) => (
                           <Typography
                             sx={{
@@ -2509,6 +2855,50 @@ const Home = ({ theme }) => {
                           {...props}
                         />
                       ),
+                      code: ({
+                        node,
+                        inline,
+                        className,
+                        children,
+                        ...props
+                      }) => {
+                        return inline ? (
+                          <Box
+                            component="code"
+                            sx={{
+                              backgroundColor:
+                                theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                              color: theme === "dark" ? "#f8f8f2" : "#333",
+                              fontFamily: "monospace",
+                              fontSize: "0.875rem",
+                              borderRadius: "4px",
+                              px: "0.4em",
+                              py: "0.2em",
+                            }}
+                            {...props}
+                          >
+                            {children}
+                          </Box>
+                        ) : (
+                          <Box
+                            component="pre"
+                            sx={{
+                              backgroundColor:
+                                theme === "dark" ? "#2d2d2d" : "#f5f5f5",
+                              color: theme === "dark" ? "#f8f8f2" : "#333",
+                              fontFamily: "monospace",
+                              fontSize: "0.9rem",
+                              borderRadius: "8px",
+                              overflowX: "auto",
+                              p: "1rem",
+                              mb: "1rem",
+                            }}
+                            {...props}
+                          >
+                            <code className={className}>{children}</code>
+                          </Box>
+                        );
+                      },
                       p: ({ node, ...props }) => (
                         <Typography
                           sx={{
