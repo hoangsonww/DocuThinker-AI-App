@@ -17,6 +17,7 @@ import {
   Fade,
 } from "@mui/material";
 import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import UploadModal from "../components/UploadModal";
 import ChatModal from "../components/ChatModal";
 import axios from "axios";
@@ -545,6 +546,7 @@ const Home = ({ theme }) => {
               }}
             >
               <ReactMarkdown
+                remarkPlugins={[remarkGfm]}
                 components={{
                   h1: ({ node, ...props }) => (
                     <Typography
@@ -1009,6 +1011,7 @@ const Home = ({ theme }) => {
                     }}
                   >
                     <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -1126,6 +1129,7 @@ const Home = ({ theme }) => {
                     }}
                   >
                     <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -1243,6 +1247,7 @@ const Home = ({ theme }) => {
                     }}
                   >
                     <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -1356,7 +1361,75 @@ const Home = ({ theme }) => {
                   >
                     Copy
                   </Button>
-                  <ReactMarkdown>{audioResponse}</ReactMarkdown>
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                      h1: ({ node, ...props }) => (
+                        <Typography
+                          variant="h4"
+                          sx={{
+                            font: "inherit",
+                            color: theme === "dark" ? "white" : "black",
+                            fontWeight: "bold",
+                            mb: 2,
+                          }}
+                          {...props}
+                        />
+                      ),
+                      h2: ({ node, ...props }) => (
+                        <Typography
+                          variant="h5"
+                          sx={{
+                            font: "inherit",
+                            color: theme === "dark" ? "white" : "black",
+                            fontWeight: "bold",
+                            mb: 2,
+                          }}
+                          {...props}
+                        />
+                      ),
+                      h3: ({ node, ...props }) => (
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            font: "inherit",
+                            color: theme === "dark" ? "white" : "black",
+                            fontWeight: "bold",
+                          }}
+                          {...props}
+                        />
+                      ),
+                      p: ({ node, ...props }) => (
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            color: theme === "dark" ? "white" : "black",
+                          }}
+                          {...props}
+                        />
+                      ),
+                      ul: ({ node, ...props }) => (
+                        <ul
+                          style={{
+                            color: theme === "dark" ? "white" : "black",
+                            font: "inherit",
+                          }}
+                          {...props}
+                        />
+                      ),
+                      ol: ({ node, ...props }) => (
+                        <ol
+                          style={{
+                            color: theme === "dark" ? "white" : "black",
+                            font: "inherit",
+                          }}
+                          {...props}
+                        />
+                      ),
+                    }}
+                  >
+                    {audioResponse}
+                  </ReactMarkdown>
                 </Box>
               </Box>
             )}
@@ -1495,6 +1568,7 @@ const Home = ({ theme }) => {
                     {" "}
                     {/* Padding to prevent overlap */}
                     <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -1607,6 +1681,7 @@ const Home = ({ theme }) => {
                     Copy
                   </Button>
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       h1: ({ node, ...props }) => (
                         <Typography
@@ -1700,6 +1775,7 @@ const Home = ({ theme }) => {
                   }}
                 >
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       p: ({ node, ...props }) => (
                         <Typography
@@ -1758,6 +1834,7 @@ const Home = ({ theme }) => {
                     Copy
                   </Button>
                   <ReactMarkdown
+                    remarkPlugins={[remarkGfm]}
                     components={{
                       h1: ({ node, ...props }) => (
                         <Typography
