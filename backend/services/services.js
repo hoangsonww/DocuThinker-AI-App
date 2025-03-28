@@ -67,26 +67,12 @@ exports.loginUser = async (email) => {
 // --- CURRENTLY UNUSED FUNCTIONS. APP IS USING HF TRANSFORMERS MODELS INSTEAD ---
 
 /**
- * Upload a file and generate a summary
- * @param file - File object with filepath and mimetype
- * @returns {Promise<{summary: string, originalText: string}>} - Generated summary and original text
+ * Generate a summary from the provided text.
+ * @param {string} text - The text content of the document.
+ * @returns {Promise<{summary: string, originalText: string}>} - Generated summary and original text.
  */
-exports.generateSummary = async (file) => {
-  let extractedText = "";
-  const fileBuffer = fs.readFileSync(file.filepath);
-
-  if (file.mimetype === "application/pdf") {
-    const pdfData = await pdfParse(fileBuffer);
-    extractedText = pdfData.text;
-  } else if (
-    file.mimetype ===
-    "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-  ) {
-    const docData = await mammoth.extractRawText({ buffer: fileBuffer });
-    extractedText = docData.value;
-  } else {
-    throw new Error("Unsupported file format");
-  }
+exports.generateSummary = async (text) => {
+  if (!text) throw new Error("No text provided");
 
   const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
   const model = genAI.getGenerativeModel({
@@ -95,9 +81,9 @@ exports.generateSummary = async (file) => {
   });
 
   const chatSession = model.startChat({
-    history: [{ role: "user", parts: [{ text: extractedText }] }],
+    history: [{ role: "user", parts: [{ text }] }],
   });
-  const result = await chatSession.sendMessage(extractedText);
+  const result = await chatSession.sendMessage(text);
 
   if (!result.response || !result.response.text) {
     throw new Error("Failed to generate a summary from the AI");
@@ -105,7 +91,7 @@ exports.generateSummary = async (file) => {
 
   return {
     summary: result.response.text(),
-    originalText: extractedText,
+    originalText: text,
   };
 };
 

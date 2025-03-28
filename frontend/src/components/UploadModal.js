@@ -13,6 +13,13 @@ import axios from "axios";
 import { gapi } from "gapi-script";
 import GoogleDriveFileSelectorModal from "./GoogleDriveFileSelectorModal";
 
+// Import libraries for text extraction from the legacy build of pdf.js
+import * as pdfjsLib from "pdfjs-dist/legacy/build/pdf";
+import mammoth from "mammoth";
+
+// Set the PDF.js worker source to a local copy served from your public folder
+pdfjsLib.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL || ""}/pdf.worker.min.mjs`;
+
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
@@ -25,11 +32,10 @@ const UploadModal = ({
   theme,
 }) => {
   // Local state variables
-  // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [progressMessage, setProgressMessage] = useState("");
   const [file, setFile] = useState(null);
-  // eslint-disable-next-line no-unused-vars
   const [isUploaded, setIsUploaded] = useState(false);
   const [title, setTitle] = useState("");
   const [googleAuth, setGoogleAuth] = useState(null);
@@ -68,10 +74,9 @@ const UploadModal = ({
   };
 
   useEffect(() => {
-    initClient().catch((error) => {
-      console.error("Google API client initialization failed:", error);
-      // Error already handled in initClient.
-    });
+    initClient().catch((error) =>
+      console.error("Google API client initialization failed:", error),
+    );
   }, []);
 
   // Handle Google login
@@ -115,7 +120,28 @@ const UploadModal = ({
     },
   });
 
-  // Handle file upload
+  // Extract text from PDF using pdfjs-dist (emulating pdf-parse in the backend)
+  const extractTextFromPdf = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let extractedText = "";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items.map((item) => item.str).join(" ");
+      extractedText += pageText + "\n";
+    }
+    return extractedText;
+  };
+
+  // Extract text from DOCX using mammoth (same as backend)
+  const extractTextFromDocx = async (file) => {
+    const arrayBuffer = await file.arrayBuffer();
+    const result = await mammoth.extractRawText({ arrayBuffer });
+    return result.value;
+  };
+
+  // Handle file upload: extract text using the same technique as backend, then send to backend
   const handleUpload = async () => {
     if (!file || !title) {
       setErrorMessage("Please select a file to upload and provide a title.");
@@ -123,26 +149,44 @@ const UploadModal = ({
       return;
     }
 
-    const formData = new FormData();
-    formData.append("File", file);
-    formData.append("title", title);
-    const userId = localStorage.getItem("userId");
-    if (userId) {
-      formData.append("userId", userId);
-    }
-
     try {
       setLoading(true);
+      setProgressMessage("Extracting text...");
+      let extractedText = "";
+
+      if (file.type === "application/pdf") {
+        extractedText = await extractTextFromPdf(file);
+      } else if (
+        file.type ===
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+      ) {
+        extractedText = await extractTextFromDocx(file);
+      } else {
+        setErrorMessage("Unsupported file format");
+        setOpenSnackbar(true);
+        setLoading(false);
+        return;
+      }
+
+      setProgressMessage("Summarizing your document...");
+      // Prepare payload with title and extracted text
+      const payload = {
+        title: title,
+        text: extractedText,
+      };
+
+      const userId = localStorage.getItem("userId");
+      if (userId) {
+        payload.userId = userId;
+      }
+
+      // Send the extracted text to the backend endpoint
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/upload",
-        formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
+        payload,
       );
       setLoading(false);
+      setProgressMessage("");
       const { summary, originalText } = response.data;
       setSummary(summary);
       setOriginalText(originalText);
@@ -151,24 +195,9 @@ const UploadModal = ({
       setOpen(false);
     } catch (error) {
       setLoading(false);
+      setProgressMessage("");
       console.error("Upload failed:", error);
-      let errMsg = "";
-      // Detect if error response exists and if it's a 413 Payload Too Large error
-      if (error.response && error.response.status === 413) {
-        errMsg =
-          "Payload Too Large. Please upload a file smaller than the allowed limit.";
-      } else if (!error.response && file && file.size > 4 * 1024 * 1024) {
-        // If no response exists and file size exceeds 4MB, assume it's a payload size issue.
-        errMsg = "Payload Too Large. Please upload a file smaller than 4MB.";
-      } else if (
-        error.response &&
-        error.response.data &&
-        error.response.data.error
-      ) {
-        errMsg = error.response.data.error;
-      } else {
-        errMsg = error.message;
-      }
+      const errMsg = error.response?.data?.error || error.message;
       setErrorMessage("Upload failed: " + errMsg);
       setOpenSnackbar(true);
     }
@@ -176,9 +205,7 @@ const UploadModal = ({
 
   // Handle closing the snackbar
   const handleSnackbarClose = (event, reason) => {
-    if (reason === "clickaway") {
-      return;
-    }
+    if (reason === "clickaway") return;
     setOpenSnackbar(false);
   };
 
@@ -298,7 +325,15 @@ const UploadModal = ({
             disabled={loading}
           >
             {loading ? (
-              <CircularProgress size={24} sx={{ color: "white" }} />
+              <Box sx={{ display: "flex", alignItems: "center" }}>
+                <CircularProgress size={24} sx={{ color: "white", mr: 1 }} />
+                <Typography
+                  variant="button"
+                  sx={{ color: "white", font: "inherit" }}
+                >
+                  {progressMessage}
+                </Typography>
+              </Box>
             ) : (
               "Upload"
             )}
@@ -314,9 +349,7 @@ const UploadModal = ({
               font: "inherit",
               mt: 2,
               width: "100%",
-              "&:hover": {
-                bgcolor: "#3367D6 !important",
-              },
+              "&:hover": { bgcolor: "#3367D6 !important" },
             }}
             onClick={handleGoogleLogin}
             disabled={!isGoogleAuthReady}

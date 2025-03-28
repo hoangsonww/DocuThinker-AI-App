@@ -119,79 +119,84 @@ exports.loginUser = async (req, res) => {
  * @swagger
  * /upload:
  *   post:
- *     summary: Upload a document for summarization
- *     description: Upload a document file to be summarized by the AI.
+ *     summary: Generate a summary for a document
+ *     description: Accepts the text content of a document and generates a summary.
  *     tags:
- *     - Documents
+ *       - Documents
  *     requestBody:
  *       required: true
  *       content:
- *         multipart/form-data:
+ *         application/json:
  *           schema:
  *             type: object
  *             properties:
- *               File:
+ *               title:
  *                 type: string
- *                 format: binary
+ *               text:
+ *                 type: string
  *     responses:
  *       200:
- *         description: Document summarized
+ *         description: Document summarized successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 summary:
+ *                   type: string
+ *                 originalText:
+ *                   type: string
  *       400:
- *         description: No file uploaded
+ *         description: Missing text or title
  *       500:
- *         description: Failed to summarize document
+ *         description: Failed to generate summary
  */
 exports.uploadDocument = async (req, res) => {
-  const form = new IncomingForm();
-  await form.parse(req, async (err, fields, files) => {
-    if (err) {
-      sendErrorResponse(res, 500, "Error parsing the file", err);
-    } else if (!files.File) {
-      sendErrorResponse(res, 400, "No file uploaded");
-    } else {
-      try {
-        const { userId, title } = fields;
-        const result = await generateSummary(files.File[0]); // Assumes you have a generateSummary function
-
-        // Check if a userId was provided, i.e., logged-in user
-        if (userId) {
-          const actualUserId = Array.isArray(userId) ? userId[0] : userId;
-          const userRef = firestore.collection("users").doc(actualUserId);
-
-          const userDoc = await userRef.get();
-          if (!userDoc.exists) {
-            return sendErrorResponse(res, 404, "User not found");
-          }
-
-          // Generate a unique ID for the document
-          const docId = firestore.collection("users").doc().id;
-
-          // Update the Firestore document to add the new document data
-          await userRef.update({
-            documents: firebaseAdmin.firestore.FieldValue.arrayUnion({
-              id: docId,
-              title: title,
-              originalText: result.originalText,
-              summary: result.summary,
-            }),
-          });
-        }
-
-        // Send success response with summary and originalText
-        sendSuccessResponse(res, 200, "Document summarized", {
-          summary: result.summary,
-          originalText: result.originalText,
-        });
-      } catch (error) {
-        sendErrorResponse(
-          res,
-          500,
-          "Failed to summarize document",
-          error.message,
-        );
-      }
+  try {
+    // Expecting JSON payload with title and text properties
+    const { userId, title, text } = req.body;
+    if (!text || !title) {
+      return sendErrorResponse(
+        res,
+        400,
+        "Missing title or text in request body",
+      );
     }
-  });
+
+    // Generate summary based on the provided text
+    const result = await generateSummary(text);
+
+    // If a userId is provided, update the Firestore user document
+    if (userId) {
+      const actualUserId = Array.isArray(userId) ? userId[0] : userId;
+      const userRef = firestore.collection("users").doc(actualUserId);
+      const userDoc = await userRef.get();
+      if (!userDoc.exists) {
+        return sendErrorResponse(res, 404, "User not found");
+      }
+
+      // Generate a unique ID for the document
+      const docId = firestore.collection("users").doc().id;
+
+      // Update Firestore with the new document data
+      await userRef.update({
+        documents: firebaseAdmin.firestore.FieldValue.arrayUnion({
+          id: docId,
+          title: title,
+          originalText: result.originalText,
+          summary: result.summary,
+        }),
+      });
+    }
+
+    // Send success response with the summary and the original text
+    sendSuccessResponse(res, 200, "Document summarized", {
+      summary: result.summary,
+      originalText: result.originalText,
+    });
+  } catch (error) {
+    sendErrorResponse(res, 500, "Failed to summarize document", error.message);
+  }
 };
 
 /**
