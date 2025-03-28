@@ -14,6 +14,7 @@ import axios from "axios";
 import Spinner from "./Spinner";
 import ReactMarkdown from "react-markdown";
 import { v4 as uuidv4 } from "uuid";
+import remarkGfm from "remark-gfm";
 
 const AiMessage = ({ text, theme }) => {
   const [copied, setCopied] = useState(false);
@@ -40,6 +41,7 @@ const AiMessage = ({ text, theme }) => {
         borderRadius: "12px",
         maxWidth: "80%",
         font: "inherit",
+        overflow: "scroll"
       }}
     >
       <IconButton
@@ -59,7 +61,75 @@ const AiMessage = ({ text, theme }) => {
           <ContentCopyIcon fontSize="small" />
         )}
       </IconButton>
-      <ReactMarkdown>{text}</ReactMarkdown>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm]}
+        components={{
+          h1: ({ node, ...props }) => (
+            <Typography
+              variant="h4"
+              sx={{
+                font: "inherit",
+                color: theme === "dark" ? "white" : "black",
+                fontWeight: "bold",
+                mb: 2,
+              }}
+              {...props}
+            />
+          ),
+          h2: ({ node, ...props }) => (
+            <Typography
+              variant="h5"
+              sx={{
+                font: "inherit",
+                color: theme === "dark" ? "white" : "black",
+                fontWeight: "bold",
+                mb: 2,
+              }}
+              {...props}
+            />
+          ),
+          h3: ({ node, ...props }) => (
+            <Typography
+              variant="h6"
+              sx={{
+                font: "inherit",
+                color: theme === "dark" ? "white" : "black",
+                fontWeight: "bold",
+              }}
+              {...props}
+            />
+          ),
+          p: ({ node, ...props }) => (
+            <Typography
+              sx={{
+                font: "inherit",
+                color: theme === "dark" ? "white" : "black",
+              }}
+              {...props}
+            />
+          ),
+          ul: ({ node, ...props }) => (
+            <ul
+              style={{
+                color: theme === "dark" ? "white" : "black",
+                font: "inherit",
+              }}
+              {...props}
+            />
+          ),
+          ol: ({ node, ...props }) => (
+            <ol
+              style={{
+                color: theme === "dark" ? "white" : "black",
+                font: "inherit",
+              }}
+              {...props}
+            />
+          ),
+        }}
+      >
+        {text}
+      </ReactMarkdown>
     </Box>
   );
 };
