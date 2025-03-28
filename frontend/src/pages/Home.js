@@ -3051,7 +3051,7 @@ const Home = ({ theme }) => {
             <TextField
               fullWidth
               variant="outlined"
-              label="Style (e.g., formal, casual)"
+              label="Style (e.g., formal, casual)..."
               value={desiredStyle}
               onChange={(e) => setDesiredStyle(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleRewriteContent()}
@@ -3066,8 +3066,6 @@ const Home = ({ theme }) => {
                 style: {
                   fontFamily: "Poppins, sans-serif",
                   color: theme === "dark" ? "white" : "#000",
-                  padding: "0 4px",
-                  transform: "translate(14px, -6px) scale(0.75)",
                 },
               }}
             />
@@ -3157,7 +3155,7 @@ const Home = ({ theme }) => {
             </Typography>
 
             <TextField
-              label="Refinement Instructions"
+              label="Refinement Instructions..."
               value={refinementInstructions}
               onChange={(e) => setRefinementInstructions(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleRefineSummary()}
@@ -3174,8 +3172,7 @@ const Home = ({ theme }) => {
                 style: {
                   fontFamily: "Poppins, sans-serif",
                   color: theme === "dark" ? "white" : "#000",
-                  padding: "0 4px",
-                  transform: "translate(14px, -6px) scale(0.75)",
+                  // Remove padding and transform to use default label behavior
                 },
               }}
             />

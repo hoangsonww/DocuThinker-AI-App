@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Modal,
   Box,
@@ -286,6 +286,7 @@ const ChatModal = ({ theme }) => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
     const sessionId = localStorage.getItem("sessionId");
@@ -295,10 +296,17 @@ const ChatModal = ({ theme }) => {
     }
   }, []);
 
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [chatHistory]);
+
   const handleChat = async () => {
     const originalText = localStorage.getItem("originalText");
     const sessionId = localStorage.getItem("sessionId");
     if (!message || !originalText || !sessionId) return;
+    if (loading) return;
 
     try {
       setLoading(true);
@@ -435,6 +443,7 @@ const ChatModal = ({ theme }) => {
                 )}
               </Box>
             ))}
+            <Box ref={chatEndRef} />
           </Box>
 
           <TextField
