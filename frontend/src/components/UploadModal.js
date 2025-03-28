@@ -20,6 +20,7 @@ import mammoth from "mammoth";
 // Set the PDF.js worker source to a local copy served from your public folder
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${process.env.PUBLIC_URL || ""}/pdf.worker.min.mjs`;
 
+// Google API constants
 const SCOPES = "https://www.googleapis.com/auth/drive.readonly";
 const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
