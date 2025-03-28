@@ -1163,12 +1163,20 @@ const Home = ({ theme }) => {
                           />
                         ),
                         table: ({ node, children, ...props }) => (
-                          <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                          <div
+                            style={{
+                              overflowX: "auto",
+                              width: "100%",
+                              marginBottom: "1rem",
+                            }}
+                          >
                             <table
                               style={{
                                 width: "100%",
                                 borderCollapse: "collapse",
-                                border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                                border:
+                                  "1px solid " +
+                                  (theme === "dark" ? "white" : "black"),
                               }}
                               {...props}
                             >
@@ -1185,9 +1193,12 @@ const Home = ({ theme }) => {
                         th: ({ node, children, ...props }) => (
                           <th
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
-                              backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                              backgroundColor:
+                                theme === "dark" ? "#333" : "#f5f5f5",
                               textAlign: "left",
                               fontWeight: "bold",
                               color: theme === "dark" ? "white" : "black",
@@ -1200,7 +1211,9 @@ const Home = ({ theme }) => {
                         td: ({ node, children, ...props }) => (
                           <td
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
                               textAlign: "left",
                               color: theme === "dark" ? "white" : "black",
@@ -1329,12 +1342,20 @@ const Home = ({ theme }) => {
                           />
                         ),
                         table: ({ node, children, ...props }) => (
-                          <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                          <div
+                            style={{
+                              overflowX: "auto",
+                              width: "100%",
+                              marginBottom: "1rem",
+                            }}
+                          >
                             <table
                               style={{
                                 width: "100%",
                                 borderCollapse: "collapse",
-                                border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                                border:
+                                  "1px solid " +
+                                  (theme === "dark" ? "white" : "black"),
                               }}
                               {...props}
                             >
@@ -1351,9 +1372,12 @@ const Home = ({ theme }) => {
                         th: ({ node, children, ...props }) => (
                           <th
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
-                              backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                              backgroundColor:
+                                theme === "dark" ? "#333" : "#f5f5f5",
                               textAlign: "left",
                               fontWeight: "bold",
                               color: theme === "dark" ? "white" : "black",
@@ -1366,7 +1390,9 @@ const Home = ({ theme }) => {
                         td: ({ node, children, ...props }) => (
                           <td
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
                               textAlign: "left",
                               color: theme === "dark" ? "white" : "black",
@@ -1510,12 +1536,20 @@ const Home = ({ theme }) => {
                           />
                         ),
                         table: ({ node, children, ...props }) => (
-                          <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                          <div
+                            style={{
+                              overflowX: "auto",
+                              width: "100%",
+                              marginBottom: "1rem",
+                            }}
+                          >
                             <table
                               style={{
                                 width: "100%",
                                 borderCollapse: "collapse",
-                                border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                                border:
+                                  "1px solid " +
+                                  (theme === "dark" ? "white" : "black"),
                               }}
                               {...props}
                             >
@@ -1532,9 +1566,12 @@ const Home = ({ theme }) => {
                         th: ({ node, children, ...props }) => (
                           <th
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
-                              backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                              backgroundColor:
+                                theme === "dark" ? "#333" : "#f5f5f5",
                               textAlign: "left",
                               fontWeight: "bold",
                               color: theme === "dark" ? "white" : "black",
@@ -1547,7 +1584,9 @@ const Home = ({ theme }) => {
                         td: ({ node, children, ...props }) => (
                           <td
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
                               textAlign: "left",
                               color: theme === "dark" ? "white" : "black",
@@ -1688,12 +1727,20 @@ const Home = ({ theme }) => {
                         />
                       ),
                       table: ({ node, children, ...props }) => (
-                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                        <div
+                          style={{
+                            overflowX: "auto",
+                            width: "100%",
+                            marginBottom: "1rem",
+                          }}
+                        >
                           <table
                             style={{
                               width: "100%",
                               borderCollapse: "collapse",
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                             }}
                             {...props}
                           >
@@ -1710,9 +1757,12 @@ const Home = ({ theme }) => {
                       th: ({ node, children, ...props }) => (
                         <th
                           style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                            border:
+                              "1px solid " +
+                              (theme === "dark" ? "white" : "black"),
                             padding: "0.5rem",
-                            backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                            backgroundColor:
+                              theme === "dark" ? "#333" : "#f5f5f5",
                             textAlign: "left",
                             fontWeight: "bold",
                             color: theme === "dark" ? "white" : "black",
@@ -1725,7 +1775,9 @@ const Home = ({ theme }) => {
                       td: ({ node, children, ...props }) => (
                         <td
                           style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                            border:
+                              "1px solid " +
+                              (theme === "dark" ? "white" : "black"),
                             padding: "0.5rem",
                             textAlign: "left",
                             color: theme === "dark" ? "white" : "black",
@@ -1942,12 +1994,20 @@ const Home = ({ theme }) => {
                           />
                         ),
                         table: ({ node, children, ...props }) => (
-                          <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                          <div
+                            style={{
+                              overflowX: "auto",
+                              width: "100%",
+                              marginBottom: "1rem",
+                            }}
+                          >
                             <table
                               style={{
                                 width: "100%",
                                 borderCollapse: "collapse",
-                                border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                                border:
+                                  "1px solid " +
+                                  (theme === "dark" ? "white" : "black"),
                               }}
                               {...props}
                             >
@@ -1964,9 +2024,12 @@ const Home = ({ theme }) => {
                         th: ({ node, children, ...props }) => (
                           <th
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
-                              backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                              backgroundColor:
+                                theme === "dark" ? "#333" : "#f5f5f5",
                               textAlign: "left",
                               fontWeight: "bold",
                               color: theme === "dark" ? "white" : "black",
@@ -1979,7 +2042,9 @@ const Home = ({ theme }) => {
                         td: ({ node, children, ...props }) => (
                           <td
                             style={{
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                               padding: "0.5rem",
                               textAlign: "left",
                               color: theme === "dark" ? "white" : "black",
@@ -2103,12 +2168,20 @@ const Home = ({ theme }) => {
                         />
                       ),
                       table: ({ node, children, ...props }) => (
-                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                        <div
+                          style={{
+                            overflowX: "auto",
+                            width: "100%",
+                            marginBottom: "1rem",
+                          }}
+                        >
                           <table
                             style={{
                               width: "100%",
                               borderCollapse: "collapse",
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                             }}
                             {...props}
                           >
@@ -2125,9 +2198,12 @@ const Home = ({ theme }) => {
                       th: ({ node, children, ...props }) => (
                         <th
                           style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                            border:
+                              "1px solid " +
+                              (theme === "dark" ? "white" : "black"),
                             padding: "0.5rem",
-                            backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                            backgroundColor:
+                              theme === "dark" ? "#333" : "#f5f5f5",
                             textAlign: "left",
                             fontWeight: "bold",
                             color: theme === "dark" ? "white" : "black",
@@ -2140,7 +2216,9 @@ const Home = ({ theme }) => {
                       td: ({ node, children, ...props }) => (
                         <td
                           style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                            border:
+                              "1px solid " +
+                              (theme === "dark" ? "white" : "black"),
                             padding: "0.5rem",
                             textAlign: "left",
                             color: theme === "dark" ? "white" : "black",
@@ -2181,162 +2259,175 @@ const Home = ({ theme }) => {
                     position: "relative",
                   }}
                 >
-                <Button
-                  onClick={() => handleCopyToClipboard(refinedSummary)}
-                  sx={{
-                    bgcolor: "#f57c00",
-                    color: "white",
-                    font: "inherit",
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                    padding: "2px 8px",
-                    position: "absolute",
-                    top: "8px",
-                    right: "8px",
-                  }}
-                >
-                  Copy
-                </Button>
-                <Box
-                  sx={{
-                    marginTop: 3,
-                    padding: 0,
-                    borderRadius: "12px",
-                  }}
-                >
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      h1: ({ node, ...props }) => (
-                        <Typography
-                          variant="h4"
-                          sx={{
-                            font: "inherit",
-                            color: theme === "dark" ? "white" : "black",
-                            fontWeight: "bold",
-                            mb: 2,
-                          }}
-                          {...props}
-                        />
-                      ),
-                      h2: ({ node, ...props }) => (
-                        <Typography
-                          variant="h5"
-                          sx={{
-                            font: "inherit",
-                            color: theme === "dark" ? "white" : "black",
-                            fontWeight: "bold",
-                            mb: 2,
-                          }}
-                          {...props}
-                        />
-                      ),
-                      h3: ({ node, ...props }) => (
-                        <Typography
-                          variant="h6"
-                          sx={{
-                            font: "inherit",
-                            color: theme === "dark" ? "white" : "black",
-                            fontWeight: "bold",
-                          }}
-                          {...props}
-                        />
-                      ),
-                      p: ({ node, ...props }) => (
-                        <Typography
-                          sx={{
-                            font: "inherit",
-                            color: theme === "dark" ? "white" : "black",
-                          }}
-                          {...props}
-                        />
-                      ),
-                      ul: ({ node, ...props }) => (
-                        <ul
-                          style={{
-                            color: theme === "dark" ? "white" : "black",
-                            font: "inherit",
-                          }}
-                          {...props}
-                        />
-                      ),
-                      ol: ({ node, ...props }) => (
-                        <ol
-                          style={{
-                            color: theme === "dark" ? "white" : "black",
-                            font: "inherit",
-                          }}
-                          {...props}
-                        />
-                      ),
-                      a: ({ node, ...props }) => (
-                        <MuiLink
-                          {...props}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          sx={{
-                            color: "#f57c00",
-                            textDecoration: "underline",
-                            "&:hover": {
-                              color: "#1976d2",
-                              cursor: "pointer",
-                            },
-                          }}
-                        />
-                      ),
-                      table: ({ node, children, ...props }) => (
-                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
-                          <table
+                  <Button
+                    onClick={() => handleCopyToClipboard(refinedSummary)}
+                    sx={{
+                      bgcolor: "#f57c00",
+                      color: "white",
+                      font: "inherit",
+                      borderRadius: "8px",
+                      fontSize: "12px",
+                      padding: "2px 8px",
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                    }}
+                  >
+                    Copy
+                  </Button>
+                  <Box
+                    sx={{
+                      marginTop: 3,
+                      padding: 0,
+                      borderRadius: "12px",
+                    }}
+                  >
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        h1: ({ node, ...props }) => (
+                          <Typography
+                            variant="h4"
+                            sx={{
+                              font: "inherit",
+                              color: theme === "dark" ? "white" : "black",
+                              fontWeight: "bold",
+                              mb: 2,
+                            }}
+                            {...props}
+                          />
+                        ),
+                        h2: ({ node, ...props }) => (
+                          <Typography
+                            variant="h5"
+                            sx={{
+                              font: "inherit",
+                              color: theme === "dark" ? "white" : "black",
+                              fontWeight: "bold",
+                              mb: 2,
+                            }}
+                            {...props}
+                          />
+                        ),
+                        h3: ({ node, ...props }) => (
+                          <Typography
+                            variant="h6"
+                            sx={{
+                              font: "inherit",
+                              color: theme === "dark" ? "white" : "black",
+                              fontWeight: "bold",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        p: ({ node, ...props }) => (
+                          <Typography
+                            sx={{
+                              font: "inherit",
+                              color: theme === "dark" ? "white" : "black",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        ul: ({ node, ...props }) => (
+                          <ul
                             style={{
+                              color: theme === "dark" ? "white" : "black",
+                              font: "inherit",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        ol: ({ node, ...props }) => (
+                          <ol
+                            style={{
+                              color: theme === "dark" ? "white" : "black",
+                              font: "inherit",
+                            }}
+                            {...props}
+                          />
+                        ),
+                        a: ({ node, ...props }) => (
+                          <MuiLink
+                            {...props}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            sx={{
+                              color: "#f57c00",
+                              textDecoration: "underline",
+                              "&:hover": {
+                                color: "#1976d2",
+                                cursor: "pointer",
+                              },
+                            }}
+                          />
+                        ),
+                        table: ({ node, children, ...props }) => (
+                          <div
+                            style={{
+                              overflowX: "auto",
                               width: "100%",
-                              borderCollapse: "collapse",
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              marginBottom: "1rem",
+                            }}
+                          >
+                            <table
+                              style={{
+                                width: "100%",
+                                borderCollapse: "collapse",
+                                border:
+                                  "1px solid " +
+                                  (theme === "dark" ? "white" : "black"),
+                              }}
+                              {...props}
+                            >
+                              {children}
+                            </table>
+                          </div>
+                        ),
+                        thead: ({ node, children, ...props }) => (
+                          <thead {...props}>{children}</thead>
+                        ),
+                        tbody: ({ node, children, ...props }) => (
+                          <tbody {...props}>{children}</tbody>
+                        ),
+                        th: ({ node, children, ...props }) => (
+                          <th
+                            style={{
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
+                              padding: "0.5rem",
+                              backgroundColor:
+                                theme === "dark" ? "#333" : "#f5f5f5",
+                              textAlign: "left",
+                              fontWeight: "bold",
+                              color: theme === "dark" ? "white" : "black",
                             }}
                             {...props}
                           >
                             {children}
-                          </table>
-                        </div>
-                      ),
-                      thead: ({ node, children, ...props }) => (
-                        <thead {...props}>{children}</thead>
-                      ),
-                      tbody: ({ node, children, ...props }) => (
-                        <tbody {...props}>{children}</tbody>
-                      ),
-                      th: ({ node, children, ...props }) => (
-                        <th
-                          style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
-                            padding: "0.5rem",
-                            backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
-                            textAlign: "left",
-                            fontWeight: "bold",
-                            color: theme === "dark" ? "white" : "black",
-                          }}
-                          {...props}
-                        >
-                          {children}
-                        </th>
-                      ),
-                      td: ({ node, children, ...props }) => (
-                        <td
-                          style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
-                            padding: "0.5rem",
-                            textAlign: "left",
-                            color: theme === "dark" ? "white" : "black",
-                          }}
-                          {...props}
-                        >
-                          {children}
-                        </td>
-                      ),
-                    }}
-                  >
-                    {refinedSummary}
-                  </ReactMarkdown>
-                </Box>
+                          </th>
+                        ),
+                        td: ({ node, children, ...props }) => (
+                          <td
+                            style={{
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
+                              padding: "0.5rem",
+                              textAlign: "left",
+                              color: theme === "dark" ? "white" : "black",
+                            }}
+                            {...props}
+                          >
+                            {children}
+                          </td>
+                        ),
+                      }}
+                    >
+                      {refinedSummary}
+                    </ReactMarkdown>
+                  </Box>
                 </Box>
               </Box>
             )}
@@ -2446,12 +2537,20 @@ const Home = ({ theme }) => {
                         />
                       ),
                       table: ({ node, children, ...props }) => (
-                        <div style={{ overflowX: "auto", width: "100%", marginBottom: "1rem" }}>
+                        <div
+                          style={{
+                            overflowX: "auto",
+                            width: "100%",
+                            marginBottom: "1rem",
+                          }}
+                        >
                           <table
                             style={{
                               width: "100%",
                               borderCollapse: "collapse",
-                              border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                              border:
+                                "1px solid " +
+                                (theme === "dark" ? "white" : "black"),
                             }}
                             {...props}
                           >
@@ -2468,9 +2567,12 @@ const Home = ({ theme }) => {
                       th: ({ node, children, ...props }) => (
                         <th
                           style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                            border:
+                              "1px solid " +
+                              (theme === "dark" ? "white" : "black"),
                             padding: "0.5rem",
-                            backgroundColor: theme === "dark" ? "#333" : "#f5f5f5",
+                            backgroundColor:
+                              theme === "dark" ? "#333" : "#f5f5f5",
                             textAlign: "left",
                             fontWeight: "bold",
                             color: theme === "dark" ? "white" : "black",
@@ -2483,7 +2585,9 @@ const Home = ({ theme }) => {
                       td: ({ node, children, ...props }) => (
                         <td
                           style={{
-                            border: "1px solid " + (theme === "dark" ? "white" : "black"),
+                            border:
+                              "1px solid " +
+                              (theme === "dark" ? "white" : "black"),
                             padding: "0.5rem",
                             textAlign: "left",
                             color: theme === "dark" ? "white" : "black",

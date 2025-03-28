@@ -42,7 +42,7 @@ const AiMessage = ({ text, theme }) => {
         borderRadius: "12px",
         maxWidth: "80%",
         font: "inherit",
-        overflow: "scroll"
+        overflow: "scroll",
       }}
     >
       <IconButton
@@ -180,10 +180,10 @@ const AiMessage = ({ text, theme }) => {
                     color: "#333",
                   }}
                 >
-            <code className={className} {...props}>
-              {children}
-            </code>
-          </pre>
+                  <code className={className} {...props}>
+                    {children}
+                  </code>
+                </pre>
               );
             } else {
               return (
