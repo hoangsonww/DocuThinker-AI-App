@@ -64,6 +64,8 @@ exports.loginUser = async (email) => {
   return await firebaseAdmin.auth().createCustomToken(user.uid);
 };
 
+// --- CURRENTLY UNUSED FUNCTIONS. APP IS USING HF TRANSFORMERS MODELS INSTEAD ---
+
 /**
  * Upload a file and generate a summary
  * @param file - File object with filepath and mimetype

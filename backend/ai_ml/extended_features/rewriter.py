@@ -23,3 +23,4 @@ def rewrite_content(document: str, rewrite_chain: LLMChain) -> str:
     except Exception as e:
         logger.exception("Error rewriting content: %s", e)
         return ""
+
