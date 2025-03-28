@@ -17,10 +17,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code to the container
 COPY . .
 
-# Expose a port if you later integrate a webserver (e.g., with FastAPI/Uvicorn)
-# EXPOSE 8000
+# Expose a port for the application
+EXPOSE 8000
 
-# Define the default command.
-# This example runs the CLI entry point with a sample document.
-# Adjust the command and arguments as needed.
-CMD ["python", "ai_ml/main.py", "document.txt", "--question", "What is the main idea?", "--translate_lang", "de"]
+# Default command (CLI)
+CMD ["python", "ai_ml/main.py", "document.txt"]

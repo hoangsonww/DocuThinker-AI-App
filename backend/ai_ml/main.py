@@ -84,7 +84,7 @@ def main():
     except Exception as e:
         logger.exception("Error during sentiment analysis: %s", e)
 
-    # Q&A (if a question is provided), using the LangChain QA chain
+    # Q&A (if a question is provided)
     if args.question:
         try:
             answer = answer_question(document, args.question, models["qa_chain"])
@@ -93,7 +93,7 @@ def main():
         except Exception as e:
             logger.exception("Error during Q&A: %s", e)
 
-    # Generate discussion points using the LangChain discussion chain
+    # Generate discussion points
     try:
         discussion = generate_discussion_points(document, models["discussion_chain"])
         print("\n=== Discussion Points ===")
@@ -101,7 +101,7 @@ def main():
     except Exception as e:
         logger.exception("Error during discussion generation: %s", e)
 
-    # Demonstrate RAG (Retrieval-Augmented Generation) using the LangChain RAG chain
+    # Demonstrate RAG
     try:
         rag_answer = retrieval_augmented_generation(document, models["rag_chain"])
         print("\n=== RAG Generated Answer ===")

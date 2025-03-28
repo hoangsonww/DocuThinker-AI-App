@@ -3,9 +3,16 @@ torch>=1.10.0
 transformers>=4.30.0
 langchain>=0.0.220
 
-# ONNX support for accelerated inference (if converting models to ONNX)
+# ONNX and runtime support
 onnx>=1.12.0
 onnxruntime>=1.14.0
 
-# Optional: For production logging and environment configuration (if needed)
+# Optional: Hugging Face Optimum for enhanced ONNX support
+optimum[onnxruntime]>=1.12.0
+
+# For environment variable management (optional)
 python-dotenv>=0.21.0
+
+# FastAPI and Uvicorn for server.py example
+fastapi>=0.95.0
+uvicorn>=0.21.1
