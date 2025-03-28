@@ -5,6 +5,8 @@ import {
   Typography,
   CircularProgress,
   TextField,
+  Snackbar,
+  Alert,
 } from "@mui/material";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
@@ -16,12 +18,8 @@ const DISCOVERY_DOCS = [
   "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
 ];
 
-const UploadModal = ({
-  setSummary,
-  setOriginalText,
-  setDocumentFile,
-  theme,
-}) => {
+const UploadModal = ({ setSummary, setOriginalText, setDocumentFile, theme }) => {
+  // Local state variables
   // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -32,7 +30,10 @@ const UploadModal = ({
   const [googleAuth, setGoogleAuth] = useState(null);
   const [isGoogleAuthReady, setIsGoogleAuthReady] = useState(false);
   const [driveModalOpen, setDriveModalOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [openSnackbar, setOpenSnackbar] = useState(false);
 
+  // Initialize Google API client
   const initClient = () => {
     return new Promise((resolve, reject) => {
       gapi.load("client:auth2", () => {
@@ -51,6 +52,8 @@ const UploadModal = ({
           })
           .catch((error) => {
             console.error("Error initializing GAPI:", error);
+            setErrorMessage("Google API initialization failed: " + error.message);
+            setOpenSnackbar(true);
             reject(error);
           });
       });
@@ -60,9 +63,11 @@ const UploadModal = ({
   useEffect(() => {
     initClient().catch((error) => {
       console.error("Google API client initialization failed:", error);
+      // Error already handled in initClient.
     });
   }, []);
 
+  // Handle Google login
   const handleGoogleLogin = async () => {
     if (isGoogleAuthReady && googleAuth) {
       try {
@@ -70,18 +75,24 @@ const UploadModal = ({
         setDriveModalOpen(true);
       } catch (error) {
         console.error("Google sign-in failed:", error);
+        setErrorMessage("Google sign-in failed: " + error.message);
+        setOpenSnackbar(true);
       }
     } else {
       console.error("GoogleAuth instance is not initialized yet.");
+      setErrorMessage("GoogleAuth instance is not ready.");
+      setOpenSnackbar(true);
     }
   };
 
+  // Handle file selected from Google Drive
   const handleFileFromGoogleDrive = (selectedFile) => {
     setFile(selectedFile);
     setTitle(selectedFile.name);
     setDocumentFile(selectedFile);
   };
 
+  // Dropzone for file selection
   const onDrop = (acceptedFiles) => {
     setFile(acceptedFiles[0]);
     setDocumentFile(acceptedFiles[0]);
@@ -92,21 +103,21 @@ const UploadModal = ({
     onDrop,
     accept: {
       "application/pdf": [],
-      "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-        [],
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [],
     },
   });
 
+  // Handle file upload
   const handleUpload = async () => {
     if (!file || !title) {
-      alert("Please select a file to upload and provide a title.");
+      setErrorMessage("Please select a file to upload and provide a title.");
+      setOpenSnackbar(true);
       return;
     }
 
     const formData = new FormData();
     formData.append("File", file);
     formData.append("title", title);
-
     const userId = localStorage.getItem("userId");
     if (userId) {
       formData.append("userId", userId);
@@ -121,10 +132,9 @@ const UploadModal = ({
           headers: {
             "Content-Type": "multipart/form-data",
           },
-        },
+        }
       );
       setLoading(false);
-
       const { summary, originalText } = response.data;
       setSummary(summary);
       setOriginalText(originalText);
@@ -134,7 +144,29 @@ const UploadModal = ({
     } catch (error) {
       setLoading(false);
       console.error("Upload failed:", error);
+      let errMsg = "";
+      // Detect if error response exists and if it's a 413 Payload Too Large error
+      if (error.response && error.response.status === 413) {
+        errMsg = "Payload Too Large. Please upload a file smaller than the allowed limit.";
+      } else if (!error.response && file && file.size > 4 * 1024 * 1024) {
+        // If no response exists and file size exceeds 4MB, assume it's a payload size issue.
+        errMsg = "Payload Too Large. Please upload a file smaller than 4MB.";
+      } else if (error.response && error.response.data && error.response.data.error) {
+        errMsg = error.response.data.error;
+      } else {
+        errMsg = error.message;
+      }
+      setErrorMessage("Upload failed: " + errMsg);
+      setOpenSnackbar(true);
     }
+  };
+
+  // Handle closing the snackbar
+  const handleSnackbarClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpenSnackbar(false);
   };
 
   return (
@@ -289,11 +321,7 @@ const UploadModal = ({
             }}
           >
             <em>
-              Note that our servers might be slow or experience downtime due to
-              high traffic, or they may spin down after periods of inactivity.
-              It may take up to 2 minutes to process your document during these
-              times. We appreciate your patience, and apologize for any
-              inconvenience.
+              Note: Please avoid uploading very large files as server limits may prevent processing. Processing may take up to 2 minutes during high traffic or inactivity.
             </em>
           </Typography>
         </Box>
@@ -306,6 +334,22 @@ const UploadModal = ({
           theme={theme}
         />
       </div>
+
+      <Snackbar
+        open={openSnackbar}
+        autoHideDuration={6000}
+        onClose={handleSnackbarClose}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        style={{ fontFamily: "Poppins, sans-serif" }}
+      >
+        <Alert
+          onClose={handleSnackbarClose}
+          severity="error"
+          sx={{ width: "100%", fontFamily: "Poppins, sans-serif" }}
+        >
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </>
   );
 };
