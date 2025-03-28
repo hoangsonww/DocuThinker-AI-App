@@ -370,7 +370,7 @@ const UploadModal = ({
             <em>
               Note: Please avoid uploading very large files as server limits may
               prevent processing. Processing may take up to 2 minutes during
-              high traffic or inactivity.
+              high traffic or after periods of inactivity.
             </em>
           </Typography>
         </Box>
