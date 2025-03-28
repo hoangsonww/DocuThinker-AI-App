@@ -1,0 +1,11 @@
+# Core ML libraries
+torch>=1.10.0
+transformers>=4.30.0
+langchain>=0.0.220
+
+# ONNX support for accelerated inference (if converting models to ONNX)
+onnx>=1.12.0
+onnxruntime>=1.14.0
+
+# Optional: For production logging and environment configuration (if needed)
+python-dotenv>=0.21.0

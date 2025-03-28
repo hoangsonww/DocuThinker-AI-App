@@ -16,7 +16,7 @@ const privateKey = process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n");
 // Multer setup for handling file uploads
 const uploadDir = "/tmp/uploads";
 
-// ✅ Ensure `/tmp/uploads` exists
+// Ensure `/tmp/uploads` exists
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
