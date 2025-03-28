@@ -20,11 +20,13 @@ import ReactMarkdown from "react-markdown";
 import UploadModal from "../components/UploadModal";
 import ChatModal from "../components/ChatModal";
 import axios from "axios";
+import { useErrorToast } from "../components/useErrorToast";
 import { useLocation } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
 import MicRecorder from "mic-recorder-to-mp3";
 
 const Home = ({ theme }) => {
+  const { showErrorToast, ErrorToastComponent } = useErrorToast();
   const keyIdeasRef = useRef(null);
   const discussionPointsRef = useRef(null);
   const languageRef = useRef(null);
@@ -150,7 +152,10 @@ const Home = ({ theme }) => {
       .then(() => {
         setRecording(true);
       })
-      .catch(console.error);
+      .catch((error) => {
+        console.error("Record start failed:", error);
+        showErrorToast("Record start failed: " + error.message);
+      });
   };
 
   const handleRecordStop = () => {
@@ -166,7 +171,10 @@ const Home = ({ theme }) => {
         setAudioBlob(blob);
         setRecording(false);
       })
-      .catch(console.error);
+      .catch((error) => {
+        console.error("Record stop failed:", error);
+        showErrorToast("Record stop failed: " + error.message);
+      });
   };
 
   const handleRefineSummary = async () => {
@@ -183,6 +191,7 @@ const Home = ({ theme }) => {
       setShowRefineModal(false);
       refinedRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to refine summary:", error);
     } finally {
       setLoadingRefinement(false);
@@ -214,6 +223,7 @@ const Home = ({ theme }) => {
       setAudioResponse(response.data.summary);
       audioRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Error processing audio:", error);
     } finally {
       setLoadingAudio(false);
@@ -237,6 +247,7 @@ const Home = ({ theme }) => {
       setRecommendations(formattedRecommendations);
       recommendationsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to generate recommendations:", error);
     } finally {
       setLoadingRecommendations(false);
@@ -258,6 +269,7 @@ const Home = ({ theme }) => {
       setShowRewriteModal(false);
       rewriteRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to rewrite content:", error);
     } finally {
       setLoadingRewrite(false);
@@ -283,6 +295,7 @@ const Home = ({ theme }) => {
       })
       .catch((error) => {
         console.error("Failed to copy text: ", error);
+        showErrorToast(error.message);
       });
   };
 
@@ -307,6 +320,7 @@ const Home = ({ theme }) => {
       setLanguageModalOpen(false);
       languageRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to generate summary in language:", error);
     } finally {
       setLoadingLanguageSummary(false);
@@ -339,7 +353,9 @@ const Home = ({ theme }) => {
         console.error("Unexpected response format:", response.data);
       }
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to fetch sentiment:", error);
+      showErrorToast(error.message);
     } finally {
       setLoadingSentiment(false);
     }
@@ -380,6 +396,7 @@ const Home = ({ theme }) => {
       setKeyIdeas(formattedKeyIdeas);
       keyIdeasRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to generate key ideas:", error);
     } finally {
       setLoadingKeyIdeas(false);
@@ -401,6 +418,7 @@ const Home = ({ theme }) => {
       setDiscussionPoints(formattedDiscussionPoints);
       discussionPointsRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to generate discussion points:", error);
     } finally {
       setLoadingDiscussionPoints(false);
@@ -420,6 +438,7 @@ const Home = ({ theme }) => {
       setBulletSummary(formattedBulletSummary);
       bulletSummaryRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
+      showErrorToast(error.message);
       console.error("Failed to generate bullet-point summary:", error);
     } finally {
       setLoadingBulletSummary(false);
@@ -2117,6 +2136,8 @@ const Home = ({ theme }) => {
           </IconButton>
         }
       />
+
+      {ErrorToastComponent}
     </Box>
   );
 };
