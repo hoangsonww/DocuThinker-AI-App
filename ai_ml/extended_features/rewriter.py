@@ -11,6 +11,7 @@ Rewrite the following text in a clear, coherent, and concise manner, preserving 
 Rewritten:
 """
 
+
 def rewrite_content(document: str, rewrite_chain: LLMChain) -> str:
     """
     Rewrites the content using the provided LLMChain (e.g., a text2text-generation pipeline).
@@ -23,4 +24,3 @@ def rewrite_content(document: str, rewrite_chain: LLMChain) -> str:
     except Exception as e:
         logger.exception("Error rewriting content: %s", e)
         return ""
-

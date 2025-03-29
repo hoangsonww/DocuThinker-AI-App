@@ -2,6 +2,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def voice_to_text(audio_data: bytes) -> str:
     """
     Convert the audio_data (raw bytes) to text using a speech-to-text system.
@@ -14,6 +15,7 @@ def voice_to_text(audio_data: bytes) -> str:
     text = "STUB: recognized text from audio"
     return text
 
+
 def text_to_voice(text: str) -> bytes:
     """
     Convert text to audio bytes using a TTS system.
@@ -23,6 +25,7 @@ def text_to_voice(text: str) -> bytes:
     # audio_data = ...
     audio_data = b"STUB: audio bytes"
     return audio_data
+
 
 def voice_chat(audio_data: bytes, conversation_chain) -> bytes:
     """

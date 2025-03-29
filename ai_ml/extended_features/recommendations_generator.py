@@ -12,6 +12,7 @@ Document:
 Recommendations:
 """
 
+
 def generate_recommendations(document: str, recommendation_chain: LLMChain) -> str:
     """
     Generates recommendations or next steps based on the provided document.

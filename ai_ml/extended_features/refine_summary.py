@@ -15,6 +15,7 @@ Existing Summary:
 Refined Summary:
 """
 
+
 def refine_summary(document: str, existing_summary: str, refine_chain: LLMChain) -> str:
     """
     Refines the existing summary by referencing the original document.
