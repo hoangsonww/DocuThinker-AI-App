@@ -13,6 +13,17 @@ optimum[onnxruntime]>=1.12.0
 # For environment variable management (optional)
 python-dotenv>=0.21.0
 
-# FastAPI and Uvicorn for server.py example
+# FastAPI and Uvicorn for serving the API
 fastapi>=0.95.0
 uvicorn>=0.21.1
+
+# Data Visualization and other utilities (if needed)
+pandas>=1.3.0
+matplotlib>=3.5.0
+
+# Hyperparameter Tuning and Metrics
+optuna>=3.0.0
+rouge-score>=0.1.2
+
+# HTTP requests for fetching remote data
+requests>=2.28.0
