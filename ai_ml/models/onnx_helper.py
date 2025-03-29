@@ -7,6 +7,7 @@ and to construct file paths based on task names (and language codes for translat
 
 import os
 
+
 def check_onnx_model_exists(model_path: str) -> bool:
     """
     Checks if an ONNX model exists in the specified directory.
@@ -21,6 +22,7 @@ def check_onnx_model_exists(model_path: str) -> bool:
     """
     onnx_file = os.path.join(model_path, "model.onnx")
     return os.path.exists(onnx_file)
+
 
 def get_onnx_model_path(task: str, extra: str = "") -> str:
     """

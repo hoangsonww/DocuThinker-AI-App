@@ -12,6 +12,7 @@ Document:
 Bullet-Point Summary:
 """
 
+
 def generate_bullet_summary(document: str, chain: LLMChain) -> str:
     """
     Generates a bullet-point summary of the document using the provided LLMChain.
