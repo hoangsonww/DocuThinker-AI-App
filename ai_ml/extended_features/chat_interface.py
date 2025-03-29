@@ -3,6 +3,7 @@ from langchain.chains import ConversationChain
 
 logger = logging.getLogger(__name__)
 
+
 def chat_with_ai(user_input: str, conversation_chain: ConversationChain) -> str:
     """
     Allows a user to chat with the AI. The conversation_chain should maintain history.

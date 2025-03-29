@@ -12,6 +12,7 @@ Document:
 Key Ideas:
 """
 
+
 def generate_key_ideas(document: str, chain: LLMChain) -> str:
     """
     Generates the key ideas from the document using the provided LLMChain.
