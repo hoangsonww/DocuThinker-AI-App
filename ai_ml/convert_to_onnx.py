@@ -2,6 +2,7 @@ import os
 import subprocess
 import sys
 
+
 def run_conversion(model_name, feature, output_dir):
     """
     Runs the ONNX export command for a given model, feature, and output directory.
@@ -14,6 +15,7 @@ def run_conversion(model_name, feature, output_dir):
     ]
     print("Running command:", " ".join(command))
     subprocess.run(command, check=True)
+
 
 def main():
     # Create base directories for ONNX models
@@ -55,7 +57,8 @@ def main():
         run_conversion("facebook/rag-token-nq", "text2text-generation", "onnx_models/rag")
 
         # Convert Sentiment Analysis model
-        run_conversion("distilbert-base-uncased-finetuned-sst-2-english", "sequence-classification", "onnx_models/sentiment")
+        run_conversion("distilbert-base-uncased-finetuned-sst-2-english", "sequence-classification",
+                       "onnx_models/sentiment")
 
         # Convert Translation models for each target language
         for lang, model in translations.items():
@@ -66,6 +69,6 @@ def main():
         print("An error occurred during ONNX conversion:", e)
         sys.exit(1)
 
+
 if __name__ == "__main__":
     main()
-
