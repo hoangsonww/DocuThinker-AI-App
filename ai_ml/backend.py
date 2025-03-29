@@ -13,12 +13,14 @@ logger = logging.getLogger(__name__)
 # Cache models to avoid reloading on each call
 MODELS = None
 
+
 def initialize_models():
     global MODELS
     if MODELS is None:
         logger.info("Loading models and chains...")
         MODELS = load_models()
     return MODELS
+
 
 def analyze_document(document: str, question: str = None, translate_lang: str = "fr"):
     """
