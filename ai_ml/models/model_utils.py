@@ -9,6 +9,7 @@ from typing import Callable, Any, Tuple
 
 logger = logging.getLogger(__name__)
 
+
 def time_function(func: Callable, *args, **kwargs) -> Tuple[Any, float]:
     """
     Times the execution of a function.
@@ -21,6 +22,7 @@ def time_function(func: Callable, *args, **kwargs) -> Tuple[Any, float]:
     elapsed_time = time.time() - start_time
     logger.info("Function '%s' executed in %.2f seconds", func.__name__, elapsed_time)
     return result, elapsed_time
+
 
 def postprocess_text(text: str) -> str:
     """
@@ -36,6 +38,7 @@ def postprocess_text(text: str) -> str:
         if not text.endswith('.'):
             text += '.'
     return text
+
 
 def ensemble_outputs(outputs: list, method: str = "first") -> str:
     """
@@ -57,6 +60,7 @@ def ensemble_outputs(outputs: list, method: str = "first") -> str:
         return outputs[0]
     # Extend with additional methods as needed.
     return outputs[0]
+
 
 def safe_execute(func: Callable, *args, **kwargs) -> Tuple[Any, Exception]:
     """
