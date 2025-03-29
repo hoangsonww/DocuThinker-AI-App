@@ -7,10 +7,12 @@ from ai_ml.backend import analyze_document
 
 app = FastAPI(title="Document Analysis Mockup API")
 
+
 class AnalysisRequest(BaseModel):
     document: str
     question: str = None
     translate_lang: str = "fr"
+
 
 @app.post("/analyze")
 async def analyze(req: AnalysisRequest):
@@ -23,6 +25,7 @@ async def analyze(req: AnalysisRequest):
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 # Mockup server to test the AI/ML backend before integrating it with the main Express BE
 if __name__ == "__main__":
