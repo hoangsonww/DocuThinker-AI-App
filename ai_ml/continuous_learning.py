@@ -9,6 +9,7 @@ from langchain.vectorstores import FAISS
 logger = logging.getLogger(__name__)
 VECTOR_STORE_PATH = "vector_store.faiss"
 
+
 def load_vector_store():
     """
     Loads the FAISS vector store if it exists; otherwise, creates a new one.
@@ -23,6 +24,7 @@ def load_vector_store():
         logger.info("Created new vector store.")
     return vector_store, embeddings
 
+
 def save_vector_store(vector_store):
     """
     Saves the vector store to disk.
@@ -30,6 +32,7 @@ def save_vector_store(vector_store):
     with open(VECTOR_STORE_PATH, "wb") as f:
         pickle.dump(vector_store, f)
     logger.info("Saved vector store.")
+
 
 def add_document(document: str, metadata: dict = None):
     """
@@ -39,6 +42,7 @@ def add_document(document: str, metadata: dict = None):
     vector_store.add_texts([document], metadatas=[metadata] if metadata else None)
     save_vector_store(vector_store)
     logger.info("Added new document to vector store.")
+
 
 def retrieve_similar(query: str, k: int = 3) -> List[str]:
     """
