@@ -12,12 +12,14 @@ from qa.qa_system import answer_question
 from discussion.discussion_generator import generate_discussion_points
 from rag.rag_system import retrieval_augmented_generation
 
+
 def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
         handlers=[logging.StreamHandler(sys.stdout)]
     )
+
 
 def main():
     setup_logging()
@@ -108,6 +110,7 @@ def main():
         print(rag_answer)
     except Exception as e:
         logger.exception("Error during RAG generation: %s", e)
+
 
 if __name__ == "__main__":
     main()
