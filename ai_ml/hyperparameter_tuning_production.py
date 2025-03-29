@@ -22,6 +22,7 @@ VALIDATION_DATA_URL = "https://raw.githubusercontent.com/optuna/optuna-tutorial/
 # File where the best hyperparameters will be saved.
 BEST_PARAMS_FILE = "best_params.json"
 
+
 def fetch_validation_data():
     """
     Fetch validation data from the public URL.
@@ -37,6 +38,7 @@ def fetch_validation_data():
     except Exception as e:
         logger.error("Failed to fetch validation data: %s", e)
         raise RuntimeError("Unable to load validation data for hyperparameter tuning.")
+
 
 def objective(trial):
     # Suggest hyperparameters for the summarization pipeline.
@@ -73,6 +75,7 @@ def objective(trial):
     logger.info("Trial average ROUGE-L F-measure: %.4f", average_score)
     return average_score
 
+
 def save_best_params(params: dict):
     """
     Saves the best hyperparameters to a JSON file.
@@ -81,6 +84,7 @@ def save_best_params(params: dict):
         json.dump(params, f, indent=4)
     logger.info("Saved best hyperparameters to %s", BEST_PARAMS_FILE)
 
+
 def main():
     study = optuna.create_study(direction="maximize")
     study.optimize(objective, n_trials=20)
@@ -88,6 +92,7 @@ def main():
     logger.info("Best Trial ROUGE-L F-measure: %.4f", best_trial.value)
     logger.info("Best Hyperparameters: %s", best_trial.params)
     save_best_params(best_trial.params)
+
 
 if __name__ == "__main__":
     main()
