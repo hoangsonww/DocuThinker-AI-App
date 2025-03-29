@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
+
 def load_data(file_path: str) -> pd.DataFrame:
     """
     Load data from a CSV file into a pandas DataFrame.
@@ -15,6 +16,7 @@ def load_data(file_path: str) -> pd.DataFrame:
     except Exception as e:
         print(f"Error loading data from {file_path}: {e}")
         raise e
+
 
 def plot_line_chart(df: pd.DataFrame, x_column: str, y_column: str, title: str = "Line Chart", output_file: str = None):
     """
@@ -30,6 +32,7 @@ def plot_line_chart(df: pd.DataFrame, x_column: str, y_column: str, title: str =
         plt.savefig(output_file)
     plt.show()
 
+
 def plot_bar_chart(df: pd.DataFrame, x_column: str, y_column: str, title: str = "Bar Chart", output_file: str = None):
     """
     Plot a bar chart using the specified x and y columns.
@@ -43,7 +46,9 @@ def plot_bar_chart(df: pd.DataFrame, x_column: str, y_column: str, title: str = 
         plt.savefig(output_file)
     plt.show()
 
-def plot_scatter_chart(df: pd.DataFrame, x_column: str, y_column: str, title: str = "Scatter Chart", output_file: str = None):
+
+def plot_scatter_chart(df: pd.DataFrame, x_column: str, y_column: str, title: str = "Scatter Chart",
+                       output_file: str = None):
     """
     Plot a scatter chart using the specified x and y columns.
     """
@@ -56,6 +61,7 @@ def plot_scatter_chart(df: pd.DataFrame, x_column: str, y_column: str, title: st
     if output_file:
         plt.savefig(output_file)
     plt.show()
+
 
 def plot_histogram(df: pd.DataFrame, column: str, bins: int = 10, title: str = "Histogram", output_file: str = None):
     """
@@ -70,6 +76,7 @@ def plot_histogram(df: pd.DataFrame, column: str, bins: int = 10, title: str = "
         plt.savefig(output_file)
     plt.show()
 
+
 def plot_pie_chart(df: pd.DataFrame, column: str, title: str = "Pie Chart", output_file: str = None):
     """
     Plot a pie chart showing the distribution of values in the specified column.
@@ -82,6 +89,7 @@ def plot_pie_chart(df: pd.DataFrame, column: str, title: str = "Pie Chart", outp
     if output_file:
         plt.savefig(output_file)
     plt.show()
+
 
 def plot_multiple_charts(df: pd.DataFrame, output_dir: str = None):
     """
@@ -140,10 +148,12 @@ def plot_multiple_charts(df: pd.DataFrame, output_dir: str = None):
         plt.savefig(output_file)
     plt.show()
 
+
 def main():
     parser = argparse.ArgumentParser(description="Comprehensive Data Visualization Script")
     parser.add_argument("csv_file", help="Path to CSV file containing data")
-    parser.add_argument("--chart", choices=["line", "bar", "scatter", "histogram", "pie", "multiple"], default="multiple", help="Type of chart to plot")
+    parser.add_argument("--chart", choices=["line", "bar", "scatter", "histogram", "pie", "multiple"],
+                        default="multiple", help="Type of chart to plot")
     parser.add_argument("--x", help="Column name for x-axis (for line, bar, scatter)")
     parser.add_argument("--y", help="Column name for y-axis (for line, bar, scatter)")
     parser.add_argument("--column", help="Column name for histogram or pie chart")
@@ -182,6 +192,7 @@ def main():
         plot_multiple_charts(df, output_dir=args.output_dir)
     else:
         print("Invalid chart type specified.")
+
 
 if __name__ == "__main__":
     main()
