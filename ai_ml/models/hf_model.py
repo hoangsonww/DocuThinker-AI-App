@@ -8,6 +8,7 @@ from ai_ml.config import MODEL_NAMES, TRANSLATION_MODELS, PROMPT_TEMPLATES
 
 logger = logging.getLogger(__name__)
 
+
 def load_models():
     models = {}
 
@@ -78,12 +79,14 @@ def load_models():
     # Load sentiment analysis pipeline directly
     try:
         logger.info("Loading sentiment analyzer pipeline...")
-        models["sentiment_analyzer"] = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
+        models["sentiment_analyzer"] = pipeline("sentiment-analysis",
+                                                model="distilbert-base-uncased-finetuned-sst-2-english")
     except Exception as e:
         logger.exception("Error loading sentiment analyzer: %s", e)
         raise e
 
     return models
+
 
 def load_translation_model(target_lang):
     """
