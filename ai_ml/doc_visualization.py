@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 VECTOR_STORE_PATH = "vector_store.faiss"
 logger = logging.getLogger(__name__)
 
+
 def load_vector_store_metadata():
     """
     Loads the FAISS vector store and extracts metadata from all stored documents.
@@ -36,6 +37,7 @@ def load_vector_store_metadata():
 
     return metadata_list
 
+
 def visualize_document_sources(metadata_list):
     """
     Creates a bar chart showing the count of documents per source.
@@ -58,12 +60,14 @@ def visualize_document_sources(metadata_list):
     plt.tight_layout()
     plt.show()
 
+
 def main():
     metadata_list = load_vector_store_metadata()
     if metadata_list:
         visualize_document_sources(metadata_list)
     else:
         print("No metadata available for visualization.")
+
 
 if __name__ == "__main__":
     main()
