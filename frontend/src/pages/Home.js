@@ -19,6 +19,9 @@ import {
 import MuiLink from "@mui/material/Link";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 import UploadModal from "../components/UploadModal";
 import ChatModal from "../components/ChatModal";
 import axios from "axios";
@@ -547,7 +550,8 @@ const Home = ({ theme }) => {
               }}
             >
               <ReactMarkdown
-                remarkPlugins={[remarkGfm]}
+                remarkPlugins={[remarkGfm, remarkMath]}
+                rehypePlugins={[rehypeKatex]}
                 components={{
                   h1: ({ node, ...props }) => (
                     <Typography
@@ -1121,7 +1125,8 @@ const Home = ({ theme }) => {
                     }}
                   >
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -1359,7 +1364,8 @@ const Home = ({ theme }) => {
                     }}
                   >
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -1597,7 +1603,8 @@ const Home = ({ theme }) => {
                     }}
                   >
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -1817,7 +1824,8 @@ const Home = ({ theme }) => {
                     Copy
                   </Button>
                   <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
                     components={{
                       h1: ({ node, ...props }) => (
                         <Typography
@@ -2143,7 +2151,8 @@ const Home = ({ theme }) => {
                     {" "}
                     {/* Padding to prevent overlap */}
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -2361,7 +2370,8 @@ const Home = ({ theme }) => {
                     Copy
                   </Button>
                   <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
                     components={{
                       h1: ({ node, ...props }) => (
                         <Typography
@@ -2585,7 +2595,8 @@ const Home = ({ theme }) => {
                     }}
                   >
                     <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
                       components={{
                         h1: ({ node, ...props }) => (
                           <Typography
@@ -2818,7 +2829,8 @@ const Home = ({ theme }) => {
                     Copy
                   </Button>
                   <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
+                    remarkPlugins={[remarkGfm, remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
                     components={{
                       h1: ({ node, ...props }) => (
                         <Typography
