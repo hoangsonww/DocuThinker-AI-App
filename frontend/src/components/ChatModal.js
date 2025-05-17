@@ -36,24 +36,240 @@ const AiMessage = ({ text, theme }) => {
   };
 
   return (
-    <Box
-      sx={{
-        position: "relative",
-        bgcolor: "#e0e0e0",
-        color: "black",
-        p: 1,
-        borderRadius: "12px",
-        maxWidth: "80%",
-        font: "inherit",
-        overflow: "scroll",
-      }}
-    >
+    <Box sx={{ display: "flex", alignItems: "flex-start", mb: 1 }}>
+      <Box
+        sx={{
+          bgcolor: "#e0e0e0",
+          color: "black",
+          p: 1,
+          borderRadius: "12px",
+          maxWidth: "80%",
+          font: "inherit",
+          overflow: "auto",
+        }}
+      >
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm, remarkMath]}
+          rehypePlugins={[rehypeKatex]}
+          components={{
+            h1: ({ node, ...props }) => (
+              <Typography
+                variant="h4"
+                sx={{
+                  font: "inherit",
+                  color: "black",
+                  fontWeight: "bold",
+                  mb: 2,
+                }}
+                {...props}
+              />
+            ),
+            h2: ({ node, ...props }) => (
+              <Typography
+                variant="h5"
+                sx={{
+                  font: "inherit",
+                  color: "black",
+                  fontWeight: "bold",
+                  mb: 2,
+                }}
+                {...props}
+              />
+            ),
+            h3: ({ node, ...props }) => (
+              <Typography
+                variant="h6"
+                sx={{
+                  font: "inherit",
+                  color: "black",
+                  fontWeight: "bold",
+                }}
+                {...props}
+              />
+            ),
+            p: ({ node, ...props }) => (
+              <Typography
+                sx={{
+                  font: "inherit",
+                  color: "black",
+                }}
+                {...props}
+              />
+            ),
+            ul: ({ node, ...props }) => (
+              <ul
+                style={{
+                  color: "black",
+                  font: "inherit",
+                }}
+                {...props}
+              />
+            ),
+            ol: ({ node, ...props }) => (
+              <ol
+                style={{
+                  color: "black",
+                  font: "inherit",
+                }}
+                {...props}
+              />
+            ),
+            a: ({ ...props }) => (
+              <MuiLink
+                {...props}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  color: "inherit",
+                  textDecoration: "underline",
+                  "&:hover": {
+                    color: "#f57c00",
+                    cursor: "pointer",
+                  },
+                }}
+              />
+            ),
+            blockquote: ({ node, ...props }) => (
+              <Box
+                component="blockquote"
+                sx={{
+                  borderLeft: "4px solid #ddd",
+                  margin: "1rem 0",
+                  paddingLeft: "1rem",
+                  fontStyle: "italic",
+                  color: "#555",
+                }}
+                {...props}
+              />
+            ),
+            hr: ({ node, ...props }) => (
+              <Box
+                component="hr"
+                sx={{
+                  border: "none",
+                  borderTop: "1px solid #eee",
+                  margin: "1rem 0",
+                }}
+                {...props}
+              />
+            ),
+            code: ({ node, inline, className, children, ...props }) => {
+              const match = /language-(\w+)/.exec(className || "");
+              if (!inline && match) {
+                return (
+                  <pre
+                    style={{
+                      background: "#f5f5f5",
+                      padding: "1rem",
+                      borderRadius: "4px",
+                      overflowX: "auto",
+                      margin: "1rem 0",
+                      color: "#333",
+                    }}
+                  >
+                    <code className={className} {...props}>
+                      {children}
+                    </code>
+                  </pre>
+                );
+              } else {
+                return (
+                  <code
+                    style={{
+                      background: "#f5f5f5",
+                      padding: "0.2rem 0.4rem",
+                      borderRadius: "4px",
+                      color: "#333",
+                    }}
+                    className={className}
+                    {...props}
+                  >
+                    {children}
+                  </code>
+                );
+              }
+            },
+            pre: ({ node, children, ...props }) => (
+              <Box
+                component="pre"
+                sx={{
+                  background: "#f5f5f5",
+                  padding: "1rem",
+                  borderRadius: "4px",
+                  overflowX: "auto",
+                  margin: "1rem 0",
+                }}
+                {...props}
+              >
+                {children}
+              </Box>
+            ),
+            table: ({ node, children, ...props }) => (
+              <Box sx={{ overflowX: "auto", width: "100%", mb: "1rem" }}>
+                <Box
+                  component="table"
+                  sx={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    border: "1px solid",
+                    borderColor: "black",
+                  }}
+                  {...props}
+                >
+                  {children}
+                </Box>
+              </Box>
+            ),
+            thead: ({ node, children, ...props }) => (
+              <Box component="thead" {...props}>
+                {children}
+              </Box>
+            ),
+            tbody: ({ node, children, ...props }) => (
+              <Box component="tbody" {...props}>
+                {children}
+              </Box>
+            ),
+            th: ({ node, children, ...props }) => (
+              <Box
+                component="th"
+                sx={{
+                  border: "1px solid",
+                  borderColor: "black",
+                  p: "0.5rem",
+                  backgroundColor: "#f5f5f5",
+                  textAlign: "left",
+                  fontWeight: "bold",
+                }}
+                {...props}
+              >
+                {children}
+              </Box>
+            ),
+            td: ({ node, children, ...props }) => (
+              <Box
+                component="td"
+                sx={{
+                  border: "1px solid",
+                  borderColor: "black",
+                  p: "0.5rem",
+                  textAlign: "left",
+                }}
+                {...props}
+              >
+                {children}
+              </Box>
+            ),
+          }}
+        >
+          {text}
+        </ReactMarkdown>
+      </Box>
       <IconButton
         onClick={handleCopy}
         sx={{
-          position: "absolute",
-          top: 4,
-          right: 4,
+          ml: 1,
+          mt: 1,
           p: 0.5,
           color: copied ? "#4caf50" : "gray",
           "&:hover": { color: "#f57c00" },
@@ -65,222 +281,6 @@ const AiMessage = ({ text, theme }) => {
           <ContentCopyIcon fontSize="small" />
         )}
       </IconButton>
-      <ReactMarkdown
-        remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeKatex]}
-        components={{
-          h1: ({ node, ...props }) => (
-            <Typography
-              variant="h4"
-              sx={{
-                font: "inherit",
-                color: "black",
-                fontWeight: "bold",
-                mb: 2,
-              }}
-              {...props}
-            />
-          ),
-          h2: ({ node, ...props }) => (
-            <Typography
-              variant="h5"
-              sx={{
-                font: "inherit",
-                color: "black",
-                fontWeight: "bold",
-                mb: 2,
-              }}
-              {...props}
-            />
-          ),
-          h3: ({ node, ...props }) => (
-            <Typography
-              variant="h6"
-              sx={{
-                font: "inherit",
-                color: "black",
-                fontWeight: "bold",
-              }}
-              {...props}
-            />
-          ),
-          p: ({ node, ...props }) => (
-            <Typography
-              sx={{
-                font: "inherit",
-                color: "black",
-              }}
-              {...props}
-            />
-          ),
-          ul: ({ node, ...props }) => (
-            <ul
-              style={{
-                color: "black",
-                font: "inherit",
-              }}
-              {...props}
-            />
-          ),
-          ol: ({ node, ...props }) => (
-            <ol
-              style={{
-                color: "black",
-                font: "inherit",
-              }}
-              {...props}
-            />
-          ),
-          a: ({ ...props }) => (
-            <MuiLink
-              {...props}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{
-                color: "inherit",
-                textDecoration: "underline",
-                "&:hover": {
-                  color: "#f57c00",
-                  cursor: "pointer",
-                },
-              }}
-            />
-          ),
-          blockquote: ({ node, ...props }) => (
-            <Box
-              component="blockquote"
-              sx={{
-                borderLeft: "4px solid #ddd",
-                margin: "1rem 0",
-                paddingLeft: "1rem",
-                fontStyle: "italic",
-                color: "#555",
-              }}
-              {...props}
-            />
-          ),
-          hr: ({ node, ...props }) => (
-            <Box
-              component="hr"
-              sx={{
-                border: "none",
-                borderTop: "1px solid #eee",
-                margin: "1rem 0",
-              }}
-              {...props}
-            />
-          ),
-          code: ({ node, inline, className, children, ...props }) => {
-            const match = /language-(\w+)/.exec(className || "");
-            if (!inline && match) {
-              return (
-                <pre
-                  style={{
-                    background: "#f5f5f5",
-                    padding: "1rem",
-                    borderRadius: "4px",
-                    overflowX: "auto",
-                    margin: "1rem 0",
-                    color: "#333",
-                  }}
-                >
-                  <code className={className} {...props}>
-                    {children}
-                  </code>
-                </pre>
-              );
-            } else {
-              return (
-                <code
-                  style={{
-                    background: "#f5f5f5",
-                    padding: "0.2rem 0.4rem",
-                    borderRadius: "4px",
-                    color: "#333",
-                  }}
-                  className={className}
-                  {...props}
-                >
-                  {children}
-                </code>
-              );
-            }
-          },
-          pre: ({ node, children, ...props }) => (
-            <Box
-              component="pre"
-              sx={{
-                background: "#f5f5f5",
-                padding: "1rem",
-                borderRadius: "4px",
-                overflowX: "auto",
-                margin: "1rem 0",
-              }}
-              {...props}
-            >
-              {children}
-            </Box>
-          ),
-          table: ({ node, children, ...props }) => (
-            <Box sx={{ overflowX: "auto", width: "100%", mb: "1rem" }}>
-              <Box
-                component="table"
-                sx={{
-                  width: "100%",
-                  borderCollapse: "collapse",
-                  border: "1px solid",
-                  borderColor: "black",
-                }}
-                {...props}
-              >
-                {children}
-              </Box>
-            </Box>
-          ),
-          thead: ({ node, children, ...props }) => (
-            <Box component="thead" {...props}>
-              {children}
-            </Box>
-          ),
-          tbody: ({ node, children, ...props }) => (
-            <Box component="tbody" {...props}>
-              {children}
-            </Box>
-          ),
-          th: ({ node, children, ...props }) => (
-            <Box
-              component="th"
-              sx={{
-                border: "1px solid",
-                borderColor: "black",
-                p: "0.5rem",
-                backgroundColor: "#f5f5f5",
-                textAlign: "left",
-                fontWeight: "bold",
-              }}
-              {...props}
-            >
-              {children}
-            </Box>
-          ),
-          td: ({ node, children, ...props }) => (
-            <Box
-              component="td"
-              sx={{
-                border: "1px solid",
-                borderColor: "black",
-                p: "0.5rem",
-                textAlign: "left",
-              }}
-              {...props}
-            >
-              {children}
-            </Box>
-          ),
-        }}
-      >
-        {text}
-      </ReactMarkdown>
     </Box>
   );
 };
