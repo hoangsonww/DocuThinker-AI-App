@@ -49,7 +49,8 @@ The **DocuThinker** app is designed to provide users with a simple, AI-powered d
 
 **DocuThinker** is created using the **FERN-Stack** architecture, which stands for **Firebase, Express, React, and Node.js**. The backend is built with Node.js and Express, integrating Firebase for user authentication and MongoDB for data storage. The frontend is built with React and Material-UI, providing a responsive and user-friendly interface.
 
-It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
+> [!IMPORTANT]
+> It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
@@ -64,7 +65,7 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
 > The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up.
 
 > [!NOTE]
-> Additionally, the app is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
+> Additionally, the Render-deployed backend is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
 
 ### Live Statuses
 
@@ -1008,7 +1009,8 @@ Thank you for contributing to **DocuThinker**! 🎉
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial License**. See the [LICENSE](LICENSE.md) file for details.
 
-The **DocuThinker** open-source project is for educational purposes only and should not be used for commercial applications. Feel free to use it for learning and personal projects!
+> [!IMPORTANT]
+> The **DocuThinker** open-source project is for educational purposes only and should not be used for commercial applications. But free to use it for learning and personal projects!
 
 <h2 id="alternative-docs">📚 Additional Documentation</h2>
 
