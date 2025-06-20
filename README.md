@@ -555,7 +555,8 @@ Additionally, **basic fullstack development knowledge and AI/ML concepts** are r
 
 ### **Backend Installation**
 
-Note that this is optional since we are deploying the backend on **Render**. However, you can (and should) run the backend locally for development purposes.
+> [!NOTE]
+> Note that this is optional since we are deploying the backend on **Render**. However, you can (and should) run the backend locally for development purposes.
 
 1. **Navigate to the root (not `backend`) directory**:
    ```bash
@@ -577,7 +578,8 @@ Note that this is optional since we are deploying the backend on **Render**. How
 4. **The backend server will run on `http://localhost:3000`**. You can access the API endpoints in your browser or **Postman**.
 5. **Additionally, the backend code is in the `backend` directory**. Feel free to explore the API endpoints and controllers.
 
-**Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
+> [!CAUTION]
+> **Note:** Be sure to use Node v.20 or earlier to avoid compatibility issues with Firebase Admin SDK.
 
 ### **Running the Mobile App**
 
@@ -925,13 +927,14 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
 
 ### **Important Note about Backend Deployment**
 
-- Please note that we are currently on the **Free Tier** of **Render**. This means that the backend server may take a few seconds to wake up if it has been inactive for a while.
-
-- Therefore, the first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. It is completely normal to take up to 2 minutes for the first API call to respond.
-
-- Also, the **Free Tier** of **Render** only allocates **512MB and 0.1 CPU**. This may result in slower response times for API calls and document processing.
-
-- Additionally, during high traffic periods, the server may take longer to respond, although we have employed [NGINX](#load-balancing) for load balancing and caching.
+> [!IMPORTANT]
+> - Please note that we are currently on the **Free Tier** of **Render**. This means that the backend server may take a few seconds to wake up if it has been inactive for a while.
+>
+> - Therefore, the first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. It is completely normal to take up to 2 minutes for the first API call to respond.
+>
+> - Also, the **Free Tier** of **Render** only allocates **512MB and 0.1 CPU**. This may result in slower response times for API calls and document processing.
+>
+> - Additionally, during high traffic periods, the server may take longer to respond, although we have employed [NGINX](#load-balancing) for load balancing and caching.
 
 <h2 id="load-balancing">⚖️ Load Balancing & Caching</h2>
 
