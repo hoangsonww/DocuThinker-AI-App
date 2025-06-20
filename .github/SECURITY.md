@@ -1,10 +1,10 @@
-# DocuThink App - Security Policies
+# DocuThinker App - Security Policies
 
 ## Introduction
 
-DocuThink is a dynamic web application designed to provide users with an engaging platform to explore and learn about various movies, directors, actors, and more. Ensuring the security of our users and the application is of paramount importance. This document outlines the security measures, policies, and best practices implemented in DocuThink.
+DocuThinker is a dynamic web application designed to provide users with an engaging platform to explore and learn about various movies, directors, actors, and more. Ensuring the security of our users and the application is of paramount importance. This document outlines the security measures, policies, and best practices implemented in DocuThinker.
 
-Current DocuThink Version: `1.1.0`
+Current DocuThinker Version: `1.1.0`
 
 ## Security Measures
 
@@ -15,7 +15,7 @@ Current DocuThink Version: `1.1.0`
 
 ### 2. Secure Communication
 
-- **HTTPS**: DocuThink enforces HTTPS to ensure secure communication over the internet, encrypting data in transit.
+- **HTTPS**: DocuThinker enforces HTTPS to ensure secure communication over the internet, encrypting data in transit.
 
 ### 3. Input Validation and Sanitization
 
@@ -24,7 +24,7 @@ Current DocuThink Version: `1.1.0`
 
 ### 4. Authentication and Authorization
 
-- **OAuth2**: For user authentication, DocuThink implements OAuth2 protocol, ensuring secure authorization.
+- **OAuth2**: For user authentication, DocuThinker implements OAuth2 protocol, ensuring secure authorization.
 - **Role-Based Access Control**: Different levels of access are enforced depending on the user's role to prevent unauthorized access to sensitive data.
 
 ### 5. Cross-Site Scripting (XSS) Protection
@@ -63,7 +63,7 @@ Current DocuThink Version: `1.1.0`
 
 ## Incident Response Plan
 
-DocuThink has an incident response plan to quickly address and mitigate any security incidents. This includes:
+DocuThinker has an incident response plan to quickly address and mitigate any security incidents. This includes:
 
 - Immediate identification and isolation of the incident.
 - Analysis and investigation of the breach.
@@ -77,7 +77,7 @@ We encourage responsible disclosure of any security vulnerabilities. Please repo
 
 ## Continuous Improvement
 
-Security is an ongoing process. DocuThink App is committed to continuously improving the security posture of the application by staying up-to-date with the latest security trends, threats, and mitigation techniques.
+Security is an ongoing process. DocuThinker App is committed to continuously improving the security posture of the application by staying up-to-date with the latest security trends, threats, and mitigation techniques.
 
 ## Contact Information
 
