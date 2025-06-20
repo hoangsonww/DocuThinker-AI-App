@@ -60,8 +60,10 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
 - **Backend**: Deployed on **Vercel**. You can access the live backend **[here](https://docuthinker-app-backend-api.vercel.app/)**.
   - **Backup Backend API**: Deployed on **Render**. You can access the backup backend **[here](https://docuthinker-ai-app.onrender.com/)**.
 
-> **Note**: The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up.
+> [!IMPORTANT]
+> The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up.
 
+> [!NOTE]
 > Additionally, the app is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
 
 ### Live Statuses
