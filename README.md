@@ -1008,7 +1008,8 @@ Thank you for contributing to **DocuThinker**! 🎉
 
 This project is licensed under the **Creative Commons Attribution-NonCommercial License**. See the [LICENSE](LICENSE.md) file for details.
 
-The **DocuThinker** open-source project is for educational purposes only and should not be used for commercial applications. Feel free to use it for learning and personal projects!
+> [!IMPORTANT]
+> The **DocuThinker** open-source project is for educational purposes only and should not be used for commercial applications. But free to use it for learning and personal projects!
 
 <h2 id="alternative-docs">📚 Additional Documentation</h2>
 
