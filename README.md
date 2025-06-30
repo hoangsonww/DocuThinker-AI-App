@@ -4,7 +4,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 
 <p align="center">
   <a href="https://docuthinker.vercel.app" style="cursor: pointer">
-    <img src="images/logo.png" alt="DocuThinker Logo" width="50%" style="border-radius: 8px">
+    <img src="images/logo.png" alt="DocuThinker Logo" width="45%" style="border-radius: 8px">
   </a>
 </p>
 
