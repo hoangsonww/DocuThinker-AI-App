@@ -54,6 +54,9 @@ The **DocuThinker** app is designed to provide users with a simple, AI-powered d
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
+> [!TIP]
+> Access the live app at **[https://docuthinker.vercel.app/](https://docuthinker.vercel.app/) by clicking on the link or copying it into your browser! 🚀**
+
 We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
 
 - **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**.
@@ -196,7 +199,7 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=white" alt="Webpack" />
   <img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native" />
   <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
-  <img src="https://img.shields.io/badge/React_Navigation-000000?style=for-the-badge&logo=react-router&logoColor=white" alt="React Navigation" />
+  <img src="https://img.shields.io/badge/React_Navigation-123456?style=for-the-badge&logo=react-router&logoColor=white" alt="React Navigation" />
 
   <!-- Backend -->
   <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
@@ -212,12 +215,12 @@ These badges indicate the current deployment status of the app, updating automat
   <!-- AI/ML -->
   <img src="https://img.shields.io/badge/Google_Cloud_NLP-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Cloud NLP" />
   <img src="https://img.shields.io/badge/Google_Speech--to--Text-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Speech-to-Text" />
-  <img src="https://img.shields.io/badge/Google_AI_Studio-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google AI Studio" />
-  <img src="https://img.shields.io/badge/NLP-00599C?style=for-the-badge&logo=nltk&logoColor=white" alt="Natural Language Processing" />
-  <img src="https://img.shields.io/badge/NER-007ACC?style=for-the-badge&logoColor=white" alt="Named Entity Recognition" />
-  <img src="https://img.shields.io/badge/POS_Tagging-007ACC?style=for-the-badge&logoColor=white" alt="POS Tagging" />
-  <img src="https://img.shields.io/badge/RAG-6495ED?style=for-the-badge&logoColor=white" alt="Retrieval-Augmented Generation" />
-  <img src="https://img.shields.io/badge/LangChain-6495ED?style=for-the-badge&logoColor=white" alt="LangChain" />
+  <img src="https://img.shields.io/badge/Google_AI_Studio-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google AI Studio" />
+  <img src="https://img.shields.io/badge/NLP_&amp;_NLTK-00599C?style=for-the-badge&logo=apachedolphinscheduler&logoColor=white" alt="Natural Language Processing" />
+  <img src="https://img.shields.io/badge/NER-007ACC?style=for-the-badge&logo=apachenetbeanside&logoColor=white" alt="Named Entity Recognition" />
+  <img src="https://img.shields.io/badge/POS_Tagging-123456?style=for-the-badge&logo=posit&logoColor=white" alt="POS Tagging" />
+  <img src="https://img.shields.io/badge/Retrieval%20Augmented%20Generation%20(RAG)-6495ED?style=for-the-badge&logo=chatbot&logoColor=white" alt="Retrieval-Augmented Generation" />
+  <img src="https://img.shields.io/badge/LangChain-999999?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
 
   <!-- Containerization, Deployment, CI/CD -->
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
@@ -232,6 +235,9 @@ These badges indicate the current deployment status of the app, updating automat
   <!-- API Documentation -->
   <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
   <img src="https://img.shields.io/badge/OpenAPI-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white" alt="OpenAPI" />
+  <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" alt="JSON" />
+  <img src="https://img.shields.io/badge/YAML-FFCA28?style=for-the-badge&logo=yaml&logoColor=black" alt="YAML" />
+  <img src="https://img.shields.io/badge/REST_API-00599C?style=for-the-badge&logo=fastapi&logoColor=white" alt="REST API" />
 </p>
 
 <h2 id="user-interface">🖼️ User Interface</h2>
