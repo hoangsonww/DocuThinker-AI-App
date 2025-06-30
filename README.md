@@ -69,18 +69,46 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
 
 ### Live Statuses
 
-[![Deployed with Vercel](https://img.shields.io/badge/Deployed%20with-Vercel-green?&logo=vercel)](https://docuthinker-fullstack-app.vercel.app)
-[![Render Success](https://img.shields.io/badge/Render-Success-green?&logo=render)](https://docuthinker-ai-app.onrender.com/)
-[![Netlify Backup Deployed](https://img.shields.io/badge/Netlify-Backup%20Deployed-green?&logo=netlify)](https://docuthinker-ai-app.netlify.app)
-[![Firebase Functional](https://img.shields.io/badge/Firebase-Functional-green?&logo=firebase)](https://firebase.google.com)
-[![MongoDB Atlas Connected](https://img.shields.io/badge/MongoDB%20Atlas-Connected-green?&logo=mongodb)](https://www.mongodb.com/cloud/atlas)
-[![Redis Cache Enabled](https://img.shields.io/badge/Redis-Cache%20Enabled-green?&logo=redis)](https://redis.io)
-[![RabbitMQ Enabled](https://img.shields.io/badge/RabbitMQ-Enabled-green?&logo=rabbitmq)](https://www.rabbitmq.com)
-[![GraphQL API](https://img.shields.io/badge/GraphQL-API-green?&logo=graphql)](https://graphql.org)
-[![Dockerized](https://img.shields.io/badge/Dockerized-Yes-blue?&logo=docker)](https://www.docker.com)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-Yes-blue?&logo=kubernetes)](https://kubernetes.io)
-[![Jenkins CI/CD](https://img.shields.io/badge/Jenkins-CI%2FCD-blue?&logo=jenkins)](https://www.jenkins.io)
-[![Swagger & OpenAPI](https://img.shields.io/badge/Swagger%20%26%20OpenAPI-Documented-blue?&logo=swagger)](https://swagger.io)
+These badges indicate the current deployment status of the app, updating automatically based on the latest deployment status:
+
+<p align="center">
+  <a href="https://docuthinker-fullstack-app.vercel.app">
+    <img src="https://img.shields.io/badge/Deployed_with-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
+  </a>
+  <a href="https://docuthinker-ai-app.onrender.com/">
+    <img src="https://img.shields.io/badge/Render-Success-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render Success" />
+  </a>
+  <a href="https://docuthinker-ai-app.netlify.app">
+    <img src="https://img.shields.io/badge/Netlify-Backup_Deployed-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Netlify Backup" />
+  </a>
+  <a href="https://firebase.google.com">
+    <img src="https://img.shields.io/badge/Firebase-Functional-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase Functional" />
+  </a>
+  <a href="https://www.mongodb.com/cloud/atlas">
+    <img src="https://img.shields.io/badge/MongoDB_Atlas-Connected-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB Atlas" />
+  </a>
+  <a href="https://redis.io">
+    <img src="https://img.shields.io/badge/Redis-Cache_Enabled-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis Cache" />
+  </a>
+  <a href="https://www.rabbitmq.com">
+    <img src="https://img.shields.io/badge/RabbitMQ-Enabled-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ Enabled" />
+  </a>
+  <a href="https://graphql.org">
+    <img src="https://img.shields.io/badge/GraphQL-API-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL API" />
+  </a>
+  <a href="https://www.docker.com">
+    <img src="https://img.shields.io/badge/Dockerized-Yes-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Dockerized" />
+  </a>
+  <a href="https://kubernetes.io">
+    <img src="https://img.shields.io/badge/Kubernetes-Yes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+  </a>
+  <a href="https://www.jenkins.io">
+    <img src="https://img.shields.io/badge/Jenkins-CI/CD-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins CI/CD" />
+  </a>
+  <a href="https://swagger.io">
+    <img src="https://img.shields.io/badge/Swagger_&_OpenAPI-Documented-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger & OpenAPI" />
+  </a>
+</p>
 
 <h2 id="features">✨ Features</h2>
 
@@ -159,32 +187,52 @@ We have deployed the entire app on **Vercel** and **Render**. You can access the
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
 
-![React](https://img.shields.io/badge/-React-61DAFB?logo=react&logoColor=white&style=for-the-badge)
-![Material-UI](https://img.shields.io/badge/-Material--UI-0081CB?logo=react&logoColor=white&style=for-the-badge)
-![TailwindCSS](https://img.shields.io/badge/-TailwindCSS-38B2AC?logo=tailwind-css&logoColor=white&style=for-the-badge)
-![Craco](https://img.shields.io/badge/-Craco-61DAFB?logo=webpack&logoColor=white&style=for-the-badge)
-![Webpack](https://img.shields.io/badge/-Webpack-8DD6F9?logo=webpack&logoColor=white&style=for-the-badge)
-![Express](https://img.shields.io/badge/-Express-000000?logo=express&logoColor=white&style=for-the-badge)
-![Firebase](https://img.shields.io/badge/-Firebase-FFCA28?logo=firebase&logoColor=white&style=for-the-badge)
-![Node.js](https://img.shields.io/badge/-Node.js-339933?logo=node.js&logoColor=white&style=for-the-badge)
-![GraphQL](https://img.shields.io/badge/-GraphQL-E10098?logo=graphql&logoColor=white&style=for-the-badge)
-![Google Cloud Natural Language API](https://img.shields.io/badge/-Google%20Cloud%20Natural%20Language%20API-4285F4?logo=google-cloud&logoColor=white&style=for-the-badge)
-![Google Speech-to-Text API](https://img.shields.io/badge/-Google%20Speech--to--Text%20API-4285F4?logo=google-cloud&logoColor=white&style=for-the-badge)
-![RAG](https://img.shields.io/badge/-RAG-6495ED?logo=rag&logoColor=white&style=for-the-badge)
-![LangChain](https://img.shields.io/badge/-LangChain-6495ED?logo=langchain&logoColor=white&style=for-the-badge)
-![MongoDB](https://img.shields.io/badge/-MongoDB-47A248?logo=mongodb&logoColor=white&style=for-the-badge)
-![Redis](https://img.shields.io/badge/-Redis-DC382D?logo=redis&logoColor=white&style=for-the-badge)
-![React Native](https://img.shields.io/badge/-React%20Native-61DAFB?logo=react&logoColor=white&style=for-the-badge)
-![Swagger](https://img.shields.io/badge/-Swagger-85EA2D?logo=swagger&logoColor=white&style=for-the-badge)
-![OpenAPI](https://img.shields.io/badge/-OpenAPI-6BA539?logo=openapi&logoColor=white&style=for-the-badge)
-![Docker](https://img.shields.io/badge/-Docker-2496ED?logo=docker&logoColor=white&style=for-the-badge)
-![Kubernetes](https://img.shields.io/badge/-Kubernetes-326CE5?logo=kubernetes&logoColor=white&style=for-the-badge)
-![NGINX](https://img.shields.io/badge/-NGINX-269539?logo=nginx&logoColor=white&style=for-the-badge)
-![GitHub Actions](https://img.shields.io/badge/-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white&style=for-the-badge)
-![Jenkins](https://img.shields.io/badge/-Jenkins-D24939?logo=jenkins&logoColor=white&style=for-the-badge)
-![Render](https://img.shields.io/badge/-Render-FF6B6B?logo=render&logoColor=white&style=for-the-badge)
-![Vercel](https://img.shields.io/badge/-Vercel-000000?logo=vercel&logoColor=white&style=for-the-badge)
-![Netlify](https://img.shields.io/badge/-Netlify-00C7B7?logo=netlify&logoColor=white&style=for-the-badge)
+<p align="center">
+  <!-- Frontend -->
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Material--UI-0081CB?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
+  <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Craco-61DAFB?style=for-the-badge&logo=webpack&logoColor=white" alt="Craco" />
+  <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=white" alt="Webpack" />
+  <img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native" />
+  <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
+  <img src="https://img.shields.io/badge/React_Navigation-000000?style=for-the-badge&logo=react-router&logoColor=white" alt="React Navigation" />
+
+  <!-- Backend -->
+  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase" />
+  <img src="https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase Auth" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firestore" />
+  <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
+  <img src="https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL" />
+
+  <!-- AI/ML -->
+  <img src="https://img.shields.io/badge/Google_Cloud_NLP-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Cloud NLP" />
+  <img src="https://img.shields.io/badge/Google_Speech--to--Text-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Speech-to-Text" />
+  <img src="https://img.shields.io/badge/Google_AI_Studio-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google AI Studio" />
+  <img src="https://img.shields.io/badge/NLP-00599C?style=for-the-badge&logo=nltk&logoColor=white" alt="Natural Language Processing" />
+  <img src="https://img.shields.io/badge/NER-007ACC?style=for-the-badge&logoColor=white" alt="Named Entity Recognition" />
+  <img src="https://img.shields.io/badge/POS_Tagging-007ACC?style=for-the-badge&logoColor=white" alt="POS Tagging" />
+  <img src="https://img.shields.io/badge/RAG-6495ED?style=for-the-badge&logoColor=white" alt="Retrieval-Augmented Generation" />
+  <img src="https://img.shields.io/badge/LangChain-6495ED?style=for-the-badge&logoColor=white" alt="LangChain" />
+
+  <!-- Containerization, Deployment, CI/CD -->
+  <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+  <img src="https://img.shields.io/badge/NGINX-269539?style=for-the-badge&logo=nginx&logoColor=white" alt="NGINX" />
+  <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions" />
+  <img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins" />
+  <img src="https://img.shields.io/badge/Render-FF6B6B?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  <img src="https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Netlify" />
+
+  <!-- API Documentation -->
+  <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
+  <img src="https://img.shields.io/badge/OpenAPI-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white" alt="OpenAPI" />
+</p>
 
 <h2 id="user-interface">🖼️ User Interface</h2>
 
