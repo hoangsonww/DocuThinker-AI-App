@@ -55,7 +55,7 @@
   "scripts": {
     "start": "craco start",
     "build": "craco build",
-    "test": "jest --watchAll",
+    "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
     "coverage": "jest --coverage",
