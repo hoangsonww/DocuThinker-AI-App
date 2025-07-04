@@ -22,7 +22,7 @@ jobs:
       - run: npm run lint
 
   ################################################################################
-  # 2 · Backend & Frontend Tests (parallel) ✅  🌐
+  # 2 · Backend & Frontend Tests (parallel) ✅ 🌐
   ################################################################################
   backend-tests:
     name: "✅ Backend Tests"
@@ -32,8 +32,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with: { node-version: 18 }
-      - run: npm --workspace backend ci
-      - run: npm --workspace backend test
+      - run: cd backend && npm ci
+      - run: cd backend && npm test
 
   frontend-tests:
     name: "🌐 Frontend Tests"
@@ -43,8 +43,8 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with: { node-version: 18 }
-      - run: npm --workspace frontend ci
-      - run: npm --workspace frontend test
+      - run: cd frontend && npm ci
+      - run: cd frontend && npm test
 
   ################################################################################
   # 3 · Coverage 📊
@@ -57,18 +57,17 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with: { node-version: 18 }
-      - run: |
-          npm ci
-          npm --workspace backend ci
-          npm --workspace frontend ci
-      - name: Backend – jest --coverage
-        run: npm --workspace backend test -- --coverage
+      - run: npm ci
+      - run: cd backend && npm ci
+      - run: cd frontend && npm ci
+      - name: Backend coverage
+        run: cd backend && npm test -- --coverage
       - uses: actions/upload-artifact@v4
         with:
           name: backend-coverage
           path: backend/coverage
-      - name: Frontend – jest --coverage
-        run: npm --workspace frontend test -- --coverage
+      - name: Frontend coverage
+        run: cd frontend && npm test -- --coverage
       - uses: actions/upload-artifact@v4
         with:
           name: frontend-coverage
