@@ -1,26 +1,26 @@
-# Use an official Node.js runtime as a parent image
-FROM node:14-alpine
+# Use Node
+FROM node:18-alpine
 
-# Set the working directory in the container
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the container
-COPY package*.json ./
+# Copy only frontend files
+COPY ./frontend/package*.json ./
 
-# Install dependencies
+# Install frontend dependencies
 RUN npm install
 
-# Copy the rest of the frontend source code to the container
-COPY . .
+# Copy rest of the frontend app
+COPY ./frontend .
 
-# Build the React app
+# Build production React app
 RUN npm run build
 
-# Install serve for production build serving
+# Install serve to serve static build
 RUN npm install -g serve
 
-# Expose the port the app will run on
+# Expose port
 EXPOSE 3001
 
-# Serve the production build
+# Start
 CMD ["serve", "-s", "build", "-l", "3001"]

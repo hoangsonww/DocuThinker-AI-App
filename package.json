@@ -13,6 +13,7 @@
   },
   "private": false,
   "scripts": {
+    "lint": "npm run format",
     "start": "cd frontend && npm start",
     "build": "cd frontend && npm run build",
     "test": "cd frontend && npm test",
@@ -51,7 +52,9 @@
     "uuid": "^10.0.0"
   },
   "devDependencies": {
-    "eslint": "^8",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.3.0",
     "nodemon": "^3.1.7"
   }
 }

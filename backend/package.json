@@ -15,7 +15,12 @@
   "scripts": {
     "start": "nodemon index.js",
     "build": "echo 'Skipping build step for Vercel'",
-    "test": "nodemon index.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:cov": "jest --coverage",
+    "test:coverage": "jest --coverage",
+    "coverage": "jest --coverage",
+    "test:clear": "jest --clearCache",
     "server": "nodemon index.js",
     "backend": "nodemon index.js",
     "format": "prettier --write **/*.js",
