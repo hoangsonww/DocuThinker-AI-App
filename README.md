@@ -238,6 +238,14 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" alt="JSON" />
   <img src="https://img.shields.io/badge/YAML-FFCA28?style=for-the-badge&logo=yaml&logoColor=black" alt="YAML" />
   <img src="https://img.shields.io/badge/REST_API-00599C?style=for-the-badge&logo=fastapi&logoColor=white" alt="REST API" />
+
+  <!-- Testing & Tools -->
+  <img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
+  <img src="https://img.shields.io/badge/React_Testing_Library-FFCA28?style=for-the-badge&logo=testing-library&logoColor=black" alt="React Testing Library" />
+  <img src="https://img.shields.io/badge/Supertest-FFCA28?style=for-the-badge&logo=testrail&logoColor=black" alt="Supertest" />
+  <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Postman" />
+  <img src="https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
+  <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
 </p>
 
 <h2 id="user-interface">🖼️ User Interface</h2>
@@ -1029,6 +1037,61 @@ If successful, you should see the Jenkins pipeline running and deploying the app
 <p align="center">
   <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
 </p>
+
+<h2 id="testing">🧪 Testing</h2>
+
+DocuThinker includes a comprehensive suite of tests to ensure the reliability and correctness of the application. The tests cover various aspects of the app, including:
+
+- **Unit Tests**: Individual components and functions are tested in isolation to verify their correctness.
+- **Integration Tests**: Multiple components are tested together to ensure they work as expected when integrated.
+- **End-to-End Tests**: The entire application flow is tested to simulate real user interactions and verify the overall functionality.
+- **API Tests**: The API endpoints are tested to ensure they return the expected responses and handle errors correctly.
+
+### Backend Unit & Integration Testing
+
+To run the backend tests, follow these steps:
+
+1. **Navigate to the backend directory**:
+   ```bash
+   cd backend
+   ```
+   
+2. **Install the necessary dependencies**:
+   ```bash
+   # Run the tests in default mode
+   npm run test
+   
+   # Run the tests in watch mode
+   npm run test:watch
+   
+   # Run the tests with coverage report
+   npm run test:coverage
+   ```
+   
+This will run the unit tests and integration tests for the backend app using **Jest** and **Supertest**.
+
+### Frontend Unit & E2E Testing
+
+To run the frontend tests, follow these steps:
+
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd frontend
+   ```
+   
+2. **Install the necessary dependencies**:
+   ```bash
+   # Run the tests in default mode
+   npm run test
+   
+   # Run the tests in watch mode
+   npm run test:watch
+   
+   # Run the tests with coverage report
+   npm run test:coverage
+   ```
+   
+This will run the unit tests and end-to-end tests for the frontend app using **Jest** and **React Testing Library**.
 
 <h2 id="kubernetes">🚢 Kubernetes Integration</h2>
 
