@@ -147,6 +147,8 @@ These badges indicate the current deployment status of the app, updating automat
   - **TailwindCSS**: Utility-first CSS framework for styling.
   - **Craco**: Create React App Configuration Override for customizing Webpack.
   - **Webpack**: Module bundler for JavaScript applications.
+  - **Jest**: JavaScript testing framework for unit and integration tests.
+  - **React Testing Library**: Testing utilities for React components.
 - **Backend**:
   - **Express**: Web application framework for Node.js.
   - **Redis**: In-memory data structure store for caching.
@@ -157,6 +159,8 @@ These badges indicate the current deployment status of the app, updating automat
   - **Middlewares**: Firebase authentication middleware for securing routes and JWT middleware for token verification.
   - **REST APIs**: Representational State Transfer for building APIs.
   - **GraphQL**: Query language for APIs and runtime for executing queries.
+  - **RabbitMQ**: Message broker for handling asynchronous tasks and background jobs.
+  - **Swagger/OpenAPI**: API documentation for all endpoints.
 - **AI/ML Services**:
   - **Google Cloud Natural Language API**: Machine learning models for text analysis.
   - **Google Speech-to-Text API**: Speech recognition for voice chat integration & text extraction from audio.
@@ -189,6 +193,7 @@ These badges indicate the current deployment status of the app, updating automat
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
+- _and more!_
 
 <p align="center">
   <!-- Frontend -->
