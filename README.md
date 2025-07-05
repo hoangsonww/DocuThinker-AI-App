@@ -37,6 +37,9 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
   - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
 - [**⚖️ Load Balancing & Caching**](#load-balancing)
 - [**🔗 Jenkins Integration**](#jenkins)
+- [**🧪 Testing**](#testing)
+  - [**Backend Unit & Integration Testing**](#backend-unit--integration-testing)
+  - [**Frontend Unit & E2E Testing**](#frontend-unit--e2e-testing)
 - [**🚢 Kubernetes Integration**](#kubernetes)
 - [**🔧 Contributing**](#contributing)
 - [**📝 License**](#license)
@@ -1115,14 +1118,17 @@ We welcome contributions from the community! Follow these steps to contribute:
    ```bash
    git checkout -b feature/your-feature
    ```
+   
 3. **Commit your changes**:
    ```bash
    git commit -m "Add your feature"
    ```
+   
 4. **Push the changes**:
    ```bash
    git push origin feature/your-feature
    ```
+   
 5. **Submit a pull request**: Please submit a pull request from your forked repository to the main repository. I will review your changes and merge them into the main branch shortly.
 
 Thank you for contributing to **DocuThinker**! 🎉
@@ -1155,7 +1161,7 @@ Here are some information about me:
 
 **Happy Coding and Analyzing! 🚀**
 
-**Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024.**
+**Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024-2025.**
 
 ---
 
