@@ -2,7 +2,7 @@
   "name": "docuthinker-viewer",
   "displayName": "DocuThinker Viewer",
   "description": "Embed the DocuThinker AI‑powered document analysis & summarization app directly in VS Code.",
-  "version": "0.0.1",
+  "version": "1.0.1",
   "license": "MIT",
   "publisher": "hoangsonw",
   "keywords": [
