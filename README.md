@@ -41,6 +41,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
   - [**Backend Unit & Integration Testing**](#backend-unit--integration-testing)
   - [**Frontend Unit & E2E Testing**](#frontend-unit--e2e-testing)
 - [**🚢 Kubernetes Integration**](#kubernetes)
+- [**⚛️ VS Code Extension**](#vscode-extension)
 - [**🔧 Contributing**](#contributing)
 - [**📝 License**](#license)
 - [**📚 Additional Documentation**](#alternative-docs)
@@ -1107,6 +1108,21 @@ This will run the unit tests and end-to-end tests for the frontend app using **J
 - The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `kubernetes` directory.
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
+
+<h2 id="vscode-extension">⚛️ VSCode Extension</h2>
+
+The **DocuThinker Viewer** extension brings your document upload, summarization and insight‑extraction workflow right into VS Code.
+
+**Key Features**
+
+* **Inline Upload & Summaries**: Drop PDFs or Word files into the panel and get instant AI‑generated summaries.
+* **Insight Extraction**: Surface key discussion points and recommendations without leaving your editor.
+* **Persistent Sessions**: Your upload history and AI session are preserved when you switch files or restart.
+* **Panel Customization**: Configure title, column, iframe size, script permissions, and auto‑open behavior.
+* **Secure Embedding**: Runs in a sandboxed iframe with a strict CSP - no extra backend needed.
+* **No Extra Backend**: All processing happens in our existing DocuThinker web app.
+
+For full install steps, configuration options, and troubleshooting, see [extension/README.md](extension/README.md).
 
 <h2 id="contributing">🔧 Contributing</h2>
 
