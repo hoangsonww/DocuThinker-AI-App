@@ -1122,7 +1122,20 @@ The **DocuThinker Viewer** extension brings your document upload, summarization 
 * **Secure Embedding**: Runs in a sandboxed iframe with a strict CSP - no extra backend needed.
 * **No Extra Backend**: All processing happens in our existing DocuThinker web app.
 
-For full install steps, configuration options, and troubleshooting, see [extension/README.md](extension/README.md).
+To install the extension, follow these steps:
+1. **Open VSCode**.
+2. **Go to Extensions** (Ctrl+Shift+X).
+3. **Search for "DocuThinker Viewer"**.
+4. **Click Install**.
+5. Open the Command Palette (Ctrl+Shift+P on Windows or Cmd+Shift+P on macOS) and type "DocuThinker". Then select "DocuThinker: Open Document Panel" to open the extension panel.
+6. Start using the app normally!
+7. If you want to further configure the extension, you can do so by going to the settings (Ctrl+,) and searching for "DocuThinker". Or, go to the extension settings by clicking on the gear icon next to the extension in the Extensions panel.
+
+<p align="center">
+  <img src="images/extension.png" alt="VSCode Extension" width="100%" style="border-radius: 8px">
+</p>
+
+For full install and development steps, configuration options, and troubleshooting, see [extension/README.md](extension/README.md).
 
 <h2 id="contributing">🔧 Contributing</h2>
 
