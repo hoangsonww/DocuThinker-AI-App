@@ -255,6 +255,7 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Postman" />
   <img src="https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
   <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
+  <img src="https://img.shields.io/badge/VSCode_Extension-007ACC?style=for-the-badge&logo=gitextensions&logoColor=white" alt="VS Code Extension" />
 </p>
 
 <h2 id="user-interface">🖼️ User Interface</h2>
