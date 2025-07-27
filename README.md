@@ -41,6 +41,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
   - [**Backend Unit & Integration Testing**](#backend-unit--integration-testing)
   - [**Frontend Unit & E2E Testing**](#frontend-unit--e2e-testing)
 - [**🚢 Kubernetes Integration**](#kubernetes)
+- [**⚛️ VS Code Extension**](#vscode-extension)
 - [**🔧 Contributing**](#contributing)
 - [**📝 License**](#license)
 - [**📚 Additional Documentation**](#alternative-docs)
@@ -254,6 +255,7 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Postman" />
   <img src="https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
   <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
+  <img src="https://img.shields.io/badge/VSCode_Extension-007ACC?style=for-the-badge&logo=gitextensions&logoColor=white" alt="VS Code Extension" />
 </p>
 
 <h2 id="user-interface">🖼️ User Interface</h2>
@@ -1107,6 +1109,34 @@ This will run the unit tests and end-to-end tests for the frontend app using **J
 - The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `kubernetes` directory.
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
+
+<h2 id="vscode-extension">⚛️ VSCode Extension</h2>
+
+The **DocuThinker Viewer** extension brings your document upload, summarization and insight‑extraction workflow right into VS Code.
+
+**Key Features**
+
+* **Inline Upload & Summaries**: Drop PDFs or Word files into the panel and get instant AI‑generated summaries.
+* **Insight Extraction**: Surface key discussion points and recommendations without leaving your editor.
+* **Persistent Sessions**: Your upload history and AI session are preserved when you switch files or restart.
+* **Panel Customization**: Configure title, column, iframe size, script permissions, and auto‑open behavior.
+* **Secure Embedding**: Runs in a sandboxed iframe with a strict CSP - no extra backend needed.
+* **No Extra Backend**: All processing happens in our existing DocuThinker web app.
+
+To install the extension, follow these steps:
+1. **Open VSCode**.
+2. **Go to Extensions** (Ctrl+Shift+X).
+3. **Search for "DocuThinker Viewer"**.
+4. **Click Install**.
+5. Open the Command Palette (Ctrl+Shift+P on Windows or Cmd+Shift+P on macOS) and type "DocuThinker". Then select "DocuThinker: Open Document Panel" to open the extension panel.
+6. Start using the app normally!
+7. If you want to further configure the extension, you can do so by going to the settings (Ctrl+,) and searching for "DocuThinker". Or, go to the extension settings by clicking on the gear icon next to the extension in the Extensions panel.
+
+<p align="center">
+  <img src="images/extension.png" alt="VSCode Extension" width="100%" style="border-radius: 8px">
+</p>
+
+For full install and development steps, configuration options, and troubleshooting, see [extension/README.md](extension/README.md).
 
 <h2 id="contributing">🔧 Contributing</h2>
 

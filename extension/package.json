@@ -1,0 +1,113 @@
+{
+  "name": "docuthinker-viewer",
+  "displayName": "DocuThinker Viewer",
+  "description": "Embed the DocuThinker AI‑powered document analysis & summarization app directly in VS Code.",
+  "version": "1.0.1",
+  "license": "MIT",
+  "publisher": "hoangsonw",
+  "keywords": [
+    "vscode",
+    "docuthinker",
+    "viewer",
+    "ai",
+    "document",
+    "analysis",
+    "summarization",
+    "webview",
+    "panel",
+    "extension"
+  ],
+  "author": "Son Nguyen",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hoangsonww/DocuThinker-AI-App.git"
+  },
+  "homepage": "https://github.com/hoangsonww/DocuThinker-AI-App#readme",
+  "bugs": {
+    "url": "https://github.com/hoangsonww/DocuThinker-AI-App/issues"
+  },
+  "engines": {
+    "vscode": "^1.50.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:docuthinkerViewer.openPanel"
+  ],
+  "main": "./out/extension.js",
+  "icon": "images/favicon.ico",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "DocuThinker Viewer",
+      "properties": {
+        "docuthinkerViewer.panelTitle": {
+          "type": "string",
+          "default": "DocuThinker Viewer",
+          "description": "Title of the panel."
+        },
+        "docuthinkerViewer.viewColumn": {
+          "type": "number",
+          "default": 1,
+          "enum": [
+            0,
+            1,
+            2,
+            3
+          ],
+          "enumDescriptions": [
+            "Active column",
+            "First column",
+            "Second column",
+            "Third column"
+          ],
+          "description": "Editor column to open the panel in."
+        },
+        "docuthinkerViewer.retainContext": {
+          "type": "boolean",
+          "default": true,
+          "description": "Keep upload session when panel is hidden."
+        },
+        "docuthinkerViewer.enableScripts": {
+          "type": "boolean",
+          "default": true,
+          "description": "Allow scripts in the Webview."
+        },
+        "docuthinkerViewer.iframeWidth": {
+          "type": "string",
+          "default": "100%",
+          "description": "CSS width for the iframe (e.g. '80%' or '600px')."
+        },
+        "docuthinkerViewer.iframeHeight": {
+          "type": "string",
+          "default": "100%",
+          "description": "CSS height for the iframe."
+        },
+        "docuthinkerViewer.openOnStartup": {
+          "type": "boolean",
+          "default": false,
+          "description": "Open the panel automatically on VS Code startup."
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "docuthinkerViewer.openPanel",
+        "title": "DocuThinker Viewer: Open Document Panel"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -w -p ./",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^12.20.55",
+    "@types/vscode": "^1.50.0",
+    "typescript": "^4.0.0",
+    "vsce": "^1.91.0"
+  }
+}
