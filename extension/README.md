@@ -1,6 +1,6 @@
-# DocuThinker Viewer – VS Code Extension
+# DocuThinker Viewer – VS Code Extension
 
-Embed **DocuThinker** (AI‑powered document upload, summarization & insight extraction) directly into your VS Code.
+Embed **DocuThinker** (AI‑powered document upload, summarization & insight extraction) directly into your VS Code.
 
 <p align="center">
   <img src="images/logo.png" alt="DocuThinker Logo" width="80%" style="border-radius:8px" />
@@ -14,13 +14,25 @@ Embed **DocuThinker** (AI‑powered document upload, summarization & insight ext
 - **Secure iframe** with strict Content‑Security‑Policy loading `https://docuthinker.vercel.app/home`.
 - **No extra backend**—all processing happens in your existing DocuThinker web app.
 
-## VSCode Marketplace
+## VS Code Marketplace
 
 To avoid manual installation, you can find the extension on the [VSCode Marketplace](https://marketplace.visualstudio.com/items?itemName=hoangsonw.docuthinker-viewer).
 
 Feel free to leave a review or report issues there!
 
-## Installation
+## Launch from VS Code
+
+We also provide a quick way to launch the DocuThinker Viewer extension directly from VS Code:
+
+1. Go to the **Run and Debug** view (`Ctrl+Shift+D` / `⌘+Shift+D`).
+2. Select **Run Extension** from the dropdown.
+3. Click the green play button to start the extension in a new Extension Development Host window.
+4. Open the **Command Palette** (`Ctrl+Shift+P` / `⌘+Shift+P`) and run **DocuThinker: Open Document Panel**.
+5. Upload your PDF or Word document to view summaries and insights.
+
+This is achieved via the `.vscode/launch.json` configuration, which allows you to run the extension in a development environment without needing to package it first.
+
+## VSIX Installation
 
 1. **Clone & enter** the extension folder  
   ```bash
@@ -50,8 +62,8 @@ Feel free to leave a review or report issues there!
     ```bash
     code --install-extension docuthinker-chat-0.0.1.vsix
     ```
-   * **VS Code UI**:
-    Extensions view → “…” → **Install from VSIX…** → select the file
+   * **VS Code UI**:
+    Extensions view → “ ” → **Install from VSIX ** → select the file
 
 ## Usage
 
@@ -71,7 +83,7 @@ Open **Settings** → **Extensions** → **DocuThinker Viewer**:
 | `docuthinkerChat.enableScripts` | `true`               | Allow scripts to run inside the iframe.             |
 | `docuthinkerChat.iframeWidth`   | `100%`               | CSS width of the embedded iframe.                   |
 | `docuthinkerChat.iframeHeight`  | `100%`               | CSS height of the embedded iframe.                  |
-| `docuthinkerChat.openOnStartup` | `false`              | Auto‑open panel on VS Code startup.                 |
+| `docuthinkerChat.openOnStartup` | `false`              | Auto‑open panel on VS Code startup.                 |
 
 ## Development
 
@@ -102,5 +114,5 @@ MIT (see [LICENSE](LICENSE.md) for details).
 
 **DocuThinker** is a full‑stack FERN‑Stack AI app for document upload, summarization, and insight extraction.
 Learn more in the main repo:
-👉 [hoangsonww/DocuThinker-AI-App](https://github.com/hoangsonww/DocuThinker-AI-App)
+👉 [hoangsonww/DocuThinker-AI-App](https://github.com/hoangsonww/DocuThinker-AI-App)
 or try it live: **[https://docuthinker.vercel.app/home](https://docuthinker.vercel.app/home)**

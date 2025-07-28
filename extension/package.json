@@ -1,8 +1,8 @@
 {
   "name": "docuthinker-viewer",
   "displayName": "DocuThinker Viewer",
-  "description": "Embed the DocuThinker AI‑powered document analysis & summarization app directly in VS Code.",
-  "version": "1.0.1",
+  "description": "Embed the DocuThinker AI‑powered document analysis & summarization app directly in VS Code.",
+  "version": "1.0.2",
   "license": "MIT",
   "publisher": "hoangsonw",
   "keywords": [
@@ -87,7 +87,7 @@
         "docuthinkerViewer.openOnStartup": {
           "type": "boolean",
           "default": false,
-          "description": "Open the panel automatically on VS Code startup."
+          "description": "Open the panel automatically on VS Code startup."
         }
       }
     },

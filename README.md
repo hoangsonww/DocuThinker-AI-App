@@ -1110,9 +1110,9 @@ This will run the unit tests and end-to-end tests for the frontend app using **J
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
 
-<h2 id="vscode-extension">⚛️ VSCode Extension</h2>
+<h2 id="vscode-extension">⚛️ VS Code Extension</h2>
 
-The **DocuThinker Viewer** extension brings your document upload, summarization and insight‑extraction workflow right into VS Code.
+The **DocuThinker Viewer** extension brings your document upload, summarization and insight‑extraction workflow right into VS Code.
 
 **Key Features**
 
