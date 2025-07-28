@@ -120,12 +120,12 @@ jobs:
     steps:
       - name: Deploy backend to Render
         run: |
-          echo "🔄 Deploying backend to Render…"
+          echo "🔄 Deploying backend to Render..."
           sleep 2
           echo "✅ Backend deployed to Render!"
       - name: Deploy frontend to Vercel
         run: |
-          echo "🔄 Deploying frontend to Vercel…"
+          echo "🔄 Deploying frontend to Vercel..."
           sleep 2
           echo "✅ Frontend deployed to Vercel!"
 
