@@ -1180,6 +1180,7 @@ For more information on the **DocuThinker** app, please refer to the following r
 
 <h2 id="author">👨‍💻 Author</h2>
 
+
 Here are some information about me:
 - **[Son Nguyen](https://github.com/hoangsonww)** - An aspiring Software Developer & Data Scientist
 - Feel free to connect with me on **[LinkedIn](https://www.linkedin.com/in/hoangsonw/)**.
