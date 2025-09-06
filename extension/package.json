@@ -33,7 +33,9 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:docuthinkerViewer.openPanel"
+    "onCommand:docuthinkerViewer.openPanel",
+    "onCommand:docuthinkerViewer.searchWorkspace", 
+    "onCommand:docuthinkerViewer.askWorkspace"
   ],
   "main": "./out/extension.js",
   "icon": "images/favicon.ico",
@@ -95,6 +97,14 @@
       {
         "command": "docuthinkerViewer.openPanel",
         "title": "DocuThinker Viewer: Open Document Panel"
+      },
+      {
+        "command": "docuthinkerViewer.searchWorkspace",
+        "title": "DocuThinker: Search Workspace"
+      },
+      {
+        "command": "docuthinkerViewer.askWorkspace",
+        "title": "DocuThinker: Ask Your Workspace"
       }
     ]
   },
