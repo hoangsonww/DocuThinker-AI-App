@@ -493,5 +493,223 @@ exports.refineSummary = async (summary, refinementInstructions) => {
   return result.response.text();
 };
 
+/**
+ * Workspace Search & Q&A Services
+ * These services interface with the Python AI/ML workspace search module
+ */
+
+const { spawn } = require("child_process");
+const path = require("path");
+
+// Path to the AI/ML workspace search module
+const WORKSPACE_SEARCH_MODULE = path.join(__dirname, "../../ai_ml/workspace_search_simple.py");
+
+/**
+ * Execute Python workspace search command
+ * @param {string} command - Command to execute (index, search, qa, status, reindex)
+ * @param {Object} params - Parameters for the command
+ * @returns {Promise<Object>} - Result from Python module
+ */
+const executePythonCommand = (command, params) => {
+  return new Promise((resolve, reject) => {
+    const pythonProcess = spawn("python3", [
+      WORKSPACE_SEARCH_MODULE,
+      command,
+      JSON.stringify(params)
+    ]);
+
+    let stdout = "";
+    let stderr = "";
+
+    pythonProcess.stdout.on("data", (data) => {
+      stdout += data.toString();
+    });
+
+    pythonProcess.stderr.on("data", (data) => {
+      stderr += data.toString();
+    });
+
+    pythonProcess.on("close", (code) => {
+      if (code === 0) {
+        try {
+          const result = JSON.parse(stdout);
+          resolve(result);
+        } catch (error) {
+          resolve({ success: false, error: "Invalid JSON response", raw: stdout });
+        }
+      } else {
+        reject(new Error(`Python process exited with code ${code}: ${stderr}`));
+      }
+    });
+
+    pythonProcess.on("error", (error) => {
+      reject(new Error(`Failed to start Python process: ${error.message}`));
+    });
+  });
+};
+
+/**
+ * Index a document for semantic search
+ * @param {string} userId - User ID
+ * @param {string} docId - Document ID
+ * @param {string} title - Document title
+ * @param {string} content - Document content
+ * @param {string} mimeType - MIME type
+ * @param {Array<string>} tags - Document tags
+ * @param {string} updatedAt - Last updated timestamp
+ * @returns {Promise<Object>} - Indexing result
+ */
+exports.indexDocumentForSearch = async (userId, docId, title, content, mimeType = "text/plain", tags = [], updatedAt = null) => {
+  try {
+    const params = {
+      user_id: userId,
+      doc_id: docId,
+      title,
+      content,
+      mime_type: mimeType,
+      tags,
+      updated_at: updatedAt || new Date().toISOString()
+    };
+
+    const result = await executePythonCommand("index", params);
+    return result;
+  } catch (error) {
+    console.error("Error indexing document for search:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+/**
+ * Perform semantic search across user's documents
+ * @param {string} userId - User ID
+ * @param {string} query - Search query
+ * @param {number} topK - Number of results to return
+ * @param {Object} filters - Search filters
+ * @returns {Promise<Array>} - Search results
+ */
+exports.performSemanticSearch = async (userId, query, topK = 10, filters = {}) => {
+  try {
+    const params = {
+      user_id: userId,
+      query,
+      top_k: topK,
+      filters
+    };
+
+    const result = await executePythonCommand("search", params);
+    return result.success ? result.results : [];
+  } catch (error) {
+    console.error("Error performing semantic search:", error);
+    return [];
+  }
+};
+
+/**
+ * Answer questions using user's workspace (RAG)
+ * @param {string} userId - User ID
+ * @param {string} question - Question to answer
+ * @param {number} topK - Number of context documents to use
+ * @param {Object} filters - Document filters
+ * @returns {Promise<Object>} - Q&A result with citations
+ */
+exports.workspaceQuestionAnswering = async (userId, question, topK = 5, filters = {}) => {
+  try {
+    const params = {
+      user_id: userId,
+      question,
+      top_k: topK,
+      filters
+    };
+
+    const result = await executePythonCommand("qa", params);
+    return result.success ? result : { answer: "I encountered an error processing your question.", citations: [], context_found: false };
+  } catch (error) {
+    console.error("Error in workspace Q&A:", error);
+    return { answer: "I encountered an error processing your question.", citations: [], context_found: false };
+  }
+};
+
+/**
+ * Get indexing status for user's workspace
+ * @param {string} userId - User ID
+ * @returns {Promise<Object>} - Index status
+ */
+exports.getWorkspaceIndexStatus = async (userId) => {
+  try {
+    const params = { user_id: userId };
+    const result = await executePythonCommand("status", params);
+    return result;
+  } catch (error) {
+    console.error("Error getting index status:", error);
+    return { user_id: userId, error: error.message };
+  }
+};
+
+/**
+ * Reindex all documents for a user
+ * @param {string} userId - User ID
+ * @returns {Promise<Object>} - Reindex result
+ */
+exports.reindexUserWorkspace = async (userId) => {
+  try {
+    const params = { user_id: userId };
+    const result = await executePythonCommand("reindex", params);
+    return result;
+  } catch (error) {
+    console.error("Error reindexing workspace:", error);
+    return { success: false, error: error.message };
+  }
+};
+
+// Enhanced document upload that includes indexing
+exports.uploadDocumentWithIndexing = async (userId, title, text) => {
+  try {
+    // First, save the document using existing flow
+    const docResult = await exports.generateSummary(text);
+    
+    // Generate document ID
+    const docId = require("uuid").v4();
+    
+    // Save to Firestore
+    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userData = userDoc.exists ? userDoc.data() : { documents: [] };
+    
+    const newDocument = {
+      id: docId,
+      title: Array.isArray(title) ? title : [title],
+      summary: docResult.summary,
+      originalText: text,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    
+    userData.documents = userData.documents || [];
+    userData.documents.push(newDocument);
+    
+    await firestore.collection("users").doc(userId).set(userData, { merge: true });
+    
+    // Index for semantic search
+    const indexResult = await exports.indexDocumentForSearch(
+      userId,
+      docId,
+      Array.isArray(title) ? title.join(" ") : title,
+      text,
+      "text/plain",
+      [], // tags can be added later
+      newDocument.updatedAt
+    );
+    
+    return {
+      ...docResult,
+      docId,
+      indexResult
+    };
+    
+  } catch (error) {
+    console.error("Error in uploadDocumentWithIndexing:", error);
+    throw error;
+  }
+};
+
 // Export endpoints to be used in server routes
 module.exports = { firestore, isValidText, sessionHistory, ...exports };
