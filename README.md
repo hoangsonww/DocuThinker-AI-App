@@ -12,7 +12,6 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 
 - [**📖 Overview**](#-overview)
 - [**🚀 Live Deployments**](#live-deployments)
-  - [**Live Statuses**](#live-statuses)
 - [**✨ Features**](#features)
 - [**⚙️ Technologies**](#technologies)
 - [**🖼️ User Interface**](#user-interface)
@@ -24,19 +23,19 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
   - [**Running the Mobile App**](#running-the-mobile-app)
 - [**📋 API Endpoints**](#api-endpoints)
   - [**API Documentation**](#api-documentation)
-  - [**Using the `openapi.yaml` File**](#using-the-openapiyaml-file)
   - [**API Architecture**](#api-architecture)
   - [**API Testing**](#api-testing)
   - [**Error Handling**](#error-handling)
+- [**🤖 AI/ML Agentic Platform**](#ai-ml-agentic-platform)
 - [**🧰 GraphQL Integration**](#graphql-integration)
 - [**📱 Mobile App**](#mobile-app)
 - [**📦 Containerization**](#containerization)
 - [**🚧 Deployment**](#deployment)
   - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
   - [**Backend & AI/ML Deployment**](#backend--aiml-deployment)
-  - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
 - [**⚖️ Load Balancing & Caching**](#load-balancing)
 - [**🔗 Jenkins Integration**](#jenkins)
+- [**🛠️ GitHub Actions Integration**](#github-actions)
 - [**🧪 Testing**](#testing)
   - [**Backend Unit & Integration Testing**](#backend-unit--integration-testing)
   - [**Frontend Unit & E2E Testing**](#frontend-unit--e2e-testing)
@@ -55,81 +54,45 @@ The **DocuThinker** app is designed to provide users with a simple, AI-powered d
 
 ```mermaid
 graph LR
-    A[React Frontend] -->|REST API| B[Express Backend]
-    B --> C[Firebase Auth]
-    B --> D[Firestore]
-    B --> E[MongoDB]
-    B --> F[Redis Cache]
-    B --> G[AI/ML Services]
-    A --> H[Material-UI]
-    A --> I[React Router]
-    G --> J[Google Cloud APIs]
-    G --> K[LangChain]
+    U[Client's Browser] -->|HTTPS| N[NGINX - SSL, Routing, Caching]
+N -->|static calls| A[React Frontend]
+N -->|/api/* proxy| B[Express Backend]
+A -->|REST API calls| N
+
+B --> C[Firebase Auth]
+B --> D[Firestore]
+B --> E[MongoDB]
+B --> F[Redis Cache]
+B --> G[AI/ML Services]
+
+A --> H[Material-UI]
+A --> I[React Router]
+
+G --> J[Google Cloud APIs]
+G --> K[LangChain]
 ```
 
 > [!IMPORTANT]
 > It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
+
+Feel free to explore the app, upload documents, and interact with the AI! For architecture details, setup instructions, and more, please refer to the sections below, as well as the [ARCHITECTURE.md](ARCHITECTURE.md) file.
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
 > [!TIP]
 > Access the live app at **[https://docuthinker.vercel.app/](https://docuthinker.vercel.app/) by clicking on the link or copying it into your browser! 🚀**
 
-We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
+We have deployed the entire app on **Vercel** and **AWS**. You can access the live app **[here](https://docuthinker.vercel.app)**.
 
-- **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**.
+- **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**. 
   - **Backup Frontend**: We have a backup of the frontend on **Netlify**. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
-- **Backend**: Deployed on **Vercel**. You can access the live backend **[here](https://docuthinker-app-backend-api.vercel.app/)**.
+- **Backend**: Deployed on **Vercel**. You can access the live backend **[here](https://docuthinker-app-backend-api.vercel.app/)**. This will take you to the Swagger API documentation that allows you to test the API endpoints directly from the browser.
   - **Backup Backend API**: Deployed on **Render**. You can access the backup backend **[here](https://docuthinker-ai-app.onrender.com/)**.
+  - **Optional AWS Deployment**: If you wish to deploy the backend on AWS, you can use the provided CloudFormation and CDK scripts in the `aws/` directory. It's a one-click deployment using AWS Fargate.
+- **AI/ML Services**: Deployed on **AWS**, which are then used by the backend for document processing and analysis. To use the AI/ML services, simply visit the backend URL **[here](https://docuthinker-app-backend-api.vercel.app/)**.
 
 > [!IMPORTANT]
 > The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up.
-
-> [!NOTE]
-> Additionally, the Render-deployed backend is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
-
-### Live Statuses
-
-These badges indicate the current deployment status of the app, updating automatically based on the latest deployment status:
-
-<p align="center">
-  <a href="https://docuthinker-fullstack-app.vercel.app">
-    <img src="https://img.shields.io/badge/Deployed_with-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
-  </a>
-  <a href="https://docuthinker-ai-app.onrender.com/">
-    <img src="https://img.shields.io/badge/Render-Success-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render Success" />
-  </a>
-  <a href="https://docuthinker-ai-app.netlify.app">
-    <img src="https://img.shields.io/badge/Netlify-Backup_Deployed-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Netlify Backup" />
-  </a>
-  <a href="https://firebase.google.com">
-    <img src="https://img.shields.io/badge/Firebase-Functional-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase Functional" />
-  </a>
-  <a href="https://www.mongodb.com/cloud/atlas">
-    <img src="https://img.shields.io/badge/MongoDB_Atlas-Connected-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB Atlas" />
-  </a>
-  <a href="https://redis.io">
-    <img src="https://img.shields.io/badge/Redis-Cache_Enabled-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis Cache" />
-  </a>
-  <a href="https://www.rabbitmq.com">
-    <img src="https://img.shields.io/badge/RabbitMQ-Enabled-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ Enabled" />
-  </a>
-  <a href="https://graphql.org">
-    <img src="https://img.shields.io/badge/GraphQL-API-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL API" />
-  </a>
-  <a href="https://www.docker.com">
-    <img src="https://img.shields.io/badge/Dockerized-Yes-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Dockerized" />
-  </a>
-  <a href="https://kubernetes.io">
-    <img src="https://img.shields.io/badge/Kubernetes-Yes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
-  </a>
-  <a href="https://www.jenkins.io">
-    <img src="https://img.shields.io/badge/Jenkins-CI/CD-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins CI/CD" />
-  </a>
-  <a href="https://swagger.io">
-    <img src="https://img.shields.io/badge/Swagger_&_OpenAPI-Documented-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger & OpenAPI" />
-  </a>
-</p>
 
 <h2 id="features">✨ Features</h2>
 
@@ -145,10 +108,12 @@ These badges indicate the current deployment status of the app, updating automat
 - **Actionable Recommendations**: Get actionable recommendations based on your document content.
 - **Bullet Point Summaries**: Generate bullet point summaries for quick insights and understanding.
 - **Document Categorization**: Categorize documents based on their content for easy organization.
+- **Document Analytics**: View interactive and charts-powered analytics such as word count, reading time, sentiment distribution, and more!
 - **Profile Management**: Update your profile information, social media links, and theme settings.
 - **User Authentication**: Secure registration, login, and password reset functionality.
 - **Document History**: View all uploaded documents and their details.
 - **Mobile App Integration**: React Native mobile app for on-the-go document management.
+- **Dark Mode Support**: Toggle between light and dark themes for better accessibility.
 - **API Documentation**: Swagger (OpenAPI) documentation for all API endpoints.
 - **Authentication Middleware**: Secure routes with JWT and Firebase authentication middleware.
 - **Containerization**: Dockerized the app with Docker & K8s for easy deployment and scaling.
@@ -183,7 +148,10 @@ These badges indicate the current deployment status of the app, updating automat
   - **Google Cloud Natural Language API**: Machine learning models for text analysis.
   - **Google Speech-to-Text API**: Speech recognition for voice chat integration & text extraction from audio.
   - **Google AI Studio**: Tools for building and deploying machine learning models.
+  - **OpenAI GPT-4 & GPT-3.5**: Language models for text generation and summarization.
+  - **Anthropic Claude**: Language model for text generation and summarization.
   - **NLP**: Natural Language Processing for customized chat/text analysis and summarization models.
+  - **NLTK**: Natural Language Toolkit for text processing and analysis.
   - **NER**: Named Entity Recognition for identifying entities in text.
   - **POS Tagging**: Part-of-Speech Tagging for analyzing word types in text.
   - **RAG**: Retrieval-Augmented Generation for generating responses in chat.
@@ -195,6 +163,7 @@ These badges indicate the current deployment status of the app, updating automat
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
   - **Redis**: In-memory data structure store for caching.
+  - **Mongoose**: MongoDB object modeling for Node.js.
 - **Mobile App**:
   - **React Native**: JavaScript framework for building mobile applications.
   - **Expo**: Framework and platform for universal React applications.
@@ -214,7 +183,7 @@ These badges indicate the current deployment status of the app, updating automat
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
-- _and more!_
+- _and many more!_
 
 <p align="center">
   <!-- Frontend -->
@@ -385,22 +354,10 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="images/how-to-use.png" alt="How To Use Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **How To Use Page - Dark Mode**
-
-<p align="center">
-  <img src="images/how-to-use-dark.png" alt="How To Use Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Login Page**
 
 <p align="center">
   <img src="images/login.png" alt="Login Page" width="100%" style="border-radius: 8px">
-</p>
-
-### **Login Page - Dark Mode**
-
-<p align="center">
-  <img src="images/login-dark.png" alt="Login Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Registration Page**
@@ -409,25 +366,13 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="images/register.png" alt="Registration Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Registration Page - Dark Mode**
-
-<p align="center">
-  <img src="images/register-dark.png" alt="Registration Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Forgot Password Page**
 
 <p align="center">
   <img src="images/forgot-password.png" alt="Forgot Password Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Forgot Password Page - Dark Mode**
-
-<p align="center">
-  <img src="images/forgot-password-dark.png" alt="Forgot Password Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
-### **Responsive Design Example**
+### **Mobile App's View**
 
 <p align="center">
   <img src="images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
@@ -443,12 +388,6 @@ These badges indicate the current deployment status of the app, updating automat
 
 <p align="center">
   <img src="images/404.png" alt="404 Not Found Page" width="100%" style="border-radius: 8px">
-</p>
-
-### **404 Not Found Page - Dark Mode**
-
-<p align="center">
-  <img src="images/404-dark.png" alt="404 Not Found Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Footer**
@@ -739,6 +678,9 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
+> [!NOTE]
+> This list is not exhaustive. For a complete list of API endpoints, please refer to the **Swagger** or **Redoc** documentation of the backend server.
+
 ### API Documentation
 
 - **Swagger Documentation**: You can access the Swagger documentation for all API endpoints by running the backend server and navigating to `http://localhost:5000/api-docs`.
@@ -758,58 +700,6 @@ npx openapi-generator-cli generate -i http://localhost:5000/api-docs -g typescri
 
 This will generate TypeScript files for the API endpoints in the `api` directory. Feel free to replace or modify the command as needed.
 
-### Using the `openapi.yaml` File
-
-1. **View the API Documentation**
-
-- Open [Swagger Editor](https://editor.swagger.io/).
-- Upload the `openapi.yaml` file or paste its content.
-- Visualize and interact with the API documentation.
-
-2. **Test the API**
-
-- Import `openapi.yaml` into [Postman](https://www.postman.com/):
-  - Open Postman → Import → Select `openapi.yaml`.
-  - Test the API endpoints directly from Postman.
-- Or use [Swagger UI](https://swagger.io/tools/swagger-ui/):
-  - Provide the file URL or upload it to view and test endpoints.
-
-3. **Generate Client Libraries**
-
-- Install OpenAPI Generator:
-  ```bash
-  npm install @openapitools/openapi-generator-cli -g
-  ```
-- Generate a client library:
-  ```bash
-  openapi-generator-cli generate -i openapi.yaml -g <language> -o ./client
-  ```
-- Replace `<language>` with the desired programming language.
-
-4. **Generate Server Stubs**
-
-- Generate a server stub:
-  ```bash
-  openapi-generator-cli generate -i openapi.yaml -g <framework> -o ./server
-  ```
-- Replace `<framework>` with the desired framework.
-
-5. **Run a Mock Server**
-
-- Install Prism:
-  ```bash
-  npm install -g @stoplight/prism-cli
-  ```
-- Start the mock server:
-  ```bash
-  prism mock openapi.yaml
-  ```
-
-6. **Validate the OpenAPI File**
-
-- Use [Swagger Validator](https://validator.swagger.io/):
-  - Upload `openapi.yaml` or paste its content to check for errors.
-
 ### **API Architecture**
 
 - We use **Node.js** and **Express** to build the backend server for **DocuThinker**.
@@ -824,55 +714,6 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 - The **Microservices Architecture** is also used to handle asynchronous tasks and improve scalability.
 - The API routes are secured using Firebase authentication middleware to ensure that only authenticated users can access the endpoints.
 - The API controllers handle the business logic for each route, interacting with the data models and formatting the responses.
-
-#### AI/ML Agentic Platform
-
-Our refreshed `ai_ml/` package wraps LangGraph, CrewAI, and multi-provider LLMs inside a reusable `DocumentIntelligenceService`. It now supports:
-
-- **Agentic RAG pipeline** combining semantic retrieval, structured JSON generation, and CrewAI review (`ai_ml/services/orchestrator.py`, `ai_ml/pipelines/rag_graph.py`).
-- **Multi-LLM registry** with drop-in OpenAI, Anthropic Claude, Google Gemini, or Hugging Face embeddings (`ai_ml/providers/registry.py`).
-- **Optional persistence**: enable Neo4j knowledge graphs (`ai_ml/graph/neo4j_client.py`) and Chroma vector memory (`ai_ml/vectorstores/chroma_store.py`) via `DOCUTHINKER_SYNC_GRAPH` / `DOCUTHINKER_SYNC_VECTOR` env flags.
-- **Expanded tooling**: FastAPI, CLI, and MCP tools tap a single facade for sentiment, translation, recommendations, graph sync, and vector search.
-
-```mermaid
-graph LR
-    Client --> API(Backend API)
-    API --> SVC(DocumentIntelligenceService)
-    SVC --> PIPE(AgenticRAGPipeline)
-    PIPE --> CREW(CrewAI Team)
-    PIPE --> RETR(Vector Tools)
-    SVC --> NEO(Neo4j)
-    SVC --> CHR(ChromaDB)
-    CREW --> OAI(OpenAI)
-    CREW --> CLAUDE(Anthropic)
-    CREW --> GEM(Gemini)
-    RETR --> HF(Embeddings)
-```
-
-> **Tip:** Set `DOCUTHINKER_SYNC_GRAPH=true` and `DOCUTHINKER_SYNC_VECTOR=true` to persist analyses; the MCP tools expose `vector_upsert`, `vector_search`, `graph_upsert`, and `graph_query` for external agents.
-
-```mermaid
-graph TD
-    A[Client Request] -->|HTTP/HTTPS| B[Express Server]
-    B --> C{Route Handler}
-    C -->|Auth Routes| D[User Controller]
-    C -->|Document Routes| E[Document Controller]
-    C -->|AI Routes| F[AI Controller]
-    D --> G[Firebase Auth]
-    E --> H[Firestore DB]
-    F --> I[AI/ML Services]
-    I --> J[Google Cloud NLP]
-    I --> K[LangChain]
-    I --> L[Custom Models]
-    B --> M[Redis Cache]
-    B --> N[RabbitMQ Queue]
-    G --> O[Response Formatter]
-    H --> O
-    J --> O
-    K --> O
-    L --> O
-    O --> P[JSON Response]
-```
 
 ### **API Testing**
 
@@ -910,6 +751,66 @@ The backend APIs uses centralized error handling to capture and log errors. Resp
 }
 ```
 
+<h2 id="ai-ml-agentic-platform">🤖 AI/ML Agentic Platform</h2>
+
+Our `ai_ml/` package wraps LangGraph, CrewAI, and multi-provider LLMs inside a reusable `DocumentIntelligenceService`. It now supports:
+
+- **Agentic RAG pipeline** combining semantic retrieval, structured JSON generation, and CrewAI review (`ai_ml/services/orchestrator.py`, `ai_ml/pipelines/rag_graph.py`).
+- **Multi-LLM registry** with drop-in OpenAI, Anthropic Claude, Google Gemini, or Hugging Face embeddings (`ai_ml/providers/registry.py`).
+- **Optional persistence**: enable Neo4j knowledge graphs (`ai_ml/graph/neo4j_client.py`) and Chroma vector memory (`ai_ml/vectorstores/chroma_store.py`) via `DOCUTHINKER_SYNC_GRAPH` / `DOCUTHINKER_SYNC_VECTOR` env flags.
+- **Expanded tooling**: FastAPI, CLI, and MCP tools tap a single facade for sentiment, translation, recommendations, graph sync, and vector search.
+- **Extensible architecture**: easily add new LLMs, tools, or pipelines.
+- **NER and POS tagging** with SpaCy.
+- **Robust error handling** and logging.
+- **Modular design** for easy integration into other projects.
+- **Comprehensive tests** with 90%+ coverage.
+- **Detailed documentation** and examples.
+- and more!
+
+```mermaid
+graph LR
+    Client --> API(Backend API)
+    API --> SVC(DocumentIntelligenceService)
+    SVC --> PIPE(AgenticRAGPipeline)
+    PIPE --> CREW(CrewAI Team)
+    PIPE --> RETR(Vector Tools)
+    SVC --> NEO(Neo4j)
+    SVC --> CHR(ChromaDB)
+    CREW --> OAI(OpenAI)
+    CREW --> CLAUDE(Anthropic)
+    CREW --> GEM(Gemini)
+    RETR --> HF(Embeddings)
+```
+
+> [!TIP]
+> Set `DOCUTHINKER_SYNC_GRAPH=true` and `DOCUTHINKER_SYNC_VECTOR=true` to persist analyses; the MCP tools expose `vector_upsert`, `vector_search`, `graph_upsert`, and `graph_query` for external agents.
+
+```mermaid
+graph TD
+    A[Client Request] -->|HTTP/HTTPS| B[Express Server]
+    B --> C{Route Handler}
+    C -->|Auth Routes| D[User Controller]
+    C -->|Document Routes| E[Document Controller]
+    C -->|AI Routes| F[AI Controller]
+    D --> G[Firebase Auth]
+    E --> H[Firestore DB]
+    F --> I[AI/ML Services]
+    I --> J[Google Cloud NLP]
+    I --> K[LangChain]
+    I --> L[Custom Models]
+    B --> M[Redis Cache]
+    B --> N[RabbitMQ Queue]
+    G --> O[Response Formatter]
+    H --> O
+    J --> O
+    K --> O
+    L --> O
+    O --> P[JSON Response]
+```
+
+> [!TIP]
+> Visit the [`ai_ml/README.md`](ai_ml/README.md) file for more details on the AI/ML architecture.
+
 <h2 id="graphql-integration">🧰 GraphQL Integration</h2>
 
 ### Introduction to GraphQL in Our Application
@@ -928,7 +829,7 @@ Our application supports a fully-featured **GraphQL API** that allows clients to
 1. **GraphQL Endpoint**:  
    The GraphQL endpoint is available at:
    ```
-   https://docuthinker-ai-app.onrender.com/graphql
+   https://docuthinker-app-backend-api.vercel.app/graphql
    ```
    Or, if you are running the backend locally, the endpoint will be:
    ```
@@ -1069,6 +970,8 @@ graph TB
 
 <h2 id="deployment">🚧 Deployment</h2>
 
+The **DocuThinker** app is deployed using a combination of **Vercel**, **Render**, and **AWS ECS Fargate**. The deployment process is automated using **Jenkins** for CI/CD.
+
 ```mermaid
 graph TB
     GIT[GitHub Repo] --> JENKINS[Jenkins Multistage Pipeline]
@@ -1095,22 +998,17 @@ graph TB
 
 ### **Backend & AI/ML Deployment**
 
-- The current production API is still served from **Render** (`https://docuthinker-ai-app.onrender.com`) while we stage an AWS/ECS migration.
-- Jenkins now builds backend and `ai_ml` images, pushes them to Amazon ECR, and packages artifacts for manual ECS deployments.
-- Optional AWS stack components live in [`aws/`](aws/README.md) with:
+- The current production API is served from **Vercel** (`https://docuthinker-app-backend-api.vercel.app/`). A backup instance runs on **Render** free tier at **https://docuthinker-ai-app.onrender.com/**.
+- Our Jenkins pipeline builds backend and `ai_ml` images, pushes them to Amazon ECR, and packages artifacts for manual ECS deployments.
+- Our AWS stack components live in [`aws/`](aws/README.md) with:
   - `cloudformation/fargate-service.yaml` – baseline Fargate template for backend + AI/ML services.
   - `infrastructure/` – CDK stack mirroring the same services.
   - `scripts/local-env.sh` – helper to export Graph/vector env vars locally.
-- To roll traffic onto AWS:
+- FYI, to roll your traffic onto AWS:
   1. Create ECR repos `docuthinker-backend` and `docuthinker-ai-ml`.
   2. Provide credentials via AWS Secrets Manager (`docuthinker/openai`, `.../anthropic`, etc.).
   3. Deploy CloudFormation or CDK stack, then update ECS services with the freshly pushed images.
-
-### **Important Deployment Notes**
-
-- Vercel remains the source of truth for the frontend; AWS/GitHub Actions support can be expanded as needed.
-- Render free tier keeps the legacy backend online; expect cold-start delays on first requests.
-- AI/ML pods require provider API keys plus optional Neo4j & Chroma endpoints. When unsupplied, the service degrades gracefully.
+- Follow the **[AWS/README.md](aws/README.md)** for more details on AWS deployment to deploy your own instance!
 
 <h2 id="load-balancing">⚖️ Load Balancing & Caching</h2>
 
@@ -1147,6 +1045,26 @@ If successful, you should see the Jenkins pipeline running tests, producing arti
 
 <p align="center">
   <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
+</p>
+
+<h2 id="github-actions">🛠️ GitHub Actions Integration</h2>
+
+In addition to Jenkins, we also have a **GitHub Actions** workflow set up for CI/CD. The workflow is defined in the `.github/workflows/ci.yml` file.
+
+The GitHub Actions workflow includes the following steps:
+- **Checkout Code**: Checks out the code from the repository.
+- **Set up Node.js**: Sets up the Node.js environment.
+- **Install Dependencies**: Installs the dependencies for the frontend, backend, and ai_ml packages.
+- **Run Tests**: Runs the tests for the frontend, backend, and ai_ml packages.
+- **Build Artifacts**: Builds the artifacts for the frontend, backend, and ai_ml packages.
+- **Deploy to Vercel**: Deploys the frontend to Vercel using the `vercel-token` secret.
+- **Build and Push Docker Images**: Builds and pushes the Docker images for the backend and ai_ml packages to Docker Hub using the `dockerhub-username` and `dockerhub-password` secrets, as well as to GHCR using the `ghcr-token` secret.
+- **Notify on Failure**: Sends a notification to a Slack channel if any of the steps fail.
+- **Notify on Success**: Sends a notification to a Slack channel if all the steps succeed.
+- **Cleanup**: Cleans up the workspace after the workflow is complete.
+
+<p align="center">
+  <img src="images/github-actions.png" alt="GitHub Actions Workflow" width="100%" style="border-radius: 8px">
 </p>
 
 <h2 id="testing">🧪 Testing</h2>
@@ -1294,14 +1212,20 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial 
 <h2 id="alternative-docs">📚 Additional Documentation</h2>
 
 For more information on the **DocuThinker** app, please refer to the following resources:
-- **[Web-Based Documentation](https://hoangsonww.github.io/DocuThinker-AI-App/)**
+- **[Architecture Documentation](ARCHITECTURE.md)**
+- **[AI/ML Documentation](ai_ml/README.md)**
 - **[Backend README](backend/README.md)**
+- **[API Documentation](https://docuthinker-app-backend-api.vercel.app/)**
 - **[Frontend README](frontend/README.md)**
 - **[Mobile App README](mobile-app/README.md)**
+- **[AWS Deployment Documentation](aws/README.md)**
+- **[NGINX Documentation](nginx/README.md)**
+
+However, this README file should already provide a comprehensive overview of the project ~
 
 <h2 id="author">👨‍💻 Author</h2>
 
-Here are some information about me:
+Here are some information about me - the project's humble creator:
 - **[Son Nguyen](https://github.com/hoangsonww)** - An aspiring Software Developer & Data Scientist
 - Feel free to connect with me on **[LinkedIn](https://www.linkedin.com/in/hoangsonw/)**.
 - If you have any questions or feedback, please feel free to reach out to me at **[hoangson091104@gmail.com](mailto:hoangson091104@gmail.com)**.
@@ -1312,7 +1236,8 @@ Here are some information about me:
 
 **Happy Coding and Analyzing! 🚀**
 
-**Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024-2025.**
+**Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024-2025.** 
+Licensed under the **[Creative Commons Attribution-NonCommercial License](LICENSE.md)**.
 
 ---
 
