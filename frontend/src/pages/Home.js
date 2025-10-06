@@ -28,6 +28,16 @@ import axios from "axios";
 import { useErrorToast } from "../components/useErrorToast";
 import { useLocation } from "react-router-dom";
 import CloseIcon from "@mui/icons-material/Close";
+import AutoAwesomeIcon from "@mui/icons-material/AutoAwesome";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import ForumOutlinedIcon from "@mui/icons-material/ForumOutlined";
+import InsightsOutlinedIcon from "@mui/icons-material/InsightsOutlined";
+import RecordVoiceOverIcon from "@mui/icons-material/RecordVoiceOver";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import TranslateIcon from "@mui/icons-material/Translate";
+import TuneIcon from "@mui/icons-material/Tune";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
 import MicRecorder from "mic-recorder-to-mp3";
 
 const Home = ({ theme }) => {
@@ -1091,6 +1101,12 @@ const Home = ({ theme }) => {
                 flexWrap: { xs: "nowrap", md: "wrap" },
                 gap: 2,
                 marginBottom: 2,
+                "& .MuiButton-root": {
+                  paddingRight: "18px",
+                },
+                "& .MuiButton-startIcon": {
+                  marginLeft: "6px",
+                },
               }}
             >
               <Button
@@ -1102,6 +1118,7 @@ const Home = ({ theme }) => {
                   borderRadius: "12px",
                 }}
                 disabled={loadingKeyIdeas}
+                startIcon={!loadingKeyIdeas && <TipsAndUpdatesIcon />}
               >
                 {loadingKeyIdeas ? (
                   <CircularProgress size={24} sx={{ color: "white" }} />
@@ -1118,6 +1135,7 @@ const Home = ({ theme }) => {
                   borderRadius: "12px",
                 }}
                 disabled={loadingDiscussionPoints}
+                startIcon={!loadingDiscussionPoints && <ForumOutlinedIcon />}
               >
                 {loadingDiscussionPoints ? (
                   <CircularProgress size={24} sx={{ color: "white" }} />
@@ -1134,6 +1152,7 @@ const Home = ({ theme }) => {
                   borderRadius: "12px",
                 }}
                 disabled={loadingBulletSummary}
+                startIcon={!loadingBulletSummary && <FormatListBulletedIcon />}
               >
                 {loadingBulletSummary ? (
                   <CircularProgress size={24} sx={{ color: "white" }} />
@@ -1150,6 +1169,7 @@ const Home = ({ theme }) => {
                   font: "inherit",
                   borderRadius: "12px",
                 }}
+                startIcon={<InsightsOutlinedIcon />}
               >
                 Document Analytics
               </Button>
@@ -1161,6 +1181,7 @@ const Home = ({ theme }) => {
                   font: "inherit",
                   borderRadius: "12px",
                 }}
+                startIcon={<RecordVoiceOverIcon />}
               >
                 Voice Chat
               </Button>
@@ -1172,6 +1193,7 @@ const Home = ({ theme }) => {
                   font: "inherit",
                   borderRadius: "12px",
                 }}
+                startIcon={<TranslateIcon />}
               >
                 Change Language
               </Button>
@@ -1183,6 +1205,7 @@ const Home = ({ theme }) => {
                   font: "inherit",
                   borderRadius: "12px",
                 }}
+                startIcon={<EditOutlinedIcon />}
               >
                 Rewrite Content
               </Button>
@@ -1195,6 +1218,7 @@ const Home = ({ theme }) => {
                   borderRadius: "12px",
                 }}
                 disabled={loadingRecommendations}
+                startIcon={!loadingRecommendations && <AutoAwesomeIcon />}
               >
                 {loadingRecommendations ? (
                   <CircularProgress size={24} sx={{ color: "white" }} />
@@ -1210,6 +1234,7 @@ const Home = ({ theme }) => {
                   font: "inherit",
                   borderRadius: "12px",
                 }}
+                startIcon={<TuneIcon />}
               >
                 Refine Summary
               </Button>
@@ -1221,6 +1246,7 @@ const Home = ({ theme }) => {
                   font: "inherit",
                   borderRadius: "12px",
                 }}
+                startIcon={<UploadFileIcon />}
               >
                 Upload New Document
               </Button>

@@ -11,6 +11,7 @@ import MuiLink from "@mui/material/Link";
 import CloseIcon from "@mui/icons-material/Close";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import axios from "axios";
 import Spinner from "./Spinner";
 import ReactMarkdown from "react-markdown";
@@ -370,7 +371,12 @@ const ChatModal = ({
             color: "white",
             font: "inherit",
             borderRadius: "12px",
+            paddingRight: "18px",
+            "& .MuiButton-startIcon": {
+              marginLeft: "6px",
+            },
           }}
+          startIcon={<ChatBubbleOutlineIcon />}
         >
           Chat with AI
         </Button>
