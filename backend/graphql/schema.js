@@ -19,10 +19,46 @@ const typeDefs = `
     originalText: String!
   }
 
+  type SearchHit {
+    docId: ID!
+    title: String!
+    snippet: String!
+    score: Float!
+    location: String
+    mimeType: String
+    tags: [String!]!
+    updatedAt: String
+  }
+
+  type QACitation {
+    id: Int!
+    docId: ID!
+    title: String!
+    snippet: String!
+    location: String!
+    score: Float!
+  }
+
+  type QAResponse {
+    answer: String!
+    citations: [QACitation!]!
+    contextFound: Boolean!
+    question: String!
+  }
+
+  input FiltersInput {
+    mimeTypes: [String!]
+    tags: [String!]
+    dateFrom: String
+    dateTo: String
+  }
+
   type Query {
     getUser(id: ID!): User
     getDocument(userId: ID!, docId: ID!): Document
     listDocuments(userId: ID!): [Document!]
+    workspaceSearch(userId: ID!, query: String!, topK: Int, filters: FiltersInput): [SearchHit!]!
+    workspaceQA(userId: ID!, question: String!, topK: Int, filters: FiltersInput): QAResponse!
   }
 
   type Mutation {
