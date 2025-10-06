@@ -131,6 +131,20 @@ const Home = ({ theme }) => {
   const recorder = useRef(new MicRecorder({ bitRate: 128 }));
   const audioRef = useRef(null);
 
+  // Text highlight feature states
+  const [selectedText, setSelectedText] = useState("");
+  const [highlightMenuOpen, setHighlightMenuOpen] = useState(false);
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [chatModalOpen, setChatModalOpen] = useState(false);
+  const [chatInitialMessage, setChatInitialMessage] = useState("");
+
+  // Analytics modal states
+  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  const [analytics, setAnalytics] = useState(null);
+
+  // Loading snackbar for selected text operations
+  const [loadingSnackbarOpen, setLoadingSnackbarOpen] = useState(false);
+
   // Update recording message dots animation
   useEffect(() => {
     let dots = 0;
@@ -264,16 +278,21 @@ const Home = ({ theme }) => {
   const handleRewriteContent = async () => {
     setLoadingRewrite(true);
     try {
+      // Use selected text if available, otherwise use original text
+      const textToRewrite = window.tempSelectedText || originalText;
+
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/content-rewriting",
         {
-          documentText: originalText,
+          documentText: textToRewrite,
           style: desiredStyle,
         },
       );
 
       setRewrittenContent(response.data.rewrittenContent);
       setShowRewriteModal(false);
+      // Clear temp selected text
+      window.tempSelectedText = null;
       rewriteRef.current?.scrollIntoView({ behavior: "smooth" });
     } catch (error) {
       showErrorToast(error.message + ". Please try again.");
@@ -281,6 +300,282 @@ const Home = ({ theme }) => {
     } finally {
       setLoadingRewrite(false);
     }
+  };
+
+  // Handle text selection for highlight feature
+  const handleTextSelection = () => {
+    const selection = window.getSelection();
+    const text = selection.toString().trim();
+
+    if (text.length > 0) {
+      setSelectedText(text);
+      const range = selection.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+
+      setMenuPosition({
+        x: rect.left + rect.width / 2,
+        y: rect.top + window.scrollY - 10,
+      });
+      setHighlightMenuOpen(true);
+    } else {
+      setHighlightMenuOpen(false);
+    }
+  };
+
+  // Handle summarize selected text
+  const handleSummarizeSelected = async () => {
+    setHighlightMenuOpen(false);
+    setLoadingRefinement(true);
+    setLoadingSnackbarOpen(true); // Show loading notification
+
+    try {
+      const response = await axios.post(
+        "https://docuthinker-app-backend-api.vercel.app/upload",
+        {
+          title: "Selected Text",
+          text: selectedText,
+        },
+      );
+
+      setRefinedSummary(response.data.summary);
+      setLoadingSnackbarOpen(false); // Hide loading notification
+      refinedRef.current?.scrollIntoView({ behavior: "smooth" });
+    } catch (error) {
+      setLoadingSnackbarOpen(false); // Hide loading notification
+      showErrorToast(error.message + ". Please try again.");
+      console.error("Failed to summarize selected text:", error);
+    } finally {
+      setLoadingRefinement(false);
+    }
+  };
+
+  // Handle rewrite selected text
+  const handleRewriteSelected = () => {
+    setHighlightMenuOpen(false);
+    setDesiredStyle("");
+    setShowRewriteModal(true);
+    // Temporarily store selected text for rewriting
+    window.tempSelectedText = selectedText;
+  };
+
+  // Handle chat with selected text
+  const handleChatWithSelected = () => {
+    setHighlightMenuOpen(false);
+    setChatInitialMessage(selectedText);
+    setChatModalOpen(true);
+  };
+
+  // Calculate document analytics
+  const calculateAnalytics = () => {
+    if (!originalText) return null;
+
+    const text = originalText.trim();
+    const words = text.split(/\s+/).filter((word) => word.length > 0);
+    const sentences = text.split(/[.!?]+/).filter((s) => s.trim().length > 0);
+    const paragraphs = text.split(/\n\n+/).filter((p) => p.trim().length > 0);
+    const characters = text.length;
+    const charactersNoSpaces = text.replace(/\s/g, "").length;
+    const lines = text.split(/\n/).filter((l) => l.trim().length > 0);
+
+    // Average word length
+    const avgWordLength =
+      words.reduce((sum, word) => sum + word.length, 0) / words.length || 0;
+
+    // Reading time (average 200 words per minute)
+    const readingTime = Math.ceil(words.length / 200);
+    const speakingTime = Math.ceil(words.length / 150); // Average speaking rate
+
+    // Most common words (excluding common stop words)
+    const stopWords = new Set([
+      "the",
+      "be",
+      "to",
+      "of",
+      "and",
+      "a",
+      "in",
+      "that",
+      "have",
+      "i",
+      "it",
+      "for",
+      "not",
+      "on",
+      "with",
+      "he",
+      "as",
+      "you",
+      "do",
+      "at",
+      "this",
+      "but",
+      "his",
+      "by",
+      "from",
+      "is",
+      "was",
+      "are",
+      "an",
+    ]);
+
+    const wordFreq = {};
+    const wordLengthDistribution = {
+      short: 0,
+      medium: 0,
+      long: 0,
+      veryLong: 0,
+    };
+    const uniqueWords = new Set();
+
+    words.forEach((word) => {
+      const w = word.toLowerCase().replace(/[^\w]/g, "");
+      if (w) {
+        uniqueWords.add(w);
+        if (w.length <= 4) wordLengthDistribution.short++;
+        else if (w.length <= 7) wordLengthDistribution.medium++;
+        else if (w.length <= 10) wordLengthDistribution.long++;
+        else wordLengthDistribution.veryLong++;
+
+        if (!stopWords.has(w) && w.length > 3) {
+          wordFreq[w] = (wordFreq[w] || 0) + 1;
+        }
+      }
+    });
+
+    const topWords = Object.entries(wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 15)
+      .map(([word, count]) => ({ word, count }));
+
+    // Sentence length distribution
+    const sentenceLengths = sentences.map((s) => s.split(/\s+/).length);
+    const avgSentenceLength =
+      sentenceLengths.reduce((a, b) => a + b, 0) / sentenceLengths.length || 0;
+    const longestSentence = Math.max(...sentenceLengths, 0);
+    const shortestSentence = Math.min(...sentenceLengths, 0);
+
+    // Lexical diversity (unique words / total words)
+    const lexicalDiversity = ((uniqueWords.size / words.length) * 100).toFixed(
+      1,
+    );
+
+    // Punctuation analysis
+    const punctuationCounts = {
+      periods: (text.match(/\./g) || []).length,
+      commas: (text.match(/,/g) || []).length,
+      exclamations: (text.match(/!/g) || []).length,
+      questions: (text.match(/\?/g) || []).length,
+      quotes: (text.match(/["']/g) || []).length,
+      semicolons: (text.match(/;/g) || []).length,
+    };
+
+    // Syllable estimation (rough estimate based on vowel groups)
+    const estimateSyllables = (word) => {
+      word = word.toLowerCase();
+      if (word.length <= 3) return 1;
+      word = word.replace(/(?:[^laeiouy]es|ed|[^laeiouy]e)$/, "");
+      word = word.replace(/^y/, "");
+      const matches = word.match(/[aeiouy]{1,2}/g);
+      return matches ? matches.length : 1;
+    };
+
+    const totalSyllables = words.reduce(
+      (sum, word) => sum + estimateSyllables(word),
+      0,
+    );
+    const avgSyllablesPerWord = (totalSyllables / words.length || 0).toFixed(2);
+
+    // Readability scores
+    // Flesch Reading Ease: 206.835 - 1.015 * (words/sentences) - 84.6 * (syllables/words)
+    const fleschScore = (
+      206.835 -
+      1.015 * (words.length / sentences.length) -
+      84.6 * (totalSyllables / words.length)
+    ).toFixed(1);
+
+    // Complexity metrics
+    const complexWords = words.filter((w) => estimateSyllables(w) >= 3).length;
+    const complexityPercentage = ((complexWords / words.length) * 100).toFixed(
+      1,
+    );
+
+    return {
+      wordCount: words.length,
+      sentenceCount: sentences.length,
+      paragraphCount: paragraphs.length,
+      lineCount: lines.length,
+      characterCount: characters,
+      characterCountNoSpaces: charactersNoSpaces,
+      avgWordLength: avgWordLength.toFixed(2),
+      avgWordsPerSentence: avgSentenceLength.toFixed(2),
+      avgSentenceLength: avgSentenceLength.toFixed(1),
+      longestSentence,
+      shortestSentence,
+      readingTime,
+      speakingTime,
+      topWords,
+      uniqueWordCount: uniqueWords.size,
+      lexicalDiversity,
+      wordLengthDistribution,
+      punctuationCounts,
+      totalSyllables,
+      avgSyllablesPerWord,
+      fleschScore,
+      complexWords,
+      complexityPercentage,
+    };
+  };
+
+  // Handle open analytics modal
+  const handleShowAnalytics = () => {
+    const analyticsData = calculateAnalytics();
+    setAnalytics(analyticsData);
+    setShowAnalyticsModal(true);
+  };
+
+  // Animated counter component
+  const AnimatedNumber = ({ value, duration = 1500, isDecimal = false }) => {
+    const [displayValue, setDisplayValue] = useState(0);
+
+    useEffect(() => {
+      if (!showAnalyticsModal) {
+        setDisplayValue(0);
+        return;
+      }
+
+      const targetValue = parseFloat(value);
+      const startTime = Date.now();
+      const startValue = 0;
+
+      const animate = () => {
+        const now = Date.now();
+        const progress = Math.min((now - startTime) / duration, 1);
+
+        // Easing function for smooth animation
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const current = startValue + (targetValue - startValue) * easeOutQuart;
+
+        setDisplayValue(current);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setDisplayValue(targetValue);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }, [value, duration, showAnalyticsModal]);
+
+    if (isDecimal) {
+      return displayValue.toFixed(
+        value.toString().includes(".")
+          ? value.toString().split(".")[1].length
+          : 0,
+      );
+    }
+
+    return Math.floor(displayValue).toLocaleString();
   };
 
   const stripMarkdown = (markdownText) => {
@@ -474,6 +769,7 @@ const Home = ({ theme }) => {
         alignItems: "flex-start",
         transition: "background-color 0.3s ease, color 0.3s ease",
       }}
+      onMouseUp={handleTextSelection}
     >
       {!summary && (
         <UploadModal
@@ -846,6 +1142,17 @@ const Home = ({ theme }) => {
                 )}
               </Button>
               <ChatModal theme={theme} />
+              <Button
+                onClick={handleShowAnalytics}
+                sx={{
+                  bgcolor: "#f57c00",
+                  color: "white",
+                  font: "inherit",
+                  borderRadius: "12px",
+                }}
+              >
+                Document Analytics
+              </Button>
               <Button
                 onClick={() => setShowAudioModal(true)}
                 sx={{
@@ -3313,7 +3620,1056 @@ const Home = ({ theme }) => {
         }
       />
 
+      {/* Loading Snackbar for selected text operations */}
+      <Snackbar
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        open={loadingSnackbarOpen}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            backgroundColor: "#f57c00",
+            color: "white",
+            padding: "12px 16px",
+            borderRadius: "4px",
+            font: "inherit",
+            fontSize: "16px",
+          }}
+        >
+          <CircularProgress size={20} sx={{ color: "white" }} />
+          <Typography sx={{ font: "inherit", color: "white" }}>
+            Summarizing selected text...
+          </Typography>
+        </Box>
+      </Snackbar>
+
       {ErrorToastComponent}
+
+      {/* Text Highlight Menu */}
+      {highlightMenuOpen && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: menuPosition.y,
+            left: menuPosition.x,
+            transform: "translateX(-50%)",
+            backgroundColor: theme === "dark" ? "#333" : "#fff",
+            border: `2px solid ${theme === "dark" ? "#555" : "#f57c00"}`,
+            borderRadius: "8px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            zIndex: 1000,
+            display: "flex",
+            flexDirection: "column",
+            gap: 1,
+            p: 1,
+            minWidth: "200px",
+          }}
+        >
+          <Button
+            onClick={handleSummarizeSelected}
+            sx={{
+              color: theme === "dark" ? "#fff" : "#000",
+              font: "inherit",
+              textTransform: "none",
+              justifyContent: "flex-start",
+              "&:hover": {
+                backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+              },
+            }}
+          >
+            Summarize This
+          </Button>
+          <Button
+            onClick={handleChatWithSelected}
+            sx={{
+              color: theme === "dark" ? "#fff" : "#000",
+              font: "inherit",
+              textTransform: "none",
+              justifyContent: "flex-start",
+              "&:hover": {
+                backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+              },
+            }}
+          >
+            Ask Chat
+          </Button>
+          <Button
+            onClick={handleRewriteSelected}
+            sx={{
+              color: theme === "dark" ? "#fff" : "#000",
+              font: "inherit",
+              textTransform: "none",
+              justifyContent: "flex-start",
+              "&:hover": {
+                backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
+              },
+            }}
+          >
+            Rewrite
+          </Button>
+          <IconButton
+            size="small"
+            onClick={() => setHighlightMenuOpen(false)}
+            sx={{
+              position: "absolute",
+              top: 2,
+              right: 2,
+              color: theme === "dark" ? "#fff" : "#000",
+            }}
+          >
+            <CloseIcon fontSize="small" />
+          </IconButton>
+        </Box>
+      )}
+
+      {/* Chat Modal */}
+      {chatModalOpen && (
+        <ChatModal
+          theme={theme}
+          open={chatModalOpen}
+          onClose={() => setChatModalOpen(false)}
+          initialMessage={chatInitialMessage}
+        />
+      )}
+
+      {/* Analytics Modal */}
+      {showAnalyticsModal && analytics && (
+        <Modal
+          open={showAnalyticsModal}
+          onClose={() => setShowAnalyticsModal(false)}
+        >
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              width: { xs: "95%", sm: "90%", md: "85%", lg: "80%" },
+              maxHeight: "95vh",
+              bgcolor: theme === "dark" ? "#1e1e1e" : "#fff",
+              boxShadow: 24,
+              p: { xs: 2, md: 4 },
+              borderRadius: "12px",
+              overflow: "auto",
+            }}
+          >
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              <Typography
+                variant="h5"
+                sx={{
+                  font: "inherit",
+                  fontWeight: "bold",
+                  color: theme === "dark" ? "#fff" : "#000",
+                }}
+              >
+                Document Analytics
+              </Typography>
+              <IconButton
+                onClick={() => setShowAnalyticsModal(false)}
+                sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+              >
+                <CloseIcon />
+              </IconButton>
+            </Box>
+
+            {/* Stats Grid */}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                  md: "repeat(3, 1fr)",
+                },
+                gap: 2,
+                mb: 3,
+              }}
+            >
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.wordCount} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Words
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.sentenceCount} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Sentences
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.paragraphCount} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Paragraphs
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.characterCount} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Characters
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.readingTime} /> min
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Reading Time
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber
+                    value={analytics.avgWordLength}
+                    isDecimal={true}
+                  />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Avg Word Length
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber
+                    value={analytics.avgWordsPerSentence}
+                    isDecimal={true}
+                  />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Avg Words/Sentence
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.characterCountNoSpaces} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Characters (no spaces)
+                </Typography>
+              </Box>
+
+              {/* More stats */}
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.uniqueWordCount} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Unique Words
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.lineCount} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Lines
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.speakingTime} /> min
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Speaking Time
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber
+                    value={analytics.lexicalDiversity}
+                    isDecimal={true}
+                  />
+                  %
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Lexical Diversity
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber
+                    value={analytics.fleschScore}
+                    isDecimal={true}
+                  />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Readability Score
+                </Typography>
+              </Box>
+
+              <Box
+                sx={{
+                  p: 3,
+                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                  borderRadius: "12px",
+                  border: `3px solid #f57c00`,
+                  textAlign: "center",
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: "#f57c00",
+                    fontWeight: "bold",
+                    fontSize: { xs: "2rem", md: "2.5rem" },
+                    lineHeight: 1.2,
+                  }}
+                >
+                  <AnimatedNumber value={analytics.totalSyllables} />
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    color: theme === "dark" ? "#ddd" : "#666",
+                    fontSize: "1.1rem",
+                    mt: 1,
+                  }}
+                >
+                  Total Syllables
+                </Typography>
+              </Box>
+            </Box>
+
+            {/* Word Length Distribution Chart */}
+            <Box sx={{ mt: 4 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  font: "inherit",
+                  fontWeight: "bold",
+                  color: theme === "dark" ? "#fff" : "#000",
+                  mb: 2,
+                  fontSize: "1.5rem",
+                }}
+              >
+                Word Length Distribution
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: { xs: "1fr", sm: "repeat(4, 1fr)" },
+                  gap: 2,
+                }}
+              >
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                    borderRadius: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "150px",
+                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
+                      borderRadius: "4px",
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "60%",
+                        height: `${(analytics.wordLengthDistribution.short / analytics.wordCount) * 100 * 1.5}%`,
+                        bgcolor: "#f57c00",
+                        borderRadius: "4px 4px 0 0",
+                      }}
+                    />
+                  </Box>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#fff" : "#000",
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    {analytics.wordLengthDistribution.short}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#ddd" : "#666",
+                      fontSize: "0.9rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    Short (≤4)
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                    borderRadius: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "150px",
+                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
+                      borderRadius: "4px",
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "60%",
+                        height: `${(analytics.wordLengthDistribution.medium / analytics.wordCount) * 100 * 1.5}%`,
+                        bgcolor: "#ff9800",
+                        borderRadius: "4px 4px 0 0",
+                      }}
+                    />
+                  </Box>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#fff" : "#000",
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    {analytics.wordLengthDistribution.medium}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#ddd" : "#666",
+                      fontSize: "0.9rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    Medium (5-7)
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                    borderRadius: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "150px",
+                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
+                      borderRadius: "4px",
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "60%",
+                        height: `${(analytics.wordLengthDistribution.long / analytics.wordCount) * 100 * 1.5}%`,
+                        bgcolor: "#fb8c00",
+                        borderRadius: "4px 4px 0 0",
+                      }}
+                    />
+                  </Box>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#fff" : "#000",
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    {analytics.wordLengthDistribution.long}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#ddd" : "#666",
+                      fontSize: "0.9rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    Long (8-10)
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    p: 2,
+                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                    borderRadius: "8px",
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: "100%",
+                      height: "150px",
+                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
+                      borderRadius: "4px",
+                      position: "relative",
+                      display: "flex",
+                      alignItems: "flex-end",
+                      justifyContent: "center",
+                      mb: 1,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: "60%",
+                        height: `${(analytics.wordLengthDistribution.veryLong / analytics.wordCount) * 100 * 1.5}%`,
+                        bgcolor: "#e65100",
+                        borderRadius: "4px 4px 0 0",
+                      }}
+                    />
+                  </Box>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#fff" : "#000",
+                      fontWeight: "bold",
+                      fontSize: "1.5rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    {analytics.wordLengthDistribution.veryLong}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: theme === "dark" ? "#ddd" : "#666",
+                      fontSize: "0.9rem",
+                      fontFamily: "Poppins, sans-serif",
+                    }}
+                  >
+                    Very Long (>10)
+                  </Typography>
+                </Box>
+              </Box>
+            </Box>
+
+            {/* Punctuation Chart */}
+            <Box sx={{ mt: 4 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  font: "inherit",
+                  fontWeight: "bold",
+                  color: theme === "dark" ? "#fff" : "#000",
+                  mb: 2,
+                  fontSize: "1.5rem",
+                }}
+              >
+                Punctuation Usage
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 2,
+                }}
+              >
+                {Object.entries(analytics.punctuationCounts).map(
+                  ([key, value]) => (
+                    <Box
+                      key={key}
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 2,
+                        p: 2,
+                        bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                        borderRadius: "8px",
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          color: theme === "dark" ? "#fff" : "#000",
+                          fontWeight: "bold",
+                          minWidth: "120px",
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {key}
+                      </Typography>
+                      <Box
+                        sx={{
+                          flex: 1,
+                          height: "32px",
+                          bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
+                          borderRadius: "4px",
+                          overflow: "hidden",
+                          position: "relative",
+                        }}
+                      >
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            left: 0,
+                            top: 0,
+                            height: "100%",
+                            width: `${(value / Math.max(...Object.values(analytics.punctuationCounts))) * 100}%`,
+                            bgcolor: "#f57c00",
+                            transition: "width 0.3s ease",
+                          }}
+                        />
+                      </Box>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          color: "#f57c00",
+                          fontWeight: "bold",
+                          minWidth: "60px",
+                          textAlign: "right",
+                          fontSize: "1.3rem",
+                        }}
+                      >
+                        {value}
+                      </Typography>
+                    </Box>
+                  ),
+                )}
+              </Box>
+            </Box>
+
+            {/* Top Words Section */}
+            <Box sx={{ mt: 4 }}>
+              <Typography
+                variant="h6"
+                sx={{
+                  font: "inherit",
+                  fontWeight: "bold",
+                  color: theme === "dark" ? "#fff" : "#000",
+                  mb: 2,
+                  fontSize: "1.5rem",
+                }}
+              >
+                Most Common Words (Top 15)
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: 1,
+                }}
+              >
+                {analytics.topWords.map((item, index) => (
+                  <Box
+                    key={index}
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 2,
+                      p: 1.5,
+                      bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <Typography
+                      sx={{
+                        font: "inherit",
+                        color: theme === "dark" ? "#fff" : "#000",
+                        fontWeight: "bold",
+                        minWidth: "30px",
+                      }}
+                    >
+                      {index + 1}.
+                    </Typography>
+                    <Typography
+                      sx={{
+                        font: "inherit",
+                        color: theme === "dark" ? "#fff" : "#000",
+                        flex: 1,
+                        textTransform: "capitalize",
+                      }}
+                    >
+                      {item.word}
+                    </Typography>
+                    <Box
+                      sx={{
+                        flex: 3,
+                        height: "24px",
+                        bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
+                        borderRadius: "4px",
+                        overflow: "hidden",
+                        position: "relative",
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          position: "absolute",
+                          left: 0,
+                          top: 0,
+                          height: "100%",
+                          width: `${(item.count / analytics.topWords[0].count) * 100}%`,
+                          bgcolor: "#f57c00",
+                          transition: "width 0.3s ease",
+                        }}
+                      />
+                    </Box>
+                    <Typography
+                      sx={{
+                        font: "inherit",
+                        color: "#f57c00",
+                        fontWeight: "bold",
+                        minWidth: "40px",
+                        textAlign: "right",
+                      }}
+                    >
+                      {item.count}
+                    </Typography>
+                  </Box>
+                ))}
+              </Box>
+            </Box>
+          </Box>
+        </Modal>
+      )}
     </Box>
   );
 };

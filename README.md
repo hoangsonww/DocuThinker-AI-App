@@ -33,7 +33,7 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 - [**📦 Containerization**](#containerization)
 - [**🚧 Deployment**](#deployment)
   - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
-  - [**Backend Deployment (Render)**](#backend-deployment-render)
+  - [**Backend & AI/ML Deployment**](#backend--aiml-deployment)
   - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
 - [**⚖️ Load Balancing & Caching**](#load-balancing)
 - [**🔗 Jenkins Integration**](#jenkins)
@@ -52,6 +52,20 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 The **DocuThinker** app is designed to provide users with a simple, AI-powered document management tool. Users can upload PDFs or Word documents and receive summaries, key insights, and discussion points. Additionally, users can chat with an AI using the document's content for further clarification.
 
 **DocuThinker** is created using the **FERN-Stack** architecture, which stands for **Firebase, Express, React, and Node.js**. The backend is built with Node.js and Express, integrating Firebase for user authentication and MongoDB for data storage. The frontend is built with React and Material-UI, providing a responsive and user-friendly interface.
+
+```mermaid
+graph LR
+    A[React Frontend] -->|REST API| B[Express Backend]
+    B --> C[Firebase Auth]
+    B --> D[Firestore]
+    B --> E[MongoDB]
+    B --> F[Redis Cache]
+    B --> G[AI/ML Services]
+    A --> H[Material-UI]
+    A --> I[React Router]
+    G --> J[Google Cloud APIs]
+    G --> K[LangChain]
+```
 
 > [!IMPORTANT]
 > It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
@@ -173,7 +187,10 @@ These badges indicate the current deployment status of the app, updating automat
   - **NER**: Named Entity Recognition for identifying entities in text.
   - **POS Tagging**: Part-of-Speech Tagging for analyzing word types in text.
   - **RAG**: Retrieval-Augmented Generation for generating responses in chat.
-  - **LangChain**: Handles document ingestion, text chunking, embedding storage, retrieval, summarization, and API chaining for generating insights from uploaded documents.
+  - **DocumentIntelligenceService**: Central LangGraph-driven facade that orchestrates ingestion, retrieval, CrewAI validation, multi-provider LLM calls, and downstream utilities.
+  - **LangChain & LangGraph**: LangChain handles chunking/embeddings; LangGraph coordinates the agentic state machine powering RAG and tool routing.
+  - **CrewAI**: Multi-agent collaboration (analyst/researcher/reviewer) combining OpenAI, Anthropic, and Gemini providers for grounded insights.
+  - **Neo4j & Chroma**: Optional knowledge graph and vector-memory layers that persist analyses for cross-session recall and graph queries.
 - **Database**:
   - **MongoDB**: NoSQL database for storing user data and documents.
   - **Firestore**: Cloud Firestore for storing user data and documents.
@@ -229,7 +246,11 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="https://img.shields.io/badge/NER-007ACC?style=for-the-badge&logo=apachenetbeanside&logoColor=white" alt="Named Entity Recognition" />
   <img src="https://img.shields.io/badge/POS_Tagging-123456?style=for-the-badge&logo=posit&logoColor=white" alt="POS Tagging" />
   <img src="https://img.shields.io/badge/Retrieval%20Augmented%20Generation%20(RAG)-6495ED?style=for-the-badge&logo=chatbot&logoColor=white" alt="Retrieval-Augmented Generation" />
-  <img src="https://img.shields.io/badge/LangChain-999999?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
+  <img src="https://img.shields.io/badge/LangChain-Orchestration-2C8EBB?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
+  <img src="https://img.shields.io/badge/LangGraph-Agentic_Workflows-8A2BE2?style=for-the-badge&logo=apacheairflow&logoColor=white" alt="LangGraph" />
+  <img src="https://img.shields.io/badge/CrewAI-Multi_Agent-1F6FEB?style=for-the-badge&logo=githubactions&logoColor=white" alt="CrewAI" />
+  <img src="https://img.shields.io/badge/Neo4j-Knowledge_Graph-0A66C2?style=for-the-badge&logo=neo4j&logoColor=white" alt="Neo4j" />
+  <img src="https://img.shields.io/badge/Chroma-Vector_DB-7834F8?style=for-the-badge&logo=databricks&logoColor=white" alt="Chroma" />
 
   <!-- Containerization, Deployment, CI/CD -->
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
@@ -320,6 +341,12 @@ These badges indicate the current deployment status of the app, updating automat
 
 <p align="center">
   <img src="images/chat-dark.png" alt="Chat Modal - Dark Mode" width="100%" style="border-radius: 8px">
+</p>
+
+### **Document Analytics**
+
+<p align="center">
+  <img src="images/analytics.png" alt="Document Analytics" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Documents Page**
@@ -436,16 +463,8 @@ The **DocuThinker** app is organized into separate subdirectories for the fronte
 
 ```
 DocuThinker-AI-App/
+├── ai_ml/                            # AI/ML pipelines & services directory
 ├── backend/
-│   ├── ai_ml/
-│   │   ├── perform_ner_pos.py        # Named Entity Recognition and Part-of-Speech Tagging
-│   │   ├── sen_analysis.py           # Sentiment analysis for document text
-│   │   ├── chat.js                   # Chatbot integration for AI chat functionality
-│   │   ├── analyzer.js               # Document analyzer for generating key ideas and discussion points
-│   │   ├── textStatistics.js         # Text statistics for analyzing document content
-│   │   ├── documentClassifier.js     # Document classifier for categorizing documents
-│   │   ├── summarizer.js             # Document summarizer for generating summaries
-│   │   └── (and many more files...)  # Additional AI/ML services
 │   ├── middleware/
 │   │   └── jwt.js                    # Authentication middleware with JWT for the app's backend
 │   ├── controllers/
@@ -519,6 +538,16 @@ DocuThinker-AI-App/
 │   ├── package.json                  # Project dependencies and scripts
 │   └── tsconfig.json                 # TypeScript configuration file
 │
+├── aws/                              # AWS deployment assets (ECR/ECS/CloudFormation/CDK)
+│   ├── README.md
+│   ├── cloudformation/
+│   │   └── fargate-service.yaml      # Reference Fargate stack for backend + ai_ml services
+│   ├── infrastructure/
+│   │   ├── cdk-app.ts                # CDK entrypoint
+│   │   └── lib/docuthinker-stack.ts  # CDK stack definition
+│   └── scripts/
+│       └── local-env.sh              # Helper to mirror production env vars locally
+
 ├── kubernetes/                       # Kubernetes configuration files
 │   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
@@ -545,7 +574,6 @@ DocuThinker-AI-App/
 ├── vercel.json                       # Vercel configuration file
 ├── openapi.yaml                      # OpenAPI specification for API documentation
 ├── manage_docuthinker.sh             # Shell script for managing and starting the app (both frontend & backend)
-├── jenkins_cicd.sh                   # Shell script for managing the Jenkins CI/CD pipeline
 ├── .gitignore                        # Git ignore file
 ├── LICENSE.md                        # License file for the project
 ├── README.md                         # Comprehensive README for the whole app
@@ -797,6 +825,55 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 - The API routes are secured using Firebase authentication middleware to ensure that only authenticated users can access the endpoints.
 - The API controllers handle the business logic for each route, interacting with the data models and formatting the responses.
 
+#### AI/ML Agentic Platform
+
+Our refreshed `ai_ml/` package wraps LangGraph, CrewAI, and multi-provider LLMs inside a reusable `DocumentIntelligenceService`. It now supports:
+
+- **Agentic RAG pipeline** combining semantic retrieval, structured JSON generation, and CrewAI review (`ai_ml/services/orchestrator.py`, `ai_ml/pipelines/rag_graph.py`).
+- **Multi-LLM registry** with drop-in OpenAI, Anthropic Claude, Google Gemini, or Hugging Face embeddings (`ai_ml/providers/registry.py`).
+- **Optional persistence**: enable Neo4j knowledge graphs (`ai_ml/graph/neo4j_client.py`) and Chroma vector memory (`ai_ml/vectorstores/chroma_store.py`) via `DOCUTHINKER_SYNC_GRAPH` / `DOCUTHINKER_SYNC_VECTOR` env flags.
+- **Expanded tooling**: FastAPI, CLI, and MCP tools tap a single facade for sentiment, translation, recommendations, graph sync, and vector search.
+
+```mermaid
+graph LR
+    Client --> API(Backend API)
+    API --> SVC(DocumentIntelligenceService)
+    SVC --> PIPE(AgenticRAGPipeline)
+    PIPE --> CREW(CrewAI Team)
+    PIPE --> RETR(Vector Tools)
+    SVC --> NEO(Neo4j)
+    SVC --> CHR(ChromaDB)
+    CREW --> OAI(OpenAI)
+    CREW --> CLAUDE(Anthropic)
+    CREW --> GEM(Gemini)
+    RETR --> HF(Embeddings)
+```
+
+> **Tip:** Set `DOCUTHINKER_SYNC_GRAPH=true` and `DOCUTHINKER_SYNC_VECTOR=true` to persist analyses; the MCP tools expose `vector_upsert`, `vector_search`, `graph_upsert`, and `graph_query` for external agents.
+
+```mermaid
+graph TD
+    A[Client Request] -->|HTTP/HTTPS| B[Express Server]
+    B --> C{Route Handler}
+    C -->|Auth Routes| D[User Controller]
+    C -->|Document Routes| E[Document Controller]
+    C -->|AI Routes| F[AI Controller]
+    D --> G[Firebase Auth]
+    E --> H[Firestore DB]
+    F --> I[AI/ML Services]
+    I --> J[Google Cloud NLP]
+    I --> K[LangChain]
+    I --> L[Custom Models]
+    B --> M[Redis Cache]
+    B --> N[RabbitMQ Queue]
+    G --> O[Response Formatter]
+    H --> O
+    J --> O
+    K --> O
+    L --> O
+    O --> P[JSON Response]
+```
+
 ### **API Testing**
 
 - You can test the API endpoints using **Postman** or **Insomnia**. Simply make a POST request to the desired endpoint with the required parameters.
@@ -974,40 +1051,66 @@ The **DocuThinker** app can be containerized using **Docker** for easy deploymen
 
 You can also view the image in the **Docker Hub** repository **[here](https://hub.docker.com/repository/docker/hoangsonw/docuthinker-ai-app/)**.
 
+```mermaid
+graph TB
+    A[Docker Compose] --> B[Frontend Container]
+    A --> C[Backend Container]
+    A --> D[Redis Container]
+    A --> E[MongoDB Container]
+    A --> F[NGINX Container]
+    B -->|Port 3000| G[React App]
+    C -->|Port 5000| H[Express Server]
+    D -->|Port 6379| I[Redis Cache]
+    E -->|Port 27017| J[MongoDB Database]
+    F -->|Port 80/443| K[Load Balancer]
+    K --> B
+    K --> C
+```
+
 <h2 id="deployment">🚧 Deployment</h2>
+
+```mermaid
+graph TB
+    GIT[GitHub Repo] --> JENKINS[Jenkins Multistage Pipeline]
+    JENKINS --> TEST[Install + Lint + Tests]
+    TEST --> BUILD[Package Artifacts]
+    BUILD --> VERCEL[Vercel Frontend Deploy]
+    BUILD --> ECR[Push Images to ECR]
+    ECR --> ECS[ECS Fargate - Backend & AI/ML]
+    ECS --> USERS[API Consumers]
+    VERCEL --> USERS
+```
 
 ### **Frontend Deployment (Vercel)**
 
-1. **Install the Vercel CLI**:
+- Production hosting remains on **Vercel**. The Jenkins pipeline runs tests/builds and then calls `vercel --prod` using the `vercel-token` credential when the `main` branch updates.
+- To deploy manually:
 
-   ```bash
-   npm install -g vercel
-   ```
+  ```bash
+  npm install -g vercel
+  vercel --prod
+  ```
 
-2. **Deploy the frontend**:
+- The live site stays at **https://docuthinker.vercel.app** with Netlify retained as a static backup.
 
-   ```bash
-   vercel
-   ```
+### **Backend & AI/ML Deployment**
 
-3. **Follow the instructions in your terminal to complete the deployment**.
+- The current production API is still served from **Render** (`https://docuthinker-ai-app.onrender.com`) while we stage an AWS/ECS migration.
+- Jenkins now builds backend and `ai_ml` images, pushes them to Amazon ECR, and packages artifacts for manual ECS deployments.
+- Optional AWS stack components live in [`aws/`](aws/README.md) with:
+  - `cloudformation/fargate-service.yaml` – baseline Fargate template for backend + AI/ML services.
+  - `infrastructure/` – CDK stack mirroring the same services.
+  - `scripts/local-env.sh` – helper to export Graph/vector env vars locally.
+- To roll traffic onto AWS:
+  1. Create ECR repos `docuthinker-backend` and `docuthinker-ai-ml`.
+  2. Provide credentials via AWS Secrets Manager (`docuthinker/openai`, `.../anthropic`, etc.).
+  3. Deploy CloudFormation or CDK stack, then update ECS services with the freshly pushed images.
 
-### **Backend Deployment (Render)**
+### **Important Deployment Notes**
 
-- The backend can be deployed on platforms like **Heroku**, **Render**, or **Vercel**.
-
-- Currently, we are using **Render** to host the backend. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
-
-### **Important Note about Backend Deployment**
-
-> [!IMPORTANT]
-> - Please note that we are currently on the **Free Tier** of **Render**. This means that the backend server may take a few seconds to wake up if it has been inactive for a while.
->
-> - Therefore, the first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. It is completely normal to take up to 2 minutes for the first API call to respond.
->
-> - Also, the **Free Tier** of **Render** only allocates **512MB and 0.1 CPU**. This may result in slower response times for API calls and document processing.
->
-> - Additionally, during high traffic periods, the server may take longer to respond, although we have employed [NGINX](#load-balancing) for load balancing and caching.
+- Vercel remains the source of truth for the frontend; AWS/GitHub Actions support can be expanded as needed.
+- Render free tier keeps the legacy backend online; expect cold-start delays on first requests.
+- AI/ML pods require provider API keys plus optional Neo4j & Chroma endpoints. When unsupplied, the service degrades gracefully.
 
 <h2 id="load-balancing">⚖️ Load Balancing & Caching</h2>
 
@@ -1024,25 +1127,23 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
 
 <h2 id="jenkins">🔗 Jenkins Integration</h2>
 
-- We are using **Jenkins** for continuous integration and deployment. The Jenkins pipeline is set up to automatically test and deploy the app whenever changes are pushed to the main branch.
-- The pipeline runs the tests, builds the app, and deploys it to **Vercel** and **Render**. Feel free to visit the pipeline at **[`Jenkinsfile`](Jenkinsfile)**.
-- The pipeline is triggered automatically whenever a new commit is pushed to the main branch.
-- You can set up your own Jenkins pipeline to automate testing and deployment for your projects by following these commands and steps:
+- The refreshed **Jenkinsfile** now mirrors production: it checks out the repo, installs dependencies per workspace (`frontend`, `backend`, `ai_ml`), runs tests/lint, builds artifacts, and optionally deploys to **Vercel** (frontend) plus pushes container images to **Amazon ECR** for backend/AI workloads.
+- Secrets required by the pipeline:
+  - `vercel-token` – Vercel API token stored in Jenkins credentials (for `vercel --prod`).
+  - AWS credentials (e.g. `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) configured globally for `aws ecr` pushes if you enable that stage.
+- For local Jenkins bootstrap:
 
-1. **Install Jenkins**:
-   ```bash
-   brew install jenkins
-   ```
-2. **Start Jenkins**:
-   ```bash
-   brew services start jenkins
-   ```
-3. **Access Jenkins**:
-   Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
+  ```bash
+  brew install jenkins-lts
+  brew services start jenkins-lts
+  open http://localhost:8080
+  ```
 
-4. **Follow the instructions to set up Jenkins and create a new pipeline**.
+- Create a Pipeline job pointing to this repository, assign the credentials above, and Jenkins will run automatically on every push to `main`.
+- The pipeline output includes packaged artifacts under `artifacts/` for inspection and (when configured) ECR push status for the AWS ECS deployment path.
+- See [`Jenkinsfile`](Jenkinsfile) for the full stage definitions and environment configuration.
 
-If successful, you should see the Jenkins pipeline running and deploying the app automatically whenever changes are pushed to the main branch. Here is an example:
+If successful, you should see the Jenkins pipeline running tests, producing artifacts, and deploying to Vercel/ECR automatically whenever changes are merged. Example dashboard:
 
 <p align="center">
   <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
@@ -1109,6 +1210,26 @@ This will run the unit tests and end-to-end tests for the frontend app using **J
 - The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `kubernetes` directory.
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
+
+```mermaid
+graph TB
+    A[Kubernetes Cluster] --> B[Ingress Controller]
+    B --> C[Frontend Service]
+    B --> D[Backend Service]
+    C --> E[Frontend Pods]
+    D --> F[Backend Pods]
+    E --> G[Pod 1]
+    E --> H[Pod 2]
+    E --> I[Pod 3]
+    F --> J[Pod 1]
+    F --> K[Pod 2]
+    F --> L[Pod 3]
+    D --> M[ConfigMap]
+    D --> N[Secrets]
+    D --> O[Persistent Volume]
+    O --> P[MongoDB]
+    O --> Q[Redis]
+```
 
 <h2 id="vscode-extension">⚛️ VS Code Extension</h2>
 
