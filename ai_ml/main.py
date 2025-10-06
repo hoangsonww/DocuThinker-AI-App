@@ -1,115 +1,89 @@
 #!/usr/bin/env python
 import argparse
+import json
 import logging
 import sys
 
-from models.hf_model import load_models, load_translation_model
-from processing.summarizer import summarize_text
-from processing.topic_extractor import extract_topics
-from processing.translator import translate_text
-from processing.sentiment import analyze_sentiment
-from qa.qa_system import answer_question
-from discussion.discussion_generator import generate_discussion_points
-from rag.rag_system import retrieval_augmented_generation
+from ai_ml import backend
 
 
 def setup_logging():
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
-        handlers=[logging.StreamHandler(sys.stdout)]
+        handlers=[logging.StreamHandler(sys.stdout)],
     )
 
 
 def main():
     setup_logging()
     logger = logging.getLogger(__name__)
-    parser = argparse.ArgumentParser(
-        description="Document Analysis App with LangChain Integration"
-    )
+    parser = argparse.ArgumentParser(description="DocuThinker agentic document analysis CLI")
     parser.add_argument("filepath", help="Path to the document file (txt) to analyze")
     parser.add_argument("--question", help="Question for Q&A", default=None)
     parser.add_argument(
         "--translate_lang",
         help="Target language code for translation (e.g., 'fr', 'de', 'es', 'it', 'zh')",
-        default="fr"
+        default="fr",
     )
+    parser.add_argument("--doc_id", help="Optional identifier to attach to the document", default=None)
+    parser.add_argument("--title", help="Optional title stored alongside the document", default=None)
     args = parser.parse_args()
 
     try:
         with open(args.filepath, "r", encoding="utf-8") as f:
             document = f.read()
-    except Exception as e:
-        logger.error("Error reading file: %s", e)
+    except Exception as exc:
+        logger.error("Error reading file: %s", exc)
         sys.exit(1)
 
-    # Load LangChain chains and pipelines
-    logger.info("Loading main models and chains...")
-    models = load_models()
+    metadata = {}
+    if args.doc_id:
+        metadata["id"] = args.doc_id
+    if args.title:
+        metadata["title"] = args.title
 
-    # Dynamically load the translation pipeline for the specified target language
-    try:
-        translator = load_translation_model(args.translate_lang)
-    except Exception as e:
-        logger.error("Error loading translation model: %s", e)
-        sys.exit(1)
+    results = backend.analyze_document(
+        document,
+        question=args.question,
+        translate_lang=args.translate_lang,
+        metadata=metadata or None,
+    )
 
-    # Summarize the document (with chunking for long texts)
-    try:
-        summary = summarize_text(document, models["summarizer_chain"])
-        print("=== Summary ===")
-        print(summary)
-    except Exception as e:
-        logger.exception("Error during summarization: %s", e)
+    print("=== Agentic RAG Overview ===")
+    print(json.dumps(results.get("rag", {}), ensure_ascii=True, indent=2))
 
-    # Extract key topics using the zero-shot classification pipeline
-    try:
-        topics = extract_topics(document, models["topic_extractor"])
-        print("\n=== Key Topics ===")
-        print(topics)
-    except Exception as e:
-        logger.exception("Error during topic extraction: %s", e)
+    print("\n=== Summary ===")
+    print(results.get("summary"))
 
-    # Translate the document
-    try:
-        translation = translate_text(document, translator)
-        print("\n=== Translated Document (to {}) ===".format(args.translate_lang))
-        print(translation)
-    except Exception as e:
-        logger.exception("Error during translation: %s", e)
+    print("\n=== Bullet Summary ===")
+    print(backend.generate_bullet_summary(document))
 
-    # Sentiment analysis
-    try:
-        sentiment = analyze_sentiment(document, models["sentiment_analyzer"])
-        print("\n=== Sentiment Analysis ===")
-        print(sentiment)
-    except Exception as e:
-        logger.exception("Error during sentiment analysis: %s", e)
+    print("\n=== Topics ===")
+    print(results.get("topics"))
 
-    # Q&A (if a question is provided)
+    print("\n=== Insights ===")
+    print(results.get("insights"))
+
     if args.question:
-        try:
-            answer = answer_question(document, args.question, models["qa_chain"])
-            print("\n=== Q&A Answer ===")
-            print(answer)
-        except Exception as e:
-            logger.exception("Error during Q&A: %s", e)
+        print("\n=== Q&A ===")
+        print(results.get("qa"))
 
-    # Generate discussion points
-    try:
-        discussion = generate_discussion_points(document, models["discussion_chain"])
-        print("\n=== Discussion Points ===")
-        print(discussion)
-    except Exception as e:
-        logger.exception("Error during discussion generation: %s", e)
+    print("\n=== Sentiment ===")
+    print(json.dumps(results.get("sentiment"), ensure_ascii=True, indent=2))
 
-    # Demonstrate RAG
-    try:
-        rag_answer = retrieval_augmented_generation(document, models["rag_chain"])
-        print("\n=== RAG Generated Answer ===")
-        print(rag_answer)
-    except Exception as e:
-        logger.exception("Error during RAG generation: %s", e)
+    print("\n=== Discussion ===")
+    print(results.get("discussion"))
+
+    print("\n=== Recommendations ===")
+    print(backend.recommendations(document))
+
+    print("\n=== Translation ({}) ===".format(args.translate_lang))
+    print(results.get("translation"))
+
+    if results.get("sync"):
+        print("\n=== Sync Report ===")
+        print(json.dumps(results["sync"], ensure_ascii=True, indent=2))
 
 
 if __name__ == "__main__":

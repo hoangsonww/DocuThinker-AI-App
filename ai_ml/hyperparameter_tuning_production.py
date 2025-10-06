@@ -6,6 +6,8 @@ import optuna
 import numpy as np
 import requests
 from transformers import pipeline
+
+from ai_ml.core import load_settings
 from rouge_score import rouge_scorer
 
 # Configure logging for production
@@ -48,7 +50,7 @@ def objective(trial):
     temperature = trial.suggest_float("temperature", 0.7, 1.5) if do_sample else 1.0
 
     # Create the summarization pipeline.
-    summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+    summarizer = pipeline("summarization", model=load_settings().fallback_hf_summarizer)
 
     # Use ROUGE-L as the evaluation metric.
     scorer = rouge_scorer.RougeScorer(['rougeL'], use_stemmer=True)

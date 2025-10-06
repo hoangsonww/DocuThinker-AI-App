@@ -1,27 +1,16 @@
-import logging
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+"""Key ideas extraction built on top of the document service."""
 
-logger = logging.getLogger(__name__)
+from __future__ import annotations
 
-KEY_IDEAS_PROMPT = """
-Extract the main ideas (key takeaways) from the following document. Present them as a concise list:
-Document:
-{text}
-
-Key Ideas:
-"""
+from ai_ml.services import get_document_service
 
 
-def generate_key_ideas(document: str, chain: LLMChain) -> str:
-    """
-    Generates the key ideas from the document using the provided LLMChain.
-    """
-    try:
-        template = PromptTemplate(input_variables=["text"], template=KEY_IDEAS_PROMPT)
-        local_chain = LLMChain(llm=chain.llm, prompt=template)
-        result = local_chain.run(text=document)
-        return result.strip()
-    except Exception as e:
-        logger.exception("Error generating key ideas: %s", e)
+def generate_key_ideas(document: str) -> str:
+    service = get_document_service()
+    topics = service.extract_topics(document)
+    if not topics:
         return ""
+    return "\n".join(f"- {topic}" for topic in topics)
+
+
+__all__ = ["generate_key_ideas"]

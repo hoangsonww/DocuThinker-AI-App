@@ -7,7 +7,12 @@ import {
   TextField,
   Snackbar,
   Alert,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
 } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import InfoIcon from "@mui/icons-material/Info";
 import { useDropzone } from "react-dropzone";
 import axios from "axios";
 import { gapi } from "gapi-script";
@@ -360,20 +365,72 @@ const UploadModal = ({
               : "Loading Google Auth..."}
           </Button>
 
-          <Typography
+          <Accordion
             sx={{
               mt: 3,
-              font: "inherit",
-              color: theme === "dark" ? "white" : "black",
-              fontSize: "14px",
+              bgcolor: theme === "dark" ? "#2a2a2a" : "#fff3e0",
+              border: `1px solid ${theme === "dark" ? "#f57c00" : "#ff9800"}`,
+              borderRadius: "8px",
+              "&:before": {
+                display: "none",
+              },
+              boxShadow: "none",
             }}
           >
-            <em>
-              Note: Please avoid uploading very large files as server limits may
-              prevent processing. Processing may take up to 2 minutes during
-              high traffic or after periods of inactivity.
-            </em>
-          </Typography>
+            <AccordionSummary
+              expandIcon={
+                <ExpandMoreIcon
+                  sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                />
+              }
+              sx={{
+                font: "inherit",
+                "& .MuiAccordionSummary-content": {
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1,
+                },
+                "&:hover": {
+                  bgcolor: "transparent",
+                },
+                "&.Mui-focusVisible": {
+                  bgcolor: "transparent",
+                },
+              }}
+            >
+              <InfoIcon sx={{ color: "#f57c00", fontSize: "20px" }} />
+              <Typography
+                sx={{
+                  font: "inherit",
+                  fontWeight: "600",
+                  color: theme === "dark" ? "white" : "black",
+                  fontSize: "15px",
+                }}
+              >
+                Important Note
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails
+              sx={{
+                font: "inherit",
+                color: theme === "dark" ? "#ddd" : "#666",
+                fontSize: "14px",
+                pt: 0,
+              }}
+            >
+              <Typography
+                sx={{
+                  font: "inherit",
+                  fontSize: "14px",
+                  lineHeight: 1.6,
+                }}
+              >
+                Please avoid uploading very large files as server limits may
+                prevent processing. Processing may take up to 2 minutes during
+                high traffic or after periods of inactivity.
+              </Typography>
+            </AccordionDetails>
+          </Accordion>
         </Box>
 
         <GoogleDriveFileSelectorModal

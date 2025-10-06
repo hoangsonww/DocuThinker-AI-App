@@ -285,12 +285,23 @@ const AiMessage = ({ text, theme }) => {
   );
 };
 
-const ChatModal = ({ theme }) => {
-  const [open, setOpen] = useState(false);
+const ChatModal = ({
+  theme,
+  open: externalOpen,
+  onClose: externalOnClose,
+  initialMessage,
+}) => {
+  const [internalOpen, setInternalOpen] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [chatHistory, setChatHistory] = useState([]);
   const chatEndRef = useRef(null);
+
+  // Use external open/close if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = externalOnClose
+    ? (val) => !val && externalOnClose()
+    : setInternalOpen;
 
   useEffect(() => {
     const sessionId = localStorage.getItem("sessionId");
@@ -299,6 +310,13 @@ const ChatModal = ({ theme }) => {
       localStorage.setItem("sessionId", newSessionId);
     }
   }, []);
+
+  // Set initial message when modal opens with initialMessage
+  useEffect(() => {
+    if (open && initialMessage) {
+      setMessage(initialMessage);
+    }
+  }, [open, initialMessage]);
 
   useEffect(() => {
     if (chatEndRef.current) {
@@ -344,17 +362,19 @@ const ChatModal = ({ theme }) => {
 
   return (
     <>
-      <Button
-        onClick={() => setOpen(true)}
-        sx={{
-          bgcolor: "#f57c00",
-          color: "white",
-          font: "inherit",
-          borderRadius: "12px",
-        }}
-      >
-        Chat with AI
-      </Button>
+      {!externalOpen && (
+        <Button
+          onClick={() => setOpen(true)}
+          sx={{
+            bgcolor: "#f57c00",
+            color: "white",
+            font: "inherit",
+            borderRadius: "12px",
+          }}
+        >
+          Chat with AI
+        </Button>
+      )}
       <Modal open={open} onClose={() => setOpen(false)}>
         <Box
           sx={{

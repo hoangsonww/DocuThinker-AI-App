@@ -1,7 +1,33 @@
 # Core ML libraries
 torch>=1.10.0
-transformers>=4.30.0
-langchain>=0.0.220
+transformers>=4.38.0
+
+# LangChain ecosystem
+langchain>=0.2.6
+langgraph>=0.0.40
+langchain-openai>=0.1.7
+langchain-anthropic>=0.1.13
+langchain-google-genai>=0.0.11
+langchain-community>=0.2.6
+
+# Multi-agent orchestration
+crewai>=0.28.8
+
+# Embeddings & vector stores
+sentence-transformers>=2.7.0
+faiss-cpu>=1.7.4
+chromadb>=0.5.3
+
+# Cloud provider SDKs
+openai>=1.30.0
+anthropic>=0.33.0
+google-generativeai>=0.5.4
+
+# Graph database
+neo4j>=5.11.0
+
+# MCP server
+mcp>=0.1.2
 
 # ONNX and runtime support
 onnx>=1.12.0
@@ -10,14 +36,14 @@ onnxruntime>=1.14.0
 # Optional: Hugging Face Optimum for enhanced ONNX support
 optimum[onnxruntime]>=1.12.0
 
-# For environment variable management (optional)
+# Environment variable management
 python-dotenv>=0.21.0
 
 # FastAPI and Uvicorn for serving the API
-fastapi>=0.95.0
-uvicorn>=0.21.1
+fastapi>=0.109.0
+uvicorn>=0.23.0
 
-# Data Visualization and other utilities (if needed)
+# Data Visualization and other utilities
 pandas>=1.3.0
 matplotlib>=3.5.0
 
