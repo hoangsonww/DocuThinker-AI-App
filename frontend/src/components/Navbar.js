@@ -11,6 +11,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -35,6 +36,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const isLargeScreen = useMediaQuery("(min-width:1111px)");
 
   useEffect(() => {
     const checkLoggedInStatus = () => {
@@ -238,7 +240,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           DocuThinker
         </Typography>
 
-        <Box sx={{ display: { xs: "none", md: "flex" } }}>{renderNavLinks}</Box>
+        <Box sx={{ display: isLargeScreen ? "flex" : "none" }}>{renderNavLinks}</Box>
 
         <IconButton
           onClick={onThemeToggle}
@@ -258,7 +260,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           edge="start"
           color="inherit"
           aria-label="menu"
-          sx={{ display: { xs: "flex", md: "none", marginLeft: "4px" } }}
+          sx={{ display: isLargeScreen ? "none" : "flex", marginLeft: "4px" }}
           onClick={toggleDrawer(true)}
         >
           <MenuIcon sx={{ color: theme === "dark" ? "white" : "black" }} />
