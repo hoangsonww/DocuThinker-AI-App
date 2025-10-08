@@ -240,7 +240,9 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           DocuThinker
         </Typography>
 
-        <Box sx={{ display: isLargeScreen ? "flex" : "none" }}>{renderNavLinks}</Box>
+        <Box sx={{ display: isLargeScreen ? "flex" : "none" }}>
+          {renderNavLinks}
+        </Box>
 
         <IconButton
           onClick={onThemeToggle}
