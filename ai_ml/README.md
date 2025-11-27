@@ -242,58 +242,72 @@ sequenceDiagram
 
 ### 📂 Module Structure
 
-```
-ai_ml/
-├── core/
-│   ├── settings.py              # Runtime configuration & environment settings
-│   └── __init__.py
-├── services/
-│   ├── orchestrator.py          # DocumentIntelligenceService facade
-│   └── __init__.py
-├── pipelines/
-│   ├── rag_graph.py             # LangGraph agentic RAG pipeline
-│   └── __init__.py
-├── agents/
-│   ├── crew_agents.py           # CrewAI multi-agent collaboration
-│   └── __init__.py
-├── providers/
-│   ├── registry.py              # Multi-provider LLM & embedding registry
-│   └── __init__.py
-├── tools/
-│   ├── document_tools.py        # Semantic search & insights tools
-│   └── __init__.py
-├── graph/
-│   ├── neo4j_client.py          # Neo4j knowledge graph client
-│   └── __init__.py
-├── vectorstores/
-│   ├── chroma_store.py          # ChromaDB persistent vector store
-│   └── __init__.py
-├── mcp/
-│   ├── server.py                # MCP server for tool exposure
-│   └── __init__.py
-├── processing/
-│   ├── summarizer.py            # Summarization utilities
-│   ├── sentiment.py             # Sentiment analysis
-│   ├── topic_extractor.py       # Topic extraction
-│   └── translator.py            # Translation utilities
-├── extended_features/
-│   ├── chat_interface.py        # Conversational AI interface
-│   ├── bullet_summary_generator.py
-│   ├── key_ideas_extractor.py
-│   ├── recommendations_generator.py
-│   ├── refine_summary.py
-│   ├── rewriter.py
-│   └── voice_chat.py
-├── models/
-│   ├── hf_model.py              # HuggingFace model loaders
-│   ├── model_utils.py           # Model utilities
-│   └── onnx_helper.py           # ONNX conversion helpers
-├── backend.py                    # High-level API facade
-├── server.py                     # FastAPI REST server
-├── main.py                       # CLI entry point
-├── config.py                     # Legacy configuration
-├── requirements.txt              # Python dependencies
-└── README.md                     # This file
+```mermaid
+flowchart TB
+    root[ai_ml/]
+
+    root --> core_dir[core/]
+    core_dir --> settings[settings.py<br/>Runtime configuration]
+    core_dir --> core_init[__init__.py]
+
+    root --> services_dir[services/]
+    services_dir --> orchestrator[orchestrator.py<br/>DocumentIntelligenceService facade]
+    services_dir --> services_init[__init__.py]
+
+    root --> pipelines_dir[pipelines/]
+    pipelines_dir --> rag_graph[rag_graph.py<br/>LangGraph agentic RAG pipeline]
+    pipelines_dir --> pipelines_init[__init__.py]
+
+    root --> agents_dir[agents/]
+    agents_dir --> crew_agents[crew_agents.py<br/>CrewAI collaboration]
+    agents_dir --> agents_init[__init__.py]
+
+    root --> providers_dir[providers/]
+    providers_dir --> registry[registry.py<br/>LLM & embedding registry]
+    providers_dir --> providers_init[__init__.py]
+
+    root --> tools_dir[tools/]
+    tools_dir --> document_tools[document_tools.py<br/>Semantic search & insights]
+    tools_dir --> tools_init[__init__.py]
+
+    root --> graph_dir[graph/]
+    graph_dir --> neo4j_client[neo4j_client.py<br/>Knowledge graph client]
+    graph_dir --> graph_init[__init__.py]
+
+    root --> vectorstores_dir[vectorstores/]
+    vectorstores_dir --> chroma_store[chroma_store.py<br/>ChromaDB persistence]
+    vectorstores_dir --> vectorstores_init[__init__.py]
+
+    root --> mcp_dir[mcp/]
+    mcp_dir --> mcp_server[server.py<br/>MCP tool exposure]
+    mcp_dir --> mcp_init[__init__.py]
+
+    root --> processing_dir[processing/]
+    processing_dir --> summarizer[summarizer.py<br/>Summarization]
+    processing_dir --> sentiment[sentiment.py<br/>Sentiment analysis]
+    processing_dir --> topic_extractor[topic_extractor.py<br/>Topic extraction]
+    processing_dir --> translator[translator.py<br/>Translation utilities]
+
+    root --> extended_dir[extended_features/]
+    extended_dir --> chat_interface[chat_interface.py<br/>Conversational interface]
+    extended_dir --> bullet_summary[bullet_summary_generator.py]
+    extended_dir --> key_ideas[key_ideas_extractor.py]
+    extended_dir --> recommendations[recommendations_generator.py]
+    extended_dir --> refine_summary[refine_summary.py]
+    extended_dir --> rewriter[rewriter.py]
+    extended_dir --> voice_chat[voice_chat.py]
+
+    root --> models_dir[models/]
+    models_dir --> hf_model[hf_model.py<br/>HF model loaders]
+    models_dir --> model_utils[model_utils.py<br/>Model utilities]
+    models_dir --> onnx_helper[onnx_helper.py<br/>ONNX helpers]
+
+    root --> backend_file[backend.py<br/>API facade]
+    root --> server_file[server.py<br/>FastAPI REST server]
+    root --> main_file[main.py<br/>CLI entry point]
+    root --> config_file[config.py<br/>Legacy configuration]
+    root --> requirements[requirements.txt<br/>Python dependencies]
+    root --> readme[README.md<br/>This file]
 ```
 
 ### 🔑 Key Classes

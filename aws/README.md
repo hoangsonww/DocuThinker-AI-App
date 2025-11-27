@@ -59,12 +59,18 @@ DocuThinker's AWS infrastructure is designed for **production-grade deployment**
 
 ### Deployment Model
 
-```
-Frontend (Vercel) → CloudFront → ALB → ECS Fargate Services
-                                         ├── Backend Service (Node.js)
-                                         └── AI/ML Service (FastAPI)
-                                              ├── Neo4j (Aura/Neptune)
-                                              └── ChromaDB (EFS/EC2)
+```mermaid
+flowchart LR
+    Vercel[Frontend - Vercel] --> CF[CloudFront]
+    CF --> ALB[Application Load Balancer]
+    ALB --> ECS[ECS Fargate Services]
+
+    subgraph Services
+        ECS --> BE[Backend Service\nNode.js]
+        ECS --> AIML[AI/ML Service\nFastAPI]
+        AIML --> Neo4j[Neo4j - Aura/Neptune]
+        AIML --> Chroma[ChromaDB - EFS/EC2]
+    end
 ```
 
 ---

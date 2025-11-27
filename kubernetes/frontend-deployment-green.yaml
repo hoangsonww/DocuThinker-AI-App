@@ -1,13 +1,13 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-blue
+  name: frontend-green
   labels:
-    app: backend
-    tier: api
-    track: blue
+    app: frontend
+    tier: web
+    track: green
 spec:
-  replicas: 3
+  replicas: 0
   revisionHistoryLimit: 3
   strategy:
     type: RollingUpdate
@@ -16,41 +16,38 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: backend
-      track: blue
+      app: frontend
+      track: green
   template:
     metadata:
       labels:
-        app: backend
-        tier: api
-        track: blue
+        app: frontend
+        tier: web
+        track: green
     spec:
       containers:
-        - name: backend
-          image: docuthinker-backend:latest
+        - name: frontend
+          image: docuthinker-frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 3000
+            - containerPort: 3001
           envFrom:
             - configMapRef:
                 name: docuthinker-config
-            - secretRef:
-                name: docuthinker-secrets
-                optional: true
           readinessProbe:
             tcpSocket:
-              port: 3000
+              port: 3001
             initialDelaySeconds: 5
             periodSeconds: 10
           livenessProbe:
             tcpSocket:
-              port: 3000
+              port: 3001
             initialDelaySeconds: 20
             periodSeconds: 20
           resources:
             requests:
-              cpu: "200m"
-              memory: "256Mi"
+              cpu: "150m"
+              memory: "192Mi"
             limits:
-              cpu: "500m"
-              memory: "512Mi"
+              cpu: "300m"
+              memory: "384Mi"
