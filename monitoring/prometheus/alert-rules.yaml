@@ -1,0 +1,121 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-alert-rules
+  namespace: monitoring
+data:
+  alert-rules.yaml: |
+    groups:
+      - name: docuthinker_application
+        interval: 30s
+        rules:
+          - alert: HighErrorRate
+            expr: sum(rate(http_requests_total{status=~"5.."}[5m])) / sum(rate(http_requests_total[5m])) > 0.05
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "High error rate detected"
+              description: "Error rate is {{ $value | humanizePercentage }} (threshold: 5%)"
+
+          - alert: HighResponseTime
+            expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le)) > 1
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High response time detected"
+              description: "95th percentile response time is {{ $value }}s"
+
+          - alert: PodCrashLooping
+            expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Pod {{ $labels.pod }} is crash looping"
+              description: "Pod {{ $labels.pod }} in namespace {{ $labels.namespace }} has restarted {{ $value }} times in the last 15 minutes"
+
+          - alert: HighMemoryUsage
+            expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High memory usage in {{ $labels.pod }}"
+              description: "Memory usage is {{ $value | humanizePercentage }}"
+
+          - alert: HighCPUUsage
+            expr: (rate(container_cpu_usage_seconds_total[5m]) / container_spec_cpu_quota) > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "High CPU usage in {{ $labels.pod }}"
+              description: "CPU usage is {{ $value | humanizePercentage }}"
+
+          - alert: DatabaseConnectionPoolExhausted
+            expr: database_connection_pool_usage > 0.9
+            for: 2m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Database connection pool nearly exhausted"
+              description: "Connection pool usage is {{ $value | humanizePercentage }}"
+
+          - alert: RedisHighMemoryUsage
+            expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.9
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Redis memory usage is high"
+              description: "Redis memory usage is {{ $value | humanizePercentage }}"
+
+          - alert: APIEndpointDown
+            expr: up{job="docuthinker-backend"} == 0
+            for: 1m
+            labels:
+              severity: critical
+            annotations:
+              summary: "API endpoint is down"
+              description: "{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 1 minute"
+
+          - alert: HighDiskUsage
+            expr: (node_filesystem_avail_bytes / node_filesystem_size_bytes) < 0.1
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Low disk space on {{ $labels.instance }}"
+              description: "Only {{ $value | humanizePercentage }} disk space remaining"
+
+      - name: docuthinker_infrastructure
+        interval: 30s
+        rules:
+          - alert: NodeNotReady
+            expr: kube_node_status_condition{condition="Ready",status="true"} == 0
+            for: 5m
+            labels:
+              severity: critical
+            annotations:
+              summary: "Node {{ $labels.node }} is not ready"
+              description: "Node has been unready for more than 5 minutes"
+
+          - alert: DeploymentReplicasMismatch
+            expr: kube_deployment_spec_replicas != kube_deployment_status_replicas_available
+            for: 10m
+            labels:
+              severity: warning
+            annotations:
+              summary: "Deployment {{ $labels.deployment }} has mismatched replicas"
+              description: "Deployment has {{ $value }} available replicas but expects {{ $labels.replicas }}"
+
+          - alert: PersistentVolumeClaimPending
+            expr: kube_persistentvolumeclaim_status_phase{phase="Pending"} == 1
+            for: 5m
+            labels:
+              severity: warning
+            annotations:
+              summary: "PVC {{ $labels.persistentvolumeclaim }} is pending"
+              description: "PVC has been pending for more than 5 minutes"

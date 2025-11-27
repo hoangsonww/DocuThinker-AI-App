@@ -1,0 +1,55 @@
+replicas: 2
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+elasticsearchHosts: "http://elasticsearch-master:9200"
+
+kibanaConfig:
+  kibana.yml: |
+    server.name: kibana
+    server.host: "0.0.0.0"
+    elasticsearch.hosts: [ "http://elasticsearch-master:9200" ]
+    elasticsearch.username: "${ELASTIC_USERNAME}"
+    elasticsearch.password: "${ELASTIC_PASSWORD}"
+    xpack.security.enabled: true
+    xpack.monitoring.ui.container.elasticsearch.enabled: true
+
+extraEnvs:
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-credentials
+        key: password
+  - name: ELASTIC_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-credentials
+        key: username
+
+service:
+  type: LoadBalancer
+  port: 5601
+  annotations:
+    service.beta.kubernetes.io/aws-load-balancer-type: nlb
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: kibana.docuthinker.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: kibana-tls
+      hosts:
+        - kibana.docuthinker.com

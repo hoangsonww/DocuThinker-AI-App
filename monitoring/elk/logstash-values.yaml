@@ -1,0 +1,98 @@
+replicas: 2
+
+resources:
+  requests:
+    cpu: "500m"
+    memory: "1Gi"
+  limits:
+    cpu: "1000m"
+    memory: "2Gi"
+
+logstashConfig:
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    xpack.monitoring.elasticsearch.hosts: [ "http://elasticsearch-master:9200" ]
+
+logstashPipeline:
+  logstash.conf: |
+    input {
+      beats {
+        port => 5044
+      }
+      tcp {
+        port => 5000
+        codec => json
+      }
+    }
+
+    filter {
+      if [kubernetes] {
+        mutate {
+          add_field => {
+            "namespace" => "%{[kubernetes][namespace]}"
+            "pod_name" => "%{[kubernetes][pod][name]}"
+            "container_name" => "%{[kubernetes][container][name]}"
+          }
+        }
+      }
+
+      if [message] =~ /ERROR/ {
+        mutate {
+          add_tag => ["error"]
+        }
+      }
+
+      if [message] =~ /WARN/ {
+        mutate {
+          add_tag => ["warning"]
+        }
+      }
+
+      grok {
+        match => {
+          "message" => "%{TIMESTAMP_ISO8601:timestamp} %{LOGLEVEL:log_level} %{GREEDYDATA:log_message}"
+        }
+      }
+
+      date {
+        match => [ "timestamp", "ISO8601" ]
+        target => "@timestamp"
+      }
+
+      mutate {
+        remove_field => [ "timestamp" ]
+      }
+    }
+
+    output {
+      elasticsearch {
+        hosts => ["http://elasticsearch-master:9200"]
+        index => "docuthinker-%{+YYYY.MM.dd}"
+        user => "${ELASTIC_USERNAME}"
+        password => "${ELASTIC_PASSWORD}"
+      }
+    }
+
+extraEnvs:
+  - name: ELASTIC_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-credentials
+        key: password
+  - name: ELASTIC_USERNAME
+    valueFrom:
+      secretKeyRef:
+        name: elasticsearch-credentials
+        key: username
+
+service:
+  type: ClusterIP
+  ports:
+    - name: beats
+      port: 5044
+      protocol: TCP
+      targetPort: 5044
+    - name: tcp
+      port: 5000
+      protocol: TCP
+      targetPort: 5000

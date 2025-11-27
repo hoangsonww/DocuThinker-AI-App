@@ -1,0 +1,24 @@
+aws_region  = "us-east-1"
+environment = "production"
+
+vpc_cidr            = "10.0.0.0/16"
+availability_zones  = ["us-east-1a", "us-east-1b", "us-east-1c"]
+private_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+public_subnet_cidrs  = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
+
+cluster_name = "docuthinker-eks-prod"
+eks_version  = "1.28"
+
+database_name        = "docuthinker"
+db_username          = "admin"
+db_password          = "CHANGE_ME_IN_PRODUCTION"
+db_instance_class    = "db.t3.medium"
+db_allocated_storage = 100
+
+redis_node_type = "cache.t3.medium"
+
+acm_certificate_arn   = "arn:aws:acm:us-east-1:ACCOUNT_ID:certificate/CERTIFICATE_ID"
+cloudfront_domain_name = "cdn.docuthinker.com"
+
+google_ai_api_key = "YOUR_GOOGLE_AI_API_KEY"
+firebase_api_key  = "YOUR_FIREBASE_API_KEY"

@@ -1,14 +1,15 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: frontend-service
+  name: frontend-canary-service
   labels:
     app: frontend
     tier: web
+    track: canary
 spec:
   selector:
     app: frontend
-    track: blue
+    track: canary
   ports:
     - protocol: TCP
       port: 3001

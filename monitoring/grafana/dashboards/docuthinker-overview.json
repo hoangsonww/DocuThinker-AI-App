@@ -1,0 +1,213 @@
+{
+  "dashboard": {
+    "title": "DocuThinker Application Overview",
+    "tags": ["docuthinker", "application"],
+    "timezone": "browser",
+    "schemaVersion": 16,
+    "version": 1,
+    "refresh": "30s",
+    "panels": [
+      {
+        "id": 1,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+        "type": "graph",
+        "title": "Request Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total[5m])) by (service)",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "reqps", "label": "Requests/sec"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 2,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+        "type": "graph",
+        "title": "Error Rate",
+        "targets": [
+          {
+            "expr": "sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service)",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "percentunit", "label": "Error Rate"},
+          {"format": "short"}
+        ],
+        "alert": {
+          "conditions": [
+            {
+              "evaluator": {
+                "params": [0.05],
+                "type": "gt"
+              },
+              "operator": {"type": "and"},
+              "query": {"params": ["A", "5m", "now"]},
+              "reducer": {"type": "avg"},
+              "type": "query"
+            }
+          ],
+          "executionErrorState": "alerting",
+          "frequency": "60s",
+          "handler": 1,
+          "name": "High Error Rate",
+          "noDataState": "no_data",
+          "notifications": []
+        }
+      },
+      {
+        "id": 3,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+        "type": "graph",
+        "title": "Response Time (p95)",
+        "targets": [
+          {
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service))",
+            "legendFormat": "{{service}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "s", "label": "Response Time"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 4,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+        "type": "graph",
+        "title": "Memory Usage",
+        "targets": [
+          {
+            "expr": "sum(container_memory_usage_bytes{namespace=\"docuthinker-prod\"}) by (pod)",
+            "legendFormat": "{{pod}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "bytes", "label": "Memory"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 5,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+        "type": "graph",
+        "title": "CPU Usage",
+        "targets": [
+          {
+            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"docuthinker-prod\"}[5m])) by (pod)",
+            "legendFormat": "{{pod}}",
+            "refId": "A"
+          }
+        ],
+        "yaxes": [
+          {"format": "percentunit", "label": "CPU"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 6,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+        "type": "graph",
+        "title": "Database Connection Pool",
+        "targets": [
+          {
+            "expr": "database_connection_pool_active",
+            "legendFormat": "Active",
+            "refId": "A"
+          },
+          {
+            "expr": "database_connection_pool_idle",
+            "legendFormat": "Idle",
+            "refId": "B"
+          },
+          {
+            "expr": "database_connection_pool_max",
+            "legendFormat": "Max",
+            "refId": "C"
+          }
+        ],
+        "yaxes": [
+          {"format": "short", "label": "Connections"},
+          {"format": "short"}
+        ]
+      },
+      {
+        "id": 7,
+        "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+        "type": "stat",
+        "title": "Pod Status",
+        "targets": [
+          {
+            "expr": "count(kube_pod_status_phase{namespace=\"docuthinker-prod\",phase=\"Running\"})",
+            "legendFormat": "Running",
+            "refId": "A"
+          }
+        ],
+        "options": {
+          "colorMode": "value",
+          "graphMode": "none",
+          "orientation": "auto",
+          "reduceOptions": {
+            "calcs": ["lastNotNull"],
+            "fields": "",
+            "values": false
+          }
+        }
+      },
+      {
+        "id": 8,
+        "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+        "type": "table",
+        "title": "Top Error Endpoints",
+        "targets": [
+          {
+            "expr": "topk(10, sum(rate(http_requests_total{status=~\"5..\"}[5m])) by (endpoint))",
+            "format": "table",
+            "refId": "A"
+          }
+        ],
+        "transformations": [
+          {
+            "id": "organize",
+            "options": {
+              "excludeByName": {},
+              "indexByName": {},
+              "renameByName": {
+                "endpoint": "Endpoint",
+                "Value": "Error Rate"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "templating": {
+      "list": [
+        {
+          "name": "namespace",
+          "type": "query",
+          "query": "label_values(kube_namespace_labels, namespace)",
+          "current": {
+            "text": "docuthinker-prod",
+            "value": "docuthinker-prod"
+          }
+        }
+      ]
+    },
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "timepicker": {
+      "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+    }
+  }
+}

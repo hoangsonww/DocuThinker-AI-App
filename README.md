@@ -1,6 +1,6 @@
 # **DocuThinker - AI-Powered Document Analysis and Summarization App**
 
-Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application that integrates an AI-powered document processing backend with a React-based frontend. The app allows users to upload documents for summarization, generate key insights, and chat with an AI based on the document's content.
+Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application that integrates an AI-powered document processing backend, blue/green & canary deployment on an AWS infrastructure, and a React-based frontend. The app allows users to upload documents for summarization, generate key insights, chat with an AI, and do even more with the document's content.
 
 <p align="center">
   <a href="https://docuthinker.vercel.app" style="cursor: pointer">
@@ -486,7 +486,7 @@ DocuThinker-AI-App/
 │   │   └── lib/docuthinker-stack.ts  # CDK stack definition
 │   └── scripts/
 │       └── local-env.sh              # Helper to mirror production env vars locally
-
+│ 
 ├── kubernetes/                       # Kubernetes configuration files
 │   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
@@ -970,19 +970,38 @@ graph TB
 
 <h2 id="deployment">🚧 Deployment</h2>
 
-The **DocuThinker** app is deployed using a combination of **Vercel**, **Render**, and **AWS ECS Fargate**. The deployment process is automated using **Jenkins** for CI/CD.
+DocuThinker now ships primarily via **Kubernetes** with **blue/green promotion plus weighted canaries** driven by the updated **Jenkinsfile**. **Vercel/Render** remain as backup endpoints, and **AWS ECS Fargate** is still available as an alternative target.
 
 ```mermaid
 graph TB
-    GIT[GitHub Repo] --> JENKINS[Jenkins Multistage Pipeline]
+    GIT[GitHub Repo] --> JENKINS[Jenkins Pipeline]
     JENKINS --> TEST[Install + Lint + Tests]
-    TEST --> BUILD[Package Artifacts]
-    BUILD --> VERCEL[Vercel Frontend Deploy]
-    BUILD --> ECR[Push Images to ECR]
-    ECR --> ECS[ECS Fargate - Backend & AI/ML]
-    ECS --> USERS[API Consumers]
+    TEST --> BUILD[Containerize Frontend + Backend]
+    BUILD --> REG[Push Images to Registry]
+    REG --> CANARY[Canary Deploy - 10% weight]
+    CANARY --> BG[Promote to Blue/Green]
+    BG --> USERS[Live Traffic]
+    JENKINS --> VERCEL[Vercel Fallback Deploy]
     VERCEL --> USERS
 ```
+
+### **Production Rollouts (Kubernetes blue/green + canary)**
+
+- Stable traffic is routed by `backend-service`/`frontend-service` to the active `track` (`blue` by default). Canary traffic is handled by `*-canary-service` through the weighted ingress (`ingress.yaml`) using the `X-DocuThinker-Canary: always` header.
+- Jenkins builds images tagged `${GIT_SHA}-${BUILD_NUMBER}`, pushes them to `$REGISTRY`, deploys the target color (scaled to 3 replicas), and rolls out canaries (1 replica each). Promotion is a gated manual input before the service selector flips to the new color and the previous color scales to `0`.
+- To promote manually outside Jenkins:
+
+  ```bash
+  TARGET=green  # or blue
+  kubectl -n <ns> scale deployment/backend-$TARGET --replicas=3
+  kubectl -n <ns> scale deployment/frontend-$TARGET --replicas=3
+  kubectl -n <ns> patch service backend-service -p "{\"spec\": {\"selector\": {\"app\": \"backend\", \"track\": \"$TARGET\"}}}"
+  kubectl -n <ns> patch service frontend-service -p "{\"spec\": {\"selector\": {\"app\": \"frontend\", \"track\": \"$TARGET\"}}}"
+  kubectl -n <ns> scale deployment/backend-$( [ "$TARGET" = "blue" ] && echo green || echo blue ) --replicas=0
+  kubectl -n <ns> scale deployment/frontend-$( [ "$TARGET" = "blue" ] && echo green || echo blue ) --replicas=0
+  ```
+
+See `kubernetes/README.md` for the full rollout flow, ingress weighting, and rollback commands.
 
 ### **Frontend Deployment (Vercel)**
 
@@ -998,17 +1017,17 @@ graph TB
 
 ### **Backend & AI/ML Deployment**
 
-- The current production API is served from **Vercel** (`https://docuthinker-app-backend-api.vercel.app/`). A backup instance runs on **Render** free tier at **https://docuthinker-ai-app.onrender.com/**.
-- Our Jenkins pipeline builds backend and `ai_ml` images, pushes them to Amazon ECR, and packages artifacts for manual ECS deployments.
-- Our AWS stack components live in [`aws/`](aws/README.md) with:
-  - `cloudformation/fargate-service.yaml` – baseline Fargate template for backend + AI/ML services.
-  - `infrastructure/` – CDK stack mirroring the same services.
-  - `scripts/local-env.sh` – helper to export Graph/vector env vars locally.
-- FYI, to roll your traffic onto AWS:
-  1. Create ECR repos `docuthinker-backend` and `docuthinker-ai-ml`.
-  2. Provide credentials via AWS Secrets Manager (`docuthinker/openai`, `.../anthropic`, etc.).
-  3. Deploy CloudFormation or CDK stack, then update ECS services with the freshly pushed images.
-- Follow the **[AWS/README.md](aws/README.md)** for more details on AWS deployment to deploy your own instance!
+- Primary API traffic now runs on the Kubernetes blue/green stack defined in `kubernetes/backend-*.yaml`, fronted by `backend-service` and the NGINX ingress canary (`ingress.yaml`). Vercel (`https://docuthinker-app-backend-api.vercel.app/`) and Render (`https://docuthinker-ai-app.onrender.com/`) remain as backup endpoints.
+- Jenkins builds backend images, pushes them to the configured `$REGISTRY`, deploys the next color alongside canary pods, and flips the service selector after manual approval.
+- AWS remains available as an alternate target. The stack in [`aws/`](aws/README.md) still provisions Fargate services if you prefer ECS over Kubernetes.
+- To run the new rollout flow by hand:
+
+  ```bash
+  kubectl apply -f kubernetes/configmap.yaml
+  kubectl apply -f kubernetes/backend-service.yaml kubernetes/backend-canary-service.yaml
+  kubectl apply -f kubernetes/backend-deployment-blue.yaml kubernetes/backend-deployment-green.yaml kubernetes/backend-deployment-canary.yaml
+  # See kubernetes/README.md for the promotion/rollback commands
+  ```
 
 <h2 id="load-balancing">⚖️ Load Balancing & Caching</h2>
 
@@ -1025,10 +1044,11 @@ graph TB
 
 <h2 id="jenkins">🔗 Jenkins Integration</h2>
 
-- The refreshed **Jenkinsfile** now mirrors production: it checks out the repo, installs dependencies per workspace (`frontend`, `backend`, `ai_ml`), runs tests/lint, builds artifacts, and optionally deploys to **Vercel** (frontend) plus pushes container images to **Amazon ECR** for backend/AI workloads.
-- Secrets required by the pipeline:
-  - `vercel-token` – Vercel API token stored in Jenkins credentials (for `vercel --prod`).
-  - AWS credentials (e.g. `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`) configured globally for `aws ecr` pushes if you enable that stage.
+- The refreshed **Jenkinsfile** now mirrors production rollouts: checkout → install (`npm ci`) → lint/test → build → docker build/push (`$REGISTRY`) → canary deploy → manual promotion to blue/green on Kubernetes, with an optional Vercel deploy as fallback.
+- Credentials required by the pipeline:
+  - `docuthinker-registry` – username/password for the container registry set in `REGISTRY`.
+  - `kubeconfig-docuthinker` – kubeconfig file used for all `kubectl` invocations.
+  - `vercel-token` – optional Vercel API token (keeps the legacy deploy available).
 - For local Jenkins bootstrap:
 
   ```bash
@@ -1037,11 +1057,11 @@ graph TB
   open http://localhost:8080
   ```
 
-- Create a Pipeline job pointing to this repository, assign the credentials above, and Jenkins will run automatically on every push to `main`.
-- The pipeline output includes packaged artifacts under `artifacts/` for inspection and (when configured) ECR push status for the AWS ECS deployment path.
+- Create a Pipeline job pointing to this repository, set `REGISTRY`, `KUBE_CONTEXT`, and `KUBE_NAMESPACE` as job/env vars, and assign the credentials above. Jenkins will run automatically on every push to `main`.
+- Promotion is gated with an input step during the canary stage; the pipeline patches `backend-service`/`frontend-service` to the new track and scales down the previous color after approval.
 - See [`Jenkinsfile`](Jenkinsfile) for the full stage definitions and environment configuration.
 
-If successful, you should see the Jenkins pipeline running tests, producing artifacts, and deploying to Vercel/ECR automatically whenever changes are merged. Example dashboard:
+If successful, you should see the Jenkins pipeline running tests, pushing images, rolling out the canary, and promoting blue/green automatically whenever changes are merged. Example dashboard:
 
 <p align="center">
   <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
@@ -1125,6 +1145,7 @@ This will run the unit tests and end-to-end tests for the frontend app using **J
 <h2 id="kubernetes">🚢 Kubernetes Integration</h2>
 
 - We are using **Kubernetes** for container orchestration and scaling. The app can be deployed on a Kubernetes cluster for high availability and scalability.
+- Blue/green deployments plus canary ingress are defined in `kubernetes/*.yaml`; see `kubernetes/README.md` for promotion/rollback commands.
 - The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `kubernetes` directory.
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
