@@ -1,0 +1,25 @@
+apiVersion: v2
+name: docuthinker
+description: A Helm chart for DocuThinker AI Application
+type: application
+version: 1.0.0
+appVersion: "1.1.0"
+keywords:
+  - docuthinker
+  - ai
+  - document-processing
+home: https://github.com/hoangsonww/DocuThinker-AI-App
+sources:
+  - https://github.com/hoangsonww/DocuThinker-AI-App
+maintainers:
+  - name: Son Nguyen
+    email: info@docuthinker.com
+dependencies:
+  - name: postgresql
+    version: "12.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: postgresql.enabled
+  - name: redis
+    version: "17.x.x"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: redis.enabled
