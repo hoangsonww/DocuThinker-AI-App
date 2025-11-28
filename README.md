@@ -118,6 +118,9 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
 - **Authentication Middleware**: Secure routes with JWT and Firebase authentication middleware.
 - **Containerization**: Dockerized the app with Docker & K8s for easy deployment and scaling.
 - **Continuous Integration**: Automated testing and deployment with GitHub Actions & Jenkins.
+- **Load Balancing & Caching**: NGINX for load balancing and Redis for caching.
+- **Zero Downtime Deployment**: Blue/Green & Canary deployment strategies on AWS.
+- _and many more!_
 
 <h2 id="technologies">⚙️ Technologies</h2>
 
@@ -180,6 +183,7 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
 - **CI/CD & Deployment**:
   - **GitHub Actions**: Automated workflows for testing and deployment.
   - **Jenkins**: Automation server for continuous integration and deployment.
+  - **AWS**: Cloud computing platform for hosting and deploying applications.
   - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
   - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
   - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
@@ -1237,6 +1241,7 @@ For more information on the **DocuThinker** app, please refer to the following r
 - **[AI/ML Documentation](ai_ml/README.md)**
 - **[Backend README](backend/README.md)**
 - **[API Documentation](https://docuthinker-app-backend-api.vercel.app/)**
+- **[Deployment Documentation](DEVOPS.md)**
 - **[Frontend README](frontend/README.md)**
 - **[Mobile App README](mobile-app/README.md)**
 - **[AWS Deployment Documentation](aws/README.md)**

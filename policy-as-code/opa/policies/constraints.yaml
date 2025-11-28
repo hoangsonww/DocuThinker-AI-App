@@ -1,0 +1,172 @@
+# OPA Gatekeeper Constraints
+# Apply policy templates to enforce security and compliance
+
+---
+# Require labels on all pods
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredLabels
+metadata:
+  name: pod-must-have-labels
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+  parameters:
+    labels:
+      - "app"
+      - "version"
+      - "environment"
+      - "team"
+
+---
+# Block privileged containers
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPrivilegedContainer
+metadata:
+  name: block-privileged-containers
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - istio-system
+
+---
+# Require resource limits on all containers
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sRequiredResources
+metadata:
+  name: require-resource-limits
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+
+---
+# Containers must not run as root
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPAllowedUsers
+metadata:
+  name: containers-must-not-run-as-root
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+  parameters:
+    runAsUser:
+      rule: MustRunAsNonRoot
+
+---
+# Block latest image tag
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sImageTag
+metadata:
+  name: block-latest-tag
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+
+---
+# Enforce trusted image registries
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sTrustedImages
+metadata:
+  name: trusted-registries-only
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+  parameters:
+    registries:
+      - "docker.io/library/"
+      - "gcr.io/"
+      - "registry.gitlab.com/hoangsonww/docuthinker-ai-app/"
+      - "public.ecr.aws/"
+      - "<your-account-id>.dkr.ecr.us-east-1.amazonaws.com/"
+
+---
+# Block host namespaces
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPHostNamespace
+metadata:
+  name: block-host-namespace
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    excludedNamespaces:
+      - kube-system
+      - istio-system
+      - monitoring
+
+---
+# Require read-only root filesystem
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sPSPReadOnlyRootFilesystem
+metadata:
+  name: require-readonly-rootfs
+spec:
+  match:
+    kinds:
+      - apiGroups: [""]
+        kinds: ["Pod"]
+    namespaces:
+      - docuthinker-prod
+  # Allow some exclusions for apps that need write access
+  enforcementAction: dryrun
+
+---
+# Enforce minimum replica count for production
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sMinReplicaCount
+metadata:
+  name: min-replicas-prod
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment"]
+    namespaces:
+      - docuthinker-prod
+  parameters:
+    min: 2
+
+---
+# Staging can have 1 replica
+apiVersion: constraints.gatekeeper.sh/v1beta1
+kind: K8sMinReplicaCount
+metadata:
+  name: min-replicas-staging
+spec:
+  match:
+    kinds:
+      - apiGroups: ["apps"]
+        kinds: ["Deployment"]
+    namespaces:
+      - docuthinker-staging
+  parameters:
+    min: 1

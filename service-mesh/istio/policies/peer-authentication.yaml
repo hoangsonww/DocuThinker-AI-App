@@ -1,0 +1,49 @@
+# Istio Peer Authentication Policies
+# Enforces strict mTLS across the service mesh for security
+
+---
+# Global mesh-wide strict mTLS policy
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: default-strict-mtls
+  namespace: istio-system
+spec:
+  mtls:
+    mode: STRICT
+---
+# Application-specific PeerAuthentication for DocuThinker namespace
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: docuthinker-mtls
+  namespace: docuthinker-prod
+spec:
+  mtls:
+    mode: STRICT
+
+  # Port-level mTLS override (if needed for specific services)
+  portLevelMtls:
+    # Example: Disable mTLS for health check port
+    8080:
+      mode: PERMISSIVE
+---
+# Staging environment mTLS
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: docuthinker-mtls-staging
+  namespace: docuthinker-staging
+spec:
+  mtls:
+    mode: STRICT
+---
+# Development environment - permissive for easier debugging
+apiVersion: security.istio.io/v1beta1
+kind: PeerAuthentication
+metadata:
+  name: docuthinker-mtls-dev
+  namespace: docuthinker-dev
+spec:
+  mtls:
+    mode: PERMISSIVE

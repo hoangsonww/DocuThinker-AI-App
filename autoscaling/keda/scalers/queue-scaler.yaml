@@ -1,0 +1,110 @@
+# KEDA ScaledObject for Queue-Based Autoscaling
+# Scale workers based on SQS queue depth
+
+---
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: backend-worker-scaler
+  namespace: docuthinker-prod
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: backend-worker
+
+  # Polling interval
+  pollingInterval: 30
+
+  # Cooldown period
+  cooldownPeriod: 300
+
+  # Min/Max replicas
+  minReplicaCount: 1
+  maxReplicaCount: 50
+
+  # Scale to zero
+  idleReplicaCount: 0
+
+  triggers:
+    # AWS SQS trigger
+    - type: aws-sqs-queue
+      metadata:
+        queueURL: https://sqs.us-east-1.amazonaws.com/123456789/docuthinker-jobs
+        queueLength: "5"
+        awsRegion: "us-east-1"
+        identityOwner: "operator"
+
+---
+# HTTP request-based scaling
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: backend-http-scaler
+  namespace: docuthinker-prod
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: backend
+
+  pollingInterval: 10
+  cooldownPeriod: 60
+  minReplicaCount: 2
+  maxReplicaCount: 20
+
+  triggers:
+    - type: prometheus
+      metadata:
+        serverAddress: http://prometheus.monitoring.svc.cluster.local:9090
+        metricName: http_requests_per_second
+        query: sum(rate(http_requests_total{app="backend"}[1m]))
+        threshold: "100"
+
+---
+# Cron-based scaling for predictable traffic
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: backend-cron-scaler
+  namespace: docuthinker-prod
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: backend
+
+  minReplicaCount: 2
+  maxReplicaCount: 10
+
+  triggers:
+    # Scale up during business hours
+    - type: cron
+      metadata:
+        timezone: America/New_York
+        start: 0 8 * * 1-5
+        end: 0 18 * * 1-5
+        desiredReplicas: "10"
+
+---
+# CPU-based scaling (traditional HPA + KEDA)
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: backend-cpu-scaler
+  namespace: docuthinker-prod
+spec:
+  scaleTargetRef:
+    kind: Deployment
+    name: backend
+
+  minReplicaCount: 2
+  maxReplicaCount: 20
+
+  triggers:
+    - type: cpu
+      metricType: Utilization
+      metadata:
+        value: "70"
+
+    - type: memory
+      metricType: Utilization
+      metadata:
+        value: "80"

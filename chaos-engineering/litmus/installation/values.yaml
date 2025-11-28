@@ -1,0 +1,175 @@
+# Litmus Chaos Engineering Installation Values
+# Production chaos testing platform for resilience validation
+
+# Portal (UI) configuration
+portal:
+  server:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+    # Service configuration
+    service:
+      type: LoadBalancer
+      port: 9091
+
+    # Ingress configuration
+    ingress:
+      enabled: true
+      annotations:
+        kubernetes.io/ingress.class: nginx
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+      hosts:
+        - host: chaos.docuthinker.example.com
+          paths:
+            - path: /
+              pathType: Prefix
+      tls:
+        - secretName: chaos-tls-cert
+          hosts:
+            - chaos.docuthinker.example.com
+
+    # Environment variables
+    env:
+      DB_SERVER: mongodb://litmus-mongo:27017
+      JWT_SECRET: "litmus-portal-secret"
+      ADMIN_USERNAME: "admin"
+      ADMIN_PASSWORD: "litmus"
+      SELF_CLUSTER: "primary"
+
+  frontend:
+    replicas: 1
+    resources:
+      requests:
+        cpu: 125m
+        memory: 256Mi
+      limits:
+        cpu: 250m
+        memory: 512Mi
+
+    service:
+      type: LoadBalancer
+      port: 8080
+
+# MongoDB configuration for Litmus backend
+mongodb:
+  enabled: true
+  architecture: standalone
+
+  auth:
+    enabled: false
+
+  persistence:
+    enabled: true
+    size: 20Gi
+    storageClass: gp3
+
+  resources:
+    requests:
+      cpu: 250m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 1Gi
+
+# Chaos Operator configuration
+operator:
+  enabled: true
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+
+  env:
+    CHAOS_RUNNER_IMAGE: "litmuschaos/chaos-runner:latest"
+    CHAOS_OPERATOR_SCOPE: "cluster"
+    WATCH_NAMESPACE: ""
+
+# Chaos Exporter for metrics
+exporter:
+  enabled: true
+  replicas: 1
+
+  resources:
+    requests:
+      cpu: 125m
+      memory: 256Mi
+    limits:
+      cpu: 250m
+      memory: 512Mi
+
+  service:
+    type: ClusterIP
+    port: 8080
+
+  # ServiceMonitor for Prometheus
+  serviceMonitor:
+    enabled: true
+    additionalLabels:
+      release: prometheus
+
+# Workflow Controller
+workflow:
+  controller:
+    replicas: 1
+
+    resources:
+      requests:
+        cpu: 250m
+        memory: 512Mi
+      limits:
+        cpu: 500m
+        memory: 1Gi
+
+# RBAC configuration
+rbac:
+  create: true
+
+# Service Account
+serviceAccount:
+  create: true
+  name: litmus-admin
+
+# Custom Resource Definitions
+customResourceDefinitions:
+  create: true
+
+# Chaos experiments to install by default
+experiments:
+  enabled: true
+
+  # Generic chaos experiments
+  generic:
+    - pod-delete
+    - pod-cpu-hog
+    - pod-memory-hog
+    - pod-network-latency
+    - pod-network-loss
+    - pod-network-corruption
+    - container-kill
+    - disk-fill
+    - node-cpu-hog
+    - node-memory-hog
+    - node-drain
+    - node-restart
+
+  # AWS-specific experiments
+  aws:
+    - ec2-terminate
+    - ebs-loss
+    - az-outage
+
+  # Application-specific
+  application:
+    - spring-boot-chaos
+    - http-chaos

@@ -1,0 +1,144 @@
+# Network Latency Chaos Experiment
+# Injects network latency to test application performance under poor network conditions
+
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: backend-network-latency
+  namespace: docuthinker-prod
+spec:
+  appinfo:
+    appns: docuthinker-prod
+    applabel: 'app=backend'
+    appkind: deployment
+
+  chaosServiceAccount: litmus-admin
+  monitoring: true
+  jobCleanUpPolicy: retain
+
+  experiments:
+    - name: pod-network-latency
+      spec:
+        components:
+          env:
+            # Network interface to target
+            - name: NETWORK_INTERFACE
+              value: 'eth0'
+
+            # Latency to inject (milliseconds)
+            - name: NETWORK_LATENCY
+              value: '2000'
+
+            # Total chaos duration (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: '120'
+
+            # Target container (optional)
+            - name: TARGET_CONTAINER
+              value: ''
+
+            # Percentage of pods to affect
+            - name: PODS_AFFECTED_PERC
+              value: '50'
+
+            # Jitter (variation in latency)
+            - name: JITTER
+              value: '500'
+
+            # Ramp time
+            - name: RAMP_TIME
+              value: '0'
+
+            # Destination hosts/IPs to affect
+            - name: DESTINATION_HOSTS
+              value: ''
+
+            # Destination ports
+            - name: DESTINATION_PORTS
+              value: ''
+
+        probe:
+          - name: check-api-response-time
+            type: httpProbe
+            httpProbe/inputs:
+              url: http://backend.docuthinker-prod.svc.cluster.local:8080/api/health
+              method:
+                get:
+                  criteria: <=
+                  responseTimeout: 5000
+            mode: Continuous
+            runProperties:
+              probeTimeout: 10
+              interval: 5
+              retry: 2
+
+          - name: check-service-availability
+            type: k8sProbe
+            k8sProbe/inputs:
+              group: ""
+              version: v1
+              resource: pods
+              namespace: docuthinker-prod
+              fieldSelector: status.phase=Running
+              labelSelector: app=backend
+              operation: present
+            mode: SOT
+            runProperties:
+              probeTimeout: 5
+              interval: 2
+
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: database-network-latency
+  namespace: docuthinker-prod
+spec:
+  appinfo:
+    appns: docuthinker-prod
+    applabel: 'app=postgresql'
+    appkind: statefulset
+
+  chaosServiceAccount: litmus-admin
+  monitoring: true
+  jobCleanUpPolicy: retain
+
+  experiments:
+    - name: pod-network-latency
+      spec:
+        components:
+          env:
+            - name: NETWORK_INTERFACE
+              value: 'eth0'
+
+            - name: NETWORK_LATENCY
+              value: '1000'
+
+            - name: TOTAL_CHAOS_DURATION
+              value: '90'
+
+            - name: PODS_AFFECTED_PERC
+              value: '100'
+
+            - name: JITTER
+              value: '200'
+
+            # Only affect connections to backend
+            - name: SOURCE_HOSTS
+              value: 'backend.docuthinker-prod.svc.cluster.local'
+
+        probe:
+          - name: check-database-queries
+            type: cmdProbe
+            cmdProbe/inputs:
+              command: "psql -h postgresql -U admin -d docuthinker -c 'SELECT 1;'"
+              comparator:
+                type: string
+                criteria: contains
+                value: "1 row"
+            mode: Continuous
+            runProperties:
+              probeTimeout: 10
+              interval: 5
+              retry: 2

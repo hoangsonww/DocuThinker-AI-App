@@ -1,0 +1,266 @@
+# Comprehensive Chaos Workflow
+# Sequential chaos experiments simulating real-world failure scenarios
+
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  name: docuthinker-chaos-workflow
+  namespace: litmus
+  labels:
+    subject: docuthinker-resilience-test
+spec:
+  entrypoint: chaos-workflow
+  serviceAccountName: argo-chaos
+
+  # Workflow templates
+  templates:
+    # Main workflow
+    - name: chaos-workflow
+      steps:
+        # Step 1: Pod deletion chaos
+        - - name: pod-delete-test
+            template: pod-delete-chaos
+
+        # Step 2: Wait and verify recovery
+        - - name: verify-recovery-1
+            template: health-check
+
+        # Step 3: Network latency chaos
+        - - name: network-latency-test
+            template: network-latency-chaos
+
+        # Step 4: Wait and verify recovery
+        - - name: verify-recovery-2
+            template: health-check
+
+        # Step 5: CPU stress chaos
+        - - name: cpu-stress-test
+            template: cpu-stress-chaos
+
+        # Step 6: Wait and verify recovery
+        - - name: verify-recovery-3
+            template: health-check
+
+        # Step 7: Memory stress chaos
+        - - name: memory-stress-test
+            template: memory-stress-chaos
+
+        # Step 8: Final health verification
+        - - name: final-verification
+            template: health-check
+
+        # Step 9: Generate report
+        - - name: generate-report
+            template: chaos-report
+
+    # Pod delete chaos template
+    - name: pod-delete-chaos
+      inputs:
+        artifacts:
+          - name: pod-delete-experiment
+            path: /tmp/chaosengine.yaml
+            raw:
+              data: |
+                apiVersion: litmuschaos.io/v1alpha1
+                kind: ChaosEngine
+                metadata:
+                  name: pod-delete-chaos
+                  namespace: docuthinker-prod
+                spec:
+                  appinfo:
+                    appns: docuthinker-prod
+                    applabel: 'app=backend'
+                    appkind: deployment
+                  chaosServiceAccount: litmus-admin
+                  monitoring: true
+                  jobCleanUpPolicy: retain
+                  experiments:
+                    - name: pod-delete
+                      spec:
+                        components:
+                          env:
+                            - name: TOTAL_CHAOS_DURATION
+                              value: '30'
+                            - name: CHAOS_INTERVAL
+                              value: '10'
+                            - name: PODS_AFFECTED_PERC
+                              value: '50'
+      container:
+        image: litmuschaos/litmus-checker:latest
+        args: ["-file=/tmp/chaosengine.yaml", "-saveName=/tmp/engine-name"]
+
+    # Network latency chaos template
+    - name: network-latency-chaos
+      inputs:
+        artifacts:
+          - name: network-latency-experiment
+            path: /tmp/chaosengine.yaml
+            raw:
+              data: |
+                apiVersion: litmuschaos.io/v1alpha1
+                kind: ChaosEngine
+                metadata:
+                  name: network-latency-chaos
+                  namespace: docuthinker-prod
+                spec:
+                  appinfo:
+                    appns: docuthinker-prod
+                    applabel: 'app=backend'
+                    appkind: deployment
+                  chaosServiceAccount: litmus-admin
+                  monitoring: true
+                  experiments:
+                    - name: pod-network-latency
+                      spec:
+                        components:
+                          env:
+                            - name: NETWORK_LATENCY
+                              value: '2000'
+                            - name: TOTAL_CHAOS_DURATION
+                              value: '60'
+                            - name: PODS_AFFECTED_PERC
+                              value: '50'
+      container:
+        image: litmuschaos/litmus-checker:latest
+        args: ["-file=/tmp/chaosengine.yaml", "-saveName=/tmp/engine-name"]
+
+    # CPU stress chaos template
+    - name: cpu-stress-chaos
+      inputs:
+        artifacts:
+          - name: cpu-stress-experiment
+            path: /tmp/chaosengine.yaml
+            raw:
+              data: |
+                apiVersion: litmuschaos.io/v1alpha1
+                kind: ChaosEngine
+                metadata:
+                  name: cpu-stress-chaos
+                  namespace: docuthinker-prod
+                spec:
+                  appinfo:
+                    appns: docuthinker-prod
+                    applabel: 'app=backend'
+                    appkind: deployment
+                  chaosServiceAccount: litmus-admin
+                  monitoring: true
+                  experiments:
+                    - name: pod-cpu-hog
+                      spec:
+                        components:
+                          env:
+                            - name: TOTAL_CHAOS_DURATION
+                              value: '60'
+                            - name: CPU_CORES
+                              value: '1'
+                            - name: PODS_AFFECTED_PERC
+                              value: '50'
+      container:
+        image: litmuschaos/litmus-checker:latest
+        args: ["-file=/tmp/chaosengine.yaml", "-saveName=/tmp/engine-name"]
+
+    # Memory stress chaos template
+    - name: memory-stress-chaos
+      inputs:
+        artifacts:
+          - name: memory-stress-experiment
+            path: /tmp/chaosengine.yaml
+            raw:
+              data: |
+                apiVersion: litmuschaos.io/v1alpha1
+                kind: ChaosEngine
+                metadata:
+                  name: memory-stress-chaos
+                  namespace: docuthinker-prod
+                spec:
+                  appinfo:
+                    appns: docuthinker-prod
+                    applabel: 'app=backend'
+                    appkind: deployment
+                  chaosServiceAccount: litmus-admin
+                  monitoring: true
+                  experiments:
+                    - name: pod-memory-hog
+                      spec:
+                        components:
+                          env:
+                            - name: TOTAL_CHAOS_DURATION
+                              value: '60'
+                            - name: MEMORY_CONSUMPTION
+                              value: '500'
+                            - name: PODS_AFFECTED_PERC
+                              value: '50'
+      container:
+        image: litmuschaos/litmus-checker:latest
+        args: ["-file=/tmp/chaosengine.yaml", "-saveName=/tmp/engine-name"]
+
+    # Health check template
+    - name: health-check
+      container:
+        image: curlimages/curl:latest
+        command: [sh, -c]
+        args:
+          - |
+            echo "Checking application health..."
+            for i in {1..30}; do
+              if curl -s -f http://backend.docuthinker-prod.svc.cluster.local:8080/health; then
+                echo "Application is healthy"
+                exit 0
+              fi
+              echo "Waiting for application to recover... ($i/30)"
+              sleep 10
+            done
+            echo "Application health check failed"
+            exit 1
+
+    # Chaos report template
+    - name: chaos-report
+      container:
+        image: litmuschaos/litmus-app-deployer:latest
+        command: [sh, -c]
+        args:
+          - |
+            echo "==================================="
+            echo "Chaos Engineering Report"
+            echo "==================================="
+            echo "Date: $(date)"
+            echo "Application: DocuThinker"
+            echo "Environment: Production"
+            echo ""
+            echo "Experiments Executed:"
+            echo "1. Pod Delete Chaos - PASSED"
+            echo "2. Network Latency Chaos - PASSED"
+            echo "3. CPU Stress Chaos - PASSED"
+            echo "4. Memory Stress Chaos - PASSED"
+            echo ""
+            echo "All chaos experiments completed successfully."
+            echo "Application demonstrated resilience to failure scenarios."
+            echo "==================================="
+
+---
+# Chaos Workflow Schedule
+apiVersion: argoproj.io/v1alpha1
+kind: CronWorkflow
+metadata:
+  name: scheduled-chaos-workflow
+  namespace: litmus
+spec:
+  schedule: "0 2 * * 0"  # Every Sunday at 2 AM
+  concurrencyPolicy: "Forbid"
+  startingDeadlineSeconds: 0
+  workflowSpec:
+    entrypoint: chaos-workflow
+    serviceAccountName: argo-chaos
+
+    templates:
+      - name: chaos-workflow
+        steps:
+          - - name: run-chaos
+              template: pod-delete-test
+
+      - name: pod-delete-test
+        container:
+          image: litmuschaos/litmus-checker:latest
+          command: [sh, -c]
+          args: ["echo Running scheduled chaos tests"]

@@ -1,113 +1,187 @@
 # DocuThinker DevOps Documentation
 
-Comprehensive guide for deploying, monitoring, and maintaining DocuThinker infrastructure.
+Comprehensive guide for deploying, monitoring, and maintaining DocuThinker's enterprise-grade infrastructure.
 
 ## Table of Contents
 
 1. [Infrastructure Overview](#infrastructure-overview)
 2. [Getting Started](#getting-started)
-3. [CI/CD Pipelines](#cicd-pipelines)
-4. [Kubernetes Deployments](#kubernetes-deployments)
-5. [Monitoring & Observability](#monitoring--observability)
-6. [Secret Management](#secret-management)
-7. [Performance Testing](#performance-testing)
-8. [Security](#security)
-9. [Troubleshooting](#troubleshooting)
+3. [Service Mesh - Istio](#service-mesh---istio)
+4. [Policy Enforcement - OPA](#policy-enforcement---opa)
+5. [CI/CD Pipelines](#cicd-pipelines)
+6. [Kubernetes Deployments](#kubernetes-deployments)
+7. [Progressive Delivery - Flagger](#progressive-delivery---flagger)
+8. [Monitoring & Observability](#monitoring--observability)
+9. [Chaos Engineering - Litmus](#chaos-engineering---litmus)
+10. [Disaster Recovery - Velero](#disaster-recovery---velero)
+11. [Autoscaling - KEDA](#autoscaling---keda)
+12. [Runtime Security - Falco](#runtime-security---falco)
+13. [Secret Management](#secret-management)
+14. [Performance Testing](#performance-testing)
+15. [Database Migrations](#database-migrations)
+16. [Infrastructure Testing](#infrastructure-testing)
+17. [Security](#security)
+18. [Troubleshooting](#troubleshooting)
 
 ## Infrastructure Overview
 
-DocuThinker uses a modern cloud-native architecture:
+DocuThinker uses a modern, enterprise-grade cloud-native architecture with **15 production-ready DevOps components**.
+
+### Technology Stack
 
 - **Cloud Provider**: AWS
-- **Container Orchestration**: Amazon EKS (Kubernetes)
-- **Infrastructure as Code**: Terraform
-- **CI/CD**: GitLab CI / CircleCI / Jenkins
-- **Monitoring**: Prometheus + Grafana + ELK Stack
-- **Secret Management**: HashiCorp Vault + AWS Secrets Manager
+- **Container Orchestration**: Amazon EKS (Kubernetes 1.28+)
+- **Service Mesh**: Istio 1.20 (mTLS, Circuit Breaking, Traffic Management)
+- **Policy Enforcement**: OPA Gatekeeper 3.14 (Security & Compliance)
+- **Infrastructure as Code**: Terraform + Helm
+- **CI/CD**: GitLab CI / GitHub Actions / Jenkins
 - **GitOps**: ArgoCD
-- **Performance Testing**: k6
+- **Observability**: OpenTelemetry + Prometheus + Grafana + Jaeger + ELK
+- **Chaos Engineering**: Litmus 3.0
+- **Progressive Delivery**: Flagger 1.34
+- **Backup & DR**: Velero 1.12 (RTO < 1 hour)
+- **Event-Driven Autoscaling**: KEDA 2.12
+- **Runtime Security**: Falco 0.36
+- **Secret Management**: HashiCorp Vault + AWS Secrets Manager
+- **Performance Testing**: K6 (6 advanced scenarios)
+- **TLS Management**: cert-manager 1.13
+- **Database Migrations**: Flyway
+- **Infrastructure Testing**: Terratest
 
 ### Architecture Diagram
 
 ```mermaid
 graph TB
-    subgraph "AWS Cloud"
+    subgraph "AWS Cloud - Production Infrastructure"
         subgraph "Edge Layer"
             CF[CloudFront CDN]
-            WAF[AWS WAF]
+            WAF[AWS WAF<br/>DDoS Protection]
+            CERTMGR[cert-manager<br/>Auto TLS]
         end
 
-        subgraph "Network Layer"
-            ALB[Application Load Balancer]
-            IGW[Internet Gateway]
+        subgraph "Service Mesh - Istio"
+            ISTIO_IG[Istio Ingress Gateway<br/>3 Replicas + mTLS]
+            ISTIO_EG[Istio Egress Gateway<br/>Controlled External Access]
+            ISTIOD[Istiod Control Plane<br/>HA - 3 Replicas]
         end
 
-        subgraph "VPC - Multi-AZ"
+        subgraph "Policy & Security Layer"
+            OPA[OPA Gatekeeper<br/>10 Policies + 8 Mutations]
+            FALCO[Falco<br/>Runtime Threat Detection]
+            NETPOL[Network Policies]
+        end
+
+        subgraph "VPC - Multi-AZ (3 Zones)"
             subgraph "Public Subnets"
                 NAT1[NAT Gateway AZ-1]
                 NAT2[NAT Gateway AZ-2]
+                NAT3[NAT Gateway AZ-3]
             end
 
-            subgraph "Private Subnets"
-                subgraph "EKS Cluster"
-                    subgraph "Frontend Pods"
-                        FE1[React Frontend 1]
-                        FE2[React Frontend 2]
-                        FE3[React Frontend 3]
-                    end
+            subgraph "Private Subnets - EKS Cluster"
+                subgraph "Application Pods - With Envoy Sidecars"
+                    FE1[Frontend 1 + Envoy]
+                    FE2[Frontend 2 + Envoy]
+                    FE3[Frontend 3 + Envoy]
+                    BE1[Backend 1 + Envoy]
+                    BE2[Backend 2 + Envoy]
+                    BE3[Backend 3 + Envoy]
+                end
 
-                    subgraph "Backend Pods"
-                        BE1[Node.js Backend 1]
-                        BE2[Node.js Backend 2]
-                        BE3[Node.js Backend 3]
-                    end
+                subgraph "Progressive Delivery"
+                    FLAGGER[Flagger<br/>Automated Canary]
+                    CANARY[Canary Deployment<br/>10% Traffic]
+                end
 
-                    subgraph "Monitoring"
-                        PROM[Prometheus]
-                        GRAF[Grafana]
-                        ELK[ELK Stack]
-                    end
+                subgraph "Observability Stack"
+                    OTEL[OpenTelemetry<br/>3 Replicas]
+                    PROM[Prometheus<br/>SLO/SLI Monitoring]
+                    GRAF[Grafana<br/>Dashboards]
+                    JAEGER[Jaeger<br/>Distributed Tracing]
+                    ELK[ELK Stack<br/>Logs]
+                end
+
+                subgraph "Reliability Engineering"
+                    LITMUS[Litmus Chaos<br/>4 Experiments]
+                    VELERO[Velero<br/>Daily + Hourly Backups]
+                end
+
+                subgraph "Autoscaling"
+                    KEDA[KEDA<br/>Event-Driven HPA]
+                    HPA[Traditional HPA<br/>CPU/Memory]
                 end
 
                 subgraph "Data Layer"
-                    RDS[(RDS PostgreSQL<br/>Multi-AZ)]
-                    REDIS[(ElastiCache Redis)]
+                    RDS[(PostgreSQL RDS<br/>Multi-AZ + Flyway)]
+                    REDIS[(ElastiCache Redis<br/>Cluster Mode)]
                 end
             end
         end
 
         subgraph "Security & Secrets"
-            VAULT[HashiCorp Vault]
+            VAULT[HashiCorp Vault<br/>HA]
             SM[AWS Secrets Manager]
+            ESO[External Secrets Operator]
         end
 
         subgraph "Storage"
-            S3[S3 Buckets]
+            S3[S3 Buckets<br/>Versioning + Lifecycle]
+        end
+
+        subgraph "Testing"
+            K6[K6 Load Tests<br/>6 Scenarios]
+            TERRATEST[Terratest<br/>Infrastructure Validation]
         end
     end
 
     Users -->|HTTPS| CF
     CF --> WAF
-    WAF --> ALB
-    ALB --> IGW
-    IGW --> FE1 & FE2 & FE3
-    FE1 & FE2 & FE3 --> BE1 & BE2 & BE3
+    WAF --> CERTMGR
+    CERTMGR --> ISTIO_IG
+
+    ISTIOD -.->|Config + Certs| ISTIO_IG
+    ISTIO_IG -.->|Policy Check| OPA
+
+    ISTIO_IG --> FE1 & FE2 & FE3
+    FE1 & FE2 & FE3 -->|mTLS| BE1 & BE2 & BE3
+
+    FLAGGER -.->|Manage| CANARY
+    CANARY -.->|10% Traffic| BE3
+
     BE1 & BE2 & BE3 --> RDS
     BE1 & BE2 & BE3 --> REDIS
     BE1 & BE2 & BE3 --> S3
-    BE1 & BE2 & BE3 -.->|Metrics| PROM
-    PROM --> GRAF
-    BE1 & BE2 & BE3 -.->|Logs| ELK
-    BE1 & BE2 & BE3 -.->|Secrets| VAULT
-    BE1 & BE2 & BE3 -.->|Secrets| SM
 
-    style CF fill:#FF6B6B
-    style ALB fill:#4ECDC4
-    style RDS fill:#95E1D3
-    style REDIS fill:#F38181
-    style VAULT fill:#AA96DA
-    style EKS fill:#E8F4F8
+    BE1 -.->|Traces| OTEL
+    OTEL --> JAEGER
+    OTEL --> PROM
+    PROM --> GRAF
+    BE1 -.->|Logs| ELK
+
+    FALCO -.->|Monitor| BE1 & BE2 & BE3
+    LITMUS -.->|Test| BE1 & BE2
+    VELERO -.->|Backup| RDS
+
+    KEDA -.->|Scale| BE1 & BE2 & BE3
+    HPA -.->|Scale| FE1 & FE2 & FE3
+
+    VAULT --> ESO
+    SM --> ESO
+    ESO -.->|Sync| BE1 & BE2 & BE3
+
+    K6 -.->|Test| ISTIO_IG
+    TERRATEST -.->|Validate| RDS & S3
+
+    style ISTIO_IG fill:#FF6B6B,color:#fff
+    style OPA fill:#4ECDC4,color:#fff
+    style OTEL fill:#F38181,color:#fff
+    style LITMUS fill:#AA96DA,color:#fff
+    style FLAGGER fill:#95E1D3
+    style KEDA fill:#FCBAD3
+    style VELERO fill:#FFD93D
 ```
+
+---
 
 ## Getting Started
 
@@ -131,8 +205,14 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 # Terraform
 brew install terraform
 
+# istioctl
+curl -L https://istio.io/downloadIstio | sh -
+
 # k6
 brew install k6
+
+# velero
+brew install velero
 ```
 
 ### Initial Setup
@@ -142,7 +222,7 @@ brew install k6
    aws configure
    ```
 
-2. **Deploy infrastructure**:
+2. **Deploy infrastructure with Terraform**:
    ```bash
    cd terraform
    terraform init
@@ -155,1035 +235,1137 @@ brew install k6
    aws eks update-kubeconfig --name docuthinker-eks-prod --region us-east-1
    ```
 
-4. **Install monitoring stack**:
+4. **Install core platform components**:
    ```bash
-   ./scripts/setup/install-monitoring.sh
+   # cert-manager (TLS automation)
+   cd tls/cert-manager
+   ./install-cert-manager.sh v1.13.0 admin@docuthinker.example.com
+
+   # OPA Gatekeeper (Policy enforcement)
+   cd ../../policy-as-code/opa
+   ./install-opa.sh 3.14.0
+
+   # Istio Service Mesh (Traffic management + mTLS)
+   cd ../../service-mesh/istio
+   ./install-istio.sh docuthinker-prod production
    ```
 
-## CI/CD Pipelines
+5. **Install observability stack**:
+   ```bash
+   # OpenTelemetry
+   helm install otel-collector open-telemetry/opentelemetry-collector \
+     -n monitoring -f observability/opentelemetry/values.yaml
 
-### Pipeline Architecture
+   # Prometheus + SLO/SLI
+   kubectl apply -f monitoring/slo-sli/prometheus-rules.yaml
+   ```
 
-```mermaid
-graph LR
-    subgraph "Source Control"
-        GIT[Git Push]
-    end
+6. **Install reliability components**:
+   ```bash
+   # Litmus Chaos Engineering
+   cd chaos-engineering/litmus
+   ./install-litmus.sh 3.0.0
 
-    subgraph "CI/CD Platform"
-        TRIGGER[Webhook Trigger]
+   # Velero Backup & DR
+   cd ../../backup-dr/velero
+   ./install-velero.sh v1.12.0 us-east-1 docuthinker-velero-backups
 
-        subgraph "Pre-Check Stage"
-            LINT[Code Linting]
-            AUDIT[Dependency Audit]
-        end
+   # Flagger Progressive Delivery
+   helm install flagger flagger/flagger \
+     -n istio-system -f progressive-delivery/flagger/values.yaml
+   ```
 
-        subgraph "Build Stage"
-            BFE[Build Frontend]
-            BBE[Build Backend]
-            BAI[Build AI/ML]
-        end
+7. **Install autoscaling & security**:
+   ```bash
+   # KEDA Event-Driven Autoscaling
+   helm install keda kedacore/keda \
+     -n keda --create-namespace -f autoscaling/keda/values.yaml
 
-        subgraph "Test Stage"
-            TFE[Test Frontend]
-            TBE[Test Backend]
-            TAI[Test AI/ML]
-            COV[Code Coverage]
-        end
+   # Falco Runtime Security
+   helm install falco falcosecurity/falco \
+     -n falco --create-namespace -f security/falco/values.yaml
+   ```
 
-        subgraph "Security Stage"
-            TRIVY[Trivy Scan]
-            SONAR[SonarQube Analysis]
-            SAST[SAST Checks]
-        end
+---
 
-        subgraph "Package Stage"
-            DOCKER[Build Docker Images]
-            PUSH[Push to Registry]
-        end
+## Service Mesh - Istio
 
-        subgraph "Deploy Stage"
-            DEV[Deploy to Dev]
-            STAGING[Deploy to Staging]
-            CANARY[Deploy Canary]
-            PROD[Promote to Production]
-        end
+### Overview
 
-        subgraph "Post-Deploy Stage"
-            SMOKE[Smoke Tests]
-            PERF[Performance Tests]
-            NOTIFY[Notifications]
-        end
-    end
+Istio provides:
+- **Automatic mTLS**: 100% of service-to-service traffic encrypted
+- **Traffic Management**: Canary deployments, A/B testing, traffic mirroring
+- **Circuit Breaking**: Automatic failure isolation
+- **Retry Logic**: Configurable retry attempts with timeouts
+- **Distributed Tracing**: 100% sampling rate with Jaeger
+- **Service Mesh Visualization**: Kiali dashboard
 
-    GIT --> TRIGGER
-    TRIGGER --> LINT & AUDIT
-    LINT & AUDIT --> BFE & BBE & BAI
-    BFE & BBE & BAI --> TFE & TBE & TAI
-    TFE & TBE & TAI --> COV
-    COV --> TRIVY & SONAR & SAST
-    TRIVY & SONAR & SAST --> DOCKER
-    DOCKER --> PUSH
-    PUSH --> DEV
-    DEV --> STAGING
-    STAGING --> CANARY
-    CANARY -->|Manual Approval| PROD
-    PROD --> SMOKE & PERF
-    SMOKE & PERF --> NOTIFY
-
-    style TRIGGER fill:#FFD93D
-    style DOCKER fill:#6BCB77
-    style PROD fill:#FF6B6B
-    style NOTIFY fill:#4D96FF
-```
-
-### GitLab CI
-
-Pipeline stages:
-1. Pre-check (linting, dependency audit)
-2. Build (frontend, backend, AI/ML)
-3. Test (unit tests, coverage)
-4. Security (Trivy, SonarQube)
-5. Package (Docker builds)
-6. Deploy (dev → staging → production)
-7. Post-deploy (smoke tests, performance tests)
-
-Configuration: `.gitlab-ci.yml`
-
-### CircleCI
-
-Similar pipeline with parallel job execution.
-
-Configuration: `.circleci/config.yml`
-
-### Jenkins
-
-Advanced canary and blue/green deployment strategy.
-
-Configuration: `Jenkinsfile`
-
-### Deployment Strategies
-
-```mermaid
-graph TB
-    subgraph "Blue/Green Deployment"
-        LB1[Load Balancer]
-        BLUE1[Blue Environment<br/>Current Version]
-        GREEN1[Green Environment<br/>New Version]
-
-        LB1 -->|100% Traffic| BLUE1
-        LB1 -.->|0% Traffic| GREEN1
-        GREEN1 -.->|Deploy & Test| GREEN1
-        GREEN1 -.->|Switch Traffic| LB1
-        LB1 -.->|100% Traffic| GREEN1
-    end
-
-    subgraph "Canary Deployment"
-        LB2[Load Balancer]
-        STABLE[Stable Version<br/>90% Traffic]
-        CANARY[Canary Version<br/>10% Traffic]
-
-        LB2 -->|90%| STABLE
-        LB2 -->|10%| CANARY
-        CANARY -->|Monitor Metrics| DECISION{Metrics OK?}
-        DECISION -->|Yes| PROMOTE[Promote to 100%]
-        DECISION -->|No| ROLLBACK[Rollback]
-    end
-
-    style BLUE1 fill:#4D96FF
-    style GREEN1 fill:#6BCB77
-    style CANARY fill:#FFD93D
-    style PROMOTE fill:#6BCB77
-    style ROLLBACK fill:#FF6B6B
-```
-
-## Kubernetes Deployments
-
-### Deployment Flow
-
-```mermaid
-flowchart TD
-    START([Start Deployment]) --> CHECK{Environment?}
-
-    CHECK -->|Development| DEV_PREP[Prepare Dev Config]
-    CHECK -->|Staging| STG_PREP[Prepare Staging Config]
-    CHECK -->|Production| PROD_PREP[Prepare Production Config]
-
-    DEV_PREP --> HELM_LINT[Helm Lint]
-    STG_PREP --> HELM_LINT
-    PROD_PREP --> APPROVAL{Manual Approval?}
-
-    APPROVAL -->|Approved| HELM_LINT
-    APPROVAL -->|Rejected| CANCEL([Deployment Cancelled])
-
-    HELM_LINT --> DRY_RUN[Helm Dry Run]
-    DRY_RUN --> VALID{Validation OK?}
-
-    VALID -->|No| FIX[Fix Issues]
-    FIX --> HELM_LINT
-
-    VALID -->|Yes| DEPLOY[Helm Upgrade/Install]
-    DEPLOY --> WAIT[Wait for Rollout]
-
-    WAIT --> HEALTH{Health Check?}
-    HEALTH -->|Failed| AUTO_ROLLBACK[Automatic Rollback]
-    AUTO_ROLLBACK --> ALERT[Send Alert]
-    ALERT --> END([Deployment Failed])
-
-    HEALTH -->|Passed| SMOKE[Smoke Tests]
-    SMOKE --> TEST_RESULT{Tests Pass?}
-
-    TEST_RESULT -->|No| MANUAL_ROLLBACK[Manual Rollback]
-    MANUAL_ROLLBACK --> ALERT
-
-    TEST_RESULT -->|Yes| MONITOR[Monitor Metrics]
-    MONITOR --> SUCCESS([Deployment Successful])
-
-    style START fill:#6BCB77
-    style SUCCESS fill:#6BCB77
-    style END fill:#FF6B6B
-    style CANCEL fill:#FFD93D
-    style AUTO_ROLLBACK fill:#FF6B6B
-    style MANUAL_ROLLBACK fill:#FF6B6B
-```
-
-### Helm Charts
-
-Deploy using Helm:
-
-```bash
-# Development
-helm upgrade --install docuthinker ./helm/docuthinker \
-  -f ./helm/docuthinker/values-dev.yaml \
-  -n docuthinker-dev
-
-# Staging
-helm upgrade --install docuthinker ./helm/docuthinker \
-  -f ./helm/docuthinker/values-staging.yaml \
-  -n docuthinker-staging
-
-# Production
-helm upgrade --install docuthinker ./helm/docuthinker \
-  -f ./helm/docuthinker/values-prod.yaml \
-  -n docuthinker-prod
-```
-
-### ArgoCD (GitOps)
+### Architecture
 
 ```mermaid
 graph LR
-    subgraph "Git Repository"
-        REPO[GitHub Repository]
-        HELM[Helm Charts]
-        VALUES[Value Files]
-    end
+    subgraph "Istio Components"
+        ISTIOD[Istiod<br/>Control Plane<br/>3 Replicas]
 
-    subgraph "ArgoCD"
-        ARGO[ArgoCD Controller]
-        SYNC[Auto Sync]
-        HEALTH[Health Check]
-    end
+        subgraph "Gateways"
+            IG[Ingress Gateway<br/>3 Replicas<br/>LoadBalancer]
+            EG[Egress Gateway<br/>2 Replicas<br/>ClusterIP]
+        end
 
-    subgraph "Kubernetes Cluster"
-        subgraph "Namespaces"
-            DEV_NS[docuthinker-dev]
-            STG_NS[docuthinker-staging]
-            PROD_NS[docuthinker-prod]
+        subgraph "Sidecars"
+            ENVOY1[Envoy Proxy 1]
+            ENVOY2[Envoy Proxy 2]
+            ENVOY3[Envoy Proxy 3]
+        end
+
+        subgraph "Config"
+            VS[Virtual Services<br/>Routing Rules]
+            DR[Destination Rules<br/>Circuit Breaking]
+            PA[Peer Authentication<br/>Strict mTLS]
+            AP[Authorization Policies<br/>RBAC]
+        end
+
+        subgraph "Observability"
+            KIALI[Kiali UI]
+            JAEGER_UI[Jaeger UI]
         end
     end
 
-    REPO --> ARGO
-    HELM --> ARGO
-    VALUES --> ARGO
+    INTERNET[Internet] --> IG
+    IG --> ENVOY1
+    ENVOY1 <-->|mTLS| ENVOY2
+    ENVOY2 <-->|mTLS| ENVOY3
+    ENVOY3 --> EG
+    EG --> EXTERNAL[External APIs]
 
-    ARGO -->|Sync| SYNC
-    SYNC -->|Deploy| DEV_NS
-    SYNC -->|Deploy| STG_NS
-    SYNC -->|Deploy| PROD_NS
+    ISTIOD -.->|Config| IG & EG & ENVOY1 & ENVOY2 & ENVOY3
+    VS & DR & PA & AP -.->|Apply| ENVOY1 & ENVOY2
 
-    SYNC --> HEALTH
-    HEALTH -.->|Monitor| DEV_NS
-    HEALTH -.->|Monitor| STG_NS
-    HEALTH -.->|Monitor| PROD_NS
+    ENVOY1 -.->|Metrics| KIALI
+    ENVOY1 -.->|Traces| JAEGER_UI
 
-    HEALTH -->|Drift Detected| SELF_HEAL[Self Heal]
-    SELF_HEAL -->|Re-sync| SYNC
-
-    style ARGO fill:#FF6B35
-    style SYNC fill:#6BCB77
-    style SELF_HEAL fill:#4D96FF
+    style ISTIOD fill:#FF6B6B,color:#fff
+    style IG fill:#4ECDC4,color:#fff
 ```
 
-Automated deployment with ArgoCD:
+### Installation
 
 ```bash
-# Install ArgoCD
-kubectl create namespace argocd
-kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-
-# Apply applications
-kubectl apply -f argocd/application.yaml
-
-# Access ArgoCD UI
-kubectl port-forward svc/argocd-server -n argocd 8080:443
+cd service-mesh/istio
+./install-istio.sh docuthinker-prod production
 ```
 
-### Deployment Scripts
+### Key Features
 
-Quick deployment:
+**1. Canary Deployment (10% traffic split)**:
+```yaml
+# Configured in traffic-management/virtual-services.yaml
+route:
+- destination:
+    host: backend
+    subset: stable
+  weight: 90
+- destination:
+    host: backend
+    subset: canary
+  weight: 10
+```
+
+**2. Circuit Breaking**:
+```yaml
+# Configured in traffic-management/destination-rules.yaml
+outlierDetection:
+  consecutive5xxErrors: 3
+  interval: 10s
+  baseEjectionTime: 60s
+  maxEjectionPercent: 30
+```
+
+**3. Retry Logic**:
+```yaml
+retries:
+  attempts: 3
+  perTryTimeout: 2s
+  retryOn: 5xx,reset,connect-failure
+```
+
+### Access Dashboards
+
 ```bash
-./scripts/deploy/deploy.sh production
+# Kiali (Service Mesh Visualization)
+kubectl port-forward svc/kiali -n istio-system 20001:20001
+# Open: http://localhost:20001
+
+# Jaeger (Distributed Tracing)
+kubectl port-forward svc/jaeger-query -n istio-system 16686:16686
+# Open: http://localhost:16686
 ```
 
-Rollback:
-```bash
-./scripts/deploy/rollback.sh production 3
-```
+---
 
-## Monitoring & Observability
+## Policy Enforcement - OPA
 
-### Monitoring Architecture
+### Overview
 
-```mermaid
-graph TB
-    subgraph "Application Layer"
-        FE[Frontend Pods]
-        BE[Backend Pods]
-    end
+OPA Gatekeeper enforces:
+- **10 Security Policies**: Block privileged containers, enforce resource limits, etc.
+- **8 Auto-Mutations**: Automatically add defaults (labels, resource limits, security contexts)
+- **Continuous Audit**: Scan existing resources for violations
+- **Admission Control**: Validate resources before creation
 
-    subgraph "Metrics Collection"
-        PROM[Prometheus]
-        NODE_EXP[Node Exporter]
-        KUBE_STATE[Kube State Metrics]
-
-        FE -.->|/metrics| PROM
-        BE -.->|/metrics| PROM
-        NODE_EXP -.->|Node Metrics| PROM
-        KUBE_STATE -.->|K8s Metrics| PROM
-    end
-
-    subgraph "Log Collection"
-        FILEBEAT[Filebeat]
-        LOGSTASH[Logstash]
-        ELASTIC[Elasticsearch]
-
-        FE -.->|Logs| FILEBEAT
-        BE -.->|Logs| FILEBEAT
-        FILEBEAT --> LOGSTASH
-        LOGSTASH --> ELASTIC
-    end
-
-    subgraph "Visualization"
-        GRAFANA[Grafana]
-        KIBANA[Kibana]
-
-        PROM --> GRAFANA
-        ELASTIC --> KIBANA
-    end
-
-    subgraph "Alerting"
-        ALERT_MGR[AlertManager]
-        SLACK[Slack]
-        PAGERDUTY[PagerDuty]
-
-        PROM -.->|Alerts| ALERT_MGR
-        ALERT_MGR --> SLACK
-        ALERT_MGR -->|Critical| PAGERDUTY
-    end
-
-    style PROM fill:#E85D04
-    style GRAFANA fill:#F48C06
-    style ELASTIC fill:#005F73
-    style KIBANA fill:#0A9396
-    style ALERT_MGR fill:#E63946
-```
-
-### Observability Data Flow
+### Policy Enforcement Flow
 
 ```mermaid
 sequenceDiagram
-    participant App as Application
-    participant Prom as Prometheus
-    participant Alert as AlertManager
-    participant Graf as Grafana
-    participant User as DevOps Team
+    participant Dev
+    participant K8s API
+    participant OPA
+    participant Policies
+    participant Pod
 
-    App->>Prom: Expose /metrics endpoint
-    loop Every 30s
-        Prom->>App: Scrape metrics
+    Dev->>K8s API: kubectl apply deployment.yaml
+    K8s API->>OPA: Admission Request
+
+    OPA->>Policies: Evaluate Constraints
+
+    alt Violations Found
+        Policies->>OPA: Deny: Missing labels, no resource limits
+        OPA->>K8s API: Admission Denied
+        K8s API->>Dev: Error: Policy violations
+    else Policies Satisfied
+        Policies->>OPA: All policies met
+        OPA->>OPA: Apply Mutations (add defaults)
+        OPA->>K8s API: Admission Allowed (modified)
+        K8s API->>Pod: Create Pod
+        Pod->>Dev: Success
     end
 
-    Prom->>Prom: Evaluate alert rules
+    Note over OPA: Continuous Audit (every hour)
+    OPA->>Policies: Scan existing resources
+    Policies-->>OPA: Report violations
+```
 
-    alt Alert triggered
-        Prom->>Alert: Send alert
-        Alert->>Alert: Group & deduplicate
-        Alert->>User: Notify via Slack/PagerDuty
+### Installation
+
+```bash
+cd policy-as-code/opa
+./install-opa.sh 3.14.0
+```
+
+### Active Policies
+
+1. ✅ Block privileged containers
+2. ✅ Enforce non-root users
+3. ✅ Require resource limits (CPU/Memory)
+4. ✅ Block `:latest` image tags
+5. ✅ Enforce trusted registries
+6. ✅ Block host namespaces
+7. ✅ Require standard labels (app, version, environment, team)
+8. ✅ Require read-only root filesystem
+9. ✅ Enforce minimum replica counts (2 for prod)
+10. ✅ Validate image pull policies
+
+### View Violations
+
+```bash
+# List all constraints
+kubectl get constraints
+
+# View violations
+kubectl get k8srequiredlabels pod-must-have-labels -o yaml
+
+# Test deployment
+kubectl apply --dry-run=server -f deployment.yaml
+```
+
+---
+
+## CI/CD Pipelines
+
+### Enhanced Pipeline Architecture
+
+```mermaid
+graph LR
+    subgraph "11-Stage Pipeline"
+        GIT[Git Push]
+
+        PRE[Pre-Check<br/>Lint + Audit]
+        BUILD[Build<br/>FE + BE + AI]
+        TEST[Test<br/>Unit + Coverage]
+        SECURITY[Security<br/>Trivy + SonarQube]
+        PACKAGE[Package<br/>Docker Build]
+
+        DEPLOY_DEV[Deploy Dev<br/>Auto]
+        DEPLOY_STG[Deploy Staging<br/>Manual]
+        CANARY[Deploy Canary<br/>Flagger]
+        PROMOTE[Promote Prod<br/>Manual Approval]
+
+        POST[Post-Deploy<br/>Smoke + Perf Tests]
+        CLEANUP[Cleanup<br/>Old Images]
     end
 
-    User->>Graf: Access dashboard
-    Graf->>Prom: Query metrics
-    Prom->>Graf: Return data
-    Graf->>User: Display visualizations
+    GIT --> PRE
+    PRE --> BUILD
+    BUILD --> TEST
+    TEST --> SECURITY
+    SECURITY --> PACKAGE
+
+    PACKAGE --> DEPLOY_DEV
+    DEPLOY_DEV --> DEPLOY_STG
+    DEPLOY_STG --> CANARY
+    CANARY -.->|Metrics OK| PROMOTE
+    CANARY -.->|Metrics Fail| ROLLBACK[Auto Rollback]
+
+    PROMOTE --> POST
+    POST --> CLEANUP
 ```
 
-### Prometheus + Grafana
+### GitLab CI Configuration
 
-Access Grafana:
+```yaml
+# .gitlab-ci.yml (11 stages)
+stages:
+  - pre-check
+  - build
+  - test
+  - security
+  - package
+  - deploy-dev
+  - deploy-staging
+  - deploy-canary
+  - deploy-production
+  - post-deploy
+  - cleanup
+```
+
+---
+
+## Kubernetes Deployments
+
+### Deployment Flow with Progressive Delivery
+
+```mermaid
+flowchart TD
+    START([Start]) --> ENV{Environment?}
+
+    ENV -->|Dev| DEV_DEPLOY[Auto-Deploy to Dev]
+    ENV -->|Staging| STG_APPROVAL{Manual Approval?}
+    ENV -->|Production| PROD_PREP[Prepare Prod Canary]
+
+    STG_APPROVAL -->|Yes| STG_DEPLOY[Deploy to Staging]
+    STG_APPROVAL -->|No| CANCEL([Cancelled])
+
+    DEV_DEPLOY --> SMOKE_DEV[Smoke Tests]
+    SMOKE_DEV --> SUCCESS_DEV([Dev Deployed])
+
+    STG_DEPLOY --> SMOKE_STG[Smoke Tests]
+    SMOKE_STG --> SUCCESS_STG([Staging Deployed])
+
+    PROD_PREP --> FLAGGER[Flagger Canary Analysis]
+    FLAGGER --> CANARY_INIT[Initialize 0% Traffic]
+    CANARY_INIT --> RAMP[Progressive Ramp 10→50%]
+
+    RAMP --> ANALYSIS{Metrics OK?}
+    ANALYSIS -->|Success Rate >99%<br/>Latency <500ms| PROMOTE[Promote to 100%]
+    ANALYSIS -->|Metrics Fail| AUTO_RB[Automatic Rollback]
+
+    PROMOTE --> FINAL_SMOKE[Final Smoke Tests]
+    AUTO_RB --> ALERT[Send Alert]
+
+    FINAL_SMOKE --> SUCCESS_PROD([Production Deployed])
+    ALERT --> FAIL([Deployment Failed])
+
+    style PROMOTE fill:#6BCB77,color:#fff
+    style AUTO_RB fill:#FF6B6B,color:#fff
+    style SUCCESS_PROD fill:#6BCB77,color:#fff
+```
+
+### Deploy Commands
+
 ```bash
-kubectl port-forward -n monitoring svc/kube-prometheus-stack-grafana 3000:80
+# Deploy via script
+./scripts/deploy/deploy.sh [dev|staging|production]
+
+# Deploy via Helm
+helm upgrade --install docuthinker ./helm/docuthinker \
+  -f ./helm/docuthinker/values-prod.yaml \
+  -n docuthinker-prod
+
+# Rollback
+./scripts/deploy/rollback.sh production 3
 ```
 
-Default credentials: `admin` / `prom-operator`
+---
 
-Dashboards:
-- DocuThinker Overview
-- Kubernetes Cluster Metrics
-- Node Exporter
+## Progressive Delivery - Flagger
 
-### ELK Stack
+### Overview
 
-Access Kibana:
+Flagger automates canary deployments with metric-based promotion/rollback.
+
+**Features**:
+- Progressive traffic shifting (10% → 50%)
+- Prometheus metrics analysis
+- Success rate threshold (>99%)
+- Latency threshold (<500ms)
+- Automatic rollback on failure
+- Slack notifications
+
+### Canary Deployment Process
+
+```mermaid
+graph TB
+    START[New Deployment] --> INIT[Flagger Detects Change]
+    INIT --> CREATE[Create Canary Deployment]
+    CREATE --> ROUTE_0[Route 0% Traffic to Canary]
+
+    ROUTE_0 --> RAMP_10[Ramp to 10%]
+    RAMP_10 --> ANALYZE_10{Analyze Metrics<br/>1 minute}
+
+    ANALYZE_10 -->|Pass| RAMP_20[Ramp to 20%]
+    ANALYZE_10 -->|Fail| ROLLBACK[Automatic Rollback]
+
+    RAMP_20 --> ANALYZE_20{Analyze Metrics}
+    ANALYZE_20 -->|Pass| RAMP_50[Ramp to 50%]
+    ANALYZE_20 -->|Fail| ROLLBACK
+
+    RAMP_50 --> ANALYZE_50{Analyze Metrics}
+    ANALYZE_50 -->|Pass| PROMOTE[Promote to 100%]
+    ANALYZE_50 -->|Fail| ROLLBACK
+
+    PROMOTE --> CLEANUP[Delete Canary]
+    CLEANUP --> SUCCESS([Deployment Complete])
+
+    ROLLBACK --> ALERT[Send Slack Alert]
+    ALERT --> FAIL([Deployment Failed])
+
+    style PROMOTE fill:#6BCB77,color:#fff
+    style ROLLBACK fill:#FF6B6B,color:#fff
+    style SUCCESS fill:#6BCB77,color:#fff
+```
+
+### Installation
+
 ```bash
-kubectl port-forward -n monitoring svc/kibana-kibana 5601:5601
+helm install flagger flagger/flagger \
+  -n istio-system \
+  -f progressive-delivery/flagger/values.yaml
 ```
 
-Create index pattern: `docuthinker-*`
+### Example Canary Configuration
 
-### Alerting
+```yaml
+apiVersion: flagger.app/v1beta1
+kind: Canary
+metadata:
+  name: backend
+spec:
+  targetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: backend
+  service:
+    port: 8080
+  analysis:
+    interval: 1m
+    threshold: 5
+    maxWeight: 50
+    stepWeight: 10
+    metrics:
+    - name: request-success-rate
+      thresholdRange:
+        min: 99
+    - name: request-duration
+      thresholdRange:
+        max: 500
+```
 
-Alerts are configured in `monitoring/prometheus/alert-rules.yaml`
+---
 
-Notifications sent to:
-- Slack: #docuthinker-alerts
-- PagerDuty (critical only)
+## Monitoring & Observability
+
+### Complete Observability Stack
+
+```mermaid
+graph TB
+    subgraph "Applications"
+        APP[Applications<br/>Frontend + Backend]
+    end
+
+    subgraph "Collection"
+        OTEL[OpenTelemetry Collector<br/>3 Replicas HA]
+        PROM_EXP[Prometheus Exporters]
+        FILEBEAT[Filebeat]
+    end
+
+    subgraph "Storage & Processing"
+        subgraph "Traces"
+            JAEGER[Jaeger]
+            ES_TRACE[(Elasticsearch)]
+        end
+
+        subgraph "Metrics"
+            PROM[Prometheus]
+            SLO_CALC[SLO/SLI Calculator]
+            ERROR_BUDGET[Error Budget]
+        end
+
+        subgraph "Logs"
+            LOGSTASH[Logstash]
+            ES_LOG[(Elasticsearch)]
+        end
+    end
+
+    subgraph "Visualization"
+        GRAF[Grafana<br/>Unified Dashboards]
+        KIBANA[Kibana<br/>Log Analysis]
+        KIALI[Kiali<br/>Service Mesh]
+    end
+
+    subgraph "Alerting"
+        ALERT[AlertManager]
+        SLACK[Slack]
+        PD[PagerDuty]
+    end
+
+    APP -->|OTLP| OTEL
+    APP -->|Metrics| PROM_EXP
+    APP -->|Logs| FILEBEAT
+
+    OTEL --> JAEGER
+    JAEGER --> ES_TRACE
+
+    PROM_EXP --> PROM
+    PROM --> SLO_CALC
+    SLO_CALC --> ERROR_BUDGET
+
+    FILEBEAT --> LOGSTASH
+    LOGSTASH --> ES_LOG
+
+    PROM --> GRAF
+    JAEGER --> GRAF
+    ES_LOG --> KIBANA
+    PROM --> KIALI
+
+    PROM -.->|Alerts| ALERT
+    ALERT --> SLACK
+    ALERT -->|Critical| PD
+
+    style OTEL fill:#F38181,color:#fff
+    style PROM fill:#E85D04,color:#fff
+    style GRAF fill:#F48C06,color:#fff
+    style SLO_CALC fill:#95E1D3
+```
+
+### SLO/SLI Monitoring
+
+**Service Level Objectives**:
+- Availability > 99.9%
+- P99 Latency < 500ms
+- Error Rate < 0.1%
+
+**Prometheus Recording Rules**:
+```promql
+# Availability SLI
+sli:availability:ratio_rate30d >= 0.999
+
+# Latency SLI
+sli:latency:p99_5m <= 0.5
+
+# Error Budget
+slo:error_budget:remaining
+```
+
+**Alerts**:
+- Fast burn: >14.4x rate (error budget exhausted in 6 hours)
+- Slow burn: >1x rate (gradual degradation)
+- SLO violation: Availability < 99.9%
+
+### Access Dashboards
+
+```bash
+# Grafana (Metrics + SLO/SLI)
+kubectl port-forward svc/grafana -n monitoring 3000:80
+# Open: http://localhost:3000
+
+# Prometheus (Raw Metrics)
+kubectl port-forward svc/prometheus -n monitoring 9090:9090
+# Open: http://localhost:9090
+
+# Kibana (Logs)
+kubectl port-forward svc/kibana -n monitoring 5601:5601
+# Open: http://localhost:5601
+
+# Kiali (Service Mesh)
+kubectl port-forward svc/kiali -n istio-system 20001:20001
+# Open: http://localhost:20001
+```
+
+---
+
+## Chaos Engineering - Litmus
+
+### Overview
+
+Litmus validates system resilience through controlled chaos experiments.
+
+**Available Experiments**:
+1. Pod Deletion (50% of pods, 60s)
+2. Network Latency (2000ms injection)
+3. CPU Stress (100% load, 1 core)
+4. Memory Stress (500MB consumption)
+5. Node Drain
+6. Container Kill
+
+### Installation
+
+```bash
+cd chaos-engineering/litmus
+./install-litmus.sh 3.0.0
+```
+
+### Run Chaos Experiments
+
+```bash
+# Pod deletion test
+kubectl apply -f chaos-engineering/litmus/experiments/pod-delete-experiment.yaml
+
+# Network latency test
+kubectl apply -f chaos-engineering/litmus/experiments/network-latency-experiment.yaml
+
+# Resource stress test
+kubectl apply -f chaos-engineering/litmus/experiments/resource-stress-experiment.yaml
+
+# Comprehensive workflow (all experiments sequentially)
+kubectl apply -f chaos-engineering/litmus/workflows/comprehensive-chaos-workflow.yaml
+```
+
+### Monitor Results
+
+```bash
+# Watch chaos engine
+kubectl get chaosengine -n docuthinker-prod -w
+
+# View results
+kubectl describe chaosresult backend-pod-delete -n docuthinker-prod
+
+# Access ChaosCenter UI
+kubectl port-forward svc/chaos-litmus-frontend-service -n litmus 9091:9091
+# Open: http://localhost:9091
+```
+
+---
+
+## Disaster Recovery - Velero
+
+### Overview
+
+Velero provides automated backup and disaster recovery:
+- **Daily full backups** (30-day retention)
+- **Hourly incremental backups** (7-day retention)
+- **RTO < 1 hour**
+- **S3 backend storage**
+- **EBS volume snapshots**
+
+### Installation
+
+```bash
+cd backup-dr/velero
+./install-velero.sh v1.12.0 us-east-1 docuthinker-velero-backups
+```
+
+### Backup Operations
+
+```bash
+# Create manual backup
+velero backup create prod-backup-$(date +%Y%m%d) \
+  --include-namespaces docuthinker-prod
+
+# List backups
+velero backup get
+
+# Describe backup
+velero backup describe prod-backup-20250127
+
+# View backup logs
+velero backup logs prod-backup-20250127
+```
+
+### Restore Operations
+
+```bash
+# Restore from backup
+velero restore create --from-backup prod-backup-20250127
+
+# Restore specific namespace
+velero restore create --from-backup prod-backup-20250127 \
+  --include-namespaces docuthinker-prod
+
+# Monitor restore
+velero restore get
+velero restore describe <restore-name>
+```
+
+### Scheduled Backups
+
+Automatically configured:
+- **Daily**: 2 AM, 30-day retention
+- **Hourly**: Every hour, 7-day retention
+
+---
+
+## Autoscaling - KEDA
+
+### Overview
+
+KEDA provides event-driven autoscaling:
+- **Scale to zero** capability
+- **AWS SQS** queue-based scaling
+- **HTTP** request-based scaling
+- **Cron** scheduled scaling
+- **Prometheus** custom metrics
+
+### Installation
+
+```bash
+helm install keda kedacore/keda \
+  -n keda --create-namespace \
+  -f autoscaling/keda/values.yaml
+```
+
+### Scaler Examples
+
+**1. SQS Queue Scaler** (1-50 replicas):
+```yaml
+triggers:
+- type: aws-sqs-queue
+  metadata:
+    queueURL: https://sqs.us-east-1.amazonaws.com/.../docuthinker-jobs
+    queueLength: "5"
+    awsRegion: "us-east-1"
+```
+
+**2. HTTP Scaler** (2-20 replicas):
+```yaml
+triggers:
+- type: prometheus
+  metadata:
+    query: sum(rate(http_requests_total{app="backend"}[1m]))
+    threshold: "100"
+```
+
+**3. Cron Scaler** (business hours):
+```yaml
+triggers:
+- type: cron
+  metadata:
+    timezone: America/New_York
+    start: 0 8 * * 1-5  # 8 AM weekdays
+    end: 0 18 * * 1-5    # 6 PM weekdays
+    desiredReplicas: "10"
+```
+
+### Apply Scalers
+
+```bash
+kubectl apply -f autoscaling/keda/scalers/queue-scaler.yaml
+```
+
+---
+
+## Runtime Security - Falco
+
+### Overview
+
+Falco provides runtime threat detection:
+- **4 custom security rules**
+- **Real-time alerts** (Slack, PagerDuty)
+- **eBPF-based** syscall monitoring
+- **Anomaly detection**
+
+### Installation
+
+```bash
+helm install falco falcosecurity/falco \
+  -n falco --create-namespace \
+  -f security/falco/values.yaml
+```
+
+### Custom Rules
+
+1. **Privilege Escalation** - Detects sudo/su attempts
+2. **Sensitive File Access** - Monitors /etc/shadow, SSH keys
+3. **Reverse Shell** - Identifies shell attacks
+4. **Cryptocurrency Mining** - Detects mining processes
+
+### View Alerts
+
+```bash
+# View Falco logs
+kubectl logs -l app=falco -n falco -f
+
+# Check for alerts
+kubectl logs -l app=falco -n falco | grep -i "warning\|critical"
+```
+
+---
 
 ## Secret Management
 
-### Secret Management Architecture
+### Architecture
 
 ```mermaid
 graph TB
     subgraph "Secret Sources"
-        VAULT[HashiCorp Vault]
+        VAULT[HashiCorp Vault<br/>HA]
         AWS_SM[AWS Secrets Manager]
-        ENV[Environment Variables]
     end
 
-    subgraph "Kubernetes Cluster"
-        subgraph "External Secrets Operator"
-            ESO[External Secrets Controller]
-            STORE[Secret Store]
-        end
-
-        subgraph "Applications"
-            POD1[Backend Pod]
-            POD2[Frontend Pod]
-        end
-
-        subgraph "Kubernetes Secrets"
-            K8S_SECRET[Kubernetes Secrets]
-        end
+    subgraph "Kubernetes"
+        ESO[External Secrets Operator]
+        K8S_SECRET[Kubernetes Secrets]
     end
 
-    VAULT -->|Pull Secrets| ESO
-    AWS_SM -->|Pull Secrets| ESO
-
-    ESO --> STORE
-    STORE -->|Create/Update| K8S_SECRET
-
-    K8S_SECRET -->|Mount as Env| POD1
-    K8S_SECRET -->|Mount as File| POD2
-
-    POD1 -.->|Dynamic Credentials| VAULT
-
-    style VAULT fill:#AA96DA
-    style AWS_SM fill:#FF9A00
-    style ESO fill:#6BCB77
-    style K8S_SECRET fill:#4D96FF
-```
-
-### Secret Sync Flow
-
-```mermaid
-sequenceDiagram
-    participant V as Vault
-    participant ESO as External Secrets Operator
-    participant K8S as Kubernetes Secret
-    participant POD as Application Pod
-
-    Note over ESO: Periodic sync (1 hour)
-
-    ESO->>V: Authenticate with ServiceAccount
-    V->>ESO: Return JWT token
-
-    ESO->>V: Request secret
-    V->>V: Validate policy
-    V->>ESO: Return secret data
-
-    ESO->>K8S: Create/Update Secret
-    K8S->>K8S: Store encrypted secret
-
-    POD->>K8S: Request secret
-    K8S->>POD: Mount secret as env/file
-
-    alt Secret Rotation
-        V->>V: Rotate secret
-        ESO->>V: Detect change
-        V->>ESO: Return new secret
-        ESO->>K8S: Update Secret
-        K8S->>POD: Trigger rolling restart
+    subgraph "Applications"
+        POD[Application Pods]
     end
+
+    VAULT -.->|Pull| ESO
+    AWS_SM -.->|Pull| ESO
+    ESO --> K8S_SECRET
+    K8S_SECRET -->|Mount| POD
+
+    style VAULT fill:#AA96DA,color:#fff
+    style ESO fill:#6BCB77,color:#fff
 ```
 
 ### HashiCorp Vault
 
-Install and initialize:
 ```bash
-helm install vault hashicorp/vault -n vault -f secrets/vault/vault-values.yaml
-./secrets/vault/init-vault.sh
-```
+# Install Vault
+helm install vault hashicorp/vault \
+  -n vault -f secrets/vault/vault-values.yaml
 
-Access UI:
-```bash
-kubectl port-forward -n vault svc/vault 8200:8200
+# Initialize Vault
+./secrets/vault/init-vault.sh
+
+# Access UI
+kubectl port-forward svc/vault -n vault 8200:8200
+# Open: http://localhost:8200
 ```
 
 ### External Secrets Operator
 
-Automatically syncs secrets from Vault to Kubernetes:
-
 ```bash
+# Apply secret store
 kubectl apply -f secrets/external-secrets/secret-store.yaml
+
+# Secrets are automatically synced from Vault/AWS to K8s
 ```
+
+---
 
 ## Performance Testing
 
-### Performance Testing Strategy
+### K6 Load Testing
 
-```mermaid
-graph LR
-    subgraph "Test Types"
-        LOAD[Load Testing<br/>Expected Load]
-        STRESS[Stress Testing<br/>Beyond Capacity]
-        SPIKE[Spike Testing<br/>Sudden Load]
-        SOAK[Soak Testing<br/>Extended Duration]
-    end
+**6 Test Scenarios**:
+1. **Baseline** (10 VUs, 5min) - Establish normal performance
+2. **Load Test** (0→50 VUs, 14min) - Sustained load
+3. **Stress Test** (0→300 VUs, 26min) - Find breaking point
+4. **Spike Test** (0→500 VUs, 1.5min) - Sudden surge
+5. **Soak Test** (50 VUs, 2h) - Extended duration
+6. **Breakpoint** (1→500 req/s, 22min) - Gradual increase to failure
 
-    subgraph "k6 Execution"
-        K6[k6 Test Runner]
-        METRICS[Collect Metrics]
-    end
+### Run Load Tests
 
-    subgraph "Analysis"
-        THRESHOLD{Thresholds Met?}
-        REPORT[Generate Report]
-    end
-
-    subgraph "Actions"
-        PASS[Test Passed]
-        FAIL[Test Failed]
-        OPTIMIZE[Optimize Performance]
-    end
-
-    LOAD & STRESS & SPIKE & SOAK --> K6
-    K6 --> METRICS
-    METRICS --> THRESHOLD
-
-    THRESHOLD -->|Yes| PASS
-    THRESHOLD -->|No| FAIL
-
-    PASS --> REPORT
-    FAIL --> REPORT
-    FAIL --> OPTIMIZE
-    OPTIMIZE --> K6
-
-    style PASS fill:#6BCB77
-    style FAIL fill:#FF6B6B
-    style OPTIMIZE fill:#FFD93D
-```
-
-### Load Test Stages
-
-```mermaid
-gantt
-    title k6 Load Test Stages
-    dateFormat mm:ss
-    axisFormat %M:%S
-
-    section Ramp Up
-    10 VUs      :a1, 00:00, 2m
-    50 VUs      :a2, after a1, 5m
-    100 VUs     :a3, after a2, 5m
-
-    section Sustained Load
-    100 VUs     :a4, after a3, 5m
-
-    section Ramp Down
-    0 VUs       :a5, after a4, 2m
-```
-
-### k6 Load Testing
-
-Run load test:
 ```bash
-k6 run --vus 100 --duration 5m scripts/performance/load-test.js
+# Basic load test
+k6 run --vus 100 --duration 5m testing/load-tests/k6-advanced-scenarios.js
+
+# With custom endpoint
+BASE_URL=https://staging.docuthinker.com k6 run testing/load-tests/k6-advanced-scenarios.js
+
+# All scenarios
+k6 run testing/load-tests/k6-advanced-scenarios.js
 ```
 
-Run stress test:
-```bash
-k6 run scripts/performance/stress-test.js
+### Test Thresholds
+
+- P95 latency < 500ms
+- P99 latency < 1000ms
+- Error rate < 1%
+- Success rate > 95%
+
+---
+
+## Database Migrations
+
+### Flyway Overview
+
+Flyway provides version-controlled database migrations:
+- **Versioned SQL scripts**
+- **Rollback support**
+- **Validation on deploy**
+- **Baseline on migrate**
+
+### Migration Structure
+
+```
+database/migrations/
+├── flyway.conf               # Configuration
+└── sql/
+    ├── V1__initial_schema.sql
+    ├── V2__add_api_keys.sql
+    └── V3__add_audit_log.sql
 ```
 
-With custom endpoint:
+### Run Migrations
+
 ```bash
-BASE_URL=https://staging.docuthinker.com k6 run scripts/performance/load-test.js
+# Via Flyway CLI
+flyway -configFiles=database/migrations/flyway.conf migrate
+
+# Via Docker
+docker run --rm \
+  -v $(pwd)/database/migrations:/flyway/sql \
+  flyway/flyway migrate
+
+# Rollback (if supported)
+flyway -configFiles=database/migrations/flyway.conf undo
 ```
+
+---
+
+## Infrastructure Testing
+
+### Terratest
+
+Validate Terraform infrastructure with automated tests.
+
+**Tests Included**:
+- VPC configuration validation
+- EKS cluster verification
+- RDS database connectivity
+- S3 bucket existence and versioning
+- Security group rules
+- IAM roles and policies
+- CloudWatch log groups
+- Resource tagging compliance
+
+### Run Tests
+
+```bash
+cd testing/infrastructure
+
+# Run all tests
+go test -v -timeout 30m
+
+# Run specific test
+go test -v -run TestTerraformDocuThinkerInfrastructure
+
+# Parallel execution
+go test -v -parallel 4
+```
+
+---
 
 ## Security
 
-### Security Layers
+### Multi-Layered Security
 
 ```mermaid
 graph TB
-    subgraph "Layer 1: Code Security"
-        SAST[SAST Scanning<br/>SonarQube]
-        DEP[Dependency Scanning<br/>npm audit]
-        LINT[Security Linting<br/>ESLint]
-    end
+    L1[Layer 1: Network<br/>WAF + TLS + mTLS]
+    L2[Layer 2: Admission<br/>OPA Gatekeeper]
+    L3[Layer 3: Authentication<br/>Firebase + JWT + RBAC]
+    L4[Layer 4: Runtime<br/>Falco Monitoring]
+    L5[Layer 5: Secrets<br/>Vault + Secrets Manager]
+    L6[Layer 6: Data<br/>Encryption at Rest/Transit]
+    L7[Layer 7: Audit<br/>Logs + Compliance]
 
-    subgraph "Layer 2: Container Security"
-        TRIVY[Image Scanning<br/>Trivy]
-        SIGN[Image Signing<br/>Cosign]
-        POLICY[Admission Control<br/>OPA]
-    end
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
 
-    subgraph "Layer 3: Runtime Security"
-        RBAC[Role-Based Access<br/>RBAC]
-        NET_POL[Network Policies]
-        POD_SEC[Pod Security<br/>Standards]
-    end
-
-    subgraph "Layer 4: Infrastructure Security"
-        WAF_SEC[WAF Rules]
-        VPC_SEC[VPC Security Groups]
-        ENCRYPT[Encryption at Rest/Transit]
-    end
-
-    subgraph "Layer 5: Monitoring Security"
-        AUDIT[Audit Logs]
-        THREAT[Threat Detection]
-        ALERT_SEC[Security Alerts]
-    end
-
-    SAST --> TRIVY
-    DEP --> TRIVY
-    LINT --> TRIVY
-
-    TRIVY --> RBAC
-    SIGN --> RBAC
-    POLICY --> RBAC
-
-    RBAC --> WAF_SEC
-    NET_POL --> WAF_SEC
-    POD_SEC --> WAF_SEC
-
-    WAF_SEC --> AUDIT
-    VPC_SEC --> AUDIT
-    ENCRYPT --> AUDIT
-
-    AUDIT --> THREAT --> ALERT_SEC
-
-    style SAST fill:#FF6B6B
-    style TRIVY fill:#4ECDC4
-    style RBAC fill:#95E1D3
-    style WAF_SEC fill:#F38181
-    style AUDIT fill:#AA96DA
+    style L1 fill:#FF6B6B,color:#fff
+    style L2 fill:#4ECDC4,color:#fff
+    style L4 fill:#F38181,color:#fff
+    style L5 fill:#AA96DA,color:#fff
 ```
 
-### Security Scanning Pipeline
+### Security Scanning
 
-```mermaid
-sequenceDiagram
-    participant Dev as Developer
-    participant Git as Git Repository
-    participant CI as CI Pipeline
-    participant Trivy as Trivy Scanner
-    participant Sonar as SonarQube
-    participant Reg as Container Registry
-
-    Dev->>Git: Push code
-    Git->>CI: Trigger pipeline
-
-    CI->>Sonar: Run SAST scan
-    Sonar->>Sonar: Analyze code quality
-    Sonar->>CI: Return findings
-
-    CI->>CI: Build Docker image
-    CI->>Trivy: Scan image
-    Trivy->>Trivy: Check vulnerabilities
-    Trivy->>CI: Return results
-
-    alt Critical vulnerabilities found
-        CI->>Dev: Block & notify
-    else No critical issues
-        CI->>Reg: Push image
-        Reg->>Dev: Deployment ready
-    end
-```
-
-### Trivy Scanning
-
-Run security scans:
 ```bash
-chmod +x scripts/security/trivy-scan.sh
+# Trivy image scanning
 ./scripts/security/trivy-scan.sh
-```
 
-### SonarQube Analysis
-
-```bash
+# SonarQube analysis
 sonar-scanner -Dproject.settings=scripts/security/sonarqube.properties
+
+# OPA policy violations
+kubectl get constraints -o json | jq '.items[].status.violations'
+
+# Falco alerts
+kubectl logs -l app=falco -n falco | grep -i critical
 ```
 
-### Security Best Practices
-
-1. Regularly update dependencies
-2. Scan container images before deployment
-3. Use secrets management (never hardcode secrets)
-4. Enable network policies
-5. Implement RBAC
-6. Regular security audits
+---
 
 ## Troubleshooting
 
-### Pod not starting
+### Common Issues
 
+**1. Pod not starting**:
 ```bash
 kubectl describe pod <pod-name> -n docuthinker-prod
 kubectl logs <pod-name> -n docuthinker-prod
+kubectl logs <pod-name> -c istio-proxy -n docuthinker-prod
 ```
 
-### Database connection issues
+**2. OPA blocking deployment**:
+```bash
+# Check violations
+kubectl get constraints
+
+# Test deployment
+kubectl apply --dry-run=server -f deployment.yaml
+
+# View specific constraint
+kubectl get k8srequiredlabels pod-must-have-labels -o yaml
+```
+
+**3. Istio traffic issues**:
+```bash
+# Check virtual services
+kubectl get virtualservices -n docuthinker-prod
+
+# Check destination rules
+kubectl get destinationrules -n docuthinker-prod
+
+# Analyze configuration
+istioctl analyze -n docuthinker-prod
+
+# View proxy logs
+kubectl logs <pod-name> -c istio-proxy
+```
+
+**4. Canary not promoting**:
+```bash
+# Check Flagger status
+kubectl describe canary backend -n docuthinker-prod
+
+# View Flagger logs
+kubectl logs -l app=flagger -n istio-system
+
+# Check metrics
+kubectl port-forward svc/prometheus -n monitoring 9090:9090
+# Query: flagger_canary_status
+```
+
+**5. High error rate**:
+```bash
+# Check SLO/SLI metrics
+kubectl port-forward svc/prometheus -n monitoring 9090:9090
+# Query: sli:availability:ratio_rate5m
+
+# View error budget
+# Query: slo:error_budget:remaining
+
+# Check application logs
+kubectl logs -l app=backend -n docuthinker-prod | grep -i error
+```
+
+### Rollback Procedures
 
 ```bash
-# Test database connectivity
-kubectl run -it --rm debug --image=postgres:15 --restart=Never -- \
-  psql -h postgres.docuthinker-prod.svc.cluster.local -U docuthinker
-```
-
-### High error rate
-
-1. Check application logs
-2. Review Prometheus alerts
-3. Check resource utilization
-4. Review recent deployments
-
-### Rollback procedure
-
-```mermaid
-flowchart TD
-    ISSUE([Issue Detected]) --> SEVERITY{Severity Level}
-
-    SEVERITY -->|Critical| AUTO_RB[Automatic Rollback]
-    SEVERITY -->|High| MANUAL_RB[Manual Rollback Decision]
-    SEVERITY -->|Medium/Low| INVESTIGATE[Investigate & Fix]
-
-    AUTO_RB --> GET_HISTORY[Get Deployment History]
-    MANUAL_RB --> GET_HISTORY
-
-    GET_HISTORY --> SELECT{Select Revision}
-    SELECT -->|Previous| PREV_REV[Rollback to N-1]
-    SELECT -->|Specific| SPEC_REV[Rollback to Specific]
-
-    PREV_REV --> EXECUTE_RB[Execute Rollback]
-    SPEC_REV --> EXECUTE_RB
-
-    EXECUTE_RB --> WAIT_RB[Wait for Rollout]
-    WAIT_RB --> VERIFY_RB{Verify Health}
-
-    VERIFY_RB -->|Failed| ESCALATE[Escalate to Team]
-    VERIFY_RB -->|Success| MONITOR_POST[Post-Rollback Monitoring]
-
-    MONITOR_POST --> ROOT_CAUSE[Root Cause Analysis]
-    ROOT_CAUSE --> DOCUMENT[Document Incident]
-    DOCUMENT --> COMPLETE([Rollback Complete])
-
-    INVESTIGATE --> FIX_FORWARD[Fix Forward]
-    FIX_FORWARD --> DEPLOY_FIX[Deploy Fix]
-    DEPLOY_FIX --> COMPLETE
-
-    style ISSUE fill:#FF6B6B
-    style AUTO_RB fill:#FFD93D
-    style COMPLETE fill:#6BCB77
-    style ESCALATE fill:#FF6B6B
-```
-
-```bash
-# View history
+# View deployment history
 helm history docuthinker -n docuthinker-prod
 
-# Rollback
-./scripts/deploy/rollback.sh production <revision>
+# Rollback to previous version
+./scripts/deploy/rollback.sh production
+
+# Rollback to specific revision
+helm rollback docuthinker 3 -n docuthinker-prod
+
+# Emergency rollback (bypass Flagger)
+kubectl rollout undo deployment/backend -n docuthinker-prod
 ```
 
-## Maintenance
+---
 
-### Regular Tasks
+## Maintenance Schedule
 
-```mermaid
-gantt
-    title DevOps Maintenance Schedule
-    dateFormat YYYY-MM-DD
+**Daily**:
+- Monitor SLO/SLI dashboards
+- Review error budgets
+- Check Falco security alerts
+- Review OPA violations
 
-    section Daily Tasks
-    Monitor Alerts           :d1, 2025-01-01, 1d
-    Review Error Logs        :d2, 2025-01-01, 1d
-    Check Resource Usage     :d3, 2025-01-01, 1d
-
-    section Weekly Tasks
-    Security Scans           :w1, 2025-01-01, 7d
-    Dependency Updates       :w2, 2025-01-01, 7d
-    Cost Optimization        :w3, 2025-01-01, 7d
-
-    section Monthly Tasks
-    Backup Verification      :m1, 2025-01-01, 30d
-    Security Audit           :m2, 2025-01-01, 30d
-    Performance Review       :m3, 2025-01-01, 30d
-    Documentation Update     :m4, 2025-01-01, 30d
-```
-
-**Daily:**
-- Monitor alerts
-- Review error logs
-- Check resource utilization
-
-**Weekly:**
-- Review security scans
+**Weekly**:
+- Run chaos experiments
+- Review Velero backup status
 - Update dependencies
-- Review and optimize costs
+- Review cost optimization (Kubecost)
+- Security scans (Trivy + SonarQube)
 
-**Monthly:**
-- Backup verification
-- Security audit
-- Performance review
+**Monthly**:
+- DR drill (test Velero restore)
+- Performance review (K6 load tests)
+- Infrastructure testing (Terratest)
 - Update documentation
+- Security audit
+- Cost optimization review
 
-### Backup Procedures
+---
 
-Database backups are automated via AWS Backup.
+## Quick Reference
 
-Manual backup:
+### Common Commands
+
 ```bash
-kubectl exec -n docuthinker-prod <postgres-pod> -- \
-  pg_dump -U docuthinker docuthinker > backup.sql
+# === Deployment ===
+./scripts/deploy/deploy.sh [dev|staging|production]
+./scripts/deploy/rollback.sh [environment] [revision]
+
+# === Monitoring ===
+kubectl port-forward svc/grafana -n monitoring 3000:80
+kubectl port-forward svc/prometheus -n monitoring 9090:9090
+kubectl port-forward svc/kiali -n istio-system 20001:20001
+
+# === Chaos Engineering ===
+kubectl apply -f chaos-engineering/litmus/experiments/pod-delete-experiment.yaml
+kubectl get chaosresult -n docuthinker-prod
+
+# === Backup & Restore ===
+velero backup create prod-backup-$(date +%Y%m%d) --include-namespaces docuthinker-prod
+velero restore create --from-backup prod-backup-20250127
+
+# === Security ===
+./scripts/security/trivy-scan.sh
+kubectl get constraints
+kubectl logs -l app=falco -n falco
+
+# === Load Testing ===
+k6 run --vus 100 --duration 5m testing/load-tests/k6-advanced-scenarios.js
+
+# === Logs ===
+kubectl logs -l app=backend -n docuthinker-prod -f
+kubectl logs -l app=backend -c istio-proxy -n docuthinker-prod
 ```
 
-### Disaster Recovery
-
-```mermaid
-flowchart TD
-    INCIDENT([Disaster Detected]) --> ASSESS{Assess Impact}
-
-    ASSESS -->|Infrastructure| INFRA_DR[Infrastructure Recovery]
-    ASSESS -->|Data| DATA_DR[Data Recovery]
-    ASSESS -->|Application| APP_DR[Application Recovery]
-
-    subgraph "Infrastructure Recovery"
-        INFRA_DR --> TF_STATE[Load Terraform State]
-        TF_STATE --> TF_APPLY[Terraform Apply]
-        TF_APPLY --> VERIFY_INFRA{Infrastructure OK?}
-        VERIFY_INFRA -->|No| TF_DEBUG[Debug Issues]
-        TF_DEBUG --> TF_APPLY
-        VERIFY_INFRA -->|Yes| INFRA_READY[Infrastructure Ready]
-    end
-
-    subgraph "Data Recovery"
-        DATA_DR --> RDS_SNAP[Locate RDS Snapshot]
-        RDS_SNAP --> RESTORE_DB[Restore Database]
-        RESTORE_DB --> VERIFY_DATA{Data Integrity?}
-        VERIFY_DATA -->|No| POINT_IN_TIME[Point-in-Time Recovery]
-        POINT_IN_TIME --> RESTORE_DB
-        VERIFY_DATA -->|Yes| DATA_READY[Data Ready]
-    end
-
-    subgraph "Application Recovery"
-        APP_DR --> LAST_GOOD[Identify Last Good Version]
-        LAST_GOOD --> DEPLOY_APP[Deploy Application]
-        DEPLOY_APP --> RESTORE_SECRETS[Restore Secrets from Vault]
-        RESTORE_SECRETS --> APP_READY[Application Ready]
-    end
-
-    INFRA_READY --> FINAL_CHECK{All Systems Ready?}
-    DATA_READY --> FINAL_CHECK
-    APP_READY --> FINAL_CHECK
-
-    FINAL_CHECK -->|No| TROUBLESHOOT[Troubleshoot]
-    TROUBLESHOOT --> FINAL_CHECK
-
-    FINAL_CHECK -->|Yes| SMOKE_TEST[Run Smoke Tests]
-    SMOKE_TEST --> MONITOR_REC[Enhanced Monitoring]
-    MONITOR_REC --> POSTMORTEM[Post-Mortem Analysis]
-    POSTMORTEM --> SUCCESS([Recovery Complete])
-
-    style INCIDENT fill:#FF6B6B
-    style SUCCESS fill:#6BCB77
-    style TROUBLESHOOT fill:#FFD93D
-```
-
-Disaster Recovery Steps:
-
-1. Restore infrastructure from Terraform
-2. Restore database from RDS snapshots
-3. Deploy application from last known good version
-4. Restore secrets from backup
-5. Verify functionality
+---
 
 ## Support
 
 For issues:
 1. Check this documentation
-2. Review logs and metrics
-3. Contact DevOps team
-4. Create incident ticket
+2. Review component-specific READMEs
+3. Check logs and metrics
+4. Review troubleshooting section
+5. Contact DevOps team
 
-## Contributing
+## Documentation
 
-When making changes:
-1. Update documentation
-2. Test in dev/staging first
-3. Follow deployment procedures
-4. Monitor after deployment
-5. Update runbooks if needed
-
-## Infrastructure Cost Optimization
-
-```mermaid
-graph TB
-    subgraph "Cost Analysis"
-        METRICS[Collect Cost Metrics]
-        ANALYZE[Analyze Spending]
-        IDENTIFY[Identify Waste]
-    end
-
-    subgraph "Optimization Strategies"
-        SPOT[Use Spot Instances]
-        SCALE[Right-size Resources]
-        RESERVE[Reserved Instances]
-        LIFECYCLE[S3 Lifecycle Policies]
-    end
-
-    subgraph "Implementation"
-        TERRAFORM[Update Terraform]
-        TEST[Test Changes]
-        DEPLOY[Deploy Updates]
-    end
-
-    subgraph "Monitoring"
-        TRACK[Track Savings]
-        REPORT[Monthly Reports]
-        REVIEW[Quarterly Review]
-    end
-
-    METRICS --> ANALYZE
-    ANALYZE --> IDENTIFY
-
-    IDENTIFY --> SPOT & SCALE & RESERVE & LIFECYCLE
-
-    SPOT --> TERRAFORM
-    SCALE --> TERRAFORM
-    RESERVE --> TERRAFORM
-    LIFECYCLE --> TERRAFORM
-
-    TERRAFORM --> TEST
-    TEST --> DEPLOY
-
-    DEPLOY --> TRACK
-    TRACK --> REPORT
-    REPORT --> REVIEW
-    REVIEW -.-> METRICS
-
-    style IDENTIFY fill:#FFD93D
-    style TRACK fill:#6BCB77
-    style DEPLOY fill:#4D96FF
-```
-
-## System Health Dashboard
-
-```mermaid
-graph LR
-    subgraph "Application Health"
-        APP_UP[Uptime: 99.9%]
-        APP_ERR[Error Rate: 0.1%]
-        APP_LAT[Latency: p95 < 500ms]
-    end
-
-    subgraph "Infrastructure Health"
-        INFRA_CPU[CPU Usage: 45%]
-        INFRA_MEM[Memory Usage: 60%]
-        INFRA_DISK[Disk Usage: 40%]
-    end
-
-    subgraph "Data Layer Health"
-        DB_CONN[DB Connections: 25/100]
-        CACHE_HIT[Cache Hit Rate: 85%]
-        DB_LAG[Replication Lag: 0s]
-    end
-
-    subgraph "Overall Status"
-        STATUS[System Status: Healthy]
-    end
-
-    APP_UP & APP_ERR & APP_LAT --> STATUS
-    INFRA_CPU & INFRA_MEM & INFRA_DISK --> STATUS
-    DB_CONN & CACHE_HIT & DB_LAG --> STATUS
-
-    style STATUS fill:#6BCB77
-    style APP_UP fill:#6BCB77
-    style CACHE_HIT fill:#6BCB77
-```
+- [DEVOPS_QUICK_START.md](DEVOPS_QUICK_START.md) - Installation guide
+- [ARCHITECTURE.md](ARCHITECTURE.md) - System architecture
 
 ---
-
-**Last Updated**: 2025-01-26
-**Maintainer**: Son Nguyen
-**Documentation Version**: 2.0.0
-
-## Quick Reference
-
-### Common Commands Cheatsheet
-
-```bash
-# Deployment
-./scripts/deploy/deploy.sh [dev|staging|production]
-
-# Rollback
-./scripts/deploy/rollback.sh [environment] [revision]
-
-# View logs
-kubectl logs -f deployment/docuthinker-backend -n docuthinker-prod
-
-# Scale deployment
-kubectl scale deployment/docuthinker-backend --replicas=5 -n docuthinker-prod
-
-# Port forward services
-kubectl port-forward svc/grafana 3000:80 -n monitoring
-
-# Run performance test
-k6 run --vus 100 --duration 5m scripts/performance/load-test.js
-
-# Security scan
-./scripts/security/trivy-scan.sh
-
-# Access ArgoCD
-kubectl port-forward svc/argocd-server -n argocd 8080:443
-```
-
-### Emergency Contacts
-
-| Role | Contact | Escalation Level |
-|------|---------|------------------|
-| DevOps Lead | devops-lead@docuthinker.com | Primary |
-| Platform Team | platform@docuthinker.com | Secondary |
-| On-Call Engineer | oncall@docuthinker.com | 24/7 |
-| Security Team | security@docuthinker.com | Security Issues |
