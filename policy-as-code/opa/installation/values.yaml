@@ -1,0 +1,183 @@
+# OPA Gatekeeper Installation Values
+# Policy-as-code enforcement for Kubernetes security and compliance
+
+# Gatekeeper configuration
+replicas: 3
+
+# Audit configuration
+auditInterval: 60
+auditMatchKindOnly: false
+auditFromCache: false
+constraintViolationsLimit: 20
+auditChunkSize: 500
+
+# Emit audit events
+emitAuditEvents: true
+emitAdmissionEvents: true
+
+# Resource limits
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
+
+# Log level
+logLevel: INFO
+logMutations: true
+
+# Webhook configuration
+enableDeleteOperations: false
+enableExternalData: true
+enableGeneratorResourceExpansion: true
+
+# Mutation webhook
+enableMutation: true
+mutationAnnotations: false
+
+# Resource quotas
+resourceQuota: true
+
+# Validating webhook
+validatingWebhookName: gatekeeper-validating-webhook-configuration
+validatingWebhookTimeoutSeconds: 3
+validatingWebhookFailurePolicy: Ignore
+validatingWebhookAnnotations: {}
+
+# Mutating webhook
+mutatingWebhookName: gatekeeper-mutating-webhook-configuration
+mutatingWebhookTimeoutSeconds: 3
+mutatingWebhookFailurePolicy: Ignore
+
+# Metrics
+metricsBackends:
+  - prometheus
+
+# Controller manager configuration
+controllerManager:
+  exemptNamespaces:
+    - kube-system
+    - kube-public
+    - kube-node-lease
+    - gatekeeper-system
+    - istio-system
+    - litmus
+    - monitoring
+
+  exemptNamespacePrefixes:
+    - kube-
+
+  hostNetwork: false
+
+  # Pod disruption budget
+  disruptionBudget:
+    enabled: true
+    minAvailable: 1
+
+  # Anti-affinity
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - gatekeeper
+            topologyKey: kubernetes.io/hostname
+
+# Audit configuration
+audit:
+  replicas: 1
+
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 512Mi
+    requests:
+      cpu: 100m
+      memory: 256Mi
+
+  logLevel: INFO
+  interval: 60
+
+  # Write audit violations to stdout
+  writeToRAMDisk: false
+
+  # Metrics
+  metricsBackends:
+    - prometheus
+
+  # Anti-affinity
+  affinity:
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                    - gatekeeper
+            topologyKey: kubernetes.io/hostname
+
+# RBAC
+rbac:
+  create: true
+
+# Service account
+serviceAccount:
+  create: true
+  name: gatekeeper-admin
+
+# Pod security policy
+podSecurityPolicy:
+  enabled: false
+
+# Image configuration
+image:
+  repository: openpolicyagent/gatekeeper
+  release: v3.14.0
+  pullPolicy: IfNotPresent
+
+# Webhook
+preInstall:
+  crdInstall:
+    enabled: true
+
+postInstall:
+  labelNamespace:
+    enabled: true
+    image:
+      repository: openpolicyagent/gatekeeper-crds
+      tag: v3.14.0
+
+postUpgrade:
+  cleanupCRD:
+    enabled: true
+
+# External data provider
+externalDataProviderTimeout: 5
+
+# Upgrade CRDs
+upgradeCRDs:
+  enabled: true
+  extraRules: []
+
+# Monitoring
+podMonitor:
+  enabled: true
+  interval: 30s
+
+# Mutations
+mutations:
+  enable: true
+  nameSpaceSelector:
+    matchExpressions:
+      - key: admission.gatekeeper.sh/ignore
+        operator: DoesNotExist

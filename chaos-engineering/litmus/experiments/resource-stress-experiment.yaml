@@ -1,0 +1,206 @@
+# Resource Stress Chaos Experiments
+# CPU and Memory stress testing for resource limit validation
+
+---
+# CPU Stress Experiment
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: backend-cpu-stress
+  namespace: docuthinker-prod
+spec:
+  appinfo:
+    appns: docuthinker-prod
+    applabel: 'app=backend'
+    appkind: deployment
+
+  chaosServiceAccount: litmus-admin
+  monitoring: true
+  jobCleanUpPolicy: retain
+
+  experiments:
+    - name: pod-cpu-hog
+      spec:
+        components:
+          env:
+            # Total chaos duration (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: '120'
+
+            # CPU cores to consume
+            - name: CPU_CORES
+              value: '1'
+
+            # Percentage of pods to affect
+            - name: PODS_AFFECTED_PERC
+              value: '50'
+
+            # Target container
+            - name: TARGET_CONTAINER
+              value: ''
+
+            # CPU load percentage
+            - name: CPU_LOAD
+              value: '100'
+
+            # Sequence
+            - name: SEQUENCE
+              value: parallel
+
+            - name: RAMP_TIME
+              value: '0'
+
+        probe:
+          - name: check-cpu-throttling
+            type: promProbe
+            promProbe/inputs:
+              endpoint: http://prometheus.monitoring.svc.cluster.local:9090
+              query: "rate(container_cpu_cfs_throttled_seconds_total{pod=~'backend-.*'}[1m])"
+              comparator:
+                criteria: <=
+                value: "0.8"
+            mode: Continuous
+            runProperties:
+              probeTimeout: 10
+              interval: 5
+              retry: 2
+
+          - name: check-pod-restart
+            type: k8sProbe
+            k8sProbe/inputs:
+              group: ""
+              version: v1
+              resource: pods
+              namespace: docuthinker-prod
+              fieldSelector: status.phase=Running
+              labelSelector: app=backend
+              operation: present
+            mode: Continuous
+            runProperties:
+              probeTimeout: 5
+              interval: 2
+
+---
+# Memory Stress Experiment
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: backend-memory-stress
+  namespace: docuthinker-prod
+spec:
+  appinfo:
+    appns: docuthinker-prod
+    applabel: 'app=backend'
+    appkind: deployment
+
+  chaosServiceAccount: litmus-admin
+  monitoring: true
+  jobCleanUpPolicy: retain
+
+  experiments:
+    - name: pod-memory-hog
+      spec:
+        components:
+          env:
+            # Total chaos duration (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: '120'
+
+            # Memory to consume (MB)
+            - name: MEMORY_CONSUMPTION
+              value: '500'
+
+            # Percentage of pods to affect
+            - name: PODS_AFFECTED_PERC
+              value: '50'
+
+            # Target container
+            - name: TARGET_CONTAINER
+              value: ''
+
+            # Sequence
+            - name: SEQUENCE
+              value: parallel
+
+            - name: RAMP_TIME
+              value: '0'
+
+        probe:
+          - name: check-memory-usage
+            type: promProbe
+            promProbe/inputs:
+              endpoint: http://prometheus.monitoring.svc.cluster.local:9090
+              query: "container_memory_working_set_bytes{pod=~'backend-.*'}/container_spec_memory_limit_bytes{pod=~'backend-.*'}"
+              comparator:
+                criteria: <=
+                value: "0.95"
+            mode: Continuous
+            runProperties:
+              probeTimeout: 10
+              interval: 5
+              retry: 2
+
+          - name: check-oom-killed
+            type: k8sProbe
+            k8sProbe/inputs:
+              group: ""
+              version: v1
+              resource: pods
+              namespace: docuthinker-prod
+              labelSelector: app=backend
+              operation: present
+            mode: Continuous
+            runProperties:
+              probeTimeout: 5
+              interval: 2
+
+---
+# Node-level CPU Hog
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: node-cpu-stress
+  namespace: docuthinker-prod
+spec:
+  engineState: 'stop'
+  chaosServiceAccount: litmus-admin
+  monitoring: true
+  jobCleanUpPolicy: retain
+
+  experiments:
+    - name: node-cpu-hog
+      spec:
+        components:
+          env:
+            # Node CPU cores to consume
+            - name: NODE_CPU_CORE
+              value: '2'
+
+            # Total chaos duration (seconds)
+            - name: TOTAL_CHAOS_DURATION
+              value: '60'
+
+            # Target node label
+            - name: TARGET_NODES
+              value: ''
+
+            # Nodes affected percentage
+            - name: NODES_AFFECTED_PERC
+              value: '30'
+
+            - name: RAMP_TIME
+              value: '0'
+
+        probe:
+          - name: check-node-health
+            type: k8sProbe
+            k8sProbe/inputs:
+              group: ""
+              version: v1
+              resource: nodes
+              fieldSelector: status.conditions[?(@.type=='Ready')].status=True
+              operation: present
+            mode: Continuous
+            runProperties:
+              probeTimeout: 10
+              interval: 5

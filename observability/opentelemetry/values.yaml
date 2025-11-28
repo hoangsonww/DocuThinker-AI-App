@@ -1,0 +1,219 @@
+# OpenTelemetry Collector Configuration
+# Unified observability pipeline for traces, metrics, and logs
+
+mode: deployment
+
+# Replica count for HA
+replicaCount: 3
+
+# Resource allocation
+resources:
+  limits:
+    cpu: 1000m
+    memory: 2Gi
+  requests:
+    cpu: 200m
+    memory: 400Mi
+
+# Pod anti-affinity for HA
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+    - weight: 100
+      podAffinityTerm:
+        labelSelector:
+          matchLabels:
+            app.kubernetes.io/name: opentelemetry-collector
+        topologyKey: kubernetes.io/hostname
+
+# Autoscaling
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+
+# Service configuration
+service:
+  type: ClusterIP
+
+# OpenTelemetry Collector configuration
+config:
+  receivers:
+    # OTLP gRPC receiver
+    otlp:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:4317
+        http:
+          endpoint: 0.0.0.0:4318
+
+    # Jaeger receiver (backward compatibility)
+    jaeger:
+      protocols:
+        grpc:
+          endpoint: 0.0.0.0:14250
+        thrift_http:
+          endpoint: 0.0.0.0:14268
+
+    # Zipkin receiver
+    zipkin:
+      endpoint: 0.0.0.0:9411
+
+    # Prometheus receiver for metrics
+    prometheus:
+      config:
+        scrape_configs:
+          - job_name: 'otel-collector'
+            scrape_interval: 30s
+            static_configs:
+              - targets: ['0.0.0.0:8888']
+
+  processors:
+    # Batch processor for efficiency
+    batch:
+      timeout: 10s
+      send_batch_size: 1024
+
+    # Memory limiter to prevent OOM
+    memory_limiter:
+      check_interval: 1s
+      limit_mib: 1536
+      spike_limit_mib: 512
+
+    # Resource detection
+    resourcedetection:
+      detectors: [env, system, docker, kubernetes]
+      timeout: 5s
+
+    # Sampling for trace reduction
+    probabilistic_sampler:
+      sampling_percentage: 10
+
+    # Attribute processor for enrichment
+    attributes:
+      actions:
+        - key: environment
+          value: production
+          action: insert
+        - key: cluster
+          value: docuthinker-prod
+          action: insert
+
+    # Span metrics generation
+    spanmetrics:
+      metrics_exporter: prometheus
+      latency_histogram_buckets: [2ms, 6ms, 10ms, 100ms, 250ms, 500ms, 1s, 5s, 10s]
+      dimensions:
+        - name: http.method
+        - name: http.status_code
+
+  exporters:
+    # Jaeger exporter for traces
+    jaeger:
+      endpoint: jaeger-collector.istio-system.svc.cluster.local:14250
+      tls:
+        insecure: true
+
+    # Prometheus exporter for metrics
+    prometheus:
+      endpoint: "0.0.0.0:8889"
+      namespace: otel
+      const_labels:
+        cluster: docuthinker-prod
+
+    # Logging exporter for debugging
+    logging:
+      loglevel: info
+      sampling_initial: 5
+      sampling_thereafter: 200
+
+    # OTLP exporter (for multi-cluster)
+    otlp:
+      endpoint: otel-collector.monitoring.svc.cluster.local:4317
+      tls:
+        insecure: true
+
+  extensions:
+    # Health check extension
+    health_check:
+      endpoint: 0.0.0.0:13133
+
+    # pprof extension for profiling
+    pprof:
+      endpoint: 0.0.0.0:1777
+
+    # zpages for debugging
+    zpages:
+      endpoint: 0.0.0.0:55679
+
+  service:
+    extensions: [health_check, pprof, zpages]
+
+    pipelines:
+      # Traces pipeline
+      traces:
+        receivers: [otlp, jaeger, zipkin]
+        processors: [memory_limiter, resourcedetection, batch, attributes, spanmetrics]
+        exporters: [jaeger, logging]
+
+      # Metrics pipeline
+      metrics:
+        receivers: [otlp, prometheus]
+        processors: [memory_limiter, resourcedetection, batch, attributes]
+        exporters: [prometheus, logging]
+
+      # Logs pipeline (future)
+      logs:
+        receivers: [otlp]
+        processors: [memory_limiter, resourcedetection, batch, attributes]
+        exporters: [logging]
+
+# Ports configuration
+ports:
+  otlp:
+    enabled: true
+    containerPort: 4317
+    servicePort: 4317
+    protocol: TCP
+  otlp-http:
+    enabled: true
+    containerPort: 4318
+    servicePort: 4318
+    protocol: TCP
+  jaeger-grpc:
+    enabled: true
+    containerPort: 14250
+    servicePort: 14250
+    protocol: TCP
+  jaeger-thrift:
+    enabled: true
+    containerPort: 14268
+    servicePort: 14268
+    protocol: TCP
+  zipkin:
+    enabled: true
+    containerPort: 9411
+    servicePort: 9411
+    protocol: TCP
+  metrics:
+    enabled: true
+    containerPort: 8888
+    servicePort: 8888
+    protocol: TCP
+  prometheus:
+    enabled: true
+    containerPort: 8889
+    servicePort: 8889
+    protocol: TCP
+
+# ServiceMonitor for Prometheus Operator
+serviceMonitor:
+  enabled: true
+  interval: 30s
+
+# Pod annotations for Istio
+podAnnotations:
+  sidecar.istio.io/inject: "true"
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8889"

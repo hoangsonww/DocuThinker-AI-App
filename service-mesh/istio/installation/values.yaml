@@ -1,0 +1,401 @@
+# Istio Installation Values for DocuThinker
+# Production-ready configuration with enhanced security and observability
+
+global:
+  # Istio control plane configuration
+  hub: docker.io/istio
+  tag: 1.20.1
+
+  # Enable strict mTLS across the mesh
+  mtls:
+    enabled: true
+    auto: true
+
+  # Production logging configuration
+  logging:
+    level: "default:info"
+
+  # Proxy configuration for all sidecars
+  proxy:
+    # Resource limits for production workloads
+    resources:
+      requests:
+        cpu: 100m
+        memory: 128Mi
+      limits:
+        cpu: 2000m
+        memory: 1024Mi
+
+    # Access logging for audit and debugging
+    accessLogFile: /dev/stdout
+    accessLogEncoding: JSON
+    accessLogFormat: |
+      {
+        "start_time": "%START_TIME%",
+        "method": "%REQ(:METHOD)%",
+        "path": "%REQ(X-ENVOY-ORIGINAL-PATH?:PATH)%",
+        "protocol": "%PROTOCOL%",
+        "response_code": "%RESPONSE_CODE%",
+        "response_flags": "%RESPONSE_FLAGS%",
+        "bytes_received": "%BYTES_RECEIVED%",
+        "bytes_sent": "%BYTES_SENT%",
+        "duration": "%DURATION%",
+        "upstream_service_time": "%RESP(X-ENVOY-UPSTREAM-SERVICE-TIME)%",
+        "x_forwarded_for": "%REQ(X-FORWARDED-FOR)%",
+        "user_agent": "%REQ(USER-AGENT)%",
+        "request_id": "%REQ(X-REQUEST-ID)%",
+        "authority": "%REQ(:AUTHORITY)%",
+        "upstream_host": "%UPSTREAM_HOST%",
+        "upstream_cluster": "%UPSTREAM_CLUSTER%"
+      }
+
+    # Tracing configuration
+    tracer: zipkin
+
+  # Pilot (istiod) configuration
+  pilotCertProvider: istiod
+
+  # Multi-cluster and mesh configuration
+  meshID: docuthinker-mesh
+  network: docuthinker-network
+
+# Istiod (Control Plane) configuration
+pilot:
+  enabled: true
+
+  # High availability setup
+  replicaCount: 3
+
+  # Resource allocation for control plane
+  resources:
+    requests:
+      cpu: 500m
+      memory: 2048Mi
+    limits:
+      cpu: 2000m
+      memory: 4096Mi
+
+  # Pod Anti-affinity for HA
+  affinity:
+    podAntiAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: istiod
+        topologyKey: kubernetes.io/hostname
+
+  # Enable configuration validation
+  configValidation: true
+
+  # CPU target for autoscaling
+  autoscaleEnabled: true
+  autoscaleMin: 3
+  autoscaleMax: 5
+  cpu:
+    targetAverageUtilization: 80
+
+  # Environment-specific settings
+  env:
+    PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_OUTBOUND: "true"
+    PILOT_ENABLE_PROTOCOL_SNIFFING_FOR_INBOUND: "true"
+    PILOT_TRACE_SAMPLING: "1.0"
+    PILOT_ENABLE_CROSS_CLUSTER_WORKLOAD_ENTRY: "true"
+
+# Ingress Gateway configuration
+ingressGateways:
+  enabled: true
+
+  # Production ingress gateway
+  gateways:
+  - name: istio-ingressgateway
+    enabled: true
+
+    # Multiple replicas for HA
+    replicaCount: 3
+
+    # Resource allocation
+    resources:
+      requests:
+        cpu: 500m
+        memory: 512Mi
+      limits:
+        cpu: 2000m
+        memory: 2048Mi
+
+    # Autoscaling configuration
+    autoscaleEnabled: true
+    autoscaleMin: 3
+    autoscaleMax: 10
+    cpu:
+      targetAverageUtilization: 80
+
+    # Service type and annotations
+    serviceType: LoadBalancer
+    serviceAnnotations:
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
+      service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+
+    # Ports configuration
+    ports:
+    - port: 15021
+      targetPort: 15021
+      name: status-port
+      protocol: TCP
+    - port: 80
+      targetPort: 8080
+      name: http2
+      protocol: TCP
+    - port: 443
+      targetPort: 8443
+      name: https
+      protocol: TCP
+    - port: 15443
+      targetPort: 15443
+      name: tls
+      protocol: TCP
+
+    # Pod Anti-affinity
+    affinity:
+      podAntiAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+        - labelSelector:
+            matchLabels:
+              app: istio-ingressgateway
+          topologyKey: kubernetes.io/hostname
+
+# Egress Gateway configuration for controlled external traffic
+egressGateways:
+  enabled: true
+
+  gateways:
+  - name: istio-egressgateway
+    enabled: true
+    replicaCount: 2
+
+    resources:
+      requests:
+        cpu: 200m
+        memory: 256Mi
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+
+    autoscaleEnabled: true
+    autoscaleMin: 2
+    autoscaleMax: 5
+
+# Telemetry configuration
+telemetry:
+  enabled: true
+
+  # Prometheus metrics
+  v2:
+    enabled: true
+    prometheus:
+      enabled: true
+
+      # Metrics retention
+      retention: 15d
+
+# Security settings
+security:
+  # Enable certificate management via istiod
+  enabled: true
+
+  # Certificate lifetime (90 days)
+  certificateDuration: 2160h
+
+  # Self-signed CA for development (use external CA in production)
+  selfSigned: false
+
+  # External CA configuration (integrate with cert-manager)
+  externalCa:
+    enabled: true
+
+# Kiali - Service Mesh Observability
+kiali:
+  enabled: true
+
+  # Kiali dashboard configuration
+  dashboard:
+    viewOnlyMode: false
+    grafanaURL: http://grafana.monitoring.svc.cluster.local
+    jaegerURL: http://jaeger-query.istio-system.svc.cluster.local
+    prometheusURL: http://prometheus.monitoring.svc.cluster.local
+
+  # Authentication strategy
+  auth:
+    strategy: token
+
+# Jaeger Tracing
+tracing:
+  enabled: true
+
+  provider: jaeger
+
+  # Jaeger configuration
+  jaeger:
+    # Use production-ready storage
+    storage:
+      type: elasticsearch
+      elasticsearch:
+        nodeCount: 3
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1000m
+            memory: 2Gi
+
+    # Collector configuration
+    collector:
+      replicaCount: 2
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 1000m
+          memory: 1024Mi
+
+    # Query service for UI
+    query:
+      replicaCount: 2
+      resources:
+        requests:
+          cpu: 200m
+          memory: 256Mi
+        limits:
+          cpu: 500m
+          memory: 512Mi
+
+# Grafana integration for Istio metrics
+grafana:
+  enabled: true
+
+  # Use existing Grafana instance
+  externalUrl: http://grafana.monitoring.svc.cluster.local
+
+# Prometheus integration
+prometheus:
+  enabled: true
+
+  # Use existing Prometheus instance
+  externalUrl: http://prometheus.monitoring.svc.cluster.local
+
+# Sidecar injector configuration
+sidecarInjectorWebhook:
+  enabled: true
+
+  # Automatic injection based on namespace labels
+  enableNamespacesByDefault: false
+
+  # Rewrite app probes to work through the proxy
+  rewriteAppHTTPProbe: true
+
+  # Never inject into kube-system
+  neverInjectSelector:
+  - matchExpressions:
+    - key: app
+      operator: In
+      values:
+      - kube-system
+
+# Advanced traffic management
+meshConfig:
+  # Enable automatic protocol detection
+  enableAutoMtls: true
+
+  # Access log configuration
+  accessLogFile: /dev/stdout
+  accessLogEncoding: JSON
+
+  # Default configuration for proxies
+  defaultConfig:
+    # Tracing settings
+    tracing:
+      sampling: 100.0
+      zipkin:
+        address: jaeger-collector.istio-system.svc.cluster.local:9411
+
+    # Proxy protocol
+    proxyProtocol: TCP
+
+    # Connection timeout
+    connectTimeout: 10s
+
+    # DNS refresh rate
+    dnsRefreshRate: 300s
+
+  # Outbound traffic policy
+  outboundTrafficPolicy:
+    mode: REGISTRY_ONLY
+
+  # Service discovery
+  discoveryAddress: istiod.istio-system.svc:15012
+
+  # Enable prometheus metrics
+  enablePrometheusMerge: true
+
+  # Root namespace for CA certificates
+  rootNamespace: istio-system
+
+  # Trust domain
+  trustDomain: cluster.local
+
+  # Certificate configuration
+  certificates:
+  - secretName: dns.example1-service-account
+    dnsNames:
+    - example1.example.com
+  - secretName: dns.example2-service-account
+    dnsNames:
+    - example2.example.com
+
+# Component-specific configurations
+components:
+  base:
+    enabled: true
+
+  pilot:
+    enabled: true
+    k8s:
+      # Environment variables for fine-tuning
+      env:
+      - name: PILOT_ENABLE_WORKLOAD_ENTRY_AUTOREGISTRATION
+        value: "true"
+      - name: PILOT_ENABLE_WORKLOAD_ENTRY_HEALTHCHECKS
+        value: "true"
+
+      # HPA for istiod
+      hpaSpec:
+        minReplicas: 3
+        maxReplicas: 5
+        metrics:
+        - type: Resource
+          resource:
+            name: cpu
+            targetAverageUtilization: 80
+
+  ingressGateways:
+    enabled: true
+
+  egressGateways:
+    enabled: true
+
+  # CNI plugin for network configuration
+  cni:
+    enabled: true
+    namespace: kube-system
+
+# Values for production environments
+values:
+  global:
+    # Production environment flag
+    environment: production
+
+    # Enable strict mTLS
+    peerAuthentication:
+      mode: STRICT

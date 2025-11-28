@@ -1,0 +1,214 @@
+# Istio Authorization Policies
+# Fine-grained access control for services in the mesh
+
+---
+# Default deny-all policy - security best practice
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: deny-all
+  namespace: docuthinker-prod
+spec:
+  {}
+---
+# Allow frontend to backend communication
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: frontend-to-backend
+  namespace: docuthinker-prod
+spec:
+  selector:
+    matchLabels:
+      app: backend
+
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/docuthinker-prod/sa/frontend
+    to:
+    - operation:
+        methods: ["GET", "POST", "PUT", "DELETE"]
+        paths:
+        - "/api/*"
+---
+# Allow ingress gateway to frontend
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: ingress-to-frontend
+  namespace: docuthinker-prod
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        namespaces:
+        - istio-system
+    to:
+    - operation:
+        methods: ["GET", "POST"]
+        ports: ["3000", "80", "443"]
+---
+# Allow backend to database
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-to-database
+  namespace: docuthinker-prod
+spec:
+  selector:
+    matchLabels:
+      app: postgresql
+
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/docuthinker-prod/sa/backend
+    to:
+    - operation:
+        ports: ["5432"]
+---
+# Allow backend to Redis cache
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: backend-to-redis
+  namespace: docuthinker-prod
+spec:
+  selector:
+    matchLabels:
+      app: redis
+
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        principals:
+        - cluster.local/ns/docuthinker-prod/sa/backend
+    to:
+    - operation:
+        ports: ["6379"]
+---
+# Allow Prometheus to scrape metrics
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: prometheus-scraping
+  namespace: docuthinker-prod
+spec:
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        namespaces:
+        - monitoring
+        principals:
+        - cluster.local/ns/monitoring/sa/prometheus
+    to:
+    - operation:
+        methods: ["GET"]
+        paths:
+        - "/metrics"
+        - "/stats/prometheus"
+---
+# Allow health checks from Kubernetes
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-health-checks
+  namespace: docuthinker-prod
+spec:
+  action: ALLOW
+
+  rules:
+  - to:
+    - operation:
+        methods: ["GET"]
+        paths:
+        - "/health"
+        - "/healthz"
+        - "/ready"
+        - "/readyz"
+        - "/live"
+        - "/livez"
+---
+# Rate limiting policy for public endpoints
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: rate-limit-api
+  namespace: docuthinker-prod
+spec:
+  selector:
+    matchLabels:
+      app: backend
+
+  action: CUSTOM
+
+  provider:
+    name: envoy-ratelimit
+
+  rules:
+  - to:
+    - operation:
+        paths:
+        - "/api/public/*"
+---
+# JWT authentication for API endpoints
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: require-jwt
+  namespace: docuthinker-prod
+spec:
+  selector:
+    matchLabels:
+      app: backend
+
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        requestPrincipals: ["*"]
+    to:
+    - operation:
+        paths:
+        - "/api/protected/*"
+
+  # When clause for JWT validation
+  when:
+  - key: request.auth.claims[iss]
+    values: ["https://docuthinker.auth.com"]
+  - key: request.auth.claims[aud]
+    values: ["docuthinker-api"]
+---
+# Allow cross-namespace communication for monitoring
+apiVersion: security.istio.io/v1beta1
+kind: AuthorizationPolicy
+metadata:
+  name: allow-monitoring-namespace
+  namespace: docuthinker-prod
+spec:
+  action: ALLOW
+
+  rules:
+  - from:
+    - source:
+        namespaces:
+        - monitoring
+        - istio-system

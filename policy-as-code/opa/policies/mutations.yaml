@@ -1,0 +1,221 @@
+# OPA Gatekeeper Mutations
+# Automatically modify resources to enforce standards
+
+---
+# Add default resource limits if not specified
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: Assign
+metadata:
+  name: add-default-cpu-limit
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+
+  location: "spec.containers[name:*].resources.limits.cpu"
+
+  parameters:
+    assign:
+      value: "500m"
+
+    # Only apply if not already set
+    pathTests:
+      - subPath: "spec.containers[name:*].resources.limits.cpu"
+        condition: MustNotExist
+
+---
+# Add default memory limit
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: Assign
+metadata:
+  name: add-default-memory-limit
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+
+  location: "spec.containers[name:*].resources.limits.memory"
+
+  parameters:
+    assign:
+      value: "512Mi"
+
+    pathTests:
+      - subPath: "spec.containers[name:*].resources.limits.memory"
+        condition: MustNotExist
+
+---
+# Add environment label if missing
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: Assign
+metadata:
+  name: add-environment-label
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+    - groups: ["apps"]
+      kinds: ["Deployment"]
+      versions: ["v1"]
+
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+
+  location: "metadata.labels.environment"
+
+  parameters:
+    assign:
+      value: "production"
+
+    pathTests:
+      - subPath: "metadata.labels.environment"
+        condition: MustNotExist
+
+---
+# Add team label
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: Assign
+metadata:
+  name: add-team-label
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+    - groups: ["apps"]
+      kinds: ["Deployment", "StatefulSet"]
+      versions: ["v1"]
+
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+
+  location: "metadata.labels.team"
+
+  parameters:
+    assign:
+      value: "platform"
+
+    pathTests:
+      - subPath: "metadata.labels.team"
+        condition: MustNotExist
+
+---
+# Set security context to non-root
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: Assign
+metadata:
+  name: set-runasnonroot
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+
+  location: "spec.securityContext.runAsNonRoot"
+
+  parameters:
+    assign:
+      value: true
+
+    pathTests:
+      - subPath: "spec.securityContext.runAsNonRoot"
+        condition: MustNotExist
+
+---
+# Set fsGroup for volume permissions
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: Assign
+metadata:
+  name: set-fsgroup
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+
+  location: "spec.securityContext.fsGroup"
+
+  parameters:
+    assign:
+      value: 1000
+
+    pathTests:
+      - subPath: "spec.securityContext.fsGroup"
+        condition: MustNotExist
+
+---
+# Add imagePullPolicy
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: Assign
+metadata:
+  name: set-imagepullpolicy
+spec:
+  applyTo:
+    - groups: [""]
+      kinds: ["Pod"]
+      versions: ["v1"]
+
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+
+  location: "spec.containers[name:*].imagePullPolicy"
+
+  parameters:
+    assign:
+      value: "IfNotPresent"
+
+    pathTests:
+      - subPath: "spec.containers[name:*].imagePullPolicy"
+        condition: MustNotExist
+
+---
+# Modify labels with AssignMetadata
+apiVersion: mutations.gatekeeper.sh/v1beta1
+kind: AssignMetadata
+metadata:
+  name: add-managed-by-label
+spec:
+  match:
+    scope: Namespaced
+    namespaces:
+      - docuthinker-prod
+      - docuthinker-staging
+
+  location: "metadata.labels.managed-by"
+
+  parameters:
+    assign:
+      value: "opa-gatekeeper"

@@ -1,0 +1,85 @@
+# Flagger Configuration for Progressive Delivery
+# Automated canary deployments with metric analysis
+
+# Flagger deployment configuration
+image:
+  repository: ghcr.io/fluxcd/flagger
+  tag: 1.34.0
+
+# Resource limits
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 64Mi
+
+# Mesh provider (Istio)
+meshProvider: istio
+
+# Metrics server (Prometheus)
+metricsServer: http://prometheus.monitoring.svc.cluster.local:9090
+
+# Enable Slack notifications
+slack:
+  url: https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK
+  channel: deployments
+  user: flagger
+
+# Prometheus scraping
+prometheus:
+  enabled: true
+
+# Control loop interval
+controlLoopInterval: 10s
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"
+
+# RBAC
+rbac:
+  create: true
+  pspEnabled: false
+
+# Service account
+serviceAccount:
+  create: true
+  name: flagger
+
+# CRD install
+crd:
+  create: true
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+
+# Logging
+logLevel: info
+
+# Namespace for canaries
+namespace: docuthinker-prod
+
+# Canary analysis templates
+canaryAnalysisTemplates:
+  - name: success-rate
+    metrics:
+      - name: request-success-rate
+        thresholdRange:
+          min: 99
+        interval: 1m
+      - name: request-duration
+        thresholdRange:
+          max: 500
+        interval: 1m
+
+  - name: latency
+    metrics:
+      - name: latency-p99
+        thresholdRange:
+          max: 1000
+        interval: 30s

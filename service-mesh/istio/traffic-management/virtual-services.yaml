@@ -1,0 +1,233 @@
+# Istio Virtual Services
+# Advanced traffic routing, retries, timeouts, and fault injection
+
+---
+# Frontend Virtual Service with advanced routing
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: frontend-vs
+  namespace: docuthinker-prod
+spec:
+  hosts:
+  - frontend.docuthinker-prod.svc.cluster.local
+  - docuthinker.example.com
+
+  gateways:
+  - docuthinker-gateway
+  - mesh
+
+  http:
+  # A/B testing route - 10% to canary
+  - match:
+    - headers:
+        cookie:
+          regex: ".*beta=true.*"
+    route:
+    - destination:
+        host: frontend.docuthinker-prod.svc.cluster.local
+        subset: canary
+      weight: 100
+
+  # Header-based routing for testing
+  - match:
+    - headers:
+        x-version:
+          exact: "v2"
+    route:
+    - destination:
+        host: frontend.docuthinker-prod.svc.cluster.local
+        subset: v2
+
+  # Default production traffic with retry logic
+  - route:
+    - destination:
+        host: frontend.docuthinker-prod.svc.cluster.local
+        subset: stable
+      weight: 90
+    - destination:
+        host: frontend.docuthinker-prod.svc.cluster.local
+        subset: canary
+      weight: 10
+
+    # Retry configuration for resilience
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+
+    # Request timeout
+    timeout: 10s
+
+    # CORS policy
+    corsPolicy:
+      allowOrigins:
+      - exact: https://docuthinker.example.com
+      - prefix: https://*.docuthinker.example.com
+      allowMethods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+      - OPTIONS
+      allowHeaders:
+      - authorization
+      - content-type
+      - x-request-id
+      maxAge: 24h
+      allowCredentials: true
+---
+# Backend Virtual Service with circuit breaking
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-vs
+  namespace: docuthinker-prod
+spec:
+  hosts:
+  - backend.docuthinker-prod.svc.cluster.local
+  - api.docuthinker.example.com
+
+  gateways:
+  - docuthinker-gateway
+  - mesh
+
+  http:
+  # API v2 routing (canary deployment)
+  - match:
+    - uri:
+        prefix: "/api/v2"
+    route:
+    - destination:
+        host: backend.docuthinker-prod.svc.cluster.local
+        subset: v2
+        port:
+          number: 8080
+      weight: 20
+    - destination:
+        host: backend.docuthinker-prod.svc.cluster.local
+        subset: v1
+        port:
+          number: 8080
+      weight: 80
+
+    retries:
+      attempts: 3
+      perTryTimeout: 3s
+      retryOn: 5xx,reset,connect-failure
+
+    timeout: 15s
+
+  # API v1 routing (stable)
+  - match:
+    - uri:
+        prefix: "/api/v1"
+    route:
+    - destination:
+        host: backend.docuthinker-prod.svc.cluster.local
+        subset: v1
+        port:
+          number: 8080
+
+    retries:
+      attempts: 2
+      perTryTimeout: 3s
+      retryOn: 5xx
+
+    timeout: 10s
+
+  # Default API routing
+  - route:
+    - destination:
+        host: backend.docuthinker-prod.svc.cluster.local
+        subset: stable
+        port:
+          number: 8080
+
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: 5xx,reset,connect-failure,refused-stream
+
+    timeout: 15s
+
+    # Request mirroring for testing (shadow traffic)
+    mirror:
+      host: backend.docuthinker-prod.svc.cluster.local
+      subset: canary
+    mirrorPercentage:
+      value: 5.0
+---
+# Database Virtual Service with connection pooling
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: postgresql-vs
+  namespace: docuthinker-prod
+spec:
+  hosts:
+  - postgresql.docuthinker-prod.svc.cluster.local
+
+  tcp:
+  - match:
+    - port: 5432
+    route:
+    - destination:
+        host: postgresql.docuthinker-prod.svc.cluster.local
+        port:
+          number: 5432
+---
+# Redis Virtual Service
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: redis-vs
+  namespace: docuthinker-prod
+spec:
+  hosts:
+  - redis.docuthinker-prod.svc.cluster.local
+
+  tcp:
+  - match:
+    - port: 6379
+    route:
+    - destination:
+        host: redis.docuthinker-prod.svc.cluster.local
+        port:
+          number: 6379
+---
+# Fault injection for chaos testing (disabled by default)
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: backend-fault-injection
+  namespace: docuthinker-prod
+  annotations:
+    enabled: "false"
+spec:
+  hosts:
+  - backend.docuthinker-prod.svc.cluster.local
+
+  http:
+  - match:
+    - headers:
+        x-chaos-test:
+          exact: "true"
+
+    fault:
+      # Inject 5s delay in 10% of requests
+      delay:
+        percentage:
+          value: 10.0
+        fixedDelay: 5s
+
+      # Abort 5% of requests with 503
+      abort:
+        percentage:
+          value: 5.0
+        httpStatus: 503
+
+    route:
+    - destination:
+        host: backend.docuthinker-prod.svc.cluster.local
+        subset: stable
