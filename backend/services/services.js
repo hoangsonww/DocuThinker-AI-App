@@ -2,6 +2,7 @@ const firebaseAdmin = require("firebase-admin");
 const fs = require("fs");
 const pdfParse = require("pdf-parse");
 const mammoth = require("mammoth");
+const axios = require("axios");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const multer = require("multer");
 const {
@@ -44,6 +45,178 @@ firebaseAdmin.initializeApp({
 // Firestore for storing user documents
 const firestore = firebaseAdmin.firestore();
 
+const GEMINI_MODEL_CACHE_TTL_MS = 5 * 60 * 1000;
+const DEFAULT_GEMINI_MODEL_FALLBACK = "gemini-2.5-flash";
+
+let geminiModelCache = {
+  fetchedAt: 0,
+  models: [],
+};
+let geminiModelRotationIndex = 0;
+
+const getGoogleAiApiKey = () => {
+  const apiKey = process.env.GOOGLE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error("GOOGLE_AI_API_KEY is not configured.");
+  }
+  return apiKey;
+};
+
+const normalizeGeminiModelName = (name) => name.replace(/^models\//, "");
+
+const shouldIncludeGeminiModel = (model) => {
+  if (!model || typeof model.name !== "string") {
+    return false;
+  }
+
+  const name = model.name.toLowerCase();
+  if (!name.includes("gemini")) {
+    return false;
+  }
+  if (name.includes("embedding")) {
+    return false;
+  }
+  if (name.includes("pro")) {
+    return false;
+  }
+
+  const supportedMethods = model.supportedGenerationMethods;
+  if (Array.isArray(supportedMethods)) {
+    return supportedMethods.includes("generateContent");
+  }
+
+  return true;
+};
+
+const fetchGeminiModels = async () => {
+  const response = await axios.get(
+    "https://generativelanguage.googleapis.com/v1/models",
+    {
+      params: {
+        key: getGoogleAiApiKey(),
+      },
+    },
+  );
+
+  const models = Array.isArray(response.data?.models)
+    ? response.data.models
+    : [];
+  const filteredModels = models
+    .filter(shouldIncludeGeminiModel)
+    .map((model) => normalizeGeminiModelName(model.name));
+  const uniqueModels = [...new Set(filteredModels)];
+
+  return uniqueModels.length > 0 ? uniqueModels : [DEFAULT_GEMINI_MODEL_FALLBACK];
+};
+
+const getGeminiModelNames = async () => {
+  const now = Date.now();
+  if (
+    geminiModelCache.models.length > 0 &&
+    now - geminiModelCache.fetchedAt < GEMINI_MODEL_CACHE_TTL_MS
+  ) {
+    return geminiModelCache.models;
+  }
+
+  try {
+    const models = await fetchGeminiModels();
+    geminiModelCache = {
+      fetchedAt: now,
+      models,
+    };
+    return models;
+  } catch (error) {
+    const errorMessage =
+      error instanceof Error ? error.message : String(error);
+    console.warn(`[Gemini] Failed to fetch models: ${errorMessage}`);
+
+    if (geminiModelCache.models.length > 0) {
+      return geminiModelCache.models;
+    }
+
+    return [DEFAULT_GEMINI_MODEL_FALLBACK];
+  }
+};
+
+const rotateGeminiModels = (models) => {
+  if (!Array.isArray(models) || models.length === 0) {
+    return [];
+  }
+
+  const startIndex = geminiModelRotationIndex % models.length;
+  geminiModelRotationIndex = (startIndex + 1) % models.length;
+  return models.slice(startIndex).concat(models.slice(0, startIndex));
+};
+
+const extractGeminiResponseText = (result, errorMessage) => {
+  if (!result?.response || typeof result.response.text !== "function") {
+    throw new Error(errorMessage);
+  }
+  return result.response.text();
+};
+
+const withGeminiModelFallback = async (label, handler) => {
+  const models = rotateGeminiModels(await getGeminiModelNames());
+
+  if (models.length === 0) {
+    throw new Error("No Gemini models available to handle the request.");
+  }
+
+  let lastError = null;
+  for (const modelName of models) {
+    try {
+      return await handler(modelName);
+    } catch (error) {
+      lastError = error;
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      console.warn(
+        `[Gemini] ${label} failed on ${modelName}: ${errorMessage}`,
+      );
+    }
+  }
+
+  throw lastError;
+};
+
+const runGeminiChat = async ({
+  label,
+  systemInstruction,
+  history,
+  message,
+  errorMessage,
+}) => {
+  return withGeminiModelFallback(label, async (modelName) => {
+    const genAI = new GoogleGenerativeAI(getGoogleAiApiKey());
+    const modelOptions = { model: modelName };
+    if (systemInstruction) {
+      modelOptions.systemInstruction = systemInstruction;
+    }
+
+    const model = genAI.getGenerativeModel(modelOptions);
+    const chatSession = model.startChat({ history });
+    const result = await chatSession.sendMessage(message);
+    return extractGeminiResponseText(result, errorMessage);
+  });
+};
+
+const runGeminiContent = async ({
+  label,
+  modelOptions = {},
+  prompt,
+  errorMessage,
+}) => {
+  return withGeminiModelFallback(label, async (modelName) => {
+    const genAI = new GoogleGenerativeAI(getGoogleAiApiKey());
+    const model = genAI.getGenerativeModel({
+      model: modelName,
+      ...modelOptions,
+    });
+    const result = await model.generateContent(prompt);
+    return extractGeminiResponseText(result, errorMessage);
+  });
+};
+
 /**
  * Create a new user in Firebase Auth
  * @param email - User email
@@ -74,23 +247,16 @@ exports.loginUser = async (email) => {
 exports.generateSummary = async (text) => {
   if (!text) throw new Error("No text provided");
 
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  const summaryText = await runGeminiChat({
+    label: "generateSummary",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in paragraphs (not bullet points).`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text }] }],
+    message: text,
+    errorMessage: "Failed to generate a summary from the AI",
   });
-  const result = await chatSession.sendMessage(text);
-
-  if (!result.response || !result.response.text) {
-    throw new Error("Failed to generate a summary from the AI");
-  }
 
   return {
-    summary: result.response.text(),
+    summary: summaryText,
     originalText: text,
   };
 };
@@ -130,9 +296,6 @@ exports.processAudio = async (file, context) => {
     throw new Error("Audio processing failed.");
   }
 
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash-lite" });
-
   // Generate transcription or summary with context if provided
   const prompt = [
     {
@@ -152,14 +315,14 @@ exports.processAudio = async (file, context) => {
     },
   ];
 
-  const result = await model.generateContent(prompt);
-
-  if (!result.response || !result.response.text) {
-    throw new Error("Failed to generate a summary from the AI");
-  }
+  const summaryText = await runGeminiContent({
+    label: "processAudio",
+    prompt,
+    errorMessage: "Failed to generate a summary from the AI",
+  });
 
   return {
-    summary: result.response.text(),
+    summary: summaryText,
   };
 };
 
@@ -169,17 +332,13 @@ exports.processAudio = async (file, context) => {
  * @returns {Promise<string>} - Generated key ideas
  */
 exports.generateKeyIdeas = async (documentText) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  return await runGeminiChat({
+    label: "generateKeyIdeas",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate key ideas from the provided text.`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text: documentText }] }],
+    message: documentText,
+    errorMessage: "Failed to generate key ideas from the AI",
   });
-  const result = await chatSession.sendMessage(documentText);
-  return result.response.text();
 };
 
 /**
@@ -188,17 +347,13 @@ exports.generateKeyIdeas = async (documentText) => {
  * @returns {Promise<string>} - Generated discussion points
  */
 exports.generateDiscussionPoints = async (documentText) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  return await runGeminiChat({
+    label: "generateDiscussionPoints",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate discussion points from the provided text.`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text: documentText }] }],
+    message: documentText,
+    errorMessage: "Failed to generate discussion points from the AI",
   });
-  const result = await chatSession.sendMessage(documentText);
-  return result.response.text();
 };
 
 // In-memory store for conversation history per session
@@ -221,12 +376,6 @@ const isValidText = (text) => {
  * @returns {Promise<string>} - AI response message
  */
 exports.chatWithAI = async (sessionId, message, originalText) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
-    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Use the provided context and respond to the user’s message conversationally.`,
-  });
-
   // Initialize the conversation history if not present
   if (!sessionHistory[sessionId]) {
     sessionHistory[sessionId] = [];
@@ -249,31 +398,22 @@ exports.chatWithAI = async (sessionId, message, originalText) => {
   // Add the user message to history
   history.push({ role: "user", parts: [{ text: message }] });
 
-  try {
-    // Start AI chat session using the accumulated history
-    const chatSession = model.startChat({
-      history: history, // Pass the conversation history
-    });
+  const responseText = await runGeminiChat({
+    label: "chatWithAI",
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Use the provided context and respond to the user’s message conversationally.`,
+    history,
+    message,
+    errorMessage: "Failed to get response from the AI.",
+  });
 
-    const result = await chatSession.sendMessage(message);
+  // Add the AI's response to the conversation history
+  history.push({ role: "model", parts: [{ text: responseText }] });
 
-    // Ensure that the response contains valid text
-    if (!result.response || !result.response.text) {
-      throw new Error("Failed to get response from the AI.");
-    }
+  // Update the session history with the new conversation context
+  sessionHistory[sessionId] = history;
 
-    // Add the AI's response to the conversation history
-    history.push({ role: "model", parts: [{ text: result.response.text() }] });
-
-    // Update the session history with the new conversation context
-    sessionHistory[sessionId] = history;
-
-    // Return the AI's response
-    return result.response.text();
-  } catch (error) {
-    // Handle potential errors
-    throw new Error("Failed to get AI response: " + error.message);
-  }
+  // Return the AI's response
+  return responseText;
 };
 
 /**
@@ -326,30 +466,21 @@ exports.verifyUserEmail = async (email) => {
  * @returns {Promise<{sentimentScore, description}>} - Sentiment analysis result
  */
 exports.analyzeSentiment = async (documentText) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  const responseText = await runGeminiChat({
+    label: "analyzeSentiment",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Analyze the sentiment of the provided text. Return the result as a JSON object with two properties: "score" between -1 (very negative) to +1 (very positive) and "description" as a brief summary of the sentiment.`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text: documentText }] }],
+    message: documentText,
+    errorMessage: "Failed to perform sentiment analysis from the AI",
   });
-  const result = await chatSession.sendMessage(documentText);
-
-  if (!result.response || !result.response.text) {
-    throw new Error("Failed to perform sentiment analysis from the AI");
-  }
 
   // Extract and parse the response text into JSON format
   try {
-    let responseText = result.response.text();
-
     // Strip the ```json and ``` markers if they exist
-    responseText = responseText.replace(/```json|```/g, "").trim();
+    const cleanedResponse = responseText.replace(/```json|```/g, "").trim();
 
     // Parse the cleaned JSON string
-    const response = JSON.parse(responseText);
+    const response = JSON.parse(cleanedResponse);
 
     return {
       sentimentScore: response.score,
@@ -367,22 +498,13 @@ exports.analyzeSentiment = async (documentText) => {
  * @returns {Promise<string>} - Generated bullet point summary
  */
 exports.generateBulletSummary = async (documentText) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  return await runGeminiChat({
+    label: "generateBulletSummary",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in bullet points.`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text: documentText }] }],
+    message: documentText,
+    errorMessage: "Failed to generate bullet point summary from the AI",
   });
-  const result = await chatSession.sendMessage(documentText);
-
-  if (!result.response || !result.response.text) {
-    throw new Error("Failed to generate bullet point summary from the AI");
-  }
-
-  return result.response.text();
 };
 
 /**
@@ -392,22 +514,13 @@ exports.generateBulletSummary = async (documentText) => {
  * @returns {Promise<string>} - Generated summary in the specified language
  */
 exports.generateSummaryInLanguage = async (documentText, language) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  return await runGeminiChat({
+    label: "generateSummaryInLanguage",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the given text in ${language}.`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text: documentText }] }],
+    message: documentText,
+    errorMessage: "Failed to generate translated summary from the AI",
   });
-  const result = await chatSession.sendMessage(documentText);
-
-  if (!result.response || !result.response.text) {
-    throw new Error("Failed to generate translated summary from the AI");
-  }
-
-  return result.response.text();
 };
 
 /**
@@ -417,22 +530,13 @@ exports.generateSummaryInLanguage = async (documentText, language) => {
  * @returns {Promise<string>} - Rewritten content in the specified style
  */
 exports.rewriteContent = async (documentText, style) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  return await runGeminiChat({
+    label: "rewriteContent",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Rephrase or rewrite the provided text in a ${style} style.`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text: documentText }] }],
+    message: documentText,
+    errorMessage: "Failed to rewrite content using the AI",
   });
-  const result = await chatSession.sendMessage(documentText);
-
-  if (!result.response || !result.response.text) {
-    throw new Error("Failed to rewrite content using the AI");
-  }
-
-  return result.response.text();
 };
 
 /**
@@ -441,24 +545,13 @@ exports.rewriteContent = async (documentText, style) => {
  * @returns {Promise<string>} - Generated actionable recommendations
  */
 exports.generateActionableRecommendations = async (documentText) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
+  return await runGeminiChat({
+    label: "generateActionableRecommendations",
     systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Generate actionable recommendations or next steps based on the provided text. Focus on identifying follow-up actions, decisions to be made, or critical takeaways.`,
-  });
-
-  const chatSession = model.startChat({
     history: [{ role: "user", parts: [{ text: documentText }] }],
+    message: documentText,
+    errorMessage: "Failed to generate actionable recommendations using the AI",
   });
-  const result = await chatSession.sendMessage(documentText);
-
-  if (!result.response || !result.response.text) {
-    throw new Error(
-      "Failed to generate actionable recommendations using the AI",
-    );
-  }
-
-  return result.response.text();
 };
 
 /**
@@ -468,29 +561,19 @@ exports.generateActionableRecommendations = async (documentText) => {
  * @returns {Promise<string>} - Refined summary based on the instructions
  */
 exports.refineSummary = async (summary, refinementInstructions) => {
-  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY);
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash-lite",
-    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Refine the provided summary based on the user's instructions.`,
-  });
-
   // Combine the user input into a single prompt
   const refinementPrompt = `
     Summary: ${summary}
     Refinement Instructions: ${refinementInstructions}
     Please refine the summary as per the instructions.`;
 
-  const chatSession = model.startChat({
+  return await runGeminiChat({
+    label: "refineSummary",
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Refine the provided summary based on the user's instructions.`,
     history: [{ role: "user", parts: [{ text: refinementPrompt }] }],
+    message: refinementPrompt,
+    errorMessage: "Failed to refine the summary using the AI",
   });
-
-  const result = await chatSession.sendMessage(refinementPrompt);
-
-  if (!result.response || !result.response.text) {
-    throw new Error("Failed to refine the summary using the AI");
-  }
-
-  return result.response.text();
 };
 
 // Export endpoints to be used in server routes
