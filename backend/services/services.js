@@ -106,7 +106,9 @@ const fetchGeminiModels = async () => {
     .map((model) => normalizeGeminiModelName(model.name));
   const uniqueModels = [...new Set(filteredModels)];
 
-  return uniqueModels.length > 0 ? uniqueModels : [DEFAULT_GEMINI_MODEL_FALLBACK];
+  return uniqueModels.length > 0
+    ? uniqueModels
+    : [DEFAULT_GEMINI_MODEL_FALLBACK];
 };
 
 const getGeminiModelNames = async () => {
@@ -126,8 +128,7 @@ const getGeminiModelNames = async () => {
     };
     return models;
   } catch (error) {
-    const errorMessage =
-      error instanceof Error ? error.message : String(error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.warn(`[Gemini] Failed to fetch models: ${errorMessage}`);
 
     if (geminiModelCache.models.length > 0) {
@@ -170,9 +171,7 @@ const withGeminiModelFallback = async (label, handler) => {
       lastError = error;
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.warn(
-        `[Gemini] ${label} failed on ${modelName}: ${errorMessage}`,
-      );
+      console.warn(`[Gemini] ${label} failed on ${modelName}: ${errorMessage}`);
     }
   }
 
