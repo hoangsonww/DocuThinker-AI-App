@@ -73,52 +73,63 @@ function App() {
         <GoogleAnalytics />
         <TrackPageView />
         <SpeedInsights />
-        <Box
-          sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-        >
-          <Navbar
-            theme={theme}
-            onThemeToggle={handleThemeToggle}
-            isLoggedIn={isLoggedIn}
-            onLogout={() => setIsLoggedIn(false)}
-          />
-          <Box sx={{ flexGrow: 1 }}>
-            <Routes>
-              <Route path="/home" element={<Home theme={theme} />} />
-              <Route path="/" element={<LandingPage theme={theme} />} />
-              <Route path="/landing" element={<LandingPage theme={theme} />} />
-              <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
-              <Route
-                path="/documents"
-                element={<DocumentsPage theme={theme} />}
-              />
-              <Route
-                path="/forgot-password"
-                element={<ForgotPassword theme={theme} />}
-              />
-              <Route path="/profile" element={<Profile theme={theme} />} />
-              <Route
-                path="/privacy-policy"
-                element={<PrivacyPolicy theme={theme} />}
-              />
-              <Route
-                path="/terms-of-service"
-                element={<TermsOfService theme={theme} />}
-              />
-              <Route
-                path="/login"
-                element={
-                  <Login onLogin={() => setIsLoggedIn(true)} theme={theme} />
-                }
-              />
-              <Route path="/register" element={<Register theme={theme} />} />
-              <Route path="*" element={<NotFoundPage theme={theme} />} />
-            </Routes>
-          </Box>
-          <Footer />
-        </Box>
+        <AppLayout
+          theme={theme}
+          onThemeToggle={handleThemeToggle}
+          isLoggedIn={isLoggedIn}
+          onLogout={() => setIsLoggedIn(false)}
+          onLogin={() => setIsLoggedIn(true)}
+        />
       </Router>
     </GoogleOAuthProvider>
+  );
+}
+
+function AppLayout({ theme, onThemeToggle, isLoggedIn, onLogout, onLogin }) {
+  const location = useLocation();
+  const hideNavbar =
+    location.pathname === "/" || location.pathname.startsWith("/landing");
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {!hideNavbar && (
+        <Navbar
+          theme={theme}
+          onThemeToggle={onThemeToggle}
+          isLoggedIn={isLoggedIn}
+          onLogout={onLogout}
+        />
+      )}
+      <Box sx={{ flexGrow: 1 }}>
+        <Routes>
+          <Route path="/home" element={<Home theme={theme} />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
+          <Route path="/documents" element={<DocumentsPage theme={theme} />} />
+          <Route
+            path="/forgot-password"
+            element={<ForgotPassword theme={theme} />}
+          />
+          <Route path="/profile" element={<Profile theme={theme} />} />
+          <Route
+            path="/privacy-policy"
+            element={<PrivacyPolicy theme={theme} />}
+          />
+          <Route
+            path="/terms-of-service"
+            element={<TermsOfService theme={theme} />}
+          />
+          <Route
+            path="/login"
+            element={<Login onLogin={onLogin} theme={theme} />}
+          />
+          <Route path="/register" element={<Register theme={theme} />} />
+          <Route path="*" element={<NotFoundPage theme={theme} />} />
+        </Routes>
+      </Box>
+      <Footer />
+    </Box>
   );
 }
 
