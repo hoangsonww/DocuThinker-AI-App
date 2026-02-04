@@ -86,6 +86,15 @@ const ambientShift = keyframes`
   }
 `;
 
+const bounceHint = keyframes`
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(6px);
+  }
+`;
+
 const LandingPage = () => {
   const [reduceMotion, setReduceMotion] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
@@ -846,6 +855,9 @@ const LandingPage = () => {
                   borderColor: palette.accentDark,
                   backgroundColor: palette.accentSoft,
                 },
+                animation: reduceMotion
+                  ? "none"
+                  : `${bounceHint} 2.2s ease-in-out infinite`,
               }}
             >
               Learn more
@@ -1416,10 +1428,14 @@ const LandingPage = () => {
             Upload PDF/DOCX files or use Google Drive. Voice chat supports audio
             upload or recording.
           </Typography>
-          <Stack
-            direction="row"
-            spacing={2}
-            sx={{ flexWrap: "wrap", justifyContent: "center" }}
+          <Box
+            sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              justifyContent: "center",
+              gap: { xs: 1, sm: 1.5 },
+              rowGap: { xs: 1, sm: 1.5 },
+            }}
           >
             {integrations.map((label) => (
               <Chip
@@ -1430,11 +1446,21 @@ const LandingPage = () => {
                   backgroundColor: palette.surface,
                   border: `1px solid ${palette.border}`,
                   color: palette.textSecondary,
+                  height: "auto",
+                  py: 0.5,
+                  px: 0.5,
+                  "& .MuiChip-label": {
+                    px: 1,
+                    py: 0.5,
+                    whiteSpace: "normal",
+                    textAlign: "center",
+                    fontSize: { xs: "0.85rem", sm: "0.95rem" },
+                  },
                 }}
                 className="reveal"
               />
             ))}
-          </Stack>
+          </Box>
         </Box>
 
         {/* Use cases */}
