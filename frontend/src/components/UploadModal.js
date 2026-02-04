@@ -38,10 +38,14 @@ const UploadModal = ({
   theme,
 }) => {
   // Local state variables
+
+  // eslint-disable-next-line no-unused-vars
   const [open, setOpen] = useState(true);
   const [loading, setLoading] = useState(false);
   const [progressMessage, setProgressMessage] = useState("");
   const [file, setFile] = useState(null);
+
+  // eslint-disable-next-line no-unused-vars
   const [isUploaded, setIsUploaded] = useState(false);
   const [title, setTitle] = useState("");
   const [googleAuth, setGoogleAuth] = useState(null);

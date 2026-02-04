@@ -355,6 +355,7 @@ const ChatModal = ({
     if (event.key === "Enter") handleChat();
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleCopyToClipboard = (text) => {
     navigator.clipboard
       .writeText(text)

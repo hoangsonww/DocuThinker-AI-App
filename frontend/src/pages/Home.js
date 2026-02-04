@@ -575,6 +575,7 @@ const Home = ({ theme }) => {
       };
 
       requestAnimationFrame(animate);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [value, duration, showAnalyticsModal]);
 
     if (isDecimal) {
@@ -688,6 +689,7 @@ const Home = ({ theme }) => {
         setLoadingSentiment(false);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [originalText, hasFetchedSentiment]);
 
   const formatAsMarkdown = (text) => {

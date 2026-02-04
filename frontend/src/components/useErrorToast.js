@@ -1,5 +1,7 @@
 import React, { useState } from "react";
+// eslint-disable-next-line no-unused-vars
 import { Snackbar, Alert, IconButton } from "@mui/material";
+// eslint-disable-next-line no-unused-vars
 import CloseIcon from "@mui/icons-material/Close";
 
 export const useErrorToast = () => {
