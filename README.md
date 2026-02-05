@@ -262,12 +262,6 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
   <img src="images/landing.png" alt="Landing Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Landing Page - Dark Mode**
-
-<p align="center">
-  <img src="images/landing-dark.png" alt="Landing Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Document Upload Page**
 
 <p align="center">
