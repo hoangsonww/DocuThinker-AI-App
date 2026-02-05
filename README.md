@@ -376,22 +376,8 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
   <img src="images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
 </p>
 
-### **Navigation Drawer**
-
 <p align="center">
   <img src="images/navigation-drawer.png" alt="Navigation Drawer" width="50%" style="border-radius: 8px">
-</p>
-
-### **404 Not Found Page**
-
-<p align="center">
-  <img src="images/404.png" alt="404 Not Found Page" width="100%" style="border-radius: 8px">
-</p>
-
-### **Footer**
-
-<p align="center">
-  <img src="images/footer.png" alt="Footer" width="100%" style="border-radius: 8px">
 </p>
 
 <h2 id="complete-file-structure">📂 Complete File Structure</h2>
