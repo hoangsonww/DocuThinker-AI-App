@@ -526,9 +526,12 @@ const LandingPage = () => {
         <Box
           sx={{
             minHeight: { xs: "auto", md: "100svh" },
-            display: "grid",
-            placeItems: "center",
+            position: "relative",
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
             py: { xs: 6, md: 0 },
+            pb: { xs: 6, md: 10 },
           }}
         >
           <Grid
@@ -536,13 +539,16 @@ const LandingPage = () => {
             spacing={{ xs: 4, md: 6 }}
             alignItems="center"
             justifyContent="center"
-            sx={{ transform: { xs: "none", md: "translateY(18px)" } }}
+            sx={{ width: "100%" }}
           >
             <Grid item xs={12} md={6}>
               <Box
                 sx={{
                   animation: reduceMotion ? "none" : `${slideUp} 0.8s ease-out`,
-                  textAlign: "left",
+                  textAlign: "center",
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
                 }}
                 className="reveal"
               >
@@ -565,7 +571,7 @@ const LandingPage = () => {
                     lineHeight: 1.05,
                     mb: 2,
                     color: palette.textPrimary,
-                    textAlign: "left",
+                    textAlign: "center",
                   }}
                 >
                   Turn dense documents into clear, actionable decisions.
@@ -578,7 +584,7 @@ const LandingPage = () => {
                     maxWidth: "560px",
                     fontSize: { xs: "1rem", md: "1.15rem" },
                     mb: 3,
-                    textAlign: "left",
+                    textAlign: "center",
                   }}
                 >
                   DocuThinker turns your documents into summaries, bullet
@@ -590,7 +596,7 @@ const LandingPage = () => {
                   spacing={2}
                   sx={{
                     mb: 3,
-                    justifyContent: "flex-start",
+                    justifyContent: "center",
                     alignItems: { xs: "stretch", sm: "center" },
                   }}
                 >
@@ -637,7 +643,7 @@ const LandingPage = () => {
                     display: "flex",
                     flexWrap: "wrap",
                     gap: 1,
-                    justifyContent: "flex-start",
+                    justifyContent: "center",
                   }}
                 >
                   {heroHighlights.map((label) => (
@@ -666,7 +672,7 @@ const LandingPage = () => {
                   position: "relative",
                   overflow: "hidden",
                   maxWidth: "100%",
-                  mx: 0,
+                  mx: "auto",
                   width: "100%",
                 }}
                 className="reveal"
@@ -832,7 +838,11 @@ const LandingPage = () => {
               width: "100%",
               display: "flex",
               justifyContent: "center",
-              mt: { xs: 4, md: 6 },
+              mt: { xs: 4, md: 0 },
+              position: { xs: "static", md: "absolute" },
+              left: { md: "50%" },
+              bottom: { md: 24 },
+              transform: { md: "translateX(-50%)" },
             }}
           >
             <Button
