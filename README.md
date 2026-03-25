@@ -72,9 +72,6 @@ G --> J[Google Cloud APIs]
 G --> K[LangChain]
 ```
 
-> [!IMPORTANT]
-> It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
-
 Feel free to explore the app, upload documents, and interact with the AI! For architecture details, setup instructions, and more, please refer to the sections below, as well as the [ARCHITECTURE.md](ARCHITECTURE.md) file.
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
