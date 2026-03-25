@@ -2019,69 +2019,147 @@ mindmap
       React Router
       Axios
       Context API
+      React Markdown / KaTeX
+      pdfjs-dist
+      React Dropzone
+      Dropbox SDK
+      Google API / OAuth
+      Vercel Analytics
+      Babel / Craco / Webpack
     Backend
-      Node.js
+      Node.js 18+
       Express
       Firebase Admin SDK
-      GraphQL
-      JWT
-    Database
-      PostgreSQL
-      Firestore
-      MongoDB Atlas
-      Redis Cache
-      Flyway Migrations
-    AI/ML
-      Google Cloud NLP
+      Firebase Auth
+      GraphQL / graphql-tools
+      JWT / jsonwebtoken
+      Redis
+      RabbitMQ
+      Multer / Busboy
+      Mammoth / pdf-parse
+      Google APIs / googleapis
+      Google Generative AI SDK
+      Swagger / OpenAPI
+    Orchestrator
+      Anthropic AI SDK
+      Google Generative AI SDK
+      MCP SDK
+      Zod Schema Validation
+      Supervisor Pattern
+      Agent Loop / ReAct
+      Circuit Breaker
+      Cost Tracker
+      Dead Letter Queue
+      Token Budget Manager
+      Conversation Store
+      Hybrid RAG
+      Prompt Cache Strategy
+      14 System Prompts
+    AI/ML Pipeline
+      FastAPI / Uvicorn
       LangChain
-      CrewAI
       LangGraph
-      Neo4j
+      CrewAI
+      OpenAI GPT-4o
+      Anthropic Claude 3.5 Sonnet
+      Google Gemini 1.5 Pro
+      FAISS
       ChromaDB
+      Neo4j
+      sentence-transformers
+      PyTorch
+      HuggingFace Transformers
+      ONNX / ONNX Runtime
+      Optuna
+      ROUGE Score
+      Pandas / Matplotlib
+      MCP Server
+      Google Cloud NLP
+      Google Speech-to-Text
+    Database
+      PostgreSQL / RDS
+      MongoDB Atlas
+      Firestore
+      Redis / ElastiCache
+      Neo4j Graph DB
+      ChromaDB Vectors
+    Mobile App
+      React Native 0.74
+      Expo 51
+      Expo Router
+      React Navigation
+      React Native Reanimated
+    VS Code Extension
+      TypeScript
+      VS Code Extension API
+      VSCE
     Service Mesh
       Istio 1.20
       Envoy Proxy
       mTLS
       Circuit Breaking
+      Kiali Dashboard
     Security
       OPA Gatekeeper
-      Falco
-      HashiCorp Vault
+      Falco 0.36
+      HashiCorp Vault 1.15
+      External Secrets Operator
       cert-manager
       AWS WAF
+      Trivy
     Observability
-      OpenTelemetry
-      Prometheus
+      OpenTelemetry Collector
+      Prometheus / AlertManager
       Grafana
       Jaeger
+      Loki
       ELK Stack
-      SLO/SLI
+      SLO / SLI
     Reliability
-      Litmus Chaos
-      Flagger
+      Flagger 1.34
+      KEDA 2.12
       Velero
-      KEDA
       HPA
+      Blue-Green Deployments
+      Canary Deployments
+      AWS Backup
     DevOps
       Docker
-      Kubernetes
-      Helm
+      Docker Compose
+      Kubernetes 1.28+
+      Helm 3.13+
       ArgoCD
+      Terraform 1.5+
+      GitHub Actions
       GitLab CI
-      Terraform
-      Terratest
+      CircleCI
+      Jenkins
     Cloud Services
       AWS EKS
       AWS RDS
       AWS S3
       ElastiCache
       CloudFront
-    Testing
-      K6 Load Testing
+      ECS Fargate
+      Secrets Manager
+      IAM / IRSA
+      VPC Multi-AZ
+    Testing and Quality
       Jest
-      Pytest
-      Cypress
-      Terratest
+      React Testing Library
+      pytest
+      k6 Load Testing
+      Supertest
+      SonarQube
+      ESLint
+      Prettier
+      Postman
+    API and Documentation
+      Swagger / OpenAPI 3.0
+      GraphiQL
+      REST APIs
+      GraphQL
+      MCP Protocol
 ```
 
 ---
