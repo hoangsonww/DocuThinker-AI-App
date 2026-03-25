@@ -16,6 +16,7 @@ This document provides a comprehensive, visual guide to how DocuThinker's AI and
   - [Resilience Stack](#resilience-stack)
   - [Context Management](#context-management)
   - [MCP Integration](#mcp-integration)
+  - [Beads Integration](#beads-integration)
 - [AI/ML Pipeline (Python)](#aiml-pipeline-python)
   - [DocumentIntelligenceService](#documentintelligenceservice)
   - [LangGraph RAG Pipeline](#langgraph-rag-pipeline)
@@ -398,6 +399,78 @@ graph LR
     ORCH["Orchestrator"] --> CONNECT
     CONNECT --> REMOTE["Remote MCP Server"]
 ```
+
+### Beads Integration
+
+The **Beads** sub-architecture provides a coordination layer that governs how multiple agents (AI or human) safely modify the orchestrator and AI/ML codebases in parallel. While the orchestrator handles *runtime* request coordination, beads handle *development-time* task coordination.
+
+#### How Beads Relate to the AI/ML Stack
+
+```mermaid
+graph TB
+    subgraph "Development-Time Coordination"
+        BEAD["Bead<br/>(atomic task unit)"]
+        STATUS[".beads/.status.json<br/>Reservations & counters"]
+        TEMPLATE["Bead Template<br/>Background · Files · Deps · Criteria"]
+    end
+
+    subgraph "Orchestrator Layer :4000"
+        SUP["Supervisor"]
+        AL["Agent Loop"]
+        TR["Tool Registry"]
+    end
+
+    subgraph "AI/ML Layer :8000"
+        SVC["DocumentIntelligenceService"]
+        RAG["LangGraph RAG Pipeline"]
+        CREW["CrewAI Multi-Agent"]
+    end
+
+    BEAD -->|"defines changes to"| SUP
+    BEAD -->|"defines changes to"| SVC
+    STATUS -->|"prevents concurrent edits to"| SUP
+    STATUS -->|"prevents concurrent edits to"| SVC
+    TEMPLATE -->|"scopes work for"| TR
+    TEMPLATE -->|"scopes work for"| RAG
+```
+
+#### Beads & Conflict Zones in the AI/ML Layer
+
+The following AI/ML files are **conflict zones** — only one agent may reserve them at a time:
+
+| File | Reason |
+|------|--------|
+| `ai_ml/services/orchestrator.py` | Central façade — all pipelines (RAG, CrewAI, NLP) are dispatched through it |
+| `ai_ml/providers/registry.py` | Shared LLM provider configuration used by every inference call |
+
+All other `ai_ml/` paths are **safe for parallel work**, including:
+- `ai_ml/pipelines/` — individual pipeline modules (RAG graph, crew agents)
+- `ai_ml/providers/` — individual provider implementations (Anthropic, Google, OpenAI)
+- `ai_ml/utils/` — independent utility modules (chunking, embeddings, NLP)
+- `ai_ml/mcp/` — MCP server and tool definitions
+- `ai_ml/tests/` — isolated test suites
+
+#### Bead Workflow for AI/ML Changes
+
+1. **Author a bead** using `.beads/templates/feature-bead.md` — specify which `ai_ml/` files to read and modify.
+2. **Check `.beads/.status.json`** — ensure no other agent holds a reservation on the target files.
+3. **Reserve files** — write your agent ID and file paths to `.status.json`.
+4. **Implement** — follow the bead's instructions, reading the `Current State` files first.
+5. **Test** — run `cd ai_ml && python -m pytest` (or the bead's acceptance criteria).
+6. **Release** — remove reservations from `.status.json` and increment `beadsCompleted`.
+
+#### Development-Time vs. Runtime Coordination
+
+| Concern | Beads (Dev-Time) | Orchestrator (Runtime) |
+|---------|-------------------|----------------------|
+| **Unit of work** | Bead (file changes + acceptance criteria) | Intent (e.g., `document.upload`) |
+| **Dependency model** | `Depends on` / `Blocks` fields in bead template | Task DAG decomposition in Supervisor |
+| **Conflict prevention** | File reservations in `.status.json` | Circuit breaker per LLM provider |
+| **Failure handling** | Iterate until acceptance criteria pass | Dead Letter Queue + retry (max 3) |
+| **Coordination file** | `.beads/.status.json` | Orchestrator in-memory state + Redis |
+| **Heartbeat** | Agent updates status every 30 min | Health check endpoint (`/health`) |
+
+> For the full beads protocol and conflict zone rules, see [AGENTS.md](AGENTS.md). For the architectural overview of beads across all layers, see [ARCHITECTURE.md](ARCHITECTURE.md#beads-task-coordination).
 
 ---
 
