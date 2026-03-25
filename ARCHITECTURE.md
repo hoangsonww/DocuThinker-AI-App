@@ -8,6 +8,7 @@
 - [Frontend Architecture](#frontend-architecture)
 - [Backend Architecture](#backend-architecture)
 - [Agentic Orchestration Layer](#agentic-orchestration-layer)
+- [Beads Task Coordination](#beads-task-coordination)
 - [AI/ML Pipeline](#aiml-pipeline)
 - [Database Architecture](#database-architecture)
 - [Service Mesh Architecture](#service-mesh-architecture)
@@ -646,6 +647,170 @@ Each LLM provider (`claude`, `gemini`, `python-ai-ml`) has an independent circui
 - **Layer 1**: System prompt with `cache_control: ephemeral`
 - **Layer 2**: Document context with `cache_control: ephemeral`
 - **Layer 3**: Conversation history prefixed with cached document context
+
+---
+
+## Beads Task Coordination
+
+DocuThinker employs a **Beads** sub-architecture for coordinating work across multiple AI agents (or developers) operating on the same codebase concurrently. A *bead* is an atomic, dependency-aware task unit that any agent can claim, execute, and complete — enabling safe parallel development without merge conflicts or duplicated effort.
+
+### Beads Architecture Overview
+
+```mermaid
+graph TB
+    subgraph "Beads Coordination Layer"
+        STATUS[".beads/.status.json<br/>Agent reservations & counters"]
+        TEMPLATE["Bead Templates<br/>Structured task definitions"]
+        DEPS["Dependency Graph<br/>Upstream / downstream ordering"]
+    end
+
+    subgraph "Conflict Zones (single agent)"
+        CZ1["docker-compose.yml"]
+        CZ2["ai_ml/services/orchestrator.py"]
+        CZ3["ai_ml/providers/registry.py"]
+        CZ4["orchestrator/index.js"]
+        CZ5["Shared config files"]
+    end
+
+    subgraph "Safe Parallel Zones"
+        PZ1["Separate service directories"]
+        PZ2["Independent test files"]
+        PZ3["New files / new directories"]
+        PZ4["Documentation files"]
+    end
+
+    subgraph "Runtime Layers"
+        ORCH["Orchestrator :4000<br/>Supervisor → Agent Loop → Tools"]
+        AIML["AI/ML Backend :8000<br/>RAG Pipeline → CrewAI → Stores"]
+    end
+
+    STATUS -->|reserves files in| CZ1
+    STATUS -->|reserves files in| CZ2
+    STATUS -->|allows parallel work| PZ1
+    TEMPLATE -->|defines tasks for| ORCH
+    TEMPLATE -->|defines tasks for| AIML
+    DEPS -->|orders execution| TEMPLATE
+```
+
+### Bead Lifecycle
+
+Each bead moves through a well-defined lifecycle:
+
+```mermaid
+stateDiagram-v2
+    [*] --> Authored: Bead created from template
+    Authored --> Claimed: Agent reserves files via .status.json
+    Claimed --> InProgress: Agent begins implementation
+    InProgress --> Testing: Code changes complete
+    Testing --> Done: Acceptance criteria pass
+    Testing --> InProgress: Tests fail — iterate
+    Done --> [*]: Reservations released
+    InProgress --> Blocked: Upstream dependency not met
+    Blocked --> InProgress: Dependency resolved
+```
+
+### Bead Structure
+
+Every bead follows the canonical template at `.beads/templates/feature-bead.md`:
+
+| Section | Purpose |
+|---------|---------|
+| **Background** | Business or technical context for why the work exists |
+| **Current State** | Files the agent must read before making any changes |
+| **Desired Outcome** | A specific, testable description of the end state |
+| **Files to Touch** | Explicit list — `READ FIRST, then ENHANCE` or `CREATE NEW` |
+| **Dependencies** | Upstream beads (`Depends on`) and downstream beads (`Blocks`) |
+| **Acceptance Criteria** | Checklist that must pass, always including "all existing tests still pass" |
+
+### Status Tracking
+
+The `.beads/.status.json` file is the single source of truth for coordination:
+
+```json
+{
+  "version": "1.0.0",
+  "agents": {
+    "agent-1": { "name": "orchestrator-dev", "startedAt": "...", "currentBead": "ORCH-04" }
+  },
+  "reservations": {
+    "orchestrator/index.js": "agent-1"
+  },
+  "lastUpdated": "2025-01-15T10:30:00Z",
+  "beadsCompleted": 12,
+  "beadsActive": 2
+}
+```
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `agents` | `Record<string, AgentMeta>` | Active agent IDs mapped to metadata (name, start time, current bead) |
+| `reservations` | `Record<string, string>` | File paths mapped to the agent ID holding the reservation |
+| `lastUpdated` | `ISO 8601 / null` | Timestamp of the most recent status update |
+| `beadsCompleted` | `number` | Running count of successfully completed beads |
+| `beadsActive` | `number` | Number of beads currently being worked on |
+
+### Conflict Zones & Safe Zones
+
+**Conflict zones** are files that only one agent may reserve at a time because they are shared entry points or cross-cutting configuration:
+
+| File | Reason |
+|------|--------|
+| `docker-compose.yml` | Global service topology |
+| `ai_ml/services/orchestrator.py` | Central AI/ML façade — all pipelines flow through it |
+| `ai_ml/providers/registry.py` | LLM provider registry shared by all AI/ML components |
+| `orchestrator/index.js` | Orchestrator entry point and route wiring |
+| Shared config files | Cross-service environment and build settings |
+
+**Safe parallel zones** allow multiple agents to work simultaneously because they are logically isolated:
+
+- Separate service directories (e.g., `ai_ml/providers/` vs. `orchestrator/context/`)
+- Independent test files (each suite is self-contained)
+- New files in new directories (no reservation conflicts)
+- Documentation files (non-overlapping prose sections)
+
+### Agent Communication Protocol
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant S as .beads/.status.json
+    participant C as Codebase
+    participant T as Test Suite
+
+    A->>S: 1. Read status — check for conflicts
+    S-->>A: No reservation on target files
+    A->>S: 2. Write reservation (agent ID + file list)
+    A->>C: 3. Implement bead instructions
+    loop Every 30 minutes
+        A->>S: 4. Heartbeat — update lastUpdated
+    end
+    A->>T: 5. Run acceptance criteria tests
+    T-->>A: All tests pass
+    A->>S: 6. Release reservations
+    A->>S: 7. Increment beadsCompleted, decrement beadsActive
+```
+
+**Rules:**
+1. **Check first** — always read `.status.json` before claiming files.
+2. **Reserve explicitly** — post agent ID and every file path you will modify.
+3. **Heartbeat** — update status every 30 minutes while actively working.
+4. **Release on exit** — release all reservations on completion or failure. A post-session hook (`.claude/hooks/post-session.sh`) auto-cleans stale reservations.
+5. **Branch convention** — `agent/<agent-name>/<bead-id>` (e.g., `agent/claude/ORCH-04`).
+
+### Relationship to Runtime Layers
+
+Beads operate at **development time** — they coordinate *who changes what*. The runtime architecture has analogous patterns at request time:
+
+| Beads Concept | Runtime Analogue | Layer |
+|---------------|-----------------|-------|
+| Bead (atomic task) | Intent (e.g., `document.upload`) | Orchestrator Supervisor |
+| Dependency graph | Task DAG decomposition | Supervisor `decompose()` |
+| File reservation | Circuit breaker per provider | Circuit Breaker |
+| Agent heartbeat | Health checks & cost tracking | Cost Tracker / `/health` |
+| Conflict zones | Mutex on shared state | Conversation Store LRU |
+| Acceptance criteria | Zod output schema validation | Schema validation layer |
+
+> For the full agent protocol including branch naming and escalation, see [AGENTS.md](AGENTS.md).
 
 ---
 

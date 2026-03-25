@@ -27,6 +27,7 @@ Welcome to **DocuThinker**! This is a full-stack application that integrates an 
   - [**API Testing**](#api-testing)
   - [**Error Handling**](#error-handling)
 - [**🤖 AI/ML Agentic Platform**](#ai-ml-agentic-platform)
+- [**🧩 Beads Task Coordination**](#beads-task-coordination)
 - [**🧰 GraphQL Integration**](#graphql-integration)
 - [**📱 Mobile App**](#mobile-app)
 - [**📦 Containerization**](#containerization)
@@ -629,7 +630,23 @@ The **DocuThinker** app is organized into separate subdirectories for the fronte
 
 ```
 DocuThinker-AI-App/
-├── .beads/                           # Bead-based context snapshots
+├── .beads/                           # Beads task coordination system
+│   ├── .status.json                  # Agent reservations & active bead tracking
+│   ├── README.md                     # Beads workflow quick-reference
+│   ├── active/                       # Beads available for agents to pick up
+│   ├── completed/                    # Archive of finished beads
+│   └── templates/
+│       └── feature-bead.md           # Template for new feature beads
+├── .agent-sessions/                  # Agent session history & coordination
+│   ├── README.md                     # Session management guide
+│   ├── SCHEMA.md                     # Session data structure specification
+│   ├── config.json                   # Session configuration
+│   ├── active/                       # Sessions currently in progress
+│   ├── completed/                    # Archived finished sessions
+│   └── templates/
+│       ├── session-log.md            # Standard session log template
+│       ├── handoff-report.md         # Agent-to-agent handoff template
+│       └── escalation-report.md      # Conflict / blocker escalation template
 ├── .claude/                          # Claude Code workspace settings
 ├── .mcp.json                         # MCP server configuration
 ├── AGENTS.md                         # Agent behavior instructions
@@ -1139,6 +1156,124 @@ The orchestrator (`orchestrator/`) is a standalone Node.js service providing:
 
 > [!TIP]
 > Visit the [`orchestrator/README.md`](orchestrator/README.md) for full API request/response examples and the [`ai_ml/README.md`](ai_ml/README.md) for the Python AI/ML layer.
+
+<h2 id="beads-task-coordination">🧩 Beads Task Coordination</h2>
+
+DocuThinker AI agents (and humans) use a **Beads** sub-architecture to coordinate work across multiple AI agents and humans operating on the same codebase. A *bead* is a self-contained, dependency-aware task unit that any agent can pick up, execute, and complete — enabling safe parallel development without merge conflicts.
+
+### Why Beads?
+
+When several AI agents (or human developers) work concurrently, they risk editing the same files and producing conflicting changes. Beads solve this with:
+
+- **Atomic task definitions** — each bead specifies exactly which files to read, modify, or create.
+- **File reservations** — agents claim files before editing, preventing concurrent writes.
+- **Dependency graphs** — beads declare upstream/downstream dependencies so work executes in the correct order.
+- **Acceptance criteria** — every bead includes testable conditions that must pass before the task is considered complete.
+
+### Bead Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Authored: Bead created from template
+    Authored --> Claimed: Agent reserves files via .status.json
+    Claimed --> InProgress: Agent begins implementation
+    InProgress --> Testing: Code changes complete
+    Testing --> Done: Acceptance criteria pass
+    Testing --> InProgress: Tests fail — iterate
+    Done --> [*]: Reservations released
+    InProgress --> Blocked: Dependency not met
+    Blocked --> InProgress: Dependency resolved
+```
+
+### Directory Structure
+
+```
+.beads/
+├── .status.json          # Live agent reservations & bead counters
+├── README.md             # Quick-start guide for the beads workflow
+└── templates/
+    └── feature-bead.md   # Canonical bead template
+```
+
+### Status Tracking (`.beads/.status.json`)
+
+The status file is the single source of truth for agent coordination:
+
+```json
+{
+  "version": "1.0.0",
+  "agents": {},
+  "reservations": {},
+  "lastUpdated": null,
+  "beadsCompleted": 0,
+  "beadsActive": 0
+}
+```
+
+| Field | Purpose |
+|-------|---------|
+| `agents` | Map of active agent IDs to their metadata (name, start time, current bead) |
+| `reservations` | Map of file paths to the agent ID that holds the reservation |
+| `beadsCompleted` | Counter of successfully finished beads |
+| `beadsActive` | Counter of beads currently in progress |
+
+### Bead Template
+
+Every bead follows a structured template (`.beads/templates/feature-bead.md`):
+
+| Section | Description |
+|---------|-------------|
+| **Background** | Why the work exists |
+| **Current State** | Files to read before starting |
+| **Desired Outcome** | Specific, testable result |
+| **Files to Touch** | Explicit list of files to read, enhance, or create |
+| **Dependencies** | Upstream beads that must finish first and downstream beads this unblocks |
+| **Acceptance Criteria** | Checklist including "all existing tests still pass" |
+
+### Conflict Zones vs. Safe Parallel Zones
+
+Certain files are **single-agent only** — only one agent may hold a reservation at a time:
+
+| Conflict Zone File | Reason |
+|--------------------|--------|
+| `docker-compose.yml` | Shared service definitions |
+| `ai_ml/services/orchestrator.py` | Central AI/ML entry point |
+| `ai_ml/providers/registry.py` | LLM provider configuration |
+| `orchestrator/index.js` | Orchestrator entry point |
+| Shared config files | Cross-service settings |
+
+**Safe parallel zones** (multiple agents can work simultaneously):
+- Separate service directories (e.g., `ai_ml/providers/` vs. `orchestrator/context/`)
+- Independent test files
+- New files in new directories
+- Documentation files (excluding shared configs)
+
+### Agent Communication Protocol
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant S as .status.json
+    participant C as Codebase
+
+    A->>S: 1. Check for conflicts
+    S-->>A: No reservation on target files
+    A->>S: 2. Post reservation (agent ID + file list)
+    A->>C: 3. Implement bead instructions
+    A->>C: 4. Run tests (acceptance criteria)
+    A->>S: 5. Release reservations
+    A->>S: 6. Increment beadsCompleted
+```
+
+Agents must:
+1. **Check** `.beads/.status.json` before starting any work.
+2. **Reserve** files by posting their agent ID and claimed file paths.
+3. **Update** status every 30 minutes while actively working.
+4. **Release** all reservations upon completion or failure.
+5. Use branch naming: `agent/<agent-name>/<bead-id>`.
+
+> [!NOTE]
+> For the full agent coordination protocol including conflict resolution and escalation, see [AGENTS.md](AGENTS.md). For how beads integrate with the AI/ML pipeline, see [AI_ML.md](AI_ML.md).
 
 <h2 id="graphql-integration">🧰 GraphQL Integration</h2>
 
