@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "docuthinker-orchestrator": {
+      "command": "node",
+      "args": ["orchestrator/mcp/server.js"],
+      "env": { "NODE_ENV": "development" }
+    }
+  }
+}

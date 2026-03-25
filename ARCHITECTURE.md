@@ -7,6 +7,7 @@
 - [Production DevOps Platform](#production-devops-platform)
 - [Frontend Architecture](#frontend-architecture)
 - [Backend Architecture](#backend-architecture)
+- [Agentic Orchestration Layer](#agentic-orchestration-layer)
 - [AI/ML Pipeline](#aiml-pipeline)
 - [Database Architecture](#database-architecture)
 - [Service Mesh Architecture](#service-mesh-architecture)
@@ -502,6 +503,149 @@ classDiagram
     User "1" --> "*" Document : has
     User "1" --> "1" Analytics : has
 ```
+
+---
+
+## Agentic Orchestration Layer
+
+The orchestrator (`orchestrator/`) is a standalone Node.js service (port 4000) that sits between the Express backend and the Python AI/ML services. It implements a **supervisor-driven agentic architecture** with circuit breakers, cost controls, context management, and MCP integration.
+
+### Orchestrator Architecture
+
+```mermaid
+graph TB
+    subgraph "Entry Points"
+        REST[REST API :4000]
+        MCP_S[MCP Server<br/>13 tools / stdio]
+    end
+
+    subgraph "Supervisor Pipeline"
+        CLASSIFY[1. Classify Intent<br/>route-match or LLM]
+        BUDGET[2. Token Budget Check<br/>context window guard]
+        DECOMPOSE[3. Decompose<br/>single-step or multi-step DAG]
+        DISPATCH[4. Dispatch<br/>parallel execution with deps]
+        AGGREGATE[5. Aggregate<br/>merge results + trace]
+    end
+
+    subgraph "Core Components"
+        AL[Agent Loop<br/>iterative tool-use<br/>max 10 iterations]
+        CB[Circuit Breaker<br/>per-provider<br/>CLOSED / OPEN / HALF_OPEN]
+        CT[Cost Tracker<br/>per-model pricing<br/>daily + monthly budgets]
+        BP[Batch Processor<br/>batch=10, concurrency=3]
+        DLQ[Dead Letter Queue<br/>3 retries then DLQ]
+        HO[Handoff Manager<br/>context serialization]
+        TR[Tool Registry<br/>local + Python-bridged]
+        PB[Python Bridge<br/>HTTP with circuit breaker]
+    end
+
+    subgraph "Context Management"
+        TBM[Token Budget Manager<br/>7 model context windows]
+        CS[Conversation Store<br/>auto-summarize at 20 msgs<br/>LRU eviction at 10K]
+        OBS[Context Observability<br/>OTel metrics + alerts]
+        HRAG[Hybrid RAG<br/>keyword + semantic + RRF]
+    end
+
+    subgraph "Prompt Engineering"
+        SP[14 Versioned Prompts]
+        ZOD[12 Zod Output Schemas]
+        PC[3-Layer Prompt Cache<br/>system / document / history]
+    end
+
+    subgraph "LLM Providers"
+        CLAUDE[Anthropic Claude<br/>Sonnet / Haiku / Opus]
+        GEMINI[Google Gemini<br/>Pro / 1.5-Pro]
+    end
+
+    subgraph "Python AI/ML :8000"
+        PY[FastAPI Service]
+    end
+
+    REST --> CLASSIFY
+    CLASSIFY --> BUDGET
+    BUDGET --> DECOMPOSE
+    DECOMPOSE --> DISPATCH
+    DISPATCH --> AGGREGATE
+
+    DISPATCH --> AL
+    DISPATCH --> BP
+    AL --> TR
+    TR --> PB
+    PB --> PY
+
+    AL --> CB
+    CB --> CLAUDE
+    CB --> GEMINI
+
+    CT -.-> BUDGET
+    TBM -.-> BUDGET
+    CS -.-> AL
+    OBS -.-> CT
+    HO -.-> AL
+    HRAG -.-> TR
+    SP -.-> AL
+    ZOD -.-> AGGREGATE
+    PC -.-> AL
+
+    DLQ -.-> DISPATCH
+    MCP_S --> TR
+```
+
+### Supervisor Workflow
+
+The `DocuThinkerSupervisor` processes every request through a five-stage pipeline:
+
+1. **Classify** -- Determines the intent from 18+ registered intents. Uses exact route matching first (`/upload` -> `document.upload`, `/chat` -> `chat.document`, etc.), then falls back to LLM classification using Claude Haiku, and finally defaults to `chat.general`.
+2. **Budget Check** -- Validates the request against the model's context window using `TokenBudgetManager`. Rejects requests that would overflow the available token budget.
+3. **Decompose** -- Breaks the intent into a task DAG. Simple intents produce a single task. `document.upload` decomposes into three sequential tasks (extract -> summarize -> store). Batch intents produce parallel tasks.
+4. **Dispatch** -- Executes tasks respecting dependency order. Independent tasks run in parallel via `Promise.allSettled`. On failure, automatically retries with an alternate provider from the intent's provider preference list.
+5. **Aggregate** -- Merges results from all tasks, attaches a trace ID (`dt-{timestamp}-{random}`), and records cost/token usage.
+
+### Circuit Breaker State Diagram
+
+```mermaid
+stateDiagram-v2
+    [*] --> CLOSED
+    CLOSED --> OPEN : failures >= threshold
+    OPEN --> HALF_OPEN : cooldown elapsed
+    HALF_OPEN --> CLOSED : probe succeeds
+    HALF_OPEN --> OPEN : probe fails
+    CLOSED --> CLOSED : success (reset failures)
+```
+
+Each LLM provider (`claude`, `gemini`, `python-ai-ml`) has an independent circuit breaker. Configuration:
+- **Failure threshold**: `CIRCUIT_BREAKER_THRESHOLD` (default: 3)
+- **Cooldown**: `CIRCUIT_BREAKER_COOLDOWN_MS` (default: 60,000 ms)
+- **HALF_OPEN**: Only one probe request allowed at a time
+
+### Orchestrator API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | Full system health: circuit breakers, costs, cache stats, DLQ, providers, tools |
+| `GET` | `/api/costs` | Cost breakdown by provider and intent |
+| `GET` | `/api/circuits` | Circuit breaker state per provider (state, failures, uptime %) |
+| `GET` | `/api/context-metrics` | Context utilization stats, cache hit rate, per-provider breakdown |
+| `GET` | `/api/dlq` | DLQ stats and last 20 dead-lettered messages |
+| `GET` | `/api/tools` | Registered tool definitions and count |
+| `POST` | `/api/tools/execute` | Execute a tool by name: `{ "tool": "...", "input": {...} }` |
+| `POST` | `/api/token-check` | Token budget check: `{ "model": "...", "systemPrompt": "...", "messages": [...] }` |
+| `POST` | `/api/supervisor/process` | Full supervisor pipeline: `{ "route": "/...", ...body }` |
+| `POST` | `/api/agent/run` | Agent loop: `{ "message": "...", "context": {...}, "provider": "claude" }` |
+| `POST` | `/api/batch/process` | Batch processing: `{ "documents": [...], "operation": "summarize" }` |
+| `POST` | `/api/conversations/:userId/:documentId/message` | Add message: `{ "role": "user", "content": "..." }` |
+| `GET` | `/api/conversations/:userId/:documentId` | Get conversation history and summary state |
+| `DELETE` | `/api/conversations/:userId/:documentId` | Clear a conversation |
+
+### Context Management Details
+
+**Token Budget Manager** tracks context windows for 7+ models (Claude 200K, Gemini 2M, GPT-4 128K) and provides a `check()` method that estimates token usage and returns whether the request is allowed, the utilization percentage, and a recommendation to compact if above 80%.
+
+**Conversation Store** maintains per-user per-document conversations in memory with automatic summarization. When a conversation exceeds 20 messages, the oldest messages are summarized using Claude Haiku and replaced with a summary injection. LRU eviction kicks in at 10,000 active conversations.
+
+**Prompt Cache Strategy** implements Anthropic's 3-layer caching:
+- **Layer 1**: System prompt with `cache_control: ephemeral`
+- **Layer 2**: Document context with `cache_control: ephemeral`
+- **Layer 3**: Conversation history prefixed with cached document context
 
 ---
 
@@ -1875,69 +2019,147 @@ mindmap
       React Router
       Axios
       Context API
+      React Markdown / KaTeX
+      pdfjs-dist
+      React Dropzone
+      Dropbox SDK
+      Google API / OAuth
+      Vercel Analytics
+      Babel / Craco / Webpack
     Backend
-      Node.js
+      Node.js 18+
       Express
       Firebase Admin SDK
-      GraphQL
-      JWT
-    Database
-      PostgreSQL
-      Firestore
-      MongoDB Atlas
-      Redis Cache
-      Flyway Migrations
-    AI/ML
-      Google Cloud NLP
+      Firebase Auth
+      GraphQL / graphql-tools
+      JWT / jsonwebtoken
+      Redis
+      RabbitMQ
+      Multer / Busboy
+      Mammoth / pdf-parse
+      Google APIs / googleapis
+      Google Generative AI SDK
+      Swagger / OpenAPI
+    Orchestrator
+      Anthropic AI SDK
+      Google Generative AI SDK
+      MCP SDK
+      Zod Schema Validation
+      Supervisor Pattern
+      Agent Loop / ReAct
+      Circuit Breaker
+      Cost Tracker
+      Dead Letter Queue
+      Token Budget Manager
+      Conversation Store
+      Hybrid RAG
+      Prompt Cache Strategy
+      14 System Prompts
+    AI/ML Pipeline
+      FastAPI / Uvicorn
       LangChain
-      CrewAI
       LangGraph
-      Neo4j
+      CrewAI
+      OpenAI GPT-4o
+      Anthropic Claude 3.5 Sonnet
+      Google Gemini 1.5 Pro
+      FAISS
       ChromaDB
+      Neo4j
+      sentence-transformers
+      PyTorch
+      HuggingFace Transformers
+      ONNX / ONNX Runtime
+      Optuna
+      ROUGE Score
+      Pandas / Matplotlib
+      MCP Server
+      Google Cloud NLP
+      Google Speech-to-Text
+    Database
+      PostgreSQL / RDS
+      MongoDB Atlas
+      Firestore
+      Redis / ElastiCache
+      Neo4j Graph DB
+      ChromaDB Vectors
+    Mobile App
+      React Native 0.74
+      Expo 51
+      Expo Router
+      React Navigation
+      React Native Reanimated
+    VS Code Extension
+      TypeScript
+      VS Code Extension API
+      VSCE
     Service Mesh
       Istio 1.20
       Envoy Proxy
       mTLS
       Circuit Breaking
+      Kiali Dashboard
     Security
       OPA Gatekeeper
-      Falco
-      HashiCorp Vault
+      Falco 0.36
+      HashiCorp Vault 1.15
+      External Secrets Operator
       cert-manager
       AWS WAF
+      Trivy
     Observability
-      OpenTelemetry
-      Prometheus
+      OpenTelemetry Collector
+      Prometheus / AlertManager
       Grafana
       Jaeger
+      Loki
       ELK Stack
-      SLO/SLI
+      SLO / SLI
     Reliability
-      Litmus Chaos
-      Flagger
+      Flagger 1.34
+      KEDA 2.12
       Velero
-      KEDA
       HPA
+      Blue-Green Deployments
+      Canary Deployments
+      AWS Backup
     DevOps
       Docker
-      Kubernetes
-      Helm
+      Docker Compose
+      Kubernetes 1.28+
+      Helm 3.13+
       ArgoCD
+      Terraform 1.5+
+      GitHub Actions
       GitLab CI
-      Terraform
-      Terratest
+      CircleCI
+      Jenkins
     Cloud Services
       AWS EKS
       AWS RDS
       AWS S3
       ElastiCache
       CloudFront
-    Testing
-      K6 Load Testing
+      ECS Fargate
+      Secrets Manager
+      IAM / IRSA
+      VPC Multi-AZ
+    Testing and Quality
       Jest
-      Pytest
-      Cypress
-      Terratest
+      React Testing Library
+      pytest
+      k6 Load Testing
+      Supertest
+      SonarQube
+      ESLint
+      Prettier
+      Postman
+    API and Documentation
+      Swagger / OpenAPI 3.0
+      GraphiQL
+      REST APIs
+      GraphQL
+      MCP Protocol
 ```
 
 ---
