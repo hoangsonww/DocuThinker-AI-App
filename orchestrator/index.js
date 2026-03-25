@@ -67,7 +67,8 @@ const intentPromptMap = {
 
 for (const [intent, promptKey] of Object.entries(intentPromptMap)) {
   supervisor.registerHandler(intent, async (req) => {
-    const text = req.body?.text || req.body?.originalText || req.body?.message || "";
+    const text =
+      req.body?.text || req.body?.originalText || req.body?.message || "";
     const promptConfig = getSystemPrompt(promptKey);
     return llmClient.call({
       provider: req._forceProvider || "claude",
@@ -79,16 +80,22 @@ for (const [intent, promptKey] of Object.entries(intentPromptMap)) {
   });
 }
 supervisor.registerHandler("document.analytics", async (req) => {
-  return toolRegistry.execute("analyze_document_text", { text: req.body?.text || "" });
+  return toolRegistry.execute("analyze_document_text", {
+    text: req.body?.text || "",
+  });
 });
 
 // Upload handler: delegates to Python bridge for full extraction + summarization pipeline
 supervisor.registerHandler("document.upload", async (req) => {
   const text = req.body?.text || req.body?.originalText || "";
-  return pythonBridge.analyzeDocument(text, { operations: ["summarize", "key_ideas", "sentiment"] });
+  return pythonBridge.analyzeDocument(text, {
+    operations: ["summarize", "key_ideas", "sentiment"],
+  });
 });
 supervisor.registerHandler("document.extract", async (req) => {
-  return { text: req.body?.text || req._dependencyResults?.["task-0"]?.text || "" };
+  return {
+    text: req.body?.text || req._dependencyResults?.["task-0"]?.text || "",
+  };
 });
 supervisor.registerHandler("document.store", async (req) => {
   return { stored: true, timestamp: new Date().toISOString() };
@@ -110,7 +117,9 @@ supervisor.registerHandler("chat.voice", async (req) => {
 // Batch handler: delegates to batch processor
 supervisor.registerHandler("batch.multiDocument", async (req) => {
   const documents = req.body?.documents || [];
-  return batchProcessor.processBatch(documents, "summarize", { provider: "claude" });
+  return batchProcessor.processBatch(documents, "summarize", {
+    provider: "claude",
+  });
 });
 
 // User handlers: proxy to the backend service (orchestrator doesn't handle auth directly)
@@ -118,7 +127,11 @@ const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:3000";
 for (const userIntent of ["user.register", "user.login", "user.profile"]) {
   supervisor.registerHandler(userIntent, async (req) => {
     try {
-      const endpoint = { "user.register": "/register", "user.login": "/login", "user.profile": `/users/${req.body?.userId}` }[userIntent];
+      const endpoint = {
+        "user.register": "/register",
+        "user.login": "/login",
+        "user.profile": `/users/${req.body?.userId}`,
+      }[userIntent];
       const method = userIntent === "user.profile" ? "GET" : "POST";
       const resp = await fetch(`${BACKEND_URL}${endpoint}`, {
         method,
@@ -155,11 +168,22 @@ app.get("/health", async (req, res) => {
   }
 });
 
-app.get("/api/costs", (req, res) => res.json(costTracker.getUsageReport(req.query.period || "month")));
+app.get("/api/costs", (req, res) =>
+  res.json(costTracker.getUsageReport(req.query.period || "month")),
+);
 app.get("/api/circuits", (req, res) => res.json(circuitBreaker.getStatus()));
-app.get("/api/context-metrics", (req, res) => res.json(contextObservability.getStats()));
-app.get("/api/dlq", (req, res) => res.json({ stats: dlq.getStats(), messages: dlq.getDLQMessages(20) }));
-app.get("/api/tools", (req, res) => res.json({ tools: toolRegistry.getToolDefinitions(), count: toolRegistry.getToolNames().length }));
+app.get("/api/context-metrics", (req, res) =>
+  res.json(contextObservability.getStats()),
+);
+app.get("/api/dlq", (req, res) =>
+  res.json({ stats: dlq.getStats(), messages: dlq.getDLQMessages(20) }),
+);
+app.get("/api/tools", (req, res) =>
+  res.json({
+    tools: toolRegistry.getToolDefinitions(),
+    count: toolRegistry.getToolNames().length,
+  }),
+);
 
 app.post("/api/tools/execute", async (req, res) => {
   try {
@@ -183,7 +207,10 @@ app.post("/api/token-check", (req, res) => {
 
 app.post("/api/supervisor/process", async (req, res) => {
   try {
-    const result = await supervisor.process({ route: req.body.route || null, body: req.body });
+    const result = await supervisor.process({
+      route: req.body.route || null,
+      body: req.body,
+    });
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -195,7 +222,9 @@ app.post("/api/agent/run", async (req, res) => {
     const { systemPrompt, message, context, provider } = req.body;
     if (!message) return res.status(400).json({ error: "message is required" });
     const result = await agentLoop.run({
-      systemPrompt: systemPrompt || "You are DocuThinker's AI assistant. Use available tools to help users analyze documents.",
+      systemPrompt:
+        systemPrompt ||
+        "You are DocuThinker's AI assistant. Use available tools to help users analyze documents.",
       userMessage: message,
       context: context || {},
       provider: provider || "claude",
@@ -212,8 +241,14 @@ app.post("/api/batch/process", async (req, res) => {
     if (!documents || !Array.isArray(documents) || documents.length === 0)
       return res.status(400).json({ error: "documents array is required" });
     if (!operation)
-      return res.status(400).json({ error: "operation is required (summarize, keyIdeas, sentiment)" });
-    res.json(await batchProcessor.processBatch(documents, operation, { provider: provider || "claude" }));
+      return res.status(400).json({
+        error: "operation is required (summarize, keyIdeas, sentiment)",
+      });
+    res.json(
+      await batchProcessor.processBatch(documents, operation, {
+        provider: provider || "claude",
+      }),
+    );
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -223,17 +258,34 @@ app.post("/api/conversations/:userId/:documentId/message", async (req, res) => {
   try {
     const { userId, documentId } = req.params;
     const { role, content } = req.body;
-    if (!role || !content) return res.status(400).json({ error: "role and content required" });
-    const conv = await conversationStore.addMessage(userId, documentId, role, content);
-    res.json({ messageCount: conv.messageCount, hasSummary: !!conv.summary, recentMessages: conv.messages.length });
+    if (!role || !content)
+      return res.status(400).json({ error: "role and content required" });
+    const conv = await conversationStore.addMessage(
+      userId,
+      documentId,
+      role,
+      content,
+    );
+    res.json({
+      messageCount: conv.messageCount,
+      hasSummary: !!conv.summary,
+      recentMessages: conv.messages.length,
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 });
 
 app.get("/api/conversations/:userId/:documentId", (req, res) => {
-  const conv = conversationStore.getConversation(req.params.userId, req.params.documentId);
-  res.json({ messageCount: conv.messageCount, messages: conv.messages, hasSummary: !!conv.summary });
+  const conv = conversationStore.getConversation(
+    req.params.userId,
+    req.params.documentId,
+  );
+  res.json({
+    messageCount: conv.messageCount,
+    messages: conv.messages,
+    hasSummary: !!conv.summary,
+  });
 });
 
 app.delete("/api/conversations/:userId/:documentId", (req, res) => {
@@ -249,6 +301,8 @@ app.use((err, req, res, next) => {
 });
 
 const port = process.env.PORT || 4000;
-app.listen(port, "0.0.0.0", () => console.log(`Orchestrator listening on port ${port}`));
+app.listen(port, "0.0.0.0", () =>
+  console.log(`Orchestrator listening on port ${port}`),
+);
 
 module.exports = app;

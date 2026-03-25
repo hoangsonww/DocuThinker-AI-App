@@ -4514,7 +4514,7 @@ const Home = ({ theme }) => {
                       fontFamily: "Poppins, sans-serif",
                     }}
                   >
-                    Very Long (>10)
+                    Very Long ({">"}10)
                   </Typography>
                 </Box>
               </Box>

@@ -4,7 +4,9 @@
   "description": "Agentic orchestration layer for DocuThinker AI App",
   "license": "MIT",
   "main": "index.js",
-  "engines": { "node": ">=18.0.0" },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node index.js",
     "dev": "node index.js",

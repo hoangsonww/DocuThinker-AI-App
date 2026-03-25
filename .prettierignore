@@ -1,1 +1,17 @@
+node_modules
 frontend/build
+frontend/node_modules
+backend/node_modules
+orchestrator/node_modules
+mobile-app/node_modules
+dist
+build
+coverage
+*.min.js
+*.min.css
+package-lock.json
+helm
+terraform
+kubernetes
+*.lock
+.git

@@ -2,7 +2,17 @@
   "name": "docuthinker-dev",
   "version": "1.0.0",
   "description": "Development plugin for DocuThinker AI App",
-  "skills": [".claude/skills/document-analysis.md", ".claude/skills/provider-failover.md", ".claude/skills/testing-strategy.md"],
-  "hooks": { "pre-commit": ".claude/hooks/pre-commit.sh", "post-session": ".claude/hooks/post-session.sh", "pre-command": ".claude/hooks/pre-command.sh" },
-  "mcpServers": { "docuthinker": { "command": "node", "args": ["orchestrator/mcp/server.js"] } }
+  "skills": [
+    ".claude/skills/document-analysis.md",
+    ".claude/skills/provider-failover.md",
+    ".claude/skills/testing-strategy.md"
+  ],
+  "hooks": {
+    "pre-commit": ".claude/hooks/pre-commit.sh",
+    "post-session": ".claude/hooks/post-session.sh",
+    "pre-command": ".claude/hooks/pre-command.sh"
+  },
+  "mcpServers": {
+    "docuthinker": { "command": "node", "args": ["orchestrator/mcp/server.js"] }
+  }
 }

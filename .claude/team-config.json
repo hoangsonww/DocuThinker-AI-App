@@ -3,10 +3,23 @@
   "defaultProvider": "claude",
   "defaultModel": "claude-sonnet-4-20250514",
   "classificationModel": "claude-haiku-4-5-20251001",
-  "costLimits": { "dailyBudgetUSD": 10, "monthlyBudgetUSD": 200, "alertThreshold": 0.8 },
+  "costLimits": {
+    "dailyBudgetUSD": 10,
+    "monthlyBudgetUSD": 200,
+    "alertThreshold": 0.8
+  },
   "agentRoles": {
-    "lead": { "description": "Primary agent — architecture decisions", "allowedDirs": ["*"] },
-    "feature": { "description": "Feature implementation", "allowedDirs": ["orchestrator/", "ai_ml/"] },
-    "test": { "description": "Testing agent", "allowedDirs": ["testing/", "orchestrator/__tests__/"] }
+    "lead": {
+      "description": "Primary agent — architecture decisions",
+      "allowedDirs": ["*"]
+    },
+    "feature": {
+      "description": "Feature implementation",
+      "allowedDirs": ["orchestrator/", "ai_ml/"]
+    },
+    "test": {
+      "description": "Testing agent",
+      "allowedDirs": ["testing/", "orchestrator/__tests__/"]
+    }
   }
 }

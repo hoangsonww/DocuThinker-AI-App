@@ -1,14 +1,30 @@
 class HandoffManager {
-  constructor({ llmClient, logger } = {}) { this.llmClient = llmClient; this.logger = logger || console; }
+  constructor({ llmClient, logger } = {}) {
+    this.llmClient = llmClient;
+    this.logger = logger || console;
+  }
 
   async createHandoffContext(source, target, state) {
     return {
-      id: `handoff-${Date.now()}`, timestamp: new Date().toISOString(),
-      source: { agent: source.name, provider: source.provider, iterationsUsed: source.iterationsUsed },
+      id: `handoff-${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      source: {
+        agent: source.name,
+        provider: source.provider,
+        iterationsUsed: source.iterationsUsed,
+      },
       target: { agent: target.name, provider: target.provider },
-      context: { conversationSummary: await this.summarizeIfNeeded(state.messages), documentRef: state.documentRef,
-        taskState: { completed: state.completedSteps || [], remaining: state.remainingSteps || [], partialResults: state.partialResults || {} },
-        userPreferences: state.userPreferences || {}, handoffReason: state.reason }
+      context: {
+        conversationSummary: await this.summarizeIfNeeded(state.messages),
+        documentRef: state.documentRef,
+        taskState: {
+          completed: state.completedSteps || [],
+          remaining: state.remainingSteps || [],
+          partialResults: state.partialResults || {},
+        },
+        userPreferences: state.userPreferences || {},
+        handoffReason: state.reason,
+      },
     };
   }
 
@@ -17,18 +33,50 @@ class HandoffManager {
   }
 
   async handoffToPython(hc, endpoint) {
-    const r = await fetch(`${process.env.AI_ML_SERVICE_URL || "http://localhost:8000"}${endpoint}`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ handoff: hc, text: hc.context.taskState.partialResults?.text || "" }) });
+    const r = await fetch(
+      `${process.env.AI_ML_SERVICE_URL || "http://localhost:8000"}${endpoint}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          handoff: hc,
+          text: hc.context.taskState.partialResults?.text || "",
+        }),
+      },
+    );
     if (!r.ok) throw new Error(`Python service returned ${r.status}`);
     return r.json();
   }
 
   async summarizeIfNeeded(messages) {
-    if (!messages || messages.length <= 5) return messages?.map(m => `${m.role}: ${String(m.content).substring(0, 200)}`).join("\n") || "No prior conversation";
-    if (!this.llmClient) return messages.map(m => `${m.role}: ${String(m.content).substring(0, 100)}`).join("\n");
+    if (!messages || messages.length <= 5)
+      return (
+        messages
+          ?.map((m) => `${m.role}: ${String(m.content).substring(0, 200)}`)
+          .join("\n") || "No prior conversation"
+      );
+    if (!this.llmClient)
+      return messages
+        .map((m) => `${m.role}: ${String(m.content).substring(0, 100)}`)
+        .join("\n");
     try {
-      const r = await this.llmClient.call({ provider: "claude", model: "claude-haiku-4-5-20251001", messages: [{ role: "user", content: `Summarize in 3-5 bullets:\n${messages.map(m => `${m.role}: ${String(m.content).substring(0, 500)}`).join("\n")}` }], maxTokens: 500 });
+      const r = await this.llmClient.call({
+        provider: "claude",
+        model: "claude-haiku-4-5-20251001",
+        messages: [
+          {
+            role: "user",
+            content: `Summarize in 3-5 bullets:\n${messages.map((m) => `${m.role}: ${String(m.content).substring(0, 500)}`).join("\n")}`,
+          },
+        ],
+        maxTokens: 500,
+      });
       return r.content;
-    } catch (e) { return messages.map(m => `${m.role}: ${String(m.content).substring(0, 100)}`).join("\n"); }
+    } catch (e) {
+      return messages
+        .map((m) => `${m.role}: ${String(m.content).substring(0, 100)}`)
+        .join("\n");
+    }
   }
 }
 
