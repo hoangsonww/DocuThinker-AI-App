@@ -121,50 +121,67 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
 
 <h2 id="technologies">⚙️ Technologies</h2>
 
-- **Frontend**:
-  - **React 18**: JavaScript library for building user interfaces.
-  - **Material-UI (MUI)**: React components for faster and easier web development.
-  - **Axios**: Promise-based HTTP client for making API requests.
-  - **React Router**: Declarative routing for React applications.
-  - **Context API**: State management for React applications.
-  - **TailwindCSS**: Utility-first CSS framework for styling.
-  - **Craco**: Create React App Configuration Override for customizing Webpack.
-  - **Webpack**: Module bundler for JavaScript applications.
-  - **Emotion**: CSS-in-JS styling engine for React (used by MUI).
-  - **React Markdown / remark-gfm / rehype-katex / KaTeX**: Markdown rendering with GFM and LaTeX math support.
+DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/ML, mobile, infrastructure, and DevOps. Below is the complete technology stack.
+
+- **Frontend (Web)**:
+  - **React 18.3**: JavaScript library for building user interfaces.
+  - **Material-UI (MUI) 6**: React component library for UI development.
+  - **Tailwind CSS**: Utility-first CSS framework for rapid styling.
+  - **Emotion**: CSS-in-JS styling engine (used by MUI).
+  - **Axios**: Promise-based HTTP client for API requests.
+  - **React Router DOM 6**: Declarative client-side routing.
+  - **Context API**: Built-in React state management.
+  - **React Markdown / remark-gfm / rehype-katex / remark-math**: Markdown rendering with GitHub Flavored Markdown and LaTeX math.
+  - **KaTeX**: Fast LaTeX math typesetting.
+  - **Marked**: Markdown parser and compiler.
   - **pdfjs-dist**: PDF rendering and viewing in the browser.
+  - **Mammoth**: DOCX-to-HTML document conversion.
   - **React Dropzone**: Drag-and-drop file upload component.
   - **React Helmet**: Document head management for SEO.
   - **Dropbox SDK**: Dropbox file import integration.
-  - **Google API (gapi-script / react-oauth)**: Google Drive/Picker integration.
+  - **Google API (gapi-script / react-oauth / react-google-picker)**: Google Drive and Picker integration.
   - **mic-recorder-to-mp3**: Audio recording for voice chat.
   - **Vercel Analytics & Speed Insights**: Frontend performance telemetry.
-  - **Jest**: JavaScript testing framework for unit and integration tests.
-  - **React Testing Library**: Testing utilities for React components.
+  - **Web Vitals**: Core Web Vitals performance metrics.
+  - **Fontsource Poppins**: Self-hosted font loading.
+  - **UUID**: Unique identifier generation.
+  - **Craco**: Create React App Configuration Override for Webpack customization.
+  - **Webpack**: Module bundler for JavaScript applications.
   - **Babel**: JavaScript transpilation (ES2015+ to browser-compatible code).
-- **Backend**:
-  - **Node.js 18+**: JavaScript runtime for building scalable network applications.
-  - **Express**: Web application framework for Node.js.
-  - **Firebase Admin SDK**: Firebase services for server-side applications.
-  - **Firebase Authentication**: Secure user authentication with Firebase.
-  - **JWT (jsonwebtoken)**: Token-based authentication and middleware.
-  - **GraphQL (graphql / express-graphql / graphql-tools)**: Flexible query API for data fetching.
-  - **Redis**: In-memory data structure store for caching and session management.
+  - **Buffer / Crypto-browserify / Stream-browserify**: Node.js polyfills for the browser.
+  - **Jest**: JavaScript testing framework.
+  - **React Testing Library**: Component testing utilities.
+  - **Prettier**: Code formatter.
+  - **ESLint**: JavaScript/JSX linting with React plugin.
+- **Backend (API Server)**:
+  - **Node.js 18+**: JavaScript runtime for scalable network applications.
+  - **Express 4**: Web application framework for Node.js.
+  - **Firebase Admin SDK 12**: Server-side Firebase services.
+  - **Firebase Authentication**: Secure user authentication.
+  - **JWT (jsonwebtoken)**: Token-based authentication middleware.
+  - **GraphQL / express-graphql / graphql-tools**: Flexible query API for data fetching.
+  - **Redis 4**: In-memory data store for caching and session management.
+  - **MongoDB**: NoSQL document database for user data.
   - **Multer / Busboy / Formidable**: Multi-part file upload handling.
-  - **Mammoth**: DOCX-to-HTML document conversion.
+  - **Mammoth**: DOCX-to-HTML conversion.
   - **pdf-parse**: PDF text extraction.
   - **Google APIs (googleapis)**: Google Drive, Docs, and Sheets integration.
   - **Google Generative AI SDK**: Gemini model integration.
   - **Sentiment (npm)**: Lightweight sentiment analysis.
-  - **RabbitMQ**: Message broker for asynchronous task processing.
-  - **Swagger / OpenAPI**: Interactive API documentation.
-  - **REST APIs**: Comprehensive RESTful endpoint architecture.
+  - **RabbitMQ (amqplib)**: Message broker for async task processing.
+  - **Axios**: HTTP client for inter-service communication.
+  - **CORS**: Cross-Origin Resource Sharing middleware.
+  - **Dotenv**: Environment variable management.
+  - **UUID**: Unique identifier generation.
+  - **Serve Favicon**: Favicon middleware.
+  - **Swagger JSDoc / Swagger UI Express**: Interactive API documentation.
   - **Nodemon**: Development auto-reload.
 - **Orchestrator (Agentic Architecture)**:
-  - **Anthropic AI SDK**: Claude model integration for the agent loop.
+  - **Anthropic AI SDK 0.39**: Claude model integration for the agent loop.
   - **Google Generative AI SDK**: Gemini model integration and failover.
-  - **Model Context Protocol (MCP) SDK**: MCP server (13 tools) and client for agent interop.
-  - **Zod**: Runtime schema validation for all AI outputs (12 schemas).
+  - **Model Context Protocol (MCP) SDK 1.12**: MCP server (13 tools) and client for agent interop.
+  - **Zod 3.24**: Runtime schema validation for all AI outputs (12 schemas).
+  - **Express 4**: HTTP server for orchestrator endpoints.
   - **Supervisor Pattern**: Intent classification, task DAG decomposition, parallel dispatch.
   - **Agent Loop (ReAct)**: Iterative tool-use cycle with up to 10 rounds.
   - **Circuit Breaker**: Per-provider fault tolerance (CLOSED / OPEN / HALF_OPEN).
@@ -177,13 +194,14 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
   - **14 Versioned System Prompts**: Covering all document operations, chat modes, and classification.
 - **AI/ML Services (Python)**:
   - **FastAPI / Uvicorn**: High-performance async REST API server.
+  - **Python 3.10+**: Core runtime.
   - **LangChain**: Document chunking, embeddings, and LLM orchestration.
   - **LangGraph**: Stateful agentic RAG pipeline (4-node state machine).
   - **CrewAI**: Multi-agent collaboration (Analyst → Cross-Referencer → Insights Curator).
   - **OpenAI GPT-4o / GPT-4o-mini**: Primary analysis and structured QA.
   - **Anthropic Claude 3.5 Sonnet / Haiku**: Insights curation and sentiment analysis.
   - **Google Gemini 1.5 Pro**: Cross-referencing and fact verification.
-  - **FAISS**: In-memory vector search for per-request RAG retrieval.
+  - **FAISS (CPU)**: In-memory vector search for per-request RAG retrieval.
   - **ChromaDB**: Persistent on-disk vector store for cross-session semantic recall.
   - **Neo4j**: Knowledge graph database for document-topic relationship mapping.
   - **sentence-transformers (all-MiniLM-L6-v2)**: Local embedding generation.
@@ -192,28 +210,39 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
   - **ONNX / ONNX Runtime / Optimum**: Model optimization and accelerated inference.
   - **Optuna**: Hyperparameter tuning for ML experiments.
   - **ROUGE Score**: Summarization quality metrics.
-  - **Pandas / Matplotlib**: Data processing and visualization.
+  - **Pandas**: Data processing and analysis.
+  - **Matplotlib**: Data visualization.
   - **MCP Server (Python)**: 7-tool MCP server for external agent integration.
+  - **Requests**: HTTP library for inter-service calls.
+  - **Python-dotenv**: Environment variable management.
   - **NLP / NER / POS Tagging**: Named entity recognition and linguistic analysis.
   - **RAG**: Retrieval-Augmented Generation combining vector search with LLM inference.
   - **Google Cloud NLP API**: Machine learning models for text analysis.
   - **Google Speech-to-Text API**: Speech recognition for voice chat.
-- **Database**:
+- **Database & Storage**:
   - **PostgreSQL**: Primary relational database (RDS Multi-AZ in production, Helm chart in-cluster).
   - **MongoDB**: NoSQL document store for user data.
   - **Firestore**: Cloud Firestore for real-time data sync.
   - **Redis**: In-memory cache and session store (ElastiCache in production).
   - **Neo4j**: Graph database for knowledge graphs.
   - **ChromaDB**: Vector database for embedding persistence.
+  - **FAISS**: In-memory vector similarity search.
   - **Mongoose**: MongoDB object modeling for Node.js.
-  - **Flyway**: Database migrations for PostgreSQL.
+  - **Flyway**: Database schema migrations for PostgreSQL.
 - **Mobile App**:
   - **React Native 0.74**: Cross-platform mobile framework.
   - **Expo 51**: Universal React application platform.
   - **Expo Router**: File-system based routing.
   - **React Navigation**: Stack and tab navigation.
-  - **React Native Reanimated / Gesture Handler**: Animations and gesture support.
+  - **React Native Reanimated**: High-performance animations.
+  - **React Native Gesture Handler**: Native gesture management.
+  - **React Native Web**: React Native components for web browsers.
+  - **React Native Safe Area Context**: Safe area insets.
+  - **React Native Screens**: Native navigation primitives.
+  - **Expo Vector Icons / Constants / Font / Linking / Splash Screen / Status Bar**: Expo SDK modules.
   - **Firebase SDK**: Authentication and real-time features.
+  - **TypeScript**: Static type checking.
+  - **Jest / Jest-Expo / React Test Renderer**: Mobile testing.
 - **VS Code Extension**:
   - **TypeScript**: Extension development language.
   - **VS Code Extension API**: IDE integration for document analysis workflows.
@@ -221,17 +250,20 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
 - **API Documentation**:
   - **Swagger / OpenAPI 3.0**: Interactive API docs for all endpoints.
   - **GraphiQL**: In-browser GraphQL query editor.
+  - **Postman**: API development and testing collections.
 - **Containerization & Orchestration**:
-  - **Docker**: Multi-stage builds for all services (Node.js Alpine, Python Slim).
+  - **Docker**: Multi-stage builds for all services (7 Dockerfiles: frontend, backend, orchestrator, AI/ML, NGINX, mobile, devcontainer).
   - **Docker Compose**: Local multi-service orchestration.
   - **Kubernetes 1.28+**: Container orchestration with Deployments, Services, Ingress, PDBs, NetworkPolicies.
   - **Helm 3.13+**: Kubernetes package management (PostgreSQL, Redis, custom charts).
   - **ArgoCD**: GitOps-based continuous deployment with Application and AppProject CRDs.
+  - **Devcontainer**: VS Code remote container development environment.
 - **Service Mesh & Networking**:
-  - **Istio 1.20**: Service mesh with mTLS, sidecar injection, traffic management.
-  - **NGINX Ingress Controller**: Reverse proxy, rate limiting, TLS termination.
-  - **cert-manager**: Automated Let's Encrypt TLS certificate provisioning.
+  - **Istio 1.20**: Service mesh with mTLS, sidecar injection, traffic management, authorization policies.
+  - **Envoy**: High-performance proxy sidecar (embedded in Istio).
+  - **NGINX Ingress Controller**: Reverse proxy, rate limiting, TLS termination, load balancing.
   - **Kiali**: Service mesh observability dashboard.
+  - **cert-manager**: Automated Let's Encrypt TLS certificate provisioning.
 - **Cloud Infrastructure (AWS)**:
   - **Terraform 1.5+**: Infrastructure as Code with S3/DynamoDB state backend.
   - **EKS (Elastic Kubernetes Service)**: Managed Kubernetes cluster.
@@ -242,169 +274,225 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
   - **CloudFront**: CDN for frontend asset delivery.
   - **WAF (Web Application Firewall)**: Rate limiting and geo-blocking.
   - **Secrets Manager**: Credential and secret management.
+  - **CloudWatch**: Monitoring, logging, and alerting.
   - **AWS Backup**: Automated RDS and S3 backup schedules.
   - **ECS Fargate**: Serverless container execution (CloudFormation-based).
   - **IAM / IRSA**: Fine-grained service account permissions.
 - **Monitoring & Observability**:
-  - **Prometheus**: Metrics collection with Prometheus Operator, Node Exporter, and Kube State Metrics.
-  - **Grafana**: Dashboards and visualization.
+  - **Prometheus**: Metrics collection with Prometheus Operator, Node Exporter, and kube-state-metrics.
+  - **Grafana**: Dashboards and visualization with Loki integration.
   - **Jaeger**: Distributed tracing with Elasticsearch backend.
+  - **Zipkin**: Distributed tracing (OpenTelemetry receiver).
   - **Loki**: Log aggregation.
-  - **ELK Stack (Elasticsearch, Logstash, Kibana)**: Centralized logging and search.
+  - **ELK Stack (Elasticsearch, Logstash, Kibana)**: Centralized logging, processing, and search.
   - **OpenTelemetry Collector**: Unified traces, metrics, and logs pipeline (OTLP, Jaeger, Zipkin, Prometheus receivers).
-  - **AlertManager**: Alerting with Slack and PagerDuty integrations.
-- **Progressive Delivery**:
-  - **Flagger 1.34**: Automated canary deployments with Istio and Prometheus analysis.
-  - **KEDA 2.12**: Event-driven pod autoscaling (2–10 replicas).
-  - **Blue/Green Deployments**: Zero-downtime release strategy via Jenkins pipelines.
-  - **Canary Deployments**: Gradual traffic shifting with automated rollback.
-- **Security**:
+  - **AlertManager**: Alert routing with Slack and PagerDuty integrations.
+  - **SLI/SLO Monitoring**: Prometheus recording rules for availability and latency tracking.
+- **Security & Compliance**:
   - **HashiCorp Vault 1.15**: Secrets management with HA Raft storage, AWS KMS seal, CSI provider.
   - **External Secrets Operator**: Syncs secrets from Vault and AWS Secrets Manager into Kubernetes.
-  - **Falco 0.36**: Runtime security monitoring with eBPF, custom rules, Falcosidekick alerting.
-  - **OPA (Open Policy Agent)**: Policy-as-code enforcement for Kubernetes.
-  - **Trivy**: Container image vulnerability scanning.
+  - **Falco 0.36**: Runtime security monitoring with eBPF driver, custom rules, Falcosidekick alerting.
+  - **OPA Gatekeeper 3.14**: Policy-as-code enforcement with constraint templates, mutation webhooks, and audit logging.
+  - **Trivy**: Container image and filesystem vulnerability scanning.
+- **Progressive Delivery & Autoscaling**:
+  - **Flagger 1.34**: Automated canary deployments with Istio and Prometheus analysis.
+  - **KEDA 2.12**: Event-driven pod autoscaling (2–10 replicas).
+  - **HPA (Horizontal Pod Autoscaler)**: CPU/memory-based pod scaling.
+  - **Blue/Green Deployments**: Zero-downtime release strategy via Jenkins pipelines.
+  - **Canary Deployments**: Gradual traffic shifting with automated rollback.
+- **Chaos Engineering**:
+  - **Litmus Chaos**: Resilience testing platform with pod-delete, cpu-hog, memory-hog, network-latency, network-loss, container-kill, disk-fill, node-drain, and AWS-specific chaos experiments (ec2-terminate, ebs-loss, az-outage).
 - **Backup & Disaster Recovery**:
   - **Velero**: Kubernetes cluster backup and restore.
   - **AWS Backup**: Managed backup for RDS and S3.
   - **S3 Versioning + Glacier Lifecycle**: Long-term archival with automated transitions.
 - **CI/CD & Deployment**:
-  - **GitHub Actions**: Primary CI pipeline (build, test, deploy).
-  - **GitLab CI**: Full CI/CD pipeline with multi-stage jobs.
-  - **CircleCI**: Orb-based pipeline (Node, Python, AWS-EKS, Docker, SonarCloud).
+  - **GitHub Actions**: Primary CI pipeline (lint, test, coverage, Docker build & push to GHCR, deploy).
+  - **GitLab CI**: Multi-stage pipeline (pre-check, build, test, security, package, deploy, post-deploy, cleanup).
+  - **CircleCI**: Orb-based pipeline (Node, Python, AWS-EKS, Docker, SonarCloud, k6).
   - **Jenkins**: Multi-stage pipeline with canary and blue/green deployment stages.
   - **SonarQube / SonarCloud**: Static code analysis and quality gates.
+  - **GHCR (GitHub Container Registry)**: Docker image registry.
   - **Vercel**: Frontend hosting with analytics.
   - **Render**: Backend hosting (fallback).
   - **Netlify**: Frontend hosting (backup).
-  - **GHCR (GitHub Container Registry)**: Docker image registry.
 - **Testing & Quality**:
-  - **Jest**: Unit and integration testing (frontend, backend, orchestrator).
-  - **React Testing Library**: Component testing.
+  - **Jest**: Unit and integration testing (frontend, backend, orchestrator, mobile).
+  - **React Testing Library**: Component testing with user-event simulation.
   - **Supertest**: HTTP endpoint testing.
-  - **pytest**: Python test framework.
-  - **k6**: Load and performance testing.
-  - **ESLint**: JavaScript linting.
+  - **pytest**: Python test framework for AI/ML services.
+  - **k6**: Load and performance testing (baseline, stress, spike, soak, breakpoint scenarios).
+  - **ESLint**: JavaScript/TypeScript linting.
   - **Prettier**: Code formatting.
   - **Postman**: API development and testing.
 
 > For a comprehensive deep-dive into the AI/ML architecture with visual diagrams, see [**AI_ML.md**](AI_ML.md).
 
 <p align="center">
-  <!-- Frontend -->
-  <img src="https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
-  <img src="https://img.shields.io/badge/Material--UI-0081CB?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
-  <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Craco-61DAFB?style=for-the-badge&logo=webpack&logoColor=white" alt="Craco" />
-  <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=white" alt="Webpack" />
-  <img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native" />
-  <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
-  <img src="https://img.shields.io/badge/React_Navigation-123456?style=for-the-badge&logo=react-router&logoColor=white" alt="React Navigation" />
-  <img src="https://img.shields.io/badge/KaTeX-000000?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX" />
-  <img src="https://img.shields.io/badge/pdfjs-FF6600?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="PDF.js" />
 
-  <!-- Backend -->
+  <!-- 🔤 Languages & Runtimes -->
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Python_3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
   <img src="https://img.shields.io/badge/Node.js_18+-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
-  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase" />
-  <img src="https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase Auth" />
-  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT" />
-  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
-  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firestore" />
-  <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
-  <img src="https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL" />
-  <img src="https://img.shields.io/badge/Flyway-red?style=for-the-badge&logo=flyway&logoColor=white" alt="Flyway" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
 
-  <!-- Orchestrator -->
+  <!-- 🖥️ Frontend (Web) -->
+  <img src="https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Material--UI_6-0081CB?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
+  <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Emotion-DB7093?style=for-the-badge&logo=emotion&logoColor=white" alt="Emotion" />
+  <img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router" />
+  <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" alt="Axios" />
+  <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=white" alt="Webpack" />
+  <img src="https://img.shields.io/badge/Craco-61DAFB?style=for-the-badge&logo=webpack&logoColor=white" alt="Craco" />
+  <img src="https://img.shields.io/badge/Babel-F9DC3E?style=for-the-badge&logo=babel&logoColor=black" alt="Babel" />
+  <img src="https://img.shields.io/badge/React_Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white" alt="React Markdown" />
+  <img src="https://img.shields.io/badge/KaTeX-000000?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX" />
+  <img src="https://img.shields.io/badge/PDF.js-FF6600?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="PDF.js" />
+  <img src="https://img.shields.io/badge/React_Dropzone-2196F3?style=for-the-badge&logo=react&logoColor=white" alt="React Dropzone" />
+  <img src="https://img.shields.io/badge/React_Helmet-4B0082?style=for-the-badge&logo=react&logoColor=white" alt="React Helmet" />
+  <img src="https://img.shields.io/badge/Dropbox-0061FF?style=for-the-badge&logo=dropbox&logoColor=white" alt="Dropbox" />
+  <img src="https://img.shields.io/badge/Google_Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white" alt="Google Drive" />
+  <img src="https://img.shields.io/badge/Vercel_Analytics-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Analytics" />
+
+  <!-- 📱 Mobile -->
+  <img src="https://img.shields.io/badge/React_Native_0.74-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native" />
+  <img src="https://img.shields.io/badge/Expo_51-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
+  <img src="https://img.shields.io/badge/React_Navigation-6B52AE?style=for-the-badge&logo=react&logoColor=white" alt="React Navigation" />
+  <img src="https://img.shields.io/badge/React_Native_Web-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native Web" />
+  <img src="https://img.shields.io/badge/React_Native_Reanimated-7B61FF?style=for-the-badge&logo=react&logoColor=white" alt="React Native Reanimated" />
+
+  <!-- ⚙️ Backend & API -->
+  <img src="https://img.shields.io/badge/Express_4-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
+  <img src="https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
+  <img src="https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase Auth" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT" />
+  <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
+  <img src="https://img.shields.io/badge/Multer-FF6F00?style=for-the-badge&logo=express&logoColor=white" alt="Multer" />
+  <img src="https://img.shields.io/badge/Nodemon-76D04B?style=for-the-badge&logo=nodemon&logoColor=white" alt="Nodemon" />
+
+  <!-- 🤖 Orchestrator & AI Agents -->
   <img src="https://img.shields.io/badge/Anthropic_SDK-191919?style=for-the-badge&logo=anthropic&logoColor=white" alt="Anthropic SDK" />
-  <img src="https://img.shields.io/badge/MCP-Model_Context_Protocol-5A29E4?style=for-the-badge" alt="MCP" />
+  <img src="https://img.shields.io/badge/MCP_SDK-5A29E4?style=for-the-badge&logo=anthropic&logoColor=white" alt="MCP" />
   <img src="https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white" alt="Zod" />
 
-  <!-- AI/ML -->
+  <!-- 🧠 AI/ML & LLMs -->
   <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Python_3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Uvicorn-2C8EBB?style=for-the-badge&logo=gunicorn&logoColor=white" alt="Uvicorn" />
   <img src="https://img.shields.io/badge/LangChain-2C8EBB?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
   <img src="https://img.shields.io/badge/LangGraph-8A2BE2?style=for-the-badge&logo=apacheairflow&logoColor=white" alt="LangGraph" />
-  <img src="https://img.shields.io/badge/CrewAI-1F6FEB?style=for-the-badge&logo=githubactions&logoColor=white" alt="CrewAI" />
+  <img src="https://img.shields.io/badge/CrewAI-1F6FEB?style=for-the-badge&logo=robot&logoColor=white" alt="CrewAI" />
   <img src="https://img.shields.io/badge/OpenAI_GPT--4o-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
   <img src="https://img.shields.io/badge/Anthropic_Claude-191919?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude" />
-  <img src="https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Gemini" />
-  <img src="https://img.shields.io/badge/FAISS-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="FAISS" />
-  <img src="https://img.shields.io/badge/ChromaDB-7834F8?style=for-the-badge&logo=databricks&logoColor=white" alt="ChromaDB" />
-  <img src="https://img.shields.io/badge/Neo4j-4581C3?style=for-the-badge&logo=neo4j&logoColor=white" alt="Neo4j" />
+  <img src="https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini" />
   <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch" />
   <img src="https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="HuggingFace" />
   <img src="https://img.shields.io/badge/ONNX-005CED?style=for-the-badge&logo=onnx&logoColor=white" alt="ONNX" />
-  <img src="https://img.shields.io/badge/sentence--transformers-FF6F00?style=for-the-badge&logo=huggingface&logoColor=white" alt="sentence-transformers" />
+  <img src="https://img.shields.io/badge/Sentence_Transformers-FF6F00?style=for-the-badge&logo=huggingface&logoColor=white" alt="Sentence Transformers" />
+  <img src="https://img.shields.io/badge/Optuna-0290D5?style=for-the-badge&logo=optuna&logoColor=white" alt="Optuna" />
+  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="Pandas" />
+  <img src="https://img.shields.io/badge/Matplotlib-11557C?style=for-the-badge&logo=matplotlib&logoColor=white" alt="Matplotlib" />
+  <img src="https://img.shields.io/badge/RAG-6495ED?style=for-the-badge&logo=chatbot&logoColor=white" alt="RAG" />
   <img src="https://img.shields.io/badge/Google_Cloud_NLP-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Cloud NLP" />
   <img src="https://img.shields.io/badge/Google_Speech--to--Text-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Speech-to-Text" />
-  <img src="https://img.shields.io/badge/RAG-6495ED?style=for-the-badge&logo=chatbot&logoColor=white" alt="RAG" />
 
-  <!-- Infrastructure -->
+  <!-- 🗄️ Databases & Vector Stores -->
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firestore" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/Neo4j-4581C3?style=for-the-badge&logo=neo4j&logoColor=white" alt="Neo4j" />
+  <img src="https://img.shields.io/badge/FAISS-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="FAISS" />
+  <img src="https://img.shields.io/badge/ChromaDB-7834F8?style=for-the-badge&logo=databricks&logoColor=white" alt="ChromaDB" />
+  <img src="https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white" alt="Mongoose" />
+  <img src="https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white" alt="Flyway" />
+
+  <!-- 🏗️ Infrastructure & Containers -->
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose" />
   <img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
   <img src="https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white" alt="Helm" />
   <img src="https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform" />
   <img src="https://img.shields.io/badge/ArgoCD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white" alt="ArgoCD" />
-  <img src="https://img.shields.io/badge/Istio-466BB0?style=for-the-badge&logo=istio&logoColor=white" alt="Istio" />
-  <img src="https://img.shields.io/badge/NGINX-269539?style=for-the-badge&logo=nginx&logoColor=white" alt="NGINX" />
+  <img src="https://img.shields.io/badge/Devcontainer-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Devcontainer" />
+
+  <!-- ☁️ AWS Cloud -->
   <img src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white" alt="AWS" />
   <img src="https://img.shields.io/badge/EKS-FF9900?style=for-the-badge&logo=amazoneks&logoColor=white" alt="EKS" />
+  <img src="https://img.shields.io/badge/ECS_Fargate-FF9900?style=for-the-badge&logo=amazonecs&logoColor=white" alt="ECS Fargate" />
   <img src="https://img.shields.io/badge/S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white" alt="S3" />
   <img src="https://img.shields.io/badge/CloudFront-232F3E?style=for-the-badge&logo=amazonwebservices&logoColor=white" alt="CloudFront" />
   <img src="https://img.shields.io/badge/RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white" alt="RDS" />
   <img src="https://img.shields.io/badge/ElastiCache-C925D1?style=for-the-badge&logo=amazonelasticache&logoColor=white" alt="ElastiCache" />
-  <img src="https://img.shields.io/badge/ECS_Fargate-FF9900?style=for-the-badge&logo=amazonecs&logoColor=white" alt="ECS Fargate" />
+  <img src="https://img.shields.io/badge/WAF-FF9900?style=for-the-badge&logo=amazonwebservices&logoColor=white" alt="WAF" />
+  <img src="https://img.shields.io/badge/CloudWatch-FF4F8B?style=for-the-badge&logo=amazoncloudwatch&logoColor=white" alt="CloudWatch" />
+  <img src="https://img.shields.io/badge/Secrets_Manager-DD344C?style=for-the-badge&logo=awssecretsmanager&logoColor=white" alt="Secrets Manager" />
+  <img src="https://img.shields.io/badge/IAM-DD344C?style=for-the-badge&logo=amazoniam&logoColor=white" alt="IAM" />
 
-  <!-- Monitoring & Observability -->
+  <!-- 🔗 Service Mesh & Networking -->
+  <img src="https://img.shields.io/badge/Istio-466BB0?style=for-the-badge&logo=istio&logoColor=white" alt="Istio" />
+  <img src="https://img.shields.io/badge/Envoy-AC6199?style=for-the-badge&logo=envoyproxy&logoColor=white" alt="Envoy" />
+  <img src="https://img.shields.io/badge/NGINX-269539?style=for-the-badge&logo=nginx&logoColor=white" alt="NGINX" />
+  <img src="https://img.shields.io/badge/Kiali-0097A7?style=for-the-badge&logo=kiali&logoColor=white" alt="Kiali" />
+  <img src="https://img.shields.io/badge/cert--manager-326CE5?style=for-the-badge&logo=letsencrypt&logoColor=white" alt="cert-manager" />
+
+  <!-- 📊 Monitoring & Observability -->
   <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus" />
   <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana" />
   <img src="https://img.shields.io/badge/Jaeger-66CFE3?style=for-the-badge&logo=jaeger&logoColor=black" alt="Jaeger" />
+  <img src="https://img.shields.io/badge/Zipkin-FE8019?style=for-the-badge&logo=openzipkin&logoColor=white" alt="Zipkin" />
   <img src="https://img.shields.io/badge/Loki-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Loki" />
+  <img src="https://img.shields.io/badge/OpenTelemetry-000000?style=for-the-badge&logo=opentelemetry&logoColor=white" alt="OpenTelemetry" />
   <img src="https://img.shields.io/badge/Elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white" alt="Elasticsearch" />
   <img src="https://img.shields.io/badge/Logstash-005571?style=for-the-badge&logo=logstash&logoColor=white" alt="Logstash" />
   <img src="https://img.shields.io/badge/Kibana-005571?style=for-the-badge&logo=kibana&logoColor=white" alt="Kibana" />
-  <img src="https://img.shields.io/badge/OpenTelemetry-000000?style=for-the-badge&logo=opentelemetry&logoColor=white" alt="OpenTelemetry" />
+  <img src="https://img.shields.io/badge/AlertManager-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="AlertManager" />
 
-  <!-- Security -->
+  <!-- 🔒 Security & Compliance -->
   <img src="https://img.shields.io/badge/Vault-FFEC6E?style=for-the-badge&logo=vault&logoColor=black" alt="Vault" />
+  <img src="https://img.shields.io/badge/External_Secrets-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="External Secrets" />
   <img src="https://img.shields.io/badge/Falco-00AEC7?style=for-the-badge&logo=falco&logoColor=white" alt="Falco" />
-  <img src="https://img.shields.io/badge/OPA-7D9AAA?style=for-the-badge&logo=openpolicyagent&logoColor=white" alt="OPA" />
+  <img src="https://img.shields.io/badge/OPA_Gatekeeper-7D9AAA?style=for-the-badge&logo=openpolicyagent&logoColor=white" alt="OPA Gatekeeper" />
   <img src="https://img.shields.io/badge/Trivy-1904DA?style=for-the-badge&logo=aqua&logoColor=white" alt="Trivy" />
-  <img src="https://img.shields.io/badge/cert--manager-326CE5?style=for-the-badge&logo=letsencrypt&logoColor=white" alt="cert-manager" />
 
-  <!-- Progressive Delivery -->
+  <!-- 🔄 Progressive Delivery & Resilience -->
   <img src="https://img.shields.io/badge/Flagger-4B8BBE?style=for-the-badge&logo=fluxcd&logoColor=white" alt="Flagger" />
   <img src="https://img.shields.io/badge/KEDA-326CE5?style=for-the-badge&logo=keda&logoColor=white" alt="KEDA" />
   <img src="https://img.shields.io/badge/Velero-42A5F5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Velero" />
+  <img src="https://img.shields.io/badge/Litmus_Chaos-E95420?style=for-the-badge&logo=litmus&logoColor=white" alt="Litmus Chaos" />
 
-  <!-- CI/CD -->
+  <!-- 🚀 CI/CD & Hosting -->
   <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions" />
   <img src="https://img.shields.io/badge/GitLab_CI-FC6D26?style=for-the-badge&logo=gitlab&logoColor=white" alt="GitLab CI" />
   <img src="https://img.shields.io/badge/CircleCI-343434?style=for-the-badge&logo=circleci&logoColor=white" alt="CircleCI" />
   <img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins" />
   <img src="https://img.shields.io/badge/SonarQube-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white" alt="SonarQube" />
+  <img src="https://img.shields.io/badge/GHCR-181717?style=for-the-badge&logo=github&logoColor=white" alt="GHCR" />
   <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
   <img src="https://img.shields.io/badge/Render-FF6B6B?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
   <img src="https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Netlify" />
 
-  <!-- API & Docs -->
+  <!-- 📖 API Documentation -->
   <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
-  <img src="https://img.shields.io/badge/OpenAPI-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white" alt="OpenAPI" />
+  <img src="https://img.shields.io/badge/OpenAPI_3.0-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white" alt="OpenAPI" />
   <img src="https://img.shields.io/badge/REST_API-00599C?style=for-the-badge&logo=fastapi&logoColor=white" alt="REST API" />
+  <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Postman" />
 
-  <!-- Testing & Quality -->
+  <!-- 🧪 Testing & Quality -->
   <img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
-  <img src="https://img.shields.io/badge/React_Testing_Library-FFCA28?style=for-the-badge&logo=testing-library&logoColor=black" alt="React Testing Library" />
+  <img src="https://img.shields.io/badge/React_Testing_Library-E33332?style=for-the-badge&logo=testing-library&logoColor=white" alt="React Testing Library" />
   <img src="https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" alt="pytest" />
   <img src="https://img.shields.io/badge/k6-7D64FF?style=for-the-badge&logo=k6&logoColor=white" alt="k6" />
-  <img src="https://img.shields.io/badge/Supertest-FFCA28?style=for-the-badge&logo=testrail&logoColor=black" alt="Supertest" />
-  <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Postman" />
-  <img src="https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
+  <img src="https://img.shields.io/badge/Supertest-009688?style=for-the-badge&logo=testinglibrary&logoColor=white" alt="Supertest" />
+  <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
   <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
-  <img src="https://img.shields.io/badge/VSCode_Extension-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code Extension" />
+
+  <!-- 🔧 Developer Tools -->
+  <img src="https://img.shields.io/badge/VS_Code_Extension-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code Extension" />
+  <img src="https://img.shields.io/badge/Dotenv-ECD53F?style=for-the-badge&logo=dotenv&logoColor=black" alt="Dotenv" />
 </p>
 
 <h2 id="user-interface">🖼️ User Interface</h2>
