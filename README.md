@@ -209,6 +209,7 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
   - **Neo4j**: Graph database for knowledge graphs.
   - **ChromaDB**: Vector database for embedding persistence.
   - **Mongoose**: MongoDB object modeling for Node.js.
+  - **Flyway**: Database migrations for PostgreSQL.
 - **Mobile App**:
   - **React Native 0.74**: Cross-platform mobile framework.
   - **Expo 51**: Universal React application platform.
@@ -317,6 +318,7 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
   <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firestore" />
   <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
   <img src="https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL" />
+  <img src="https://img.shields.io/badge/Flyway-red?style=for-the-badge&logo=flyway&logoColor=white" alt="Flyway" />
 
   <!-- Orchestrator -->
   <img src="https://img.shields.io/badge/Anthropic_SDK-191919?style=for-the-badge&logo=anthropic&logoColor=white" alt="Anthropic SDK" />
