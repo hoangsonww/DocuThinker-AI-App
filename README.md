@@ -386,7 +386,43 @@ The **DocuThinker** app is organized into separate subdirectories for the fronte
 
 ```
 DocuThinker-AI-App/
-├── ai_ml/                            # AI/ML pipelines & services directory
+├── .beads/                           # Bead-based context snapshots
+├── .claude/                          # Claude Code workspace settings
+├── .mcp.json                         # MCP server configuration
+├── AGENTS.md                         # Agent behavior instructions
+├── CLAUDE.md                         # Claude Code project instructions
+├── ai_ml/                            # AI/ML pipelines & services directory (Python)
+├── orchestrator/                     # Agentic orchestration layer (Node.js)
+│   ├── core/
+│   │   ├── supervisor.js             # Intent classification, decomposition, dispatch
+│   │   ├── circuit-breaker.js        # Per-provider circuit breaker state machine
+│   │   ├── agent-loop.js             # Iterative tool-use agent loop
+│   │   ├── handoff.js                # Cross-agent context transfer
+│   │   ├── batch-processor.js        # Concurrent batch document processing
+│   │   ├── cost-tracker.js           # Token cost tracking with budget limits
+│   │   ├── dlq.js                    # Dead letter queue with retry logic
+│   │   ├── python-bridge.js          # HTTP bridge to Python AI/ML service
+│   │   ├── providers.js              # Unified LLM client (Claude + Gemini)
+│   │   └── tool-registry.js          # Tool registration and dispatch
+│   ├── context/
+│   │   ├── token-budget.js           # Context window management
+│   │   ├── conversation-store.js     # Auto-summarizing conversation memory
+│   │   ├── observability.js          # OTel-compatible context metrics
+│   │   └── hybrid-rag.js             # Keyword + semantic search with RRF
+│   ├── prompts/
+│   │   ├── system-prompts.js         # 14 versioned system prompts
+│   │   └── cache-strategy.js         # 3-layer Anthropic prompt caching
+│   ├── schemas/
+│   │   └── ai-outputs.js             # 12 Zod validation schemas
+│   ├── mcp/
+│   │   ├── server.js                 # MCP server exposing 13 tools
+│   │   └── client.js                 # MCP client for external servers
+│   ├── __tests__/
+│   │   └── orchestrator.test.js      # Integration tests (Jest)
+│   ├── Dockerfile                    # Production container (node:20-alpine)
+│   ├── package.json                  # Dependencies and scripts
+│   └── index.js                      # Express server entry point (port 4000)
+│
 ├── backend/
 │   ├── middleware/
 │   │   └── jwt.js                    # Authentication middleware with JWT for the app's backend
@@ -737,63 +773,129 @@ The backend APIs uses centralized error handling to capture and log errors. Resp
 
 <h2 id="ai-ml-agentic-platform">🤖 AI/ML Agentic Platform</h2>
 
-Our `ai_ml/` package wraps LangGraph, CrewAI, and multi-provider LLMs inside a reusable `DocumentIntelligenceService`. It now supports:
+DocuThinker employs a **two-layer agentic architecture** that separates orchestration concerns (Node.js) from AI/ML execution (Python), connected by a resilient bridge with circuit breakers, cost controls, and full observability.
 
-- **Agentic RAG pipeline** combining semantic retrieval, structured JSON generation, and CrewAI review (`ai_ml/services/orchestrator.py`, `ai_ml/pipelines/rag_graph.py`).
-- **Multi-LLM registry** with drop-in OpenAI, Anthropic Claude, Google Gemini, or Hugging Face embeddings (`ai_ml/providers/registry.py`).
-- **Optional persistence**: enable Neo4j knowledge graphs (`ai_ml/graph/neo4j_client.py`) and Chroma vector memory (`ai_ml/vectorstores/chroma_store.py`) via `DOCUTHINKER_SYNC_GRAPH` / `DOCUTHINKER_SYNC_VECTOR` env flags.
-- **Expanded tooling**: FastAPI, CLI, and MCP tools tap a single facade for sentiment, translation, recommendations, graph sync, and vector search.
-- **Extensible architecture**: easily add new LLMs, tools, or pipelines.
-- **NER and POS tagging** with SpaCy.
-- **Robust error handling** and logging.
-- **Modular design** for easy integration into other projects.
-- **Comprehensive tests** with 90%+ coverage.
-- **Detailed documentation** and examples.
-- and more!
+### Architecture Overview
+
+| Layer | Technology | Port | Responsibility |
+|-------|-----------|------|----------------|
+| **Orchestrator** | Node.js 18+ / Express | `4000` | Supervisor routing, agent loops, tool dispatch, cost tracking, MCP |
+| **AI/ML Backend** | Python / FastAPI | `8000` | LLM inference, RAG pipelines, NER, CrewAI multi-agent, vector/graph stores |
 
 ```mermaid
-graph LR
-    Client --> API(Backend API)
-    API --> SVC(DocumentIntelligenceService)
-    SVC --> PIPE(AgenticRAGPipeline)
-    PIPE --> CREW(CrewAI Team)
-    PIPE --> RETR(Vector Tools)
-    SVC --> NEO(Neo4j)
-    SVC --> CHR(ChromaDB)
-    CREW --> OAI(OpenAI)
-    CREW --> CLAUDE(Anthropic)
-    CREW --> GEM(Gemini)
-    RETR --> HF(Embeddings)
+graph TB
+    subgraph "Clients"
+        WEB[React Frontend]
+        EXT[External Agents / MCP]
+    end
+
+    subgraph "Orchestrator :4000"
+        SUP[Supervisor<br/>classify / decompose / dispatch]
+        AL[Agent Loop<br/>tool-use cycle up to 10 iters]
+        CB[Circuit Breaker<br/>CLOSED / OPEN / HALF_OPEN]
+        CT[Cost Tracker<br/>daily + monthly budgets]
+        BP[Batch Processor<br/>concurrent doc processing]
+        DLQ[Dead Letter Queue<br/>retry + DLQ]
+        HO[Handoff Manager<br/>cross-agent context transfer]
+        TR[Tool Registry<br/>local + Python-bridge tools]
+        TB[Token Budget Manager<br/>context window guard]
+        CS[Conversation Store<br/>auto-summarizing history]
+        OBS[Context Observability<br/>OTel-compatible metrics]
+        PC[Prompt Cache Strategy<br/>3-layer Anthropic caching]
+        MCP_S[MCP Server<br/>13 tools over stdio]
+        MCP_C[MCP Client<br/>connect to external servers]
+    end
+
+    subgraph "AI/ML Backend :8000"
+        PY_SVC[DocumentIntelligenceService]
+        RAG[Agentic RAG Pipeline]
+        CREW[CrewAI Multi-Agent]
+        NLP[SpaCy NER / Sentiment]
+        VEC[ChromaDB Vectors]
+        KG[Neo4j Knowledge Graph]
+    end
+
+    subgraph "LLM Providers"
+        CLAUDE[Anthropic Claude]
+        GEMINI[Google Gemini]
+    end
+
+    WEB -->|REST| SUP
+    EXT -->|MCP stdio| MCP_S
+    SUP --> AL
+    SUP --> BP
+    AL --> TR
+    TR -->|Python Bridge| PY_SVC
+    AL --> CB
+    CB --> CLAUDE
+    CB --> GEMINI
+    CT -.->|budget check| SUP
+    TB -.->|token check| SUP
+    DLQ -.->|retry| SUP
+    HO -.->|context| AL
+    CS -.->|history| AL
+    OBS -.->|metrics| CT
+    PC -.->|cache hints| AL
+    PY_SVC --> RAG
+    PY_SVC --> CREW
+    PY_SVC --> NLP
+    RAG --> VEC
+    RAG --> KG
 ```
 
-> [!TIP]
-> Set `DOCUTHINKER_SYNC_GRAPH=true` and `DOCUTHINKER_SYNC_VECTOR=true` to persist analyses; the MCP tools expose `vector_upsert`, `vector_search`, `graph_upsert`, and `graph_query` for external agents.
+### Orchestrator Components
 
-```mermaid
-graph TD
-    A[Client Request] -->|HTTP/HTTPS| B[Express Server]
-    B --> C{Route Handler}
-    C -->|Auth Routes| D[User Controller]
-    C -->|Document Routes| E[Document Controller]
-    C -->|AI Routes| F[AI Controller]
-    D --> G[Firebase Auth]
-    E --> H[Firestore DB]
-    F --> I[AI/ML Services]
-    I --> J[Google Cloud NLP]
-    I --> K[LangChain]
-    I --> L[Custom Models]
-    B --> M[Redis Cache]
-    B --> N[RabbitMQ Queue]
-    G --> O[Response Formatter]
-    H --> O
-    J --> O
-    K --> O
-    L --> O
-    O --> P[JSON Response]
-```
+The orchestrator (`orchestrator/`) is a standalone Node.js service providing:
+
+- **Supervisor** -- Classifies incoming requests into 18+ intents via route matching or LLM classification, checks token budgets, decomposes multi-step tasks (e.g., upload = extract + summarize + store), dispatches to handlers with dependency resolution, and aggregates results. Includes automatic provider failover.
+- **Circuit Breaker** -- Per-provider state machine (CLOSED / OPEN / HALF_OPEN) that trips after configurable failure thresholds and auto-recovers after a cooldown with a single probe request.
+- **Agent Loop** -- Agentic tool-use cycle that iterates up to `maxIterations` (default 10), calling tools via the Tool Registry and feeding results back until the LLM produces a final response.
+- **Handoff Manager** -- Transfers execution context between agents (Node-to-Node or Node-to-Python) with conversation summarization and task state serialization.
+- **Batch Processor** -- Processes document arrays with configurable batch size (10) and concurrency (3), reporting per-document success/failure and overall success rate.
+- **Cost Tracker** -- Records per-request costs using real token pricing for Claude, GPT-4, and Gemini models. Enforces daily and monthly budget limits with 80% threshold warnings.
+- **Dead Letter Queue** -- Failed operations retry up to `maxRetries` (default 3) before moving to the DLQ for manual inspection.
+- **Python Bridge** -- HTTP client to the Python AI/ML service with circuit breaker integration, configurable timeouts, and methods for RAG, NER, sentiment, graph queries, and vector search.
+- **Tool Registry** -- Registers local tools (e.g., `analyze_document_text`) and Python-bridged tools (e.g., `extract_entities`, `rag_search`, `vector_search`, `knowledge_graph_query`, `python_sentiment`). Tools are exposed to the Agent Loop in Anthropic tool-use format.
+
+### Context Management
+
+- **Token Budget Manager** -- Estimates token usage across 7+ models, checks against context windows (200K for Claude, 2M for Gemini), and provides compaction via conversation summarization.
+- **Conversation Store** -- In-memory store keyed by `userId:documentId`. Auto-summarizes history when messages exceed 20, evicts LRU conversations beyond 10,000, and builds context-injected message arrays with document context and summaries.
+- **Context Observability** -- Records per-request utilization metrics, exposes OpenTelemetry-compatible metric format, tracks cache hit rates, and alerts on >80% context utilization.
+- **Hybrid RAG** -- Combines keyword search (Redis) and semantic search (Python vector store) using Reciprocal Rank Fusion for re-ranking.
+
+### Prompt Engineering
+
+- **14 versioned system prompts** covering summarization, key ideas, discussion points, sentiment, bullet summary, rewrite, recommendations, categorization, translation, document chat, voice chat, general chat, batch coordination, and intent classification.
+- **12 Zod schemas** validating all AI outputs (summary, keyIdeas, discussionPoints, sentiment, bulletSummary, rewrite, recommendations, category, chat, intent, batch, analytics).
+- **3-layer prompt caching** using Anthropic's `cache_control: ephemeral` on system prompts, document context, and conversation history.
+
+### MCP Integration
+
+- **MCP Server** (`orchestrator/mcp/server.js`) -- Exposes 13 tools over stdio transport: `document_summarize`, `document_key_ideas`, `document_sentiment`, `document_discussion_points`, `document_analytics`, `document_bullet_summary`, `document_rewrite`, `document_recommendations`, `document_chat`, `system_health`, `system_costs`, `rag_query`, `knowledge_graph_query`.
+- **MCP Client** (`orchestrator/mcp/client.js`) -- Connects to external MCP servers via stdio transport, enabling the orchestrator to consume tools from other agents.
+
+### Orchestrator API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | System health with circuit breaker, cost, cache, DLQ, and provider status |
+| `GET` | `/api/costs` | Cost usage report by provider and intent |
+| `GET` | `/api/circuits` | Circuit breaker state for all providers |
+| `GET` | `/api/context-metrics` | Context utilization and cache hit rate metrics |
+| `GET` | `/api/dlq` | Dead letter queue stats and recent messages |
+| `GET` | `/api/tools` | Registered tool definitions and count |
+| `POST` | `/api/tools/execute` | Execute a registered tool by name |
+| `POST` | `/api/token-check` | Check token budget for a given model/prompt/messages |
+| `POST` | `/api/supervisor/process` | Route a request through the supervisor pipeline |
+| `POST` | `/api/agent/run` | Run the agentic tool-use loop with a message and context |
+| `POST` | `/api/batch/process` | Batch process multiple documents (summarize, keyIdeas, sentiment) |
+| `POST` | `/api/conversations/:userId/:documentId/message` | Add a message to a conversation |
+| `GET` | `/api/conversations/:userId/:documentId` | Retrieve conversation history |
+| `DELETE` | `/api/conversations/:userId/:documentId` | Clear a conversation |
 
 > [!TIP]
-> Visit the [`ai_ml/README.md`](ai_ml/README.md) file for more details on the AI/ML architecture.
+> Visit the [`orchestrator/README.md`](orchestrator/README.md) for full API request/response examples and the [`ai_ml/README.md`](ai_ml/README.md) for the Python AI/ML layer.
 
 <h2 id="graphql-integration">🧰 GraphQL Integration</h2>
 
@@ -925,31 +1027,46 @@ Below is a screenshot of the mobile app (in development):
 
 <h2 id="containerization">📦 Containerization</h2>
 
-The **DocuThinker** app can be containerized using **Docker** for easy deployment and scaling. Follow these steps to containerize the app:
+The **DocuThinker** app can be containerized using **Docker** for easy deployment and scaling. The `docker-compose.yml` defines all services including the new agentic orchestrator.
 
-1. Run the following command to build the Docker image:
+1. Run the following command to build and start all services:
    ```bash
    docker compose up --build
    ```
 
-2. The app will be containerized and ready to run on port 3000.
+2. All services will start on their respective ports (see table below).
 
 You can also view the image in the **Docker Hub** repository **[here](https://hub.docker.com/repository/docker/hoangsonw/docuthinker-ai-app/)**.
+
+#### Docker Compose Services
+
+| Service | Container | Port | Description |
+|---------|-----------|------|-------------|
+| `frontend` | `docuthinker-frontend` | `3001` | React frontend |
+| `backend` | `docuthinker-backend` | `3000` | Express API server |
+| `orchestrator` | `docuthinker-orchestrator` | `4000` | Agentic orchestration layer (Node.js) |
+| `ai-ml` | `docuthinker-ai-ml` | `8000` | Python AI/ML services (FastAPI) |
+| `redis` | `docuthinker-redis` | `6379` | In-memory cache (Redis 7 Alpine) |
+| `firebase` | firebase | -- | Firebase emulator |
+
+The orchestrator container includes a health check (`/health`), runs as a non-root user, and depends on Redis being healthy before starting.
 
 ```mermaid
 graph TB
     A[Docker Compose] --> B[Frontend Container]
     A --> C[Backend Container]
+    A --> O[Orchestrator Container]
+    A --> ML[AI/ML Container]
     A --> D[Redis Container]
-    A --> E[MongoDB Container]
-    A --> F[NGINX Container]
-    B -->|Port 3000| G[React App]
-    C -->|Port 5000| H[Express Server]
-    D -->|Port 6379| I[Redis Cache]
-    E -->|Port 27017| J[MongoDB Database]
-    F -->|Port 80/443| K[Load Balancer]
-    K --> B
-    K --> C
+    A --> F[Firebase Container]
+    B -->|Port 3001| G[React App]
+    C -->|Port 3000| H[Express Server]
+    O -->|Port 4000| I[Agentic Orchestrator]
+    ML -->|Port 8000| J[FastAPI AI/ML]
+    D -->|Port 6379| K[Redis Cache]
+    I -->|Python Bridge| J
+    I -->|Circuit Breaker| L[Claude / Gemini]
+    H -->|REST| I
 ```
 
 <h2 id="deployment">🚧 Deployment</h2>

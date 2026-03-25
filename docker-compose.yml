@@ -1,4 +1,4 @@
-version: "3"
+version: "3.8"
 
 services:
   backend:
@@ -37,6 +37,73 @@ services:
       - ./backend/.env:/app/.env
     networks:
       - docuthinker-net
+
+  # ===== Agentic Architecture Services =====
+
+  orchestrator:
+    container_name: docuthinker-orchestrator
+    build:
+      context: ./orchestrator
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - AI_ML_SERVICE_URL=http://ai-ml:8000
+      - BACKEND_URL=http://backend:3000
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - docuthinker-net
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://localhost:4000/health').then(r=>r.ok?process.exit(0):process.exit(1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  ai-ml:
+    container_name: docuthinker-ai-ml
+    build:
+      context: ./ai_ml
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    networks:
+      - docuthinker-net
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  redis:
+    container_name: docuthinker-redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    restart: unless-stopped
+    networks:
+      - docuthinker-net
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  redis-data:
+    driver: local
 
 networks:
   docuthinker-net:
