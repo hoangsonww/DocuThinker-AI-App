@@ -1,6 +1,6 @@
 # **DocuThinker - AI-Powered Document Analysis and Summarization App**
 
-Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application that integrates an AI-powered document processing backend, blue/green & canary deployment on an AWS infrastructure, and a React-based frontend. The app allows users to upload documents for summarization, generate key insights, chat with an AI, and do even more with the document's content.
+Welcome to **DocuThinker**! This is a full-stack application that integrates an AI-powered document processing backend, blue/green & canary deployment on an AWS infrastructure, and a React-based frontend. The app allows users to upload documents for summarization, generate key insights, chat with an AI, and do even more with the document's content.
 
 <p align="center">
   <a href="https://docuthinker.vercel.app" style="cursor: pointer">
