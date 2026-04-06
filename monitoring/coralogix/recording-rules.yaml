@@ -1,0 +1,259 @@
+# Coralogix Recording Rules & TCO (Total Cost of Ownership) Optimization
+# Defines data pipeline rules for cost-effective log/metric management
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coralogix-recording-rules
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: coralogix
+    app.kubernetes.io/component: recording-rules
+    app.kubernetes.io/part-of: docuthinker
+data:
+  recording-rules.json: |
+    {
+      "rule_groups": [
+        {
+          "name": "docuthinker_availability",
+          "interval_seconds": 60,
+          "rules": [
+            {
+              "record": "cx:docuthinker:http_requests:rate5m",
+              "expr": "sum(rate(http_requests_total[5m])) by (service, status_code)",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            },
+            {
+              "record": "cx:docuthinker:success_rate:5m",
+              "expr": "sum(rate(http_requests_total{status_code!~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service)",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            },
+            {
+              "record": "cx:docuthinker:error_rate:5m",
+              "expr": "sum(rate(http_requests_total{status_code=~\"5..\"}[5m])) by (service) / sum(rate(http_requests_total[5m])) by (service)",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            }
+          ]
+        },
+        {
+          "name": "docuthinker_latency",
+          "interval_seconds": 60,
+          "rules": [
+            {
+              "record": "cx:docuthinker:latency:p50_5m",
+              "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le))",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            },
+            {
+              "record": "cx:docuthinker:latency:p95_5m",
+              "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le))",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            },
+            {
+              "record": "cx:docuthinker:latency:p99_5m",
+              "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le))",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            }
+          ]
+        },
+        {
+          "name": "docuthinker_resources",
+          "interval_seconds": 60,
+          "rules": [
+            {
+              "record": "cx:docuthinker:cpu_usage:avg",
+              "expr": "avg(rate(container_cpu_usage_seconds_total{namespace=~\"docuthinker-.*\"}[5m])) by (pod, container)",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            },
+            {
+              "record": "cx:docuthinker:memory_usage:avg",
+              "expr": "avg(container_memory_working_set_bytes{namespace=~\"docuthinker-.*\"}) by (pod, container)",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            },
+            {
+              "record": "cx:docuthinker:memory_usage_percent",
+              "expr": "avg(container_memory_working_set_bytes{namespace=~\"docuthinker-.*\"} / container_spec_memory_limit_bytes{namespace=~\"docuthinker-.*\"}) by (pod, container) * 100",
+              "labels": {
+                "application": "docuthinker",
+                "environment": "production"
+              }
+            }
+          ]
+        },
+        {
+          "name": "docuthinker_slo",
+          "interval_seconds": 60,
+          "rules": [
+            {
+              "record": "cx:docuthinker:slo:availability_30d",
+              "expr": "sum(rate(http_requests_total{status_code!~\"5..\"}[30d])) by (service) / sum(rate(http_requests_total[30d])) by (service)",
+              "labels": {
+                "application": "docuthinker",
+                "slo_target": "0.999"
+              }
+            },
+            {
+              "record": "cx:docuthinker:slo:error_budget_remaining",
+              "expr": "1 - ((1 - cx:docuthinker:slo:availability_30d) / (1 - 0.999))",
+              "labels": {
+                "application": "docuthinker",
+                "slo_target": "0.999"
+              }
+            },
+            {
+              "record": "cx:docuthinker:slo:burn_rate_1h",
+              "expr": "(1 - cx:docuthinker:success_rate:5m) / (1 - 0.999)",
+              "labels": {
+                "application": "docuthinker",
+                "slo_target": "0.999"
+              }
+            }
+          ]
+        }
+      ]
+    }
+
+  # TCO (Total Cost of Ownership) Optimization Policies
+  # Controls data ingestion tiers: frequent search, monitoring, compliance
+  tco-policies.json: |
+    {
+      "policies": [
+        {
+          "name": "DocuThinker — High Priority Logs",
+          "description": "Application errors and critical business logs — frequent search tier",
+          "priority": "high",
+          "order": 1,
+          "archive_retention_id": null,
+          "log_rules": {
+            "severities": ["error", "critical"],
+            "applications": {
+              "rule_type": "is",
+              "names": ["docuthinker"]
+            },
+            "subsystems": {
+              "rule_type": "starts_with",
+              "names": ["production", "backend"]
+            }
+          }
+        },
+        {
+          "name": "DocuThinker — Medium Priority Logs",
+          "description": "Application warnings and info-level business logs — monitoring tier",
+          "priority": "medium",
+          "order": 2,
+          "archive_retention_id": null,
+          "log_rules": {
+            "severities": ["warning", "info"],
+            "applications": {
+              "rule_type": "is",
+              "names": ["docuthinker"]
+            },
+            "subsystems": {
+              "rule_type": "starts_with",
+              "names": ["production", "backend", "frontend"]
+            }
+          }
+        },
+        {
+          "name": "DocuThinker — Low Priority Logs",
+          "description": "Debug and verbose K8s infrastructure logs — compliance/archive tier",
+          "priority": "low",
+          "order": 3,
+          "archive_retention_id": null,
+          "log_rules": {
+            "severities": ["debug", "verbose"],
+            "applications": {
+              "rule_type": "is",
+              "names": ["docuthinker"]
+            },
+            "subsystems": {
+              "rule_type": "starts_with",
+              "names": ["kubernetes"]
+            }
+          }
+        },
+        {
+          "name": "Health Check Logs — Block",
+          "description": "Health check and probe logs — blocked from ingestion to reduce noise",
+          "priority": "block",
+          "order": 0,
+          "archive_retention_id": null,
+          "log_rules": {
+            "severities": ["debug", "verbose", "info"],
+            "applications": {
+              "rule_type": "is",
+              "names": ["docuthinker"]
+            },
+            "subsystems": {
+              "rule_type": "is",
+              "names": ["healthcheck"]
+            }
+          }
+        }
+      ],
+      "spans_policies": [
+        {
+          "name": "DocuThinker — High Priority Spans",
+          "description": "Error spans and slow spans — frequent search tier",
+          "priority": "high",
+          "order": 1,
+          "span_rules": {
+            "applications": {
+              "rule_type": "is",
+              "names": ["docuthinker"]
+            },
+            "actions": {
+              "rule_type": "is_not",
+              "names": ["healthcheck"]
+            },
+            "tags": [
+              {
+                "name": "otel.status_code",
+                "rule_type": "is",
+                "values": ["ERROR"]
+              }
+            ]
+          }
+        },
+        {
+          "name": "DocuThinker — Medium Priority Spans",
+          "description": "Normal spans — monitoring tier",
+          "priority": "medium",
+          "order": 2,
+          "span_rules": {
+            "applications": {
+              "rule_type": "is",
+              "names": ["docuthinker"]
+            },
+            "actions": {
+              "rule_type": "is_not",
+              "names": ["healthcheck"]
+            }
+          }
+        }
+      ]
+    }

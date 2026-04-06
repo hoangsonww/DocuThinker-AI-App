@@ -5,6 +5,26 @@ prometheus:
     retention: 30d
     retentionSize: "50GB"
 
+    # Remote Write to Coralogix for unified metrics correlation
+    remoteWrite:
+      - url: "https://ingress.coralogix.com/prometheus/v1"
+        headers:
+          Authorization: "Bearer ${CORALOGIX_PRIVATE_KEY}"
+        writeRelabelConfigs:
+          - sourceLabels: [__name__]
+            regex: "(http_requests_total|http_request_duration_seconds_bucket|up|container_cpu_usage_seconds_total|container_memory_working_set_bytes|node_cpu_seconds_total|node_memory_MemAvailable_bytes|kube_pod_status_ready|kube_pod_container_status_restarts_total|database_connection_pool_usage|redis_memory_used_bytes|redis_commands_processed_total|sli:.*|slo:.*|backend:.*|frontend:.*)"
+            action: keep
+        queueConfig:
+          capacity: 10000
+          maxSamplesPerSend: 5000
+          batchSendDeadline: 30s
+          maxShards: 10
+          minShards: 1
+          maxRetries: 5
+        metadataConfig:
+          send: true
+          sendInterval: 5m
+
     storageSpec:
       volumeClaimTemplate:
         spec:
@@ -136,6 +156,37 @@ grafana:
           type: loki
           url: http://loki:3100
           access: proxy
+
+        - name: Coralogix
+          type: prometheus
+          url: https://ng-api-grpc.coralogix.com/prometheus/api/v1
+          access: proxy
+          isDefault: false
+          jsonData:
+            httpHeaderName1: "Authorization"
+            timeInterval: "60s"
+            queryTimeout: "120s"
+            httpMethod: "POST"
+          secureJsonData:
+            httpHeaderValue1: "Bearer ${CORALOGIX_LOGS_QUERY_KEY}"
+
+        - name: Coralogix Logs
+          type: grafana-coralogix-logs-datasource
+          url: https://ng-api-grpc.coralogix.com
+          access: proxy
+          jsonData:
+            httpHeaderName1: "Authorization"
+          secureJsonData:
+            httpHeaderValue1: "Bearer ${CORALOGIX_LOGS_QUERY_KEY}"
+
+        - name: Coralogix Traces
+          type: jaeger
+          url: https://ng-api-grpc.coralogix.com
+          access: proxy
+          jsonData:
+            httpHeaderName1: "Authorization"
+          secureJsonData:
+            httpHeaderValue1: "Bearer ${CORALOGIX_LOGS_QUERY_KEY}"
 
   dashboardProviders:
     dashboardproviders.yaml:

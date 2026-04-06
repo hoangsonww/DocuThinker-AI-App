@@ -70,3 +70,19 @@ output "waf_web_acl_id" {
   description = "ID of the WAF Web ACL"
   value       = module.waf.web_acl_id
 }
+
+# Coralogix outputs
+output "coralogix_tco_policy_ids" {
+  description = "Coralogix TCO policy IDs"
+  value       = module.coralogix.tco_policy_ids
+}
+
+output "coralogix_alert_ids" {
+  description = "Coralogix alert IDs"
+  value       = module.coralogix.alert_ids
+}
+
+output "coralogix_recording_rules_id" {
+  description = "Coralogix recording rules group set ID"
+  value       = module.coralogix.recording_rules_id
+}

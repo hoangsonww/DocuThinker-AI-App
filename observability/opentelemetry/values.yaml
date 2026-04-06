@@ -134,6 +134,34 @@ config:
       tls:
         insecure: true
 
+    # Coralogix OTLP exporter — unified traces, metrics, logs
+    coralogix:
+      domain: "coralogix.com"
+      private_key: "${CORALOGIX_PRIVATE_KEY}"
+      application_name: "docuthinker"
+      subsystem_name: "production"
+      timeout: 30s
+
+    # Coralogix OTLP/gRPC exporter (alternative high-throughput path)
+    otlp/coralogix:
+      endpoint: "ingress.coralogix.com:443"
+      headers:
+        Authorization: "Bearer ${CORALOGIX_PRIVATE_KEY}"
+        CX-Application-Name: "docuthinker"
+        CX-Subsystem-Name: "production"
+      tls:
+        insecure: false
+      compression: gzip
+      retry_on_failure:
+        enabled: true
+        initial_interval: 5s
+        max_interval: 30s
+        max_elapsed_time: 300s
+      sending_queue:
+        enabled: true
+        num_consumers: 10
+        queue_size: 5000
+
   extensions:
     # Health check extension
     health_check:
@@ -151,23 +179,23 @@ config:
     extensions: [health_check, pprof, zpages]
 
     pipelines:
-      # Traces pipeline
+      # Traces pipeline — Jaeger + Coralogix
       traces:
         receivers: [otlp, jaeger, zipkin]
         processors: [memory_limiter, resourcedetection, batch, attributes, spanmetrics]
-        exporters: [jaeger, logging]
+        exporters: [jaeger, otlp/coralogix, logging]
 
-      # Metrics pipeline
+      # Metrics pipeline — Prometheus + Coralogix
       metrics:
         receivers: [otlp, prometheus]
         processors: [memory_limiter, resourcedetection, batch, attributes]
-        exporters: [prometheus, logging]
+        exporters: [prometheus, otlp/coralogix, logging]
 
-      # Logs pipeline (future)
+      # Logs pipeline — Coralogix
       logs:
         receivers: [otlp]
         processors: [memory_limiter, resourcedetection, batch, attributes]
-        exporters: [logging]
+        exporters: [otlp/coralogix, logging]
 
 # Ports configuration
 ports:

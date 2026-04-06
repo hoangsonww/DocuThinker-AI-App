@@ -25,7 +25,7 @@ Comprehensive guide for deploying, monitoring, and maintaining DocuThinker's ent
 
 ## Infrastructure Overview
 
-DocuThinker uses a modern, enterprise-grade cloud-native architecture with **15 production-ready DevOps components**.
+DocuThinker uses a modern, enterprise-grade cloud-native architecture with **16 production-ready DevOps components**.
 
 ### Technology Stack
 
@@ -36,7 +36,7 @@ DocuThinker uses a modern, enterprise-grade cloud-native architecture with **15 
 - **Infrastructure as Code**: Terraform + Helm
 - **CI/CD**: GitLab CI / GitHub Actions / Jenkins
 - **GitOps**: ArgoCD
-- **Observability**: OpenTelemetry + Prometheus + Grafana + Jaeger + ELK
+- **Observability**: OpenTelemetry + Prometheus + Grafana + Jaeger + ELK + **Coralogix**
 - **Chaos Engineering**: Litmus 3.0
 - **Progressive Delivery**: Flagger 1.34
 - **Backup & DR**: Velero 1.12 (RTO < 1 hour)
@@ -714,16 +714,25 @@ graph TB
             LOGSTASH[Logstash]
             ES_LOG[(Elasticsearch)]
         end
+
+        subgraph "Coralogix SaaS"
+            CX_LOGS[Coralogix Logs]
+            CX_METRICS[Coralogix Metrics]
+            CX_TRACES[Coralogix Traces]
+            CX_TCO[TCO Optimizer]
+        end
     end
 
     subgraph "Visualization"
         GRAF[Grafana<br/>Unified Dashboards]
         KIBANA[Kibana<br/>Log Analysis]
         KIALI[Kiali<br/>Service Mesh]
+        CX_DASH[Coralogix<br/>Dashboards]
     end
 
     subgraph "Alerting"
         ALERT[AlertManager]
+        CX_ALERT[Coralogix Alerts]
         SLACK[Slack]
         PD[PagerDuty]
     end
@@ -733,28 +742,46 @@ graph TB
     APP -->|Logs| FILEBEAT
 
     OTEL --> JAEGER
+    OTEL -->|OTLP/gRPC| CX_TRACES
+    OTEL -->|OTLP/gRPC| CX_METRICS
+    OTEL -->|OTLP/gRPC| CX_LOGS
     JAEGER --> ES_TRACE
 
     PROM_EXP --> PROM
     PROM --> SLO_CALC
+    PROM -->|Remote Write| CX_METRICS
     SLO_CALC --> ERROR_BUDGET
 
     FILEBEAT --> LOGSTASH
     LOGSTASH --> ES_LOG
 
+    CX_LOGS --> CX_TCO
+    CX_METRICS --> CX_DASH
+    CX_TRACES --> CX_DASH
+
     PROM --> GRAF
     JAEGER --> GRAF
+    CX_METRICS --> GRAF
     ES_LOG --> KIBANA
     PROM --> KIALI
 
     PROM -.->|Alerts| ALERT
+    CX_LOGS -.->|Alerts| CX_ALERT
     ALERT --> SLACK
     ALERT -->|Critical| PD
+    CX_ALERT --> SLACK
+    CX_ALERT -->|Critical| PD
 
     style OTEL fill:#F38181,color:#fff
     style PROM fill:#E85D04,color:#fff
     style GRAF fill:#F48C06,color:#fff
     style SLO_CALC fill:#95E1D3
+    style CX_LOGS fill:#6C63FF,color:#fff
+    style CX_METRICS fill:#6C63FF,color:#fff
+    style CX_TRACES fill:#6C63FF,color:#fff
+    style CX_TCO fill:#6C63FF,color:#fff
+    style CX_DASH fill:#6C63FF,color:#fff
+    style CX_ALERT fill:#6C63FF,color:#fff
 ```
 
 ### SLO/SLI Monitoring
@@ -800,6 +827,54 @@ kubectl port-forward svc/kibana -n monitoring 5601:5601
 kubectl port-forward svc/kiali -n istio-system 20001:20001
 # Open: http://localhost:20001
 ```
+
+### Coralogix — Unified Observability Platform
+
+Coralogix provides a SaaS-based unified observability backend for logs, metrics, and traces with cost optimization via TCO policies.
+
+**Integration Points**:
+
+| Component | Path | Purpose |
+|-----------|------|---------|
+| OTel Collector | `observability/opentelemetry/values.yaml` | Traces + Metrics + Logs via OTLP/gRPC |
+| Fluent Bit DaemonSet | `monitoring/coralogix/fluent-bit-values.yaml` | Node-level K8s log collection |
+| K8s Integration | `monitoring/coralogix/values.yaml` | OTel Agent + Cluster Collector |
+| Prometheus Remote Write | `monitoring/prometheus/values.yaml` | Metrics forwarding to Coralogix |
+| Grafana Datasource | `monitoring/prometheus/values.yaml` | Query Coralogix from Grafana |
+| Terraform IaC | `terraform/modules/coralogix/` | Alerts, TCO, recording rules |
+| External Secrets | `secrets/external-secrets/secret-store.yaml` | API key management via Vault |
+| Network Policies | `monitoring/coralogix/network-policy.yaml` | Egress rules for Coralogix |
+
+**TCO Cost Optimization Tiers**:
+- **Frequent Search**: Errors, critical logs, error spans (full indexing)
+- **Monitoring**: Warnings, info logs, normal spans (monitoring index)
+- **Compliance**: Debug, K8s infra logs (archive only)
+- **Block**: Health check/probe logs (dropped — zero cost)
+
+**Deployment**:
+```bash
+# Add Coralogix Helm repo
+helm repo add coralogix https://cgx.jfrog.io/artifactory/coralogix-charts-virtual
+helm repo update
+
+# Deploy K8s integration (OTel Agent + Cluster Collector)
+helm upgrade --install coralogix-integration coralogix/coralogix-integration \
+  --namespace monitoring -f monitoring/coralogix/values.yaml
+
+# Deploy Fluent Bit log shipper
+helm upgrade --install fluent-bit fluent/fluent-bit \
+  --namespace monitoring -f monitoring/coralogix/fluent-bit-values.yaml
+
+# Apply network policies and alert definitions
+kubectl apply -f monitoring/coralogix/network-policy.yaml
+kubectl apply -f monitoring/coralogix/alerts.yaml
+kubectl apply -f monitoring/coralogix/recording-rules.yaml
+
+# Terraform: provision alerts, TCO policies, recording rules
+cd terraform && terraform apply -target=module.coralogix
+```
+
+**12 Production Alerts**: High error rate, P95 latency, pod crashlooping, memory/CPU usage, DB pool exhaustion, API endpoint down, error budget burn, node health, disk space, SLO violations, Redis memory.
 
 ---
 

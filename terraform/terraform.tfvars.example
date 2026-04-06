@@ -22,3 +22,13 @@ cloudfront_domain_name = "cdn.docuthinker.com"
 
 google_ai_api_key = "YOUR_GOOGLE_AI_API_KEY"
 firebase_api_key  = "YOUR_FIREBASE_API_KEY"
+
+# Coralogix
+coralogix_api_key                       = "YOUR_CORALOGIX_SEND_YOUR_DATA_API_KEY"
+coralogix_domain                        = "coralogix.com"
+slack_critical_webhook_url              = "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+slack_alerts_webhook_url                = "https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+pagerduty_service_key                   = "YOUR_PAGERDUTY_SERVICE_KEY"
+coralogix_slack_critical_integration_id = ""
+coralogix_slack_alerts_integration_id   = ""
+coralogix_pagerduty_integration_id      = ""

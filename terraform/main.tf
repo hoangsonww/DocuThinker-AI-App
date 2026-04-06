@@ -14,6 +14,10 @@ terraform {
       source  = "hashicorp/helm"
       version = "~> 2.11"
     }
+    coralogix = {
+      source  = "coralogix/coralogix"
+      version = "~> 2.0"
+    }
   }
 
   backend "s3" {
@@ -218,6 +222,26 @@ module "secrets_manager" {
     }
   }
 }
+
+module "coralogix" {
+  source = "./modules/coralogix"
+
+  environment                   = var.environment
+  coralogix_api_key             = var.coralogix_api_key
+  coralogix_domain              = var.coralogix_domain
+  aws_region                    = var.aws_region
+  aws_account_id                = data.aws_caller_identity.current.account_id
+  slack_critical_webhook_url    = var.slack_critical_webhook_url
+  slack_alerts_webhook_url      = var.slack_alerts_webhook_url
+  pagerduty_service_key         = var.pagerduty_service_key
+  slack_critical_integration_id = var.coralogix_slack_critical_integration_id
+  slack_alerts_integration_id   = var.coralogix_slack_alerts_integration_id
+  pagerduty_integration_id      = var.coralogix_pagerduty_integration_id
+  enable_s3_archive             = var.environment == "production" ? true : false
+  archive_s3_bucket             = "${var.environment}-docuthinker-coralogix-archive"
+}
+
+data "aws_caller_identity" "current" {}
 
 module "waf" {
   source = "./modules/waf"

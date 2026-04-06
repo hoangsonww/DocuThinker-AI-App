@@ -287,6 +287,7 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   - **Loki**: Log aggregation.
   - **ELK Stack (Elasticsearch, Logstash, Kibana)**: Centralized logging, processing, and search.
   - **OpenTelemetry Collector**: Unified traces, metrics, and logs pipeline (OTLP, Jaeger, Zipkin, Prometheus receivers).
+  - **Coralogix**: Unified SaaS observability platform with TCO optimization — receives logs, metrics, and traces via OTel OTLP/gRPC; Fluent Bit DaemonSet for node-level log shipping; Prometheus remote write for metric correlation; 12 production alerts; recording rules; TCO cost policies; Terraform-managed via `coralogix/coralogix` provider.
   - **AlertManager**: Alert routing with Slack and PagerDuty integrations.
   - **SLI/SLO Monitoring**: Prometheus recording rules for availability and latency tracking.
 - **Security & Compliance**:
@@ -451,6 +452,7 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="https://img.shields.io/badge/Logstash-005571?style=for-the-badge&logo=logstash&logoColor=white" alt="Logstash" />
   <img src="https://img.shields.io/badge/Kibana-005571?style=for-the-badge&logo=kibana&logoColor=white" alt="Kibana" />
   <img src="https://img.shields.io/badge/AlertManager-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="AlertManager" />
+  <img src="https://img.shields.io/badge/Coralogix-6C63FF?style=for-the-badge&logo=datadog&logoColor=white" alt="Coralogix" />
 
   <!-- 🔒 Security & Compliance -->
   <img src="https://img.shields.io/badge/Vault-FFEC6E?style=for-the-badge&logo=vault&logoColor=black" alt="Vault" />
