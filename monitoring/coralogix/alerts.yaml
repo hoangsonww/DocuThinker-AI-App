@@ -1,0 +1,486 @@
+# Coralogix Alert Definitions
+# Deploy via Coralogix Terraform provider or REST API
+# Mirrors existing Prometheus alert rules with Coralogix-native capabilities
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: coralogix-alert-definitions
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: coralogix
+    app.kubernetes.io/component: alerts
+    app.kubernetes.io/part-of: docuthinker
+data:
+  alerts.json: |
+    {
+      "alerts": [
+        {
+          "name": "DocuThinker — High Error Rate",
+          "description": "HTTP 5xx error rate exceeds 5% for 5 minutes",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 5,
+              "timeframe": "5min",
+              "group_by": ["service"],
+              "metric_alert_parameters": {
+                "metric_source": "logs2metrics",
+                "arithmetic_operator": "percentile",
+                "metric_field": "status_code",
+                "arithmetic_operator_modifier": 0
+              }
+            }
+          },
+          "filters": {
+            "text": "status_code:[500 TO 599]",
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"],
+              "subsystems": ["production", "backend"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              },
+              {
+                "integration_id": "${CORALOGIX_PAGERDUTY_INTEGRATION_ID}"
+              }
+            ],
+            "notify_on": "triggered_and_resolved"
+          }
+        },
+        {
+          "name": "DocuThinker — High P95 Latency",
+          "description": "95th percentile response time exceeds 1s for 5 minutes",
+          "severity": "warning",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 1000,
+              "timeframe": "5min",
+              "group_by": ["service", "http.route"],
+              "metric_alert_parameters": {
+                "metric_source": "spans",
+                "arithmetic_operator": "percentile",
+                "arithmetic_operator_modifier": 95,
+                "metric_field": "duration"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"],
+              "subsystems": ["production", "backend"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-alerts"]
+                }
+              }
+            ],
+            "notify_on": "triggered_only"
+          }
+        },
+        {
+          "name": "DocuThinker — Pod CrashLooping",
+          "description": "A pod has restarted more than 3 times in 15 minutes",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 3,
+              "timeframe": "15min",
+              "group_by": ["k8s.pod.name", "k8s.namespace.name"]
+            }
+          },
+          "filters": {
+            "text": "reason:\"BackOff\" OR reason:\"CrashLoopBackOff\"",
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"],
+              "subsystems": ["kubernetes-cluster"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              },
+              {
+                "integration_id": "${CORALOGIX_PAGERDUTY_INTEGRATION_ID}"
+              }
+            ],
+            "notify_on": "triggered_and_resolved"
+          }
+        },
+        {
+          "name": "DocuThinker — High Memory Usage",
+          "description": "Container memory usage exceeds 90% of limit",
+          "severity": "warning",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 90,
+              "timeframe": "5min",
+              "group_by": ["k8s.pod.name"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "avg",
+                "metric_field": "container_memory_usage_percent"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-alerts"]
+                }
+              }
+            ],
+            "notify_on": "triggered_only"
+          }
+        },
+        {
+          "name": "DocuThinker — High CPU Usage",
+          "description": "Container CPU usage exceeds 90% of limit for 5 minutes",
+          "severity": "warning",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 90,
+              "timeframe": "5min",
+              "group_by": ["k8s.pod.name"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "avg",
+                "metric_field": "container_cpu_usage_percent"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-alerts"]
+                }
+              }
+            ],
+            "notify_on": "triggered_only"
+          }
+        },
+        {
+          "name": "DocuThinker — DB Connection Pool Exhausted",
+          "description": "Database connection pool usage exceeds 90%",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 0.9,
+              "timeframe": "2min",
+              "group_by": ["service"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "avg",
+                "metric_field": "database_connection_pool_usage"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"],
+              "subsystems": ["production", "backend"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              },
+              {
+                "integration_id": "${CORALOGIX_PAGERDUTY_INTEGRATION_ID}"
+              }
+            ],
+            "notify_on": "triggered_and_resolved"
+          }
+        },
+        {
+          "name": "DocuThinker — API Endpoint Down",
+          "description": "Backend API endpoint is unreachable for 1 minute",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "less_than",
+            "parameters": {
+              "threshold": 1,
+              "timeframe": "1min",
+              "group_by": ["instance"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "count",
+                "metric_field": "up"
+              }
+            }
+          },
+          "filters": {
+            "text": "job:\"docuthinker-backend\"",
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"],
+              "subsystems": ["production"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              },
+              {
+                "integration_id": "${CORALOGIX_PAGERDUTY_INTEGRATION_ID}"
+              }
+            ],
+            "notify_on": "triggered_and_resolved"
+          }
+        },
+        {
+          "name": "DocuThinker — Error Budget Fast Burn",
+          "description": "Error budget burn rate exceeds 14.4x (2% consumed in 1 hour)",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 14.4,
+              "timeframe": "5min",
+              "group_by": ["service"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "avg",
+                "metric_field": "slo:error_budget:burn_rate_1h"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              },
+              {
+                "integration_id": "${CORALOGIX_PAGERDUTY_INTEGRATION_ID}"
+              }
+            ],
+            "notify_on": "triggered_and_resolved"
+          }
+        },
+        {
+          "name": "DocuThinker — Node Not Ready",
+          "description": "A Kubernetes node has been unready for 5 minutes",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 0,
+              "timeframe": "5min",
+              "group_by": ["k8s.node.name"]
+            }
+          },
+          "filters": {
+            "text": "type:\"Warning\" reason:\"NodeNotReady\"",
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"],
+              "subsystems": ["kubernetes-cluster"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              },
+              {
+                "integration_id": "${CORALOGIX_PAGERDUTY_INTEGRATION_ID}"
+              }
+            ],
+            "notify_on": "triggered_and_resolved"
+          }
+        },
+        {
+          "name": "DocuThinker — Disk Space Low",
+          "description": "Less than 10% disk space remaining on node",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "less_than",
+            "parameters": {
+              "threshold": 10,
+              "timeframe": "5min",
+              "group_by": ["instance", "device"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "avg",
+                "metric_field": "node_filesystem_avail_percent"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              }
+            ],
+            "notify_on": "triggered_only"
+          }
+        },
+        {
+          "name": "DocuThinker — Availability SLO Violation",
+          "description": "30-day availability has dropped below 99.9% SLO target",
+          "severity": "critical",
+          "is_active": true,
+          "condition": {
+            "type": "less_than",
+            "parameters": {
+              "threshold": 99.9,
+              "timeframe": "5min",
+              "group_by": ["service"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "avg",
+                "metric_field": "sli:availability:ratio_rate30d"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-critical"]
+                }
+              },
+              {
+                "integration_id": "${CORALOGIX_PAGERDUTY_INTEGRATION_ID}"
+              }
+            ],
+            "notify_on": "triggered_and_resolved"
+          }
+        },
+        {
+          "name": "DocuThinker — Redis High Memory",
+          "description": "Redis memory usage exceeds 90% of max configured memory",
+          "severity": "warning",
+          "is_active": true,
+          "condition": {
+            "type": "more_than",
+            "parameters": {
+              "threshold": 90,
+              "timeframe": "5min",
+              "group_by": ["instance"],
+              "metric_alert_parameters": {
+                "metric_source": "prometheus",
+                "arithmetic_operator": "avg",
+                "metric_field": "redis_memory_used_percent"
+              }
+            }
+          },
+          "filters": {
+            "filter_type": "text",
+            "metadata": {
+              "applications": ["docuthinker"]
+            }
+          },
+          "notifications": {
+            "emails": [],
+            "integrations": [
+              {
+                "integration_id": "${CORALOGIX_SLACK_INTEGRATION_ID}",
+                "recipients": {
+                  "channels": ["#docuthinker-alerts"]
+                }
+              }
+            ],
+            "notify_on": "triggered_only"
+          }
+        }
+      ]
+    }

@@ -41,7 +41,7 @@ DocuThinker is an **enterprise-grade**, full-stack AI-powered document analysis 
 - **Semantic Search**: Vector-based document search using embeddings
 - **User Management**: Firebase Authentication with social login options
 - **Cloud-Native Architecture**: Kubernetes-based deployment with microservices
-- **Observability**: Full-stack monitoring with OpenTelemetry, Prometheus, Grafana, and Jaeger
+- **Observability**: Full-stack monitoring with OpenTelemetry, Prometheus, Grafana, Jaeger, and Coralogix
 - **Security**: mTLS, OPA policy enforcement, runtime security with Falco
 - **Reliability Engineering**: Chaos testing with Litmus, disaster recovery with Velero
 
@@ -55,7 +55,7 @@ DocuThinker is an **enterprise-grade**, full-stack AI-powered document analysis 
 - **Progressive Delivery**: Flagger for automated canary deployments
 - **Event-Driven Autoscaling**: KEDA for cost-optimized scaling
 - **Runtime Security**: Falco for threat detection
-- **Distributed Tracing**: OpenTelemetry with Jaeger integration
+- **Distributed Tracing**: OpenTelemetry with Jaeger and Coralogix integration
 - **Disaster Recovery**: Velero for automated backups
 - **SLO/SLI Monitoring**: Error budget tracking and alerting
 - **TLS Automation**: cert-manager for certificate management
@@ -122,6 +122,7 @@ graph TB
         AA[Grafana Dashboards]
         AB[Jaeger Tracing]
         AC[ELK Stack]
+        CX[Coralogix<br/>Unified Observability]
     end
 
     subgraph "Reliability Engineering"
@@ -1659,7 +1660,7 @@ sequenceDiagram
 
 ## Observability & Monitoring
 
-Comprehensive observability with OpenTelemetry, Prometheus, and ELK Stack.
+Comprehensive observability with OpenTelemetry, Prometheus, ELK Stack, and Coralogix.
 
 ```mermaid
 graph TB
@@ -1668,6 +1669,7 @@ graph TB
         OTEL[OpenTelemetry Collector<br/>HA - 3 Replicas]
         PROM_EXP[Prometheus Exporters]
         FILEBEAT[Filebeat]
+        FLUENTBIT[Fluent Bit DaemonSet<br/>Node-level Logs]
     end
 
     subgraph "Traces"
@@ -1687,6 +1689,16 @@ graph TB
         KIBANA[Kibana<br/>Log Analysis]
     end
 
+    subgraph "Coralogix SaaS"
+        CX_INGEST[Coralogix Ingestion<br/>OTLP/gRPC + Fluent Bit]
+        CX_TCO[TCO Optimizer<br/>Cost Tiering]
+        CX_LOGS[Logs Engine]
+        CX_METRICS[Metrics Engine]
+        CX_TRACES[Traces Engine]
+        CX_ALERTS[Coralogix Alerts<br/>12 Production Rules]
+        CX_DASH[Coralogix Dashboards]
+    end
+
     subgraph "Visualization"
         GRAF[Grafana<br/>Unified Dashboards]
         KIALI[Kiali<br/>Service Mesh View]
@@ -1701,23 +1713,38 @@ graph TB
     APP -->|Traces OTLP| OTEL
     APP -->|Metrics| PROM_EXP
     APP -->|Logs| FILEBEAT
+    APP -->|Logs| FLUENTBIT
 
     OTEL --> JAEGER
+    OTEL -->|OTLP/gRPC| CX_INGEST
     JAEGER --> TRACE_STORE
 
     PROM_EXP --> PROM
     PROM --> SLO
+    PROM -->|Remote Write| CX_INGEST
     SLO --> ERROR_BUDGET
 
     FILEBEAT --> LOGSTASH
     LOGSTASH --> ELASTIC
     ELASTIC --> KIBANA
+    FLUENTBIT -->|HTTPS| CX_INGEST
+
+    CX_INGEST --> CX_TCO
+    CX_TCO --> CX_LOGS
+    CX_TCO --> CX_METRICS
+    CX_TCO --> CX_TRACES
+    CX_LOGS --> CX_ALERTS
+    CX_METRICS --> CX_DASH
+    CX_TRACES --> CX_DASH
+    CX_METRICS --> GRAF
 
     PROM --> GRAF
     JAEGER --> GRAF
     TRACE_STORE --> KIALI
 
     PROM -.->|Alerts| ALERT_MGR
+    CX_ALERTS -.-> SLACK
+    CX_ALERTS -.->|Critical| PAGERDUTY
     ALERT_MGR --> SLACK
     ALERT_MGR -->|Critical| PAGERDUTY
 
@@ -1725,7 +1752,52 @@ graph TB
     style PROM fill:#E85D04,color:#fff
     style GRAF fill:#F48C06,color:#fff
     style SLO fill:#95E1D3
+    style CX_INGEST fill:#6C63FF,color:#fff
+    style CX_TCO fill:#6C63FF,color:#fff
+    style CX_LOGS fill:#6C63FF,color:#fff
+    style CX_METRICS fill:#6C63FF,color:#fff
+    style CX_TRACES fill:#6C63FF,color:#fff
+    style CX_ALERTS fill:#6C63FF,color:#fff
+    style CX_DASH fill:#6C63FF,color:#fff
+    style FLUENTBIT fill:#6C63FF,color:#fff
 ```
+
+### Coralogix Integration
+
+Coralogix serves as the unified SaaS observability backend, complementing the existing on-cluster Prometheus/Grafana/ELK stack.
+
+**Data Flow**:
+
+| Signal | Source | Transport | Destination |
+|--------|--------|-----------|-------------|
+| Traces | OTel Collector | OTLP/gRPC (TLS) | Coralogix Traces |
+| Metrics | OTel Collector + Prometheus Remote Write | OTLP/gRPC + Remote Write | Coralogix Metrics |
+| Logs (app) | OTel Collector | OTLP/gRPC (TLS) | Coralogix Logs |
+| Logs (K8s) | Fluent Bit DaemonSet | HTTPS | Coralogix Logs |
+| K8s Events | Cluster Collector | OTLP/gRPC (TLS) | Coralogix Logs |
+| K8s Metrics | Cluster Collector | OTLP/gRPC (TLS) | Coralogix Metrics |
+
+**TCO Cost Optimization**:
+
+```
+┌──────────────────┬─────────────────────┬─────────────────┐
+│ Frequent Search  │ Monitoring          │ Compliance      │
+│ (High Priority)  │ (Medium Priority)   │ (Low Priority)  │
+├──────────────────┼─────────────────────┼─────────────────┤
+│ Errors, critical │ Warnings, info      │ Debug, verbose  │
+│ Error spans      │ Normal spans        │ K8s infra logs  │
+│ Full indexing    │ Monitoring index    │ Archive only    │
+└──────────────────┴─────────────────────┴─────────────────┘
+  Health check logs → BLOCKED (zero cost)
+```
+
+**IaC Management** (Terraform `coralogix/coralogix` provider):
+- TCO policies for logs and spans
+- Recording rule groups (availability, latency, SLO metrics)
+- 6 alert definitions (error rate, latency, SLO burn, crashes, endpoint down, SLO violation)
+- Webhook integrations (Slack, PagerDuty)
+- S3 archive for long-term log retention
+- GeoIP and custom enrichments
 
 ### SLO/SLI Monitoring
 

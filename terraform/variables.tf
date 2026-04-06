@@ -108,3 +108,58 @@ variable "firebase_api_key" {
   type        = string
   sensitive   = true
 }
+
+# ──────────────────────────────────────────────────────────────
+# Coralogix Variables
+# ──────────────────────────────────────────────────────────────
+
+variable "coralogix_api_key" {
+  description = "Coralogix Send-Your-Data API key"
+  type        = string
+  sensitive   = true
+}
+
+variable "coralogix_domain" {
+  description = "Coralogix domain (coralogix.com, eu2.coralogix.com, coralogix.in, etc.)"
+  type        = string
+  default     = "coralogix.com"
+}
+
+variable "slack_critical_webhook_url" {
+  description = "Slack webhook URL for critical alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "slack_alerts_webhook_url" {
+  description = "Slack webhook URL for general alerts"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "pagerduty_service_key" {
+  description = "PagerDuty service key for alert routing"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
+variable "coralogix_slack_critical_integration_id" {
+  description = "Coralogix Slack integration ID for critical alerts"
+  type        = string
+  default     = ""
+}
+
+variable "coralogix_slack_alerts_integration_id" {
+  description = "Coralogix Slack integration ID for warning alerts"
+  type        = string
+  default     = ""
+}
+
+variable "coralogix_pagerduty_integration_id" {
+  description = "Coralogix PagerDuty integration ID"
+  type        = string
+  default     = ""
+}

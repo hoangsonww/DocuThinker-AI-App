@@ -275,6 +275,16 @@ networkPolicy:
           port: 443
         - protocol: TCP
           port: 53
+    # Coralogix OTLP ingestion via OTel sidecar/collector
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+      ports:
+        - protocol: TCP
+          port: 4317
+        - protocol: TCP
+          port: 4318
 
 pdb:
   frontend:
@@ -283,3 +293,37 @@ pdb:
   backend:
     enabled: true
     minAvailable: 2
+
+# ──────────────────────────────────────────────────────────────
+# Coralogix Observability Configuration
+# ──────────────────────────────────────────────────────────────
+coralogix:
+  enabled: true
+  domain: "coralogix.com"
+  applicationName: "docuthinker"
+  subsystemName: "production"
+
+  secret:
+    name: "coralogix-credentials"
+    key: "private-key"
+
+  otelCollector:
+    enabled: true
+    endpoint: "ingress.coralogix.com:443"
+    protocol: "grpc"
+    compression: "gzip"
+
+  fluentBit:
+    enabled: true
+    logLevel: "info"
+    bufferSize: "32k"
+    memBufLimit: "10MB"
+
+  tcoOptimization:
+    enabled: true
+    blockHealthChecks: true
+    archiveLowPriority: true
+
+  annotations:
+    instrumentation.opentelemetry.io/inject-sdk: "true"
+    sidecar.opentelemetry.io/inject: "true"

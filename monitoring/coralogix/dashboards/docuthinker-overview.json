@@ -1,0 +1,373 @@
+{
+  "name": "DocuThinker — Overview",
+  "description": "Comprehensive overview dashboard for DocuThinker production environment",
+  "layout": {
+    "sections": [
+      {
+        "id": "service_health",
+        "name": "Service Health",
+        "rows": [
+          {
+            "id": "health_indicators",
+            "height": 4,
+            "widgets": [
+              {
+                "id": "availability_gauge",
+                "title": "Availability (30d)",
+                "definition": {
+                  "type": "gauge",
+                  "query": "cx:docuthinker:slo:availability_30d",
+                  "thresholds": {
+                    "green": 99.9,
+                    "yellow": 99.5,
+                    "red": 99.0
+                  },
+                  "unit": "percent"
+                }
+              },
+              {
+                "id": "error_budget_gauge",
+                "title": "Error Budget Remaining",
+                "definition": {
+                  "type": "gauge",
+                  "query": "cx:docuthinker:slo:error_budget_remaining * 100",
+                  "thresholds": {
+                    "green": 50,
+                    "yellow": 25,
+                    "red": 10
+                  },
+                  "unit": "percent"
+                }
+              },
+              {
+                "id": "active_pods",
+                "title": "Active Pods",
+                "definition": {
+                  "type": "data_table",
+                  "query": "kube_pod_status_ready{namespace=~'docuthinker-.*', condition='true'}",
+                  "columns": ["pod", "namespace", "status"]
+                }
+              },
+              {
+                "id": "request_rate",
+                "title": "Request Rate",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "sum(rate(http_requests_total{service=~'.*docuthinker.*'}[5m]))",
+                  "unit": "req/s"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "request_metrics",
+        "name": "Request Metrics",
+        "rows": [
+          {
+            "id": "latency_charts",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "latency_p50_p95_p99",
+                "title": "Response Latency (P50/P95/P99)",
+                "definition": {
+                  "type": "line_chart",
+                  "queries": [
+                    {
+                      "label": "P50",
+                      "query": "cx:docuthinker:latency:p50_5m"
+                    },
+                    {
+                      "label": "P95",
+                      "query": "cx:docuthinker:latency:p95_5m"
+                    },
+                    {
+                      "label": "P99",
+                      "query": "cx:docuthinker:latency:p99_5m"
+                    }
+                  ],
+                  "unit": "seconds",
+                  "thresholds": [
+                    { "value": 0.5, "color": "yellow", "label": "P99 SLO" },
+                    { "value": 0.2, "color": "orange", "label": "P95 SLO" }
+                  ]
+                }
+              },
+              {
+                "id": "error_rate",
+                "title": "Error Rate (5xx)",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "cx:docuthinker:error_rate:5m * 100",
+                  "unit": "percent",
+                  "thresholds": [
+                    { "value": 5, "color": "red", "label": "Alert Threshold" }
+                  ]
+                }
+              }
+            ]
+          },
+          {
+            "id": "status_breakdown",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "status_codes_pie",
+                "title": "HTTP Status Code Distribution",
+                "definition": {
+                  "type": "pie_chart",
+                  "query": "sum(rate(http_requests_total[5m])) by (status_code)",
+                  "group_by": "status_code"
+                }
+              },
+              {
+                "id": "top_endpoints",
+                "title": "Top Endpoints by Request Count",
+                "definition": {
+                  "type": "bar_chart",
+                  "query": "topk(10, sum(rate(http_requests_total[5m])) by (route))",
+                  "group_by": "route"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "infrastructure",
+        "name": "Infrastructure",
+        "rows": [
+          {
+            "id": "resource_usage",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "cpu_by_pod",
+                "title": "CPU Usage by Pod",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "cx:docuthinker:cpu_usage:avg",
+                  "group_by": "pod",
+                  "unit": "cores"
+                }
+              },
+              {
+                "id": "memory_by_pod",
+                "title": "Memory Usage by Pod",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "cx:docuthinker:memory_usage:avg",
+                  "group_by": "pod",
+                  "unit": "bytes"
+                }
+              }
+            ]
+          },
+          {
+            "id": "node_health",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "node_cpu",
+                "title": "Node CPU Utilization",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "100 - (avg by (node) (rate(node_cpu_seconds_total{mode='idle'}[5m])) * 100)",
+                  "group_by": "node",
+                  "unit": "percent"
+                }
+              },
+              {
+                "id": "node_memory",
+                "title": "Node Memory Utilization",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "(1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100",
+                  "group_by": "node",
+                  "unit": "percent"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "database",
+        "name": "Database & Cache",
+        "rows": [
+          {
+            "id": "db_metrics",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "db_connections",
+                "title": "Database Connection Pool",
+                "definition": {
+                  "type": "line_chart",
+                  "queries": [
+                    {
+                      "label": "Active",
+                      "query": "database_connection_pool_active"
+                    },
+                    {
+                      "label": "Idle",
+                      "query": "database_connection_pool_idle"
+                    },
+                    {
+                      "label": "Max",
+                      "query": "database_connection_pool_max"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": "db_query_latency",
+                "title": "Database Query Latency (P99)",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "histogram_quantile(0.99, sum(rate(db_query_duration_seconds_bucket[5m])) by (le))",
+                  "unit": "seconds"
+                }
+              }
+            ]
+          },
+          {
+            "id": "redis_metrics",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "redis_memory",
+                "title": "Redis Memory Usage",
+                "definition": {
+                  "type": "line_chart",
+                  "queries": [
+                    {
+                      "label": "Used",
+                      "query": "redis_memory_used_bytes"
+                    },
+                    {
+                      "label": "Max",
+                      "query": "redis_memory_max_bytes"
+                    }
+                  ],
+                  "unit": "bytes"
+                }
+              },
+              {
+                "id": "redis_ops",
+                "title": "Redis Operations/s",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "rate(redis_commands_processed_total[5m])",
+                  "unit": "ops/s"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "logs",
+        "name": "Logs Overview",
+        "rows": [
+          {
+            "id": "log_volume",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "log_volume_by_severity",
+                "title": "Log Volume by Severity",
+                "definition": {
+                  "type": "stacked_bar",
+                  "query": "logs",
+                  "group_by": "severity",
+                  "filters": {
+                    "application": "docuthinker"
+                  }
+                }
+              },
+              {
+                "id": "error_log_stream",
+                "title": "Recent Error Logs",
+                "definition": {
+                  "type": "logs_table",
+                  "query": "severity:error OR severity:critical",
+                  "filters": {
+                    "application": "docuthinker"
+                  },
+                  "columns": ["timestamp", "severity", "subsystem", "message"],
+                  "limit": 50
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "id": "traces",
+        "name": "Distributed Traces",
+        "rows": [
+          {
+            "id": "trace_overview",
+            "height": 6,
+            "widgets": [
+              {
+                "id": "trace_duration_heatmap",
+                "title": "Trace Duration Heatmap",
+                "definition": {
+                  "type": "heatmap",
+                  "query": "spans",
+                  "metric": "duration",
+                  "filters": {
+                    "application": "docuthinker"
+                  }
+                }
+              },
+              {
+                "id": "trace_error_rate",
+                "title": "Span Error Rate by Service",
+                "definition": {
+                  "type": "line_chart",
+                  "query": "spans",
+                  "metric": "error_rate",
+                  "group_by": "service.name",
+                  "filters": {
+                    "application": "docuthinker"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "variables": [
+    {
+      "name": "namespace",
+      "type": "query",
+      "query": "label_values(kube_pod_info, namespace)",
+      "default": "docuthinker-prod",
+      "include_all": true
+    },
+    {
+      "name": "service",
+      "type": "query",
+      "query": "label_values(http_requests_total{namespace=~'$namespace'}, service)",
+      "default": "All",
+      "include_all": true
+    },
+    {
+      "name": "timeframe",
+      "type": "static",
+      "options": ["5m", "15m", "1h", "6h", "24h", "7d", "30d"],
+      "default": "1h"
+    }
+  ],
+  "auto_refresh": {
+    "enabled": true,
+    "interval_seconds": 30
+  }
+}
