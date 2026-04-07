@@ -42,7 +42,7 @@ DocuThinker is an **enterprise-grade**, full-stack AI-powered document analysis 
 - **User Management**: Firebase Authentication with social login options
 - **Cloud-Native Architecture**: Kubernetes-based deployment with microservices
 - **Observability**: Full-stack monitoring with OpenTelemetry, Prometheus, Grafana, Jaeger, and Coralogix
-- **Security**: mTLS, OPA policy enforcement, runtime security with Falco
+- **Security**: mTLS, OPA policy enforcement, runtime security with Falco, SonarQube code quality gates, Snyk vulnerability management
 - **Reliability Engineering**: Chaos testing with Litmus, disaster recovery with Velero
 
 ### DevOps Platform Features
@@ -55,6 +55,8 @@ DocuThinker is an **enterprise-grade**, full-stack AI-powered document analysis 
 - **Progressive Delivery**: Flagger for automated canary deployments
 - **Event-Driven Autoscaling**: KEDA for cost-optimized scaling
 - **Runtime Security**: Falco for threat detection
+- **Code Quality**: SonarQube for static analysis, quality gates, and coverage
+- **Vulnerability Management**: Snyk for OSS, container, IaC, and SAST scanning
 - **Distributed Tracing**: OpenTelemetry with Jaeger and Coralogix integration
 - **Disaster Recovery**: Velero for automated backups
 - **SLO/SLI Monitoring**: Error budget tracking and alerting
@@ -1841,17 +1843,13 @@ graph LR
     BURN -.->|Monitor| FAST_BURN
     BURN -.->|Monitor| SLOW_BURN
     SLO_AVAIL -.->|Check| SLO_BREACH
-
-    style SLO_AVAIL fill:#6BCB77,color:#fff
-    style BUDGET fill:#FFD93D
-    style FAST_BURN fill:#FF6B6B,color:#fff
 ```
 
 ---
 
 ## Security Architecture
 
-Multi-layered security with OPA, Falco, and mTLS.
+Multi-layered security with OPA, Falco, mTLS, SonarQube, and Snyk.
 
 ```mermaid
 graph TB
@@ -1885,13 +1883,22 @@ graph TB
         ESO[External Secrets Operator]
     end
 
-    subgraph "Layer 6: Data Protection"
+    subgraph "Layer 6: Code & Supply Chain Security"
+        SONAR[SonarQube 10.4<br/>Static Analysis + Quality Gates]
+        SNYK_OSS[Snyk Open Source<br/>Dependency Vulnerabilities]
+        SNYK_CONTAINER[Snyk Container<br/>Image Scanning + Licenses]
+        SNYK_IAC[Snyk IaC<br/>Terraform/K8s Misconfig]
+        SNYK_SAST[Snyk Code<br/>SAST Analysis]
+        TRIVY[Trivy<br/>Filesystem + Image Scan]
+    end
+
+    subgraph "Layer 7: Data Protection"
         ENCRYPT_REST[Encryption at Rest]
         ENCRYPT_TRANSIT[Encryption in Transit]
         BACKUP[Encrypted Backups]
     end
 
-    subgraph "Layer 7: Audit & Compliance"
+    subgraph "Layer 8: Audit & Compliance"
         AUDIT[Audit Logs]
         COMPLIANCE[Compliance Reports]
         SIEM[SIEM Integration]
@@ -1917,17 +1924,31 @@ graph TB
     VAULT --> AWS_SM
     AWS_SM --> ESO
 
+    CODE[Source Code] --> SONAR
+    CODE --> SNYK_SAST
+    CODE --> SNYK_OSS
+    IMAGES[Container Images] --> SNYK_CONTAINER
+    IMAGES --> TRIVY
+    INFRA[IaC Configs] --> SNYK_IAC
+
     APP --> ENCRYPT_REST
     APP --> ENCRYPT_TRANSIT
     APP --> BACKUP
 
     FALCO -.->|Log| AUDIT
+    SONAR -.->|Reports| COMPLIANCE
+    SNYK_OSS -.->|Findings| COMPLIANCE
     AUDIT --> COMPLIANCE
     COMPLIANCE --> SIEM
 
     style OPA fill:#4ECDC4,color:#fff
     style FALCO fill:#FF6B6B,color:#fff
     style VAULT fill:#AA96DA,color:#fff
+    style SONAR fill:#4E9BCD,color:#fff
+    style SNYK_OSS fill:#4C4A73,color:#fff
+    style SNYK_CONTAINER fill:#4C4A73,color:#fff
+    style SNYK_IAC fill:#4C4A73,color:#fff
+    style SNYK_SAST fill:#4C4A73,color:#fff
 ```
 
 ### OPA Policy Enforcement Flow
@@ -2344,6 +2365,8 @@ mindmap
       cert-manager
       AWS WAF
       Trivy
+      SonarQube 10.4
+      Snyk (OSS/Container/IaC/SAST)
     Observability
       OpenTelemetry Collector
       Prometheus / AlertManager
@@ -2481,7 +2504,7 @@ graph TB
         subgraph "Build"
             BUILD[Build Stage]
             TEST[Test Stage<br/>Unit + Integration]
-            SECURITY[Security Scan<br/>Trivy + SonarQube]
+            SECURITY[Security Scan<br/>Trivy + SonarQube + Snyk]
             PACKAGE[Docker Build]
         end
 
@@ -2542,7 +2565,7 @@ graph TB
 
 DocuThinker's enhanced architecture delivers:
 
-- **Enterprise Security**: mTLS, OPA policies, Falco monitoring, zero-trust architecture
+- **Enterprise Security**: mTLS, OPA policies, Falco monitoring, SonarQube quality gates, Snyk vulnerability management, zero-trust architecture
 - **High Availability**: 99.9% SLO, multi-AZ deployment, automated failover
 - **Observability**: Distributed tracing, SLO/SLI tracking, comprehensive dashboards
 - **Resilience**: Chaos testing, circuit breaking, automated backups (RTO < 1 hour)

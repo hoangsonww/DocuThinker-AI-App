@@ -296,6 +296,8 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   - **Falco 0.36**: Runtime security monitoring with eBPF driver, custom rules, Falcosidekick alerting.
   - **OPA Gatekeeper 3.14**: Policy-as-code enforcement with constraint templates, mutation webhooks, and audit logging.
   - **Trivy**: Container image and filesystem vulnerability scanning.
+  - **SonarQube 10.4 Enterprise**: Static code analysis with multi-module scanning (frontend, backend, orchestrator, AI/ML), quality gates (14 conditions), custom quality profiles for JS/TS/Python, coverage tracking ≥70%, and security hotspot review.
+  - **Snyk**: Continuous vulnerability management — open source dependency scanning, container image scanning with license compliance (GPL/AGPL blocked), Infrastructure as Code analysis (Terraform/K8s/Helm), SAST code analysis, and in-cluster Kubernetes controller for runtime workload monitoring.
 - **Progressive Delivery & Autoscaling**:
   - **Flagger 1.34**: Automated canary deployments with Istio and Prometheus analysis.
   - **KEDA 2.12**: Event-driven pod autoscaling (2–10 replicas).
@@ -460,6 +462,8 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="https://img.shields.io/badge/Falco-00AEC7?style=for-the-badge&logo=falco&logoColor=white" alt="Falco" />
   <img src="https://img.shields.io/badge/OPA_Gatekeeper-7D9AAA?style=for-the-badge&logo=openpolicyagent&logoColor=white" alt="OPA Gatekeeper" />
   <img src="https://img.shields.io/badge/Trivy-1904DA?style=for-the-badge&logo=aqua&logoColor=white" alt="Trivy" />
+  <img src="https://img.shields.io/badge/SonarQube-4E9BCD?style=for-the-badge&logo=sonarqubecloud&logoColor=white" alt="SonarQube" />
+  <img src="https://img.shields.io/badge/Snyk-4C4A73?style=for-the-badge&logo=snyk&logoColor=white" alt="Snyk" />
 
   <!-- 🔄 Progressive Delivery & Resilience -->
   <img src="https://img.shields.io/badge/Flagger-4B8BBE?style=for-the-badge&logo=fluxcd&logoColor=white" alt="Flagger" />
@@ -472,7 +476,6 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="https://img.shields.io/badge/GitLab_CI-FC6D26?style=for-the-badge&logo=gitlab&logoColor=white" alt="GitLab CI" />
   <img src="https://img.shields.io/badge/CircleCI-343434?style=for-the-badge&logo=circleci&logoColor=white" alt="CircleCI" />
   <img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins" />
-  <img src="https://img.shields.io/badge/SonarQube-4E9BCD?style=for-the-badge&logo=sonarqube&logoColor=white" alt="SonarQube" />
   <img src="https://img.shields.io/badge/GHCR-181717?style=for-the-badge&logo=github&logoColor=white" alt="GHCR" />
   <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
   <img src="https://img.shields.io/badge/Render-FF6B6B?style=for-the-badge&logo=render&logoColor=white" alt="Render" />

@@ -241,6 +241,115 @@ sonarqube-scan:
     - merge_requests
     - master
 
+snyk-open-source:
+  stage: security
+  image: snyk/snyk:node
+  variables:
+    SNYK_TOKEN: "$SNYK_TOKEN"
+  script:
+    - snyk auth $SNYK_TOKEN
+    # Root
+    - snyk test --severity-threshold=high --json-file-output=snyk-root.json || true
+    # Frontend
+    - cd frontend && snyk test --severity-threshold=high --json-file-output=../snyk-frontend.json || true && cd ..
+    # Backend
+    - cd backend && snyk test --severity-threshold=high --json-file-output=../snyk-backend.json || true && cd ..
+    # Orchestrator
+    - cd orchestrator && snyk test --severity-threshold=high --json-file-output=../snyk-orchestrator.json || true && cd ..
+    # Monitor (upload snapshot for continuous monitoring)
+    - snyk monitor --project-name=docuthinker-root || true
+    - cd frontend && snyk monitor --project-name=docuthinker-frontend || true && cd ..
+    - cd backend && snyk monitor --project-name=docuthinker-backend || true && cd ..
+    - cd orchestrator && snyk monitor --project-name=docuthinker-orchestrator || true && cd ..
+  artifacts:
+    paths:
+      - snyk-*.json
+    expire_in: 30 days
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+
+snyk-python-deps:
+  stage: security
+  image: snyk/snyk:python-3.10
+  variables:
+    SNYK_TOKEN: "$SNYK_TOKEN"
+  script:
+    - snyk auth $SNYK_TOKEN
+    - cd ai_ml
+    - pip install -r requirements.txt
+    - snyk test --severity-threshold=high --file=requirements.txt --package-manager=pip --json-file-output=../snyk-ai-ml.json || true
+    - snyk monitor --project-name=docuthinker-ai-ml --file=requirements.txt --package-manager=pip || true
+  artifacts:
+    paths:
+      - snyk-ai-ml.json
+    expire_in: 30 days
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+
+snyk-container-scan:
+  stage: security
+  image: snyk/snyk:docker
+  services:
+    - docker:24-dind
+  variables:
+    SNYK_TOKEN: "$SNYK_TOKEN"
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_CERTDIR: "/certs"
+  script:
+    - snyk auth $SNYK_TOKEN
+    - docker build -t docuthinker/frontend:scan frontend/
+    - snyk container test docuthinker/frontend:scan --severity-threshold=high --json-file-output=snyk-container-frontend.json || true
+    - docker build -t docuthinker/backend:scan backend/
+    - snyk container test docuthinker/backend:scan --severity-threshold=high --json-file-output=snyk-container-backend.json || true
+  artifacts:
+    paths:
+      - snyk-container-*.json
+    expire_in: 30 days
+  allow_failure: true
+  only:
+    - master
+
+snyk-iac-scan:
+  stage: security
+  image: snyk/snyk:node
+  variables:
+    SNYK_TOKEN: "$SNYK_TOKEN"
+  script:
+    - snyk auth $SNYK_TOKEN
+    - snyk iac test terraform/ --severity-threshold=medium --json-file-output=snyk-iac-terraform.json --report || true
+    - snyk iac test kubernetes/ --severity-threshold=medium --json-file-output=snyk-iac-kubernetes.json --report || true
+    - snyk iac test helm/ --severity-threshold=medium --json-file-output=snyk-iac-helm.json --report || true
+  artifacts:
+    paths:
+      - snyk-iac-*.json
+    expire_in: 30 days
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+
+snyk-code-sast:
+  stage: security
+  image: snyk/snyk:node
+  variables:
+    SNYK_TOKEN: "$SNYK_TOKEN"
+  script:
+    - snyk auth $SNYK_TOKEN
+    - snyk code test --severity-threshold=high --json-file-output=snyk-code.json --sarif-file-output=snyk-code.sarif || true
+  artifacts:
+    paths:
+      - snyk-code.json
+      - snyk-code.sarif
+    expire_in: 30 days
+  allow_failure: true
+  only:
+    - merge_requests
+    - master
+
 # ============== PACKAGE STAGE ==============
 
 docker-build-frontend:

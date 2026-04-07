@@ -1,0 +1,143 @@
+# Snyk Container Scanning Policy
+# Defines rules for Docker image vulnerability scanning
+# Run: snyk container test <image> --severity-threshold=high --policy-path=security/snyk/container-policy.yaml
+
+# ──────────────────────────────────────────────────────────────
+# Global Settings
+# ──────────────────────────────────────────────────────────────
+severity_threshold: high
+fail_on: critical
+
+# Maximum acceptable age for base image (days)
+max_base_image_age_days: 90
+
+# ──────────────────────────────────────────────────────────────
+# Images to Scan
+# ──────────────────────────────────────────────────────────────
+images:
+  - name: docuthinker/frontend
+    tag_pattern: "*"
+    base_image: "node:18-alpine"
+    allowed_base_images:
+      - "node:18-alpine"
+      - "node:20-alpine"
+      - "node:18-slim"
+      - "node:20-slim"
+    max_critical: 0
+    max_high: 5
+    scan_app_vulns: true
+
+  - name: docuthinker/backend
+    tag_pattern: "*"
+    base_image: "node:18-alpine"
+    allowed_base_images:
+      - "node:18-alpine"
+      - "node:20-alpine"
+      - "node:18-slim"
+      - "node:20-slim"
+    max_critical: 0
+    max_high: 5
+    scan_app_vulns: true
+
+  - name: docuthinker/orchestrator
+    tag_pattern: "*"
+    base_image: "node:18-alpine"
+    allowed_base_images:
+      - "node:18-alpine"
+      - "node:20-alpine"
+    max_critical: 0
+    max_high: 5
+    scan_app_vulns: true
+
+  - name: docuthinker/ai-ml
+    tag_pattern: "*"
+    base_image: "python:3.10-slim"
+    allowed_base_images:
+      - "python:3.10-slim"
+      - "python:3.11-slim"
+      - "python:3.10-alpine"
+      - "python:3.11-alpine"
+    max_critical: 0
+    max_high: 10
+    scan_app_vulns: true
+
+# ──────────────────────────────────────────────────────────────
+# Base Image Rules
+# ──────────────────────────────────────────────────────────────
+base_image_rules:
+  # Disallow distroless unless explicitly allowed
+  require_minimal_base: true
+
+  # Banned base images (known insecure or oversized)
+  banned_images:
+    - "ubuntu:latest"
+    - "debian:latest"
+    - "centos:*"
+    - "node:latest"
+    - "python:latest"
+    - "node:*-bullseye"
+    - "python:*-bullseye"
+
+  # Require specific labels
+  required_labels:
+    - "maintainer"
+    - "version"
+
+# ──────────────────────────────────────────────────────────────
+# Vulnerability Rules
+# ──────────────────────────────────────────────────────────────
+vulnerability_rules:
+  # Auto-fix available vulns must be patched
+  auto_fixable: must_fix
+
+  # Maximum days a critical vuln can remain unpatched
+  critical_max_age_days: 7
+
+  # Maximum days a high vuln can remain unpatched
+  high_max_age_days: 30
+
+  # Ignore vulnerabilities without a fix
+  ignore_unfixable: false
+
+  # Specific CVE ignores (with justification)
+  ignored_cves: []
+
+# ──────────────────────────────────────────────────────────────
+# License Rules
+# ──────────────────────────────────────────────────────────────
+license_rules:
+  # Banned licenses
+  banned:
+    - "GPL-3.0"
+    - "AGPL-3.0"
+    - "SSPL-1.0"
+    - "EUPL-1.1"
+    - "CPAL-1.0"
+
+  # Allowed licenses (explicit allow-list)
+  allowed:
+    - "MIT"
+    - "Apache-2.0"
+    - "BSD-2-Clause"
+    - "BSD-3-Clause"
+    - "ISC"
+    - "0BSD"
+    - "Unlicense"
+    - "CC0-1.0"
+    - "Python-2.0"
+    - "PSF-2.0"
+
+  # Action on unknown license
+  unknown_action: warn
+
+# ──────────────────────────────────────────────────────────────
+# Reporting
+# ──────────────────────────────────────────────────────────────
+reporting:
+  formats:
+    - json
+    - sarif
+    - html
+  output_dir: "./security-reports/snyk-container"
+  upload_to_snyk: true
+  include_base_image_remediation: true
