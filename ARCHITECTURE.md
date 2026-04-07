@@ -1843,10 +1843,6 @@ graph LR
     BURN -.->|Monitor| FAST_BURN
     BURN -.->|Monitor| SLOW_BURN
     SLO_AVAIL -.->|Check| SLO_BREACH
-
-    style SLO_AVAIL fill:#6BCB77,color:#fff
-    style BUDGET fill:#FFD93D
-    style FAST_BURN fill:#FF6B6B,color:#fff
 ```
 
 ---
