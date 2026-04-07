@@ -1,0 +1,156 @@
+# Snyk Kubernetes Controller — Helm Values
+# Deploys Snyk Controller for continuous container image scanning in-cluster
+# Chart: snyk/snyk-monitor (https://docs.snyk.io/scan-with-snyk/snyk-container/kubernetes-integration)
+
+# Controller deployment
+image:
+  repository: snyk/kubernetes-monitor
+  tag: "latest"
+  pullPolicy: IfNotPresent
+
+# Snyk organization and integration credentials
+snykIntegration:
+  # Reference a K8s secret containing SNYK_TOKEN
+  existingSecret: snyk-credentials
+  secretKey: snyk-token
+
+  # Snyk organization ID
+  organizationId: "${SNYK_ORG_ID}"
+
+  # Integration ID (from Snyk K8s integration page)
+  integrationId: "${SNYK_INTEGRATION_ID}"
+
+# Cluster name for identification in Snyk UI
+clusterName: "docuthinker-prod"
+
+# Namespaces to monitor (empty = all)
+monitoredNamespaces:
+  - docuthinker-prod
+  - docuthinker-staging
+  - monitoring
+  - istio-system
+
+# Excluded namespaces
+excludedNamespaces:
+  - kube-system
+  - kube-public
+  - kube-node-lease
+
+# Resource limits
+resources:
+  requests:
+    cpu: 250m
+    memory: 256Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Pod security
+securityContext:
+  fsGroup: 65534
+  runAsNonRoot: true
+  runAsUser: 65534
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  runAsNonRoot: true
+  runAsUser: 65534
+  capabilities:
+    drop:
+      - ALL
+
+# Temporary directory for scan results
+tmpVolumeSizeLimit: 2Gi
+
+# PVC for persistent scan data (optional)
+pvc:
+  enabled: true
+  storageClassName: gp3
+  size: 10Gi
+
+# Service account
+serviceAccount:
+  create: true
+  annotations:
+    eks.amazonaws.com/role-arn: "arn:aws:iam::ACCOUNT_ID:role/docuthinker-snyk-monitor"
+
+# Logging
+logLevel: "INFO"
+
+# Sysdig integration (optional runtime insights)
+sysdig:
+  enabled: false
+
+# Node selector
+nodeSelector: {}
+
+# Tolerations
+tolerations: []
+
+# Affinity
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 50
+        preference:
+          matchExpressions:
+            - key: node-role.kubernetes.io/monitoring
+              operator: Exists
+
+# Prometheus metrics
+metrics:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+    interval: 60s
+    labels:
+      release: prometheus
+
+# Network policy
+networkPolicy:
+  enabled: true
+  egress:
+    # Snyk API
+    - ports:
+        - protocol: TCP
+          port: 443
+      to: []
+    # DNS
+    - ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+      to: []
+    # Kubernetes API (for workload scanning)
+    - ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6443
+      to: []
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "9090"
+
+# Extra environment variables
+extraEnv:
+  - name: SNYK_INTEGRATION_API
+    value: "https://api.snyk.io"
+  - name: V8_MAX_OLD_SPACE_SIZE
+    value: "1024"
+  - name: LOG_LEVEL
+    value: "INFO"
+  - name: HOME
+    value: "/srv/app"
+  - name: SNYK_SERVICE_ACCOUNT_TOKEN
+    valueFrom:
+      secretKeyRef:
+        name: snyk-credentials
+        key: snyk-token
+
+# Init containers (optional: pull custom policies before start)
+initContainers: []

@@ -21,7 +21,8 @@ Comprehensive guide for deploying, monitoring, and maintaining DocuThinker's ent
 15. [Database Migrations](#database-migrations)
 16. [Infrastructure Testing](#infrastructure-testing)
 17. [Security](#security)
-18. [Troubleshooting](#troubleshooting)
+18. [Code Quality & Vulnerability Scanning](#code-quality--vulnerability-scanning)
+19. [Troubleshooting](#troubleshooting)
 
 ## Infrastructure Overview
 
@@ -42,6 +43,8 @@ DocuThinker uses a modern, enterprise-grade cloud-native architecture with **16 
 - **Backup & DR**: Velero 1.12 (RTO < 1 hour)
 - **Event-Driven Autoscaling**: KEDA 2.12
 - **Runtime Security**: Falco 0.36
+- **Code Quality**: SonarQube Enterprise 10.4
+- **Vulnerability Management**: Snyk (OSS, Container, IaC, SAST)
 - **Secret Management**: HashiCorp Vault + AWS Secrets Manager
 - **Performance Testing**: K6 (6 advanced scenarios)
 - **TLS Management**: cert-manager 1.13
@@ -1256,31 +1259,184 @@ graph TB
     L3[Layer 3: Authentication<br/>Firebase + JWT + RBAC]
     L4[Layer 4: Runtime<br/>Falco Monitoring]
     L5[Layer 5: Secrets<br/>Vault + Secrets Manager]
-    L6[Layer 6: Data<br/>Encryption at Rest/Transit]
-    L7[Layer 7: Audit<br/>Logs + Compliance]
+    L6[Layer 6: Code & Supply Chain<br/>SonarQube + Snyk + Trivy]
+    L7[Layer 7: Data<br/>Encryption at Rest/Transit]
+    L8[Layer 8: Audit<br/>Logs + Compliance]
 
-    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6 --> L7 --> L8
 
     style L1 fill:#FF6B6B,color:#fff
     style L2 fill:#4ECDC4,color:#fff
     style L4 fill:#F38181,color:#fff
     style L5 fill:#AA96DA,color:#fff
+    style L6 fill:#4E9BCD,color:#fff
 ```
 
 ### Security Scanning
 
 ```bash
+# Comprehensive scan (SonarQube + all Snyk scans)
+./scripts/security/scan-all.sh
+
 # Trivy image scanning
 ./scripts/security/trivy-scan.sh
 
-# SonarQube analysis
-sonar-scanner -Dproject.settings=scripts/security/sonarqube.properties
+# SonarQube analysis (multi-module)
+sonar-scanner
+
+# Snyk open-source dependency scan
+snyk test --all-projects --severity-threshold=high
+
+# Snyk container scan
+snyk container test docuthinker/backend:latest --severity-threshold=high
+
+# Snyk IaC scan
+snyk iac test terraform/ kubernetes/ helm/ --severity-threshold=medium
+
+# Snyk SAST code analysis
+snyk code test --severity-threshold=high
 
 # OPA policy violations
 kubectl get constraints -o json | jq '.items[].status.violations'
 
 # Falco alerts
 kubectl logs -l app=falco -n falco | grep -i critical
+```
+
+---
+
+## Code Quality & Vulnerability Scanning
+
+### SonarQube — Static Analysis & Quality Gates
+
+SonarQube Enterprise 10.4 provides continuous code quality inspection across all services.
+
+#### Deployment
+
+```bash
+# Deploy SonarQube via Helm
+helm repo add sonarqube https://SonarSource.github.io/helm-chart-sonarqube
+helm install sonarqube sonarqube/sonarqube \
+  -f security/sonarqube/values.yaml \
+  -n security --create-namespace
+
+# Import quality gate
+curl -u admin:${SONAR_TOKEN} -X POST \
+  "${SONAR_URL}/api/qualitygates/create" \
+  -d "name=DocuThinker Production"
+
+# Import quality profiles
+curl -u admin:${SONAR_TOKEN} -X POST \
+  "${SONAR_URL}/api/qualityprofiles/restore" \
+  --form backup=@security/sonarqube/quality-profiles.json
+```
+
+#### Multi-Module Configuration
+
+The root `sonar-project.properties` defines a multi-module project:
+
+| Module | Language | Coverage Tool |
+|--------|----------|---------------|
+| `frontend` | JavaScript/TypeScript | Jest + LCOV |
+| `backend` | JavaScript | Jest + LCOV |
+| `orchestrator` | JavaScript | Jest + LCOV |
+| `ai_ml` | Python | pytest-cov + coverage.xml |
+
+#### Quality Gate Conditions (14 gates)
+
+| Metric | Threshold | Rationale |
+|--------|-----------|-----------|
+| New code coverage | ≥ 80% | Prevent coverage regression |
+| Overall coverage | ≥ 70% | Maintain baseline |
+| Duplicated lines | ≤ 3% | Reduce code duplication |
+| Security rating | A | Zero vulnerabilities on new code |
+| Reliability rating | A | Zero bugs on new code |
+| Maintainability rating | A | Zero code smells on new code |
+| Security hotspots reviewed | 100% | All hotspots triaged |
+| New critical issues | 0 | Block critical findings |
+| New blocker issues | 0 | Block blocker findings |
+
+### Snyk — Vulnerability Management
+
+Snyk provides comprehensive vulnerability scanning across 4 dimensions.
+
+#### Scan Types
+
+```mermaid
+graph LR
+    subgraph "Snyk Scanning Pipeline"
+        OSS[Open Source<br/>Dependency SCA]
+        CONTAINER[Container<br/>Image Scan]
+        IAC[Infrastructure<br/>as Code]
+        SAST[Snyk Code<br/>SAST Analysis]
+    end
+
+    CODE[Source Code] --> OSS
+    CODE --> SAST
+    DOCKER[Docker Images] --> CONTAINER
+    INFRA[Terraform/K8s/Helm] --> IAC
+
+    OSS --> REPORT[Security Report]
+    CONTAINER --> REPORT
+    IAC --> REPORT
+    SAST --> REPORT
+
+    style OSS fill:#4C4A73,color:#fff
+    style CONTAINER fill:#4C4A73,color:#fff
+    style IAC fill:#4C4A73,color:#fff
+    style SAST fill:#4C4A73,color:#fff
+```
+
+#### Kubernetes Controller
+
+Snyk K8s Controller continuously monitors running workloads:
+
+```bash
+# Deploy Snyk K8s Controller
+helm repo add snyk-charts https://snyk.github.io/kubernetes-monitor
+helm install snyk-monitor snyk-charts/snyk-monitor \
+  -f security/snyk/values.yaml \
+  -n snyk-monitor --create-namespace
+```
+
+**Monitored namespaces**: `docuthinker-prod`, `docuthinker-staging`, `monitoring`, `istio-system`
+
+#### Container Policy
+
+| Rule | Threshold | Action |
+|------|-----------|--------|
+| Critical vulnerabilities | 0 | Fail build |
+| High vulnerabilities | ≤ 5 (prod), ≤ 10 (staging) | Fail build |
+| Base image age | < 30 days | Warn |
+| Banned licenses | GPL-3.0, AGPL-3.0, SSPL-1.0 | Fail build |
+
+#### IaC Custom Rules
+
+| Rule | Description |
+|------|-------------|
+| `CUSTOM-001` | All pods must have resource limits |
+| `CUSTOM-002` | No containers running as root |
+| `CUSTOM-003` | All ingresses require TLS |
+| `CUSTOM-004` | No hardcoded secrets in manifests |
+
+#### CI Integration
+
+- **GitLab CI**: 5 Snyk jobs in security stage (OSS, Python deps, container, IaC, SAST)
+- **Jenkins**: Parallel security scans stage + post-build container scan
+- **GitHub Actions**: Not modified (per policy)
+
+### Local Security Scan
+
+Run the comprehensive scan script locally:
+
+```bash
+# Run all scans (SonarQube + Snyk OSS/Container/IaC/SAST)
+./scripts/security/scan-all.sh
+
+# Reports generated in security-reports/ directory
+ls security-reports/
+# sonar-report.json  snyk-oss-report.json  snyk-container-report.json
+# snyk-iac-report.json  snyk-sast-report.json
 ```
 
 ---

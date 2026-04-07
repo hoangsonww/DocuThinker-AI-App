@@ -1,0 +1,113 @@
+{
+  "profiles": [
+    {
+      "name": "DocuThinker JavaScript",
+      "language": "js",
+      "parent": "Sonar way",
+      "rules": {
+        "activated": [
+          {
+            "key": "javascript:S1135",
+            "severity": "INFO",
+            "description": "Track TODOs"
+          },
+          {
+            "key": "javascript:S3776",
+            "severity": "MAJOR",
+            "params": { "threshold": "20" },
+            "description": "Cognitive complexity threshold 20"
+          },
+          {
+            "key": "javascript:S104",
+            "severity": "MAJOR",
+            "params": { "maximum": "500" },
+            "description": "Max 500 lines per file"
+          },
+          {
+            "key": "javascript:S138",
+            "severity": "MAJOR",
+            "params": { "max": "80" },
+            "description": "Max 80 lines per function"
+          },
+          {
+            "key": "javascript:S107",
+            "severity": "MAJOR",
+            "params": { "maximumFunctionParameters": "5" },
+            "description": "Max 5 function parameters"
+          }
+        ],
+        "deactivated": [
+          {
+            "key": "javascript:S2228",
+            "reason": "console.log acceptable in Node.js backend services"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DocuThinker TypeScript",
+      "language": "ts",
+      "parent": "Sonar way",
+      "rules": {
+        "activated": [
+          {
+            "key": "typescript:S3776",
+            "severity": "MAJOR",
+            "params": { "threshold": "20" },
+            "description": "Cognitive complexity threshold 20"
+          },
+          {
+            "key": "typescript:S104",
+            "severity": "MAJOR",
+            "params": { "maximum": "500" },
+            "description": "Max 500 lines per file"
+          },
+          {
+            "key": "typescript:S4325",
+            "severity": "MINOR",
+            "description": "Unnecessary type assertions"
+          }
+        ]
+      }
+    },
+    {
+      "name": "DocuThinker Python",
+      "language": "py",
+      "parent": "Sonar way",
+      "rules": {
+        "activated": [
+          {
+            "key": "python:S3776",
+            "severity": "MAJOR",
+            "params": { "threshold": "20" },
+            "description": "Cognitive complexity threshold 20"
+          },
+          {
+            "key": "python:S104",
+            "severity": "MAJOR",
+            "params": { "maximum": "500" },
+            "description": "Max 500 lines per file"
+          },
+          {
+            "key": "python:S5806",
+            "severity": "MAJOR",
+            "description": "Enforce type hints"
+          },
+          {
+            "key": "python:S1192",
+            "severity": "MINOR",
+            "params": { "threshold": "4" },
+            "description": "String literals duplication threshold"
+          }
+        ],
+        "deactivated": [
+          {
+            "key": "python:S106",
+            "reason": "print() acceptable in AI/ML pipeline logging"
+          }
+        ]
+      }
+    }
+  ],
+  "provisioning_notes": "Import via SonarQube API: POST /api/qualityprofiles/create + /api/qualityprofiles/activate_rule"
+}

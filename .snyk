@@ -1,0 +1,23 @@
+# Snyk Policy File — DocuThinker
+# Controls vulnerability ignore rules and severity thresholds
+# https://docs.snyk.io/snyk-cli/test-for-vulnerabilities/the-.snyk-file
+version: v1.25.0
+
+# Global ignore rules — suppress known false positives or accepted risks
+ignore:
+  # Prototype pollution in lodash (dev dependency, not exploitable in our context)
+  'SNYK-JS-LODASH-1018905':
+    - '*':
+        reason: 'Dev dependency only, not used in production paths'
+        expires: '2027-01-01T00:00:00.000Z'
+        created: '2026-04-07T00:00:00.000Z'
+
+# Patch rules (auto-applied by Snyk protect)
+patch: {}
+
+# Language settings
+language-settings:
+  javascript:
+    severity-threshold: medium
+  python:
+    severity-threshold: medium

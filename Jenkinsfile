@@ -74,6 +74,75 @@ pipeline {
       }
     }
 
+    stage('Security Scans') {
+      parallel {
+        stage('SonarQube Analysis') {
+          steps {
+            withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+              sh '''
+                set -euo pipefail
+                sonar-scanner \
+                  -Dsonar.host.url=${SONAR_HOST_URL:-https://sonarqube.docuthinker.com} \
+                  -Dsonar.token=$SONAR_TOKEN \
+                  -Dsonar.projectBaseDir=. \
+                  -Dsonar.qualitygate.wait=true \
+                  -Dsonar.qualitygate.timeout=600
+              '''
+            }
+          }
+          post {
+            failure {
+              echo 'SonarQube quality gate failed — review report at SonarQube dashboard'
+            }
+          }
+        }
+        stage('Snyk Open Source') {
+          steps {
+            withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+              sh '''
+                set -euo pipefail
+                snyk auth $SNYK_TOKEN
+                snyk test --severity-threshold=high --json-file-output=security-reports/snyk-root.json || true
+                cd frontend && snyk test --severity-threshold=high --json-file-output=../security-reports/snyk-frontend.json || true && cd ..
+                cd backend && snyk test --severity-threshold=high --json-file-output=../security-reports/snyk-backend.json || true && cd ..
+                cd orchestrator && snyk test --severity-threshold=high --json-file-output=../security-reports/snyk-orchestrator.json || true && cd ..
+                snyk monitor --project-name=docuthinker-root || true
+              '''
+            }
+          }
+        }
+        stage('Snyk IaC') {
+          steps {
+            withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+              sh '''
+                set -euo pipefail
+                snyk auth $SNYK_TOKEN
+                snyk iac test terraform/ --severity-threshold=medium --json-file-output=security-reports/snyk-iac-terraform.json --report || true
+                snyk iac test kubernetes/ --severity-threshold=medium --json-file-output=security-reports/snyk-iac-kubernetes.json --report || true
+                snyk iac test helm/ --severity-threshold=medium --json-file-output=security-reports/snyk-iac-helm.json --report || true
+              '''
+            }
+          }
+        }
+        stage('Snyk Code SAST') {
+          steps {
+            withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+              sh '''
+                set -euo pipefail
+                snyk auth $SNYK_TOKEN
+                snyk code test --severity-threshold=high --json-file-output=security-reports/snyk-code.json --sarif-file-output=security-reports/snyk-code.sarif || true
+              '''
+            }
+          }
+        }
+      }
+      post {
+        always {
+          archiveArtifacts artifacts: 'security-reports/**', allowEmptyArchive: true
+        }
+      }
+    }
+
     stage('Docker Build & Push') {
       when { branch "main" }
       steps {
@@ -87,6 +156,30 @@ pipeline {
             docker push $REGISTRY/backend:$IMAGE_TAG
             docker push $REGISTRY/frontend:$IMAGE_TAG
           '''
+        }
+      }
+    }
+
+    stage('Snyk Container Scan') {
+      when { branch "main" }
+      steps {
+        withCredentials([string(credentialsId: 'snyk-token', variable: 'SNYK_TOKEN')]) {
+          sh '''
+            set -euo pipefail
+            mkdir -p security-reports
+            snyk auth $SNYK_TOKEN
+            snyk container test $REGISTRY/frontend:$IMAGE_TAG --severity-threshold=high \
+              --json-file-output=security-reports/snyk-container-frontend.json || true
+            snyk container test $REGISTRY/backend:$IMAGE_TAG --severity-threshold=high \
+              --json-file-output=security-reports/snyk-container-backend.json || true
+            snyk container monitor $REGISTRY/frontend:$IMAGE_TAG --project-name=docuthinker-frontend-image || true
+            snyk container monitor $REGISTRY/backend:$IMAGE_TAG --project-name=docuthinker-backend-image || true
+          '''
+        }
+      }
+      post {
+        always {
+          archiveArtifacts artifacts: 'security-reports/snyk-container-*.json', allowEmptyArchive: true
         }
       }
     }
