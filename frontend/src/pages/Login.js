@@ -15,7 +15,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setAuth } from "../utils/auth";
 
-const Login = ({ theme, onLogin }) => {
+const Login = ({ theme }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -38,7 +38,6 @@ const Login = ({ theme, onLogin }) => {
         },
       );
 
-      onLogin();
       setLoading(false);
 
       const { customToken, userId } = response.data;

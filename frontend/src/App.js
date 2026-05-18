@@ -48,17 +48,11 @@ function useTrackPageView() {
 // Launches the app
 function App() {
   const [theme, setTheme] = useState(getStoredTheme());
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     document.body.style.backgroundColor =
       theme === "dark" ? "#121212" : "#ffffff";
   }, [theme]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
 
   const handleThemeToggle = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
@@ -73,19 +67,13 @@ function App() {
         <GoogleAnalytics />
         <TrackPageView />
         <SpeedInsights />
-        <AppLayout
-          theme={theme}
-          onThemeToggle={handleThemeToggle}
-          isLoggedIn={isLoggedIn}
-          onLogout={() => setIsLoggedIn(false)}
-          onLogin={() => setIsLoggedIn(true)}
-        />
+        <AppLayout theme={theme} onThemeToggle={handleThemeToggle} />
       </Router>
     </GoogleOAuthProvider>
   );
 }
 
-function AppLayout({ theme, onThemeToggle, isLoggedIn, onLogout, onLogin }) {
+function AppLayout({ theme, onThemeToggle }) {
   const location = useLocation();
   const hideNavbar =
     location.pathname === "/" || location.pathname.startsWith("/landing");
@@ -93,12 +81,7 @@ function AppLayout({ theme, onThemeToggle, isLoggedIn, onLogout, onLogin }) {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
       {!hideNavbar && (
-        <Navbar
-          theme={theme}
-          onThemeToggle={onThemeToggle}
-          isLoggedIn={isLoggedIn}
-          onLogout={onLogout}
-        />
+        <Navbar theme={theme} onThemeToggle={onThemeToggle} />
       )}
       <Box sx={{ flexGrow: 1 }}>
         <Routes>
@@ -120,10 +103,7 @@ function AppLayout({ theme, onThemeToggle, isLoggedIn, onLogout, onLogin }) {
             path="/terms-of-service"
             element={<TermsOfService theme={theme} />}
           />
-          <Route
-            path="/login"
-            element={<Login onLogin={onLogin} theme={theme} />}
-          />
+          <Route path="/login" element={<Login theme={theme} />} />
           <Route path="/register" element={<Register theme={theme} />} />
           <Route path="*" element={<NotFoundPage theme={theme} />} />
         </Routes>

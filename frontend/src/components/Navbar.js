@@ -33,7 +33,7 @@ const activeStyle = {
   paddingBottom: "4px",
 };
 
-const Navbar = ({ theme, onThemeToggle, onLogout }) => {
+const Navbar = ({ theme, onThemeToggle }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
@@ -75,7 +75,6 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
 
   const handleLogout = () => {
     clearAuth();
-    onLogout();
     navigate("/login");
   };
 
