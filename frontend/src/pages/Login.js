@@ -13,6 +13,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { setAuth } from "../utils/auth";
 
 const Login = ({ theme, onLogin }) => {
   const [email, setEmail] = useState("");
@@ -41,8 +42,7 @@ const Login = ({ theme, onLogin }) => {
       setLoading(false);
 
       const { customToken, userId } = response.data;
-      localStorage.setItem("token", customToken);
-      localStorage.setItem("userId", userId);
+      setAuth(customToken, userId);
       navigate("/home");
     } catch (error) {
       setLoading(false);

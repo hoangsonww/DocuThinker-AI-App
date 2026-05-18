@@ -25,6 +25,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import LoginIcon from "@mui/icons-material/Login";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import { msUntilExpiry, clearAuth, onAuthChange } from "../utils/auth";
 
 const activeStyle = {
   borderBottom: "3px solid #f57c00",
@@ -39,16 +40,26 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
   const isLargeScreen = useMediaQuery("(min-width:1111px)");
 
   useEffect(() => {
-    const checkLoggedInStatus = () => {
-      const userId = localStorage.getItem("userId");
-      setIsLoggedIn(!!userId);
+    let expiryTimer;
+
+    const sync = () => {
+      const ms = msUntilExpiry();
+      setIsLoggedIn(ms > 0);
+      // Re-check exactly when the token lapses, instead of polling on an
+      // interval. Firebase custom tokens expire one hour after issuance.
+      clearTimeout(expiryTimer);
+      if (ms > 0) {
+        expiryTimer = setTimeout(sync, ms);
+      }
     };
 
-    checkLoggedInStatus();
+    sync();
+    const unsubscribe = onAuthChange(sync);
 
-    const interval = setInterval(checkLoggedInStatus, 1000);
-
-    return () => clearInterval(interval);
+    return () => {
+      unsubscribe();
+      clearTimeout(expiryTimer);
+    };
   }, []);
 
   const toggleDrawer = (open) => (event) => {
@@ -62,11 +73,9 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
+    clearAuth();
     onLogout();
     navigate("/login");
-    setIsLoggedIn(false);
   };
 
   const renderNavLinks = (
