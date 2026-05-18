@@ -45,11 +45,12 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
     const sync = () => {
       const ms = msUntilExpiry();
       setIsLoggedIn(ms > 0);
-      // Re-check exactly when the token lapses, instead of polling on an
-      // interval. Firebase custom tokens expire one hour after issuance.
+      // Re-check the moment the token lapses, rather than polling. setTimeout
+      // overflows past the signed 32-bit max, so the delay is clamped; a
+      // longer-lived token is simply re-checked in <= 24-day steps.
       clearTimeout(expiryTimer);
       if (ms > 0) {
-        expiryTimer = setTimeout(sync, ms);
+        expiryTimer = setTimeout(sync, Math.min(ms, 0x7fffffff));
       }
     };
 
