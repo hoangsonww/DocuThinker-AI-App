@@ -1,32 +1,14 @@
 // Client-side auth helpers.
 //
-// Login state is derived from the stored JWT's `exp` claim, and changes are
-// broadcast as events so consumers can react instead of polling localStorage.
+// Login state is tracked in localStorage, and changes are broadcast as
+// events so consumers can react instead of polling.
 
 const TOKEN_KEY = "token";
 const USER_ID_KEY = "userId";
 const AUTH_EVENT = "auth-change";
 
-// Decodes a JWT payload. The signature is NOT verified — this is for
-// client-side display only. Returns null when the token is not a valid JWT.
-const decodeJwtPayload = (token) => {
-  try {
-    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
-    return JSON.parse(atob(base64));
-  } catch {
-    return null;
-  }
-};
-
-// Milliseconds left before the stored token expires; 0 when there is no
-// token, it is not a JWT, or it has already expired.
-export const msUntilExpiry = () => {
-  const token = localStorage.getItem(TOKEN_KEY);
-  if (!token) return 0;
-  const payload = decodeJwtPayload(token);
-  if (!payload || typeof payload.exp !== "number") return 0;
-  return Math.max(0, payload.exp * 1000 - Date.now());
-};
+// Whether a user is currently signed in.
+export const isAuthenticated = () => !!localStorage.getItem(USER_ID_KEY);
 
 // Persists credentials, then notifies same-tab listeners.
 export const setAuth = (token, userId) => {

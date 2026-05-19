@@ -25,7 +25,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import LoginIcon from "@mui/icons-material/Login";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
-import { msUntilExpiry, clearAuth, onAuthChange } from "../utils/auth";
+import { isAuthenticated, clearAuth, onAuthChange } from "../utils/auth";
 
 const activeStyle = {
   borderBottom: "3px solid #f57c00",
@@ -40,27 +40,9 @@ const Navbar = ({ theme, onThemeToggle }) => {
   const isLargeScreen = useMediaQuery("(min-width:1111px)");
 
   useEffect(() => {
-    let expiryTimer;
-
-    const sync = () => {
-      const ms = msUntilExpiry();
-      setIsLoggedIn(ms > 0);
-      // Re-check the moment the token lapses, rather than polling. setTimeout
-      // overflows past the signed 32-bit max, so the delay is clamped; a
-      // longer-lived token is simply re-checked in <= 24-day steps.
-      clearTimeout(expiryTimer);
-      if (ms > 0) {
-        expiryTimer = setTimeout(sync, Math.min(ms, 0x7fffffff));
-      }
-    };
-
+    const sync = () => setIsLoggedIn(isAuthenticated());
     sync();
-    const unsubscribe = onAuthChange(sync);
-
-    return () => {
-      unsubscribe();
-      clearTimeout(expiryTimer);
-    };
+    return onAuthChange(sync);
   }, []);
 
   const toggleDrawer = (open) => (event) => {
