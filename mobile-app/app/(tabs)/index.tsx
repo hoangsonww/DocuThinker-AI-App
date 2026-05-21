@@ -1,17 +1,34 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, Text, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { Pressable, RefreshControl, Text, View } from "react-native";
 
 import { Screen } from "@/components/Screen";
-import { Avatar, Card, IconCircle, Logo } from "@/components/ui";
-import {
-  homeFeatures,
-  sampleDocuments,
-  sampleUser,
-} from "@/constants/sampleData";
+import { AppText, Avatar, Card, IconCircle, Logo } from "@/components/ui";
+import { homeFeatures } from "@/constants/sampleData";
 import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
+import { api, DocumentSummary } from "@/lib/api";
+import { getUserId } from "@/lib/auth";
 
-function HomeHeader() {
+type Stats = {
+  email: string;
+  initials: string;
+  documentCount: number;
+  daysSinceJoined: number;
+};
+
+function initialsOf(email: string): string {
+  const name = email.split("@")[0] || "?";
+  const parts = name
+    .replace(/[._-]+/g, " ")
+    .split(" ")
+    .filter(Boolean);
+  const first = parts[0]?.[0] ?? "?";
+  const second = parts[1]?.[0] ?? "";
+  return (first + second).toUpperCase();
+}
+
+function HomeHeader({ initials }: { initials: string }) {
   return (
     <View
       style={{
@@ -25,7 +42,7 @@ function HomeHeader() {
     >
       <Logo size={32} />
       <Pressable onPress={() => router.push("/profile")} hitSlop={8}>
-        <Avatar initials={sampleUser.initials} size={40} />
+        <Avatar initials={initials} size={40} />
       </Pressable>
     </View>
   );
@@ -41,7 +58,11 @@ function StatChip({ value, label }: { value: string; label: string }) {
         {value}
       </Text>
       <Text
-        style={{ fontSize: fontSize.xs, fontWeight: "600", color: theme.textMuted }}
+        style={{
+          fontSize: fontSize.xs,
+          fontWeight: "600",
+          color: theme.textMuted,
+        }}
       >
         {label}
       </Text>
@@ -51,9 +72,56 @@ function StatChip({ value, label }: { value: string; label: string }) {
 
 export default function HomeScreen() {
   const theme = useTheme();
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [docs, setDocs] = useState<DocumentSummary[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      const [email, count, days, list] = await Promise.all([
+        api.getUserEmail(userId).catch(() => ({ email: "" })),
+        api.getDocumentCount(userId).catch(() => ({ documentCount: 0 })),
+        api.getDaysSinceJoined(userId).catch(() => ({ days: 0 })),
+        api.getDocuments(userId).catch(() => [] as DocumentSummary[]),
+      ]);
+      setStats({
+        email: email.email || "",
+        initials: initialsOf(email.email || "?"),
+        documentCount: count.documentCount ?? 0,
+        daysSinceJoined: days.days ?? 0,
+      });
+      setDocs(Array.isArray(list) ? list : []);
+    } catch (e) {
+      // Network/transient error — keep prior state, surface nothing aggressive.
+      console.warn("home load failed", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
+  const initials = stats?.initials ?? "?";
+  const docCount = stats?.documentCount ?? 0;
+  const daysActive = stats?.daysSinceJoined ?? 0;
 
   return (
-    <Screen header={<HomeHeader />}>
+    <Screen
+      header={<HomeHeader initials={initials} />}
+      scrollProps={{
+        refreshControl: (
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        ),
+      }}
+    >
       <View
         style={{
           backgroundColor: theme.brand,
@@ -134,17 +202,18 @@ export default function HomeScreen() {
       </View>
 
       <View style={{ flexDirection: "row", gap: spacing.md }}>
-        <StatChip
-          value={String(sampleUser.documentsAnalyzed)}
-          label="Documents"
-        />
-        <StatChip value={sampleUser.wordsProcessed} label="Words read" />
-        <StatChip value="18h" label="Time saved" />
+        <StatChip value={String(docCount)} label="Documents" />
+        <StatChip value={String(daysActive)} label="Days active" />
+        <StatChip value="∞" label="Insights" />
       </View>
 
       <View style={{ gap: spacing.md }}>
         <Text
-          style={{ fontSize: fontSize.lg, fontWeight: "800", color: theme.text }}
+          style={{
+            fontSize: fontSize.lg,
+            fontWeight: "800",
+            color: theme.text,
+          }}
         >
           What you can do
         </Text>
@@ -213,39 +282,73 @@ export default function HomeScreen() {
             </Text>
           </Pressable>
         </View>
-        {sampleDocuments.slice(0, 3).map((doc) => (
-          <Card key={doc.id} onPress={() => router.push("/summary")}>
+        {docs.length === 0 ? (
+          <Card>
             <View
               style={{
-                flexDirection: "row",
                 alignItems: "center",
-                gap: spacing.md,
+                gap: spacing.sm,
+                paddingVertical: spacing.lg,
               }}
             >
-              <IconCircle name="document-text-outline" />
-              <View style={{ flex: 1, gap: 2 }}>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    fontSize: fontSize.md,
-                    fontWeight: "700",
-                    color: theme.text,
-                  }}
-                >
-                  {doc.title}
-                </Text>
-                <Text style={{ fontSize: fontSize.xs, color: theme.textMuted }}>
-                  {doc.pages} pages · {doc.date}
-                </Text>
-              </View>
               <Ionicons
-                name="chevron-forward"
-                size={18}
+                name="file-tray-outline"
+                size={36}
                 color={theme.textMuted}
               />
+              <AppText variant="muted">
+                No documents yet. Upload one to get started.
+              </AppText>
             </View>
           </Card>
-        ))}
+        ) : (
+          docs.slice(0, 3).map((doc) => (
+            <Card
+              key={doc.id}
+              onPress={() =>
+                router.push({
+                  pathname: "/summary",
+                  params: { docId: doc.id, title: doc.title },
+                })
+              }
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: spacing.md,
+                }}
+              >
+                <IconCircle name="document-text-outline" />
+                <View style={{ flex: 1, gap: 2 }}>
+                  <Text
+                    numberOfLines={1}
+                    style={{
+                      fontSize: fontSize.md,
+                      fontWeight: "700",
+                      color: theme.text,
+                    }}
+                  >
+                    {doc.title}
+                  </Text>
+                  {doc.summary ? (
+                    <Text
+                      numberOfLines={1}
+                      style={{ fontSize: fontSize.xs, color: theme.textMuted }}
+                    >
+                      {doc.summary}
+                    </Text>
+                  ) : null}
+                </View>
+                <Ionicons
+                  name="chevron-forward"
+                  size={18}
+                  color={theme.textMuted}
+                />
+              </View>
+            </Card>
+          ))
+        )}
       </View>
     </Screen>
   );

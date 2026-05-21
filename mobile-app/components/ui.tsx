@@ -10,7 +10,13 @@ import {
   View,
   ViewStyle,
 } from "react-native";
-import { elevation, fontSize, radius, spacing, useTheme } from "@/constants/theme";
+import {
+  elevation,
+  fontSize,
+  radius,
+  spacing,
+  useTheme,
+} from "@/constants/theme";
 
 export type IconName = ComponentProps<typeof Ionicons>["name"];
 
@@ -25,7 +31,9 @@ export function Logo({
 }) {
   const theme = useTheme();
   return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}>
+    <View
+      style={{ flexDirection: "row", alignItems: "center", gap: spacing.sm }}
+    >
       <View
         style={{
           width: size,
@@ -120,7 +128,11 @@ export function Button({
         <>
           {icon && <Ionicons name={icon} size={19} color={fg[variant]} />}
           <Text
-            style={{ color: fg[variant], fontSize: fontSize.md, fontWeight: "700" }}
+            style={{
+              color: fg[variant],
+              fontSize: fontSize.md,
+              fontWeight: "700",
+            }}
           >
             {label}
           </Text>
@@ -175,6 +187,7 @@ export function TextField({
   secureTextEntry = false,
   keyboardType,
   autoCapitalize = "none",
+  editable = true,
 }: {
   label?: string;
   value: string;
@@ -184,6 +197,7 @@ export function TextField({
   secureTextEntry?: boolean;
   keyboardType?: ComponentProps<typeof TextInput>["keyboardType"];
   autoCapitalize?: ComponentProps<typeof TextInput>["autoCapitalize"];
+  editable?: boolean;
 }) {
   const theme = useTheme();
   const [focused, setFocused] = useState(false);
@@ -224,9 +238,14 @@ export function TextField({
           secureTextEntry={hidden}
           keyboardType={keyboardType}
           autoCapitalize={autoCapitalize}
+          editable={editable}
           onFocus={() => setFocused(true)}
           onBlur={() => setFocused(false)}
-          style={{ flex: 1, fontSize: fontSize.md, color: theme.text }}
+          style={{
+            flex: 1,
+            fontSize: fontSize.md,
+            color: editable ? theme.text : theme.textMuted,
+          }}
         />
         {secureTextEntry && (
           <Pressable onPress={() => setHidden((h) => !h)} hitSlop={8}>
@@ -247,9 +266,11 @@ export function TextField({
 export function Pill({
   label,
   tone = "neutral",
+  align = "start",
 }: {
   label: string;
   tone?: "neutral" | "brand" | "success";
+  align?: "start" | "center" | "end";
 }) {
   const theme = useTheme();
   const colors = {
@@ -257,6 +278,8 @@ export function Pill({
     brand: { bg: theme.brandSoft, fg: theme.brandDark },
     success: { bg: theme.brandSoft, fg: theme.success },
   }[tone];
+  const alignSelf =
+    align === "center" ? "center" : align === "end" ? "flex-end" : "flex-start";
 
   return (
     <View
@@ -265,10 +288,12 @@ export function Pill({
         paddingHorizontal: spacing.md,
         paddingVertical: 5,
         borderRadius: radius.pill,
-        alignSelf: "flex-start",
+        alignSelf,
       }}
     >
-      <Text style={{ fontSize: fontSize.xs, fontWeight: "700", color: colors.fg }}>
+      <Text
+        style={{ fontSize: fontSize.xs, fontWeight: "700", color: colors.fg }}
+      >
         {label}
       </Text>
     </View>
@@ -359,13 +384,19 @@ export function SectionTitle({
         justifyContent: "space-between",
       }}
     >
-      <Text style={{ fontSize: fontSize.lg, fontWeight: "800", color: theme.text }}>
+      <Text
+        style={{ fontSize: fontSize.lg, fontWeight: "800", color: theme.text }}
+      >
         {title}
       </Text>
       {actionLabel && (
         <Pressable onPress={onAction} hitSlop={8}>
           <Text
-            style={{ fontSize: fontSize.sm, fontWeight: "700", color: theme.brand }}
+            style={{
+              fontSize: fontSize.sm,
+              fontWeight: "700",
+              color: theme.brand,
+            }}
           >
             {actionLabel}
           </Text>
@@ -397,7 +428,11 @@ export function AppText({
 }) {
   const theme = useTheme();
   const variants: Record<string, TextStyle> = {
-    display: { fontSize: fontSize.display, fontWeight: "800", letterSpacing: -1 },
+    display: {
+      fontSize: fontSize.display,
+      fontWeight: "800",
+      letterSpacing: -1,
+    },
     title: { fontSize: fontSize.xxl, fontWeight: "800", letterSpacing: -0.6 },
     subtitle: { fontSize: fontSize.lg, fontWeight: "700" },
     body: { fontSize: fontSize.md, fontWeight: "400", lineHeight: 22 },

@@ -7,6 +7,7 @@ import { Screen } from "@/components/Screen";
 import { AppText, Button, Logo, TextField } from "@/components/ui";
 import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
 import { api } from "@/lib/api";
+import { setAuth } from "@/lib/auth";
 
 export default function LoginScreen() {
   const theme = useTheme();
@@ -23,7 +24,8 @@ export default function LoginScreen() {
     setError("");
     setLoading(true);
     try {
-      await api.login(email.trim(), password);
+      const { customToken, userId } = await api.login(email.trim(), password);
+      await setAuth(customToken, userId);
       router.replace("/");
     } catch (e) {
       setError(
@@ -97,7 +99,11 @@ export default function LoginScreen() {
         secureTextEntry
       />
 
-      <Pressable hitSlop={6} style={{ alignSelf: "flex-end" }}>
+      <Pressable
+        hitSlop={6}
+        style={{ alignSelf: "flex-end" }}
+        onPress={() => router.push("/forgot")}
+      >
         <Text
           style={{
             color: theme.brand,
@@ -110,28 +116,6 @@ export default function LoginScreen() {
       </Pressable>
 
       <Button label="Sign In" loading={loading} onPress={handleLogin} />
-
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          gap: spacing.md,
-        }}
-      >
-        <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-        <Text
-          style={{
-            color: theme.textMuted,
-            fontSize: fontSize.xs,
-            fontWeight: "700",
-          }}
-        >
-          OR
-        </Text>
-        <View style={{ flex: 1, height: 1, backgroundColor: theme.border }} />
-      </View>
-
-      <Button label="Continue with Google" variant="outline" icon="logo-google" />
 
       <View
         style={{

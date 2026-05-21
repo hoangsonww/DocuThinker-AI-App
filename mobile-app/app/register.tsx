@@ -10,7 +10,6 @@ import { api } from "@/lib/api";
 
 export default function RegisterScreen() {
   const theme = useTheme();
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
@@ -18,7 +17,7 @@ export default function RegisterScreen() {
   const [error, setError] = useState("");
 
   async function handleRegister() {
-    if (!name.trim() || !email.trim() || !password) {
+    if (!email.trim() || !password) {
       setError("Please fill in every field to continue.");
       return;
     }
@@ -33,7 +32,9 @@ export default function RegisterScreen() {
       router.replace("/login");
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : "Unable to register. Please try again.",
+        e instanceof Error
+          ? e.message
+          : "Unable to register. Please try again.",
       );
     } finally {
       setLoading(false);
@@ -87,20 +88,13 @@ export default function RegisterScreen() {
       ) : null}
 
       <TextField
-        label="Full name"
-        value={name}
-        onChangeText={setName}
-        placeholder="Alex Carter"
-        icon="person-outline"
-        autoCapitalize="words"
-      />
-      <TextField
         label="Email"
         value={email}
         onChangeText={setEmail}
         placeholder="you@example.com"
         icon="mail-outline"
         keyboardType="email-address"
+        autoCapitalize="none"
       />
       <TextField
         label="Password"

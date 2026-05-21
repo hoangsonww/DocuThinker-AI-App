@@ -1,19 +1,64 @@
 import { Ionicons } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
+import { MarkdownText } from "@/components/MarkdownText";
 import { Screen, ScreenHeader } from "@/components/Screen";
 import { Button, Card, IconCircle, Pill } from "@/components/ui";
-import { sampleAnalysis } from "@/constants/sampleData";
 import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
+import { api } from "@/lib/api";
+import { getUserId } from "@/lib/auth";
 
-const TABS = ["Summary", "Key Ideas", "Discussion"] as const;
+const TABS = ["Summary", "Original"] as const;
 type Tab = (typeof TABS)[number];
+
+type ParamShape = {
+  docId?: string;
+  title?: string;
+  summary?: string;
+  originalText?: string;
+};
 
 export default function SummaryScreen() {
   const theme = useTheme();
+  const params = useLocalSearchParams() as ParamShape;
   const [tab, setTab] = useState<Tab>("Summary");
+
+  const [title, setTitle] = useState<string>(params.title || "Document");
+  const [summary, setSummary] = useState<string>(params.summary || "");
+  const [originalText, setOriginalText] = useState<string>(
+    params.originalText || "",
+  );
+  const [loading, setLoading] = useState<boolean>(
+    !params.summary && !!params.docId,
+  );
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (params.summary || !params.docId) return;
+    const userId = getUserId();
+    if (!userId) return;
+    setLoading(true);
+    api
+      .getDocumentDetails(userId, params.docId)
+      .then((doc) => {
+        setTitle(doc.title || params.title || "Document");
+        setSummary(doc.summary || "");
+        setOriginalText(doc.originalText || "");
+      })
+      .catch((e) =>
+        setError(e instanceof Error ? e.message : "Failed to load document."),
+      )
+      .finally(() => setLoading(false));
+  }, [params.docId, params.summary, params.title]);
+
+  const wordCount = originalText
+    ? originalText.trim().split(/\s+/).filter(Boolean).length
+    : 0;
+  const readingTime = wordCount
+    ? `${Math.max(1, Math.round(wordCount / 200))} min read`
+    : null;
 
   return (
     <Screen header={<ScreenHeader title="Analysis" showBack />}>
@@ -35,18 +80,26 @@ export default function SummaryScreen() {
                   color: theme.text,
                 }}
               >
-                {sampleAnalysis.title}
+                {title}
               </Text>
-              <Text style={{ fontSize: fontSize.xs, color: theme.textMuted }}>
-                {sampleAnalysis.readingTime}
-              </Text>
+              {readingTime ? (
+                <Text style={{ fontSize: fontSize.xs, color: theme.textMuted }}>
+                  {readingTime}
+                </Text>
+              ) : null}
             </View>
           </View>
           <Button
             label="Chat about this document"
             icon="chatbubbles-outline"
             variant="secondary"
-            onPress={() => router.push("/chat")}
+            disabled={!originalText}
+            onPress={() =>
+              router.push({
+                pathname: "/chat",
+                params: { title, originalText },
+              })
+            }
           />
         </View>
       </Card>
@@ -88,99 +141,56 @@ export default function SummaryScreen() {
         })}
       </View>
 
-      {tab === "Summary" && (
+      {loading ? (
+        <Card>
+          <View style={{ alignItems: "center", paddingVertical: spacing.lg }}>
+            <ActivityIndicator color={theme.brand} />
+          </View>
+        </Card>
+      ) : error ? (
+        <Card>
+          <View style={{ gap: spacing.sm }}>
+            <Ionicons name="alert-circle" size={20} color={theme.danger} />
+            <Text style={{ color: theme.danger, fontSize: fontSize.sm }}>
+              {error}
+            </Text>
+          </View>
+        </Card>
+      ) : tab === "Summary" ? (
         <Card>
           <View style={{ gap: spacing.md }}>
             <Pill label="AI SUMMARY" tone="brand" />
+            {summary ? (
+              <MarkdownText text={summary} tone="body" />
+            ) : (
+              <Text
+                style={{
+                  fontSize: fontSize.md,
+                  color: theme.textMuted,
+                  lineHeight: 24,
+                }}
+              >
+                No summary available for this document yet.
+              </Text>
+            )}
+          </View>
+        </Card>
+      ) : (
+        <Card>
+          <View style={{ gap: spacing.md }}>
+            <Pill label="ORIGINAL TEXT" tone="neutral" />
             <Text
               style={{
-                fontSize: fontSize.md,
+                fontSize: fontSize.sm,
                 color: theme.text,
-                lineHeight: 24,
+                lineHeight: 22,
               }}
             >
-              {sampleAnalysis.summary}
+              {originalText || "Original text not stored for this document."}
             </Text>
           </View>
         </Card>
       )}
-
-      {tab === "Key Ideas" &&
-        sampleAnalysis.keyIdeas.map((idea, index) => (
-          <Card key={idea.title}>
-            <View style={{ flexDirection: "row", gap: spacing.md }}>
-              <View
-                style={{
-                  width: 28,
-                  height: 28,
-                  borderRadius: 14,
-                  backgroundColor: theme.brandSoft,
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Text
-                  style={{
-                    color: theme.brandDark,
-                    fontWeight: "800",
-                    fontSize: fontSize.sm,
-                  }}
-                >
-                  {index + 1}
-                </Text>
-              </View>
-              <View style={{ flex: 1, gap: 3 }}>
-                <Text
-                  style={{
-                    fontSize: fontSize.md,
-                    fontWeight: "800",
-                    color: theme.text,
-                  }}
-                >
-                  {idea.title}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: fontSize.sm,
-                    color: theme.textMuted,
-                    lineHeight: 20,
-                  }}
-                >
-                  {idea.detail}
-                </Text>
-              </View>
-            </View>
-          </Card>
-        ))}
-
-      {tab === "Discussion" &&
-        sampleAnalysis.discussionPoints.map((point) => (
-          <Card key={point}>
-            <View
-              style={{
-                flexDirection: "row",
-                gap: spacing.md,
-                alignItems: "flex-start",
-              }}
-            >
-              <Ionicons
-                name="chatbubble-ellipses-outline"
-                size={20}
-                color={theme.brand}
-              />
-              <Text
-                style={{
-                  flex: 1,
-                  fontSize: fontSize.md,
-                  color: theme.text,
-                  lineHeight: 22,
-                }}
-              >
-                {point}
-              </Text>
-            </View>
-          </Card>
-        ))}
     </Screen>
   );
 }

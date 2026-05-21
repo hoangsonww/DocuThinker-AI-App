@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { Pressable, Text, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, Pressable, RefreshControl, Text, View } from "react-native";
 
 import { Screen, ScreenHeader } from "@/components/Screen";
 import {
@@ -12,48 +13,53 @@ import {
   IconName,
   Pill,
 } from "@/components/ui";
-import { sampleUser } from "@/constants/sampleData";
 import { fontSize, spacing, useTheme } from "@/constants/theme";
+import { api } from "@/lib/api";
+import { clearAuth, getUserId } from "@/lib/auth";
 
-const SETTINGS: { icon: IconName; label: string; hint: string }[] = [
-  {
-    icon: "person-outline",
-    label: "Account details",
-    hint: "Name, email and password",
-  },
-  {
-    icon: "color-palette-outline",
-    label: "Appearance",
-    hint: "Theme and text size",
-  },
-  {
-    icon: "notifications-outline",
-    label: "Notifications",
-    hint: "Email and push alerts",
-  },
-  {
-    icon: "shield-checkmark-outline",
-    label: "Privacy & security",
-    hint: "Data, sessions and permissions",
-  },
-  {
-    icon: "help-circle-outline",
-    label: "Help & support",
-    hint: "FAQ, guides and contact",
-  },
-];
+type SettingsRow = {
+  icon: IconName;
+  label: string;
+  hint: string;
+  onPress: () => void;
+};
+
+type ProfileData = {
+  email: string;
+  initials: string;
+  documentCount: number;
+  daysSinceJoined: number;
+  joinedDate: string;
+};
+
+function initialsOf(email: string): string {
+  const name = email.split("@")[0] || "?";
+  const parts = name
+    .replace(/[._-]+/g, " ")
+    .split(" ")
+    .filter(Boolean);
+  const first = parts[0]?.[0] ?? "?";
+  const second = parts[1]?.[0] ?? "";
+  return (first + second).toUpperCase();
+}
 
 function StatBox({ value, label }: { value: string; label: string }) {
   const theme = useTheme();
   return (
-    <Card style={{ flex: 1, padding: spacing.md, alignItems: "center", gap: 2 }}>
+    <Card
+      style={{ flex: 1, padding: spacing.md, alignItems: "center", gap: 2 }}
+    >
       <Text
         style={{ fontSize: fontSize.xl, fontWeight: "800", color: theme.brand }}
       >
         {value}
       </Text>
       <Text
-        style={{ fontSize: fontSize.xs, fontWeight: "600", color: theme.textMuted }}
+        style={{
+          fontSize: fontSize.xs,
+          fontWeight: "600",
+          color: theme.textMuted,
+        }}
       >
         {label}
       </Text>
@@ -63,44 +69,136 @@ function StatBox({ value, label }: { value: string; label: string }) {
 
 export default function ProfileScreen() {
   const theme = useTheme();
+  const [data, setData] = useState<ProfileData | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const load = useCallback(async () => {
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      const [email, count, days, joined] = await Promise.all([
+        api.getUserEmail(userId).catch(() => ({ email: "" })),
+        api.getDocumentCount(userId).catch(() => ({ documentCount: 0 })),
+        api.getDaysSinceJoined(userId).catch(() => ({ days: 0 })),
+        api
+          .getUserJoinedDate(userId)
+          .catch(() => ({ joinedDate: new Date().toISOString() })),
+      ]);
+      const userEmail = email.email || "";
+      setData({
+        email: userEmail,
+        initials: initialsOf(userEmail || "?"),
+        documentCount: count.documentCount ?? 0,
+        daysSinceJoined: days.days ?? 0,
+        joinedDate: joined.joinedDate
+          ? new Date(joined.joinedDate).toLocaleDateString()
+          : "",
+      });
+    } catch (e) {
+      console.warn("profile load failed", e);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
+
+  async function handleSignOut() {
+    await clearAuth();
+    router.replace("/login");
+  }
+
+  function notYetAvailable(label: string) {
+    Alert.alert(label, "This is coming soon to the mobile app.");
+  }
+
+  const settings: SettingsRow[] = [
+    {
+      icon: "person-outline",
+      label: "Account details",
+      hint: "Name, email and password",
+      onPress: () => notYetAvailable("Account details"),
+    },
+    {
+      icon: "color-palette-outline",
+      label: "Appearance",
+      hint: "Theme and text size",
+      onPress: () => notYetAvailable("Appearance"),
+    },
+    {
+      icon: "notifications-outline",
+      label: "Notifications",
+      hint: "Email and push alerts",
+      onPress: () => notYetAvailable("Notifications"),
+    },
+    {
+      icon: "shield-checkmark-outline",
+      label: "Privacy & security",
+      hint: "Data, sessions and permissions",
+      onPress: () => notYetAvailable("Privacy & security"),
+    },
+    {
+      icon: "help-circle-outline",
+      label: "Help & support",
+      hint: "FAQ, guides and contact",
+      onPress: () => notYetAvailable("Help & support"),
+    },
+  ];
 
   return (
-    <Screen header={<ScreenHeader title="Profile" />}>
+    <Screen
+      header={<ScreenHeader title="Profile" />}
+      scrollProps={{
+        refreshControl: (
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        ),
+      }}
+    >
       <Card>
         <View style={{ alignItems: "center", gap: spacing.sm }}>
-          <Avatar initials={sampleUser.initials} size={76} />
+          <Avatar initials={data?.initials ?? "?"} size={76} />
           <Text
             style={{
               fontSize: fontSize.xl,
               fontWeight: "800",
               color: theme.text,
+              textAlign: "center",
             }}
           >
-            {sampleUser.name}
+            {data?.email ? data.email.split("@")[0] : "Welcome"}
           </Text>
-          <Text style={{ fontSize: fontSize.sm, color: theme.textMuted }}>
-            {sampleUser.email}
+          <Text
+            style={{
+              fontSize: fontSize.sm,
+              color: theme.textMuted,
+              textAlign: "center",
+            }}
+          >
+            {data?.email || "Loading…"}
           </Text>
-          <Pill label={`${sampleUser.plan} member`} tone="brand" />
+          <Pill label="Pro member" tone="brand" align="center" />
         </View>
       </Card>
 
       <View style={{ flexDirection: "row", gap: spacing.md }}>
+        <StatBox value={String(data?.documentCount ?? 0)} label="Documents" />
         <StatBox
-          value={String(sampleUser.documentsAnalyzed)}
-          label="Documents"
-        />
-        <StatBox value={sampleUser.wordsProcessed} label="Words" />
-        <StatBox
-          value={String(sampleUser.joinedDaysAgo)}
+          value={String(data?.daysSinceJoined ?? 0)}
           label="Days active"
         />
       </View>
 
       <Card style={{ padding: 0, overflow: "hidden" }}>
-        {SETTINGS.map((item, index) => (
+        {settings.map((item, index) => (
           <Pressable
             key={item.label}
+            onPress={item.onPress}
             style={({ pressed }) => ({
               flexDirection: "row",
               alignItems: "center",
@@ -139,7 +237,7 @@ export default function ProfileScreen() {
         label="Sign out"
         variant="outline"
         icon="log-out-outline"
-        onPress={() => router.push("/login")}
+        onPress={handleSignOut}
       />
 
       <AppText
@@ -148,6 +246,7 @@ export default function ProfileScreen() {
         style={{ textAlign: "center" }}
       >
         DocuThinker for Mobile · v1.0.0
+        {data?.joinedDate ? ` · Joined ${data.joinedDate}` : ""}
       </AppText>
     </Screen>
   );

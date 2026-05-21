@@ -1,54 +1,73 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useMemo, useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { RefreshControl, Text, View } from "react-native";
 
 import { Screen, ScreenHeader } from "@/components/Screen";
-import { AppText, Card, IconName, Pill, TextField } from "@/components/ui";
-import { sampleDocuments } from "@/constants/sampleData";
-import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
-
-const FILTERS = ["All", "Business", "Research", "Finance", "HR", "Engineering"];
-
-function Meta({ icon, text }: { icon: IconName; text: string }) {
-  const theme = useTheme();
-  return (
-    <View style={{ flexDirection: "row", alignItems: "center", gap: 5 }}>
-      <Ionicons name={icon} size={14} color={theme.textMuted} />
-      <Text
-        style={{ fontSize: fontSize.xs, color: theme.textMuted, fontWeight: "600" }}
-      >
-        {text}
-      </Text>
-    </View>
-  );
-}
+import { AppText, Card, TextField } from "@/components/ui";
+import { fontSize, spacing, useTheme } from "@/constants/theme";
+import { api, DocumentSummary } from "@/lib/api";
+import { getUserId } from "@/lib/auth";
 
 export default function DocumentsScreen() {
   const theme = useTheme();
   const [query, setQuery] = useState("");
-  const [filter, setFilter] = useState("All");
+  const [docs, setDocs] = useState<DocumentSummary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const docs = useMemo(
-    () =>
-      sampleDocuments.filter((doc) => {
-        const okFilter = filter === "All" || doc.category === filter;
-        const okQuery = doc.title
-          .toLowerCase()
-          .includes(query.trim().toLowerCase());
-        return okFilter && okQuery;
-      }),
-    [query, filter],
-  );
+  const load = useCallback(async () => {
+    const userId = getUserId();
+    if (!userId) {
+      setDocs([]);
+      setLoading(false);
+      return;
+    }
+    setError(null);
+    try {
+      const list = await api.getDocuments(userId);
+      setDocs(Array.isArray(list) ? list : []);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to load documents.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return docs;
+    return docs.filter((doc) => doc.title?.toLowerCase().includes(q));
+  }, [docs, query]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await load();
+    setRefreshing(false);
+  }, [load]);
 
   return (
     <Screen
       header={
         <ScreenHeader
           title="Library"
-          subtitle={`${sampleDocuments.length} documents analyzed`}
+          subtitle={
+            loading
+              ? "Loading…"
+              : `${docs.length} document${docs.length === 1 ? "" : "s"} analyzed`
+          }
         />
       }
+      scrollProps={{
+        refreshControl: (
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        ),
+      }}
     >
       <TextField
         value={query}
@@ -57,41 +76,13 @@ export default function DocumentsScreen() {
         icon="search-outline"
       />
 
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ gap: spacing.sm, paddingVertical: 2 }}
-      >
-        {FILTERS.map((item) => {
-          const active = item === filter;
-          return (
-            <Pressable
-              key={item}
-              onPress={() => setFilter(item)}
-              style={{
-                paddingHorizontal: spacing.lg,
-                paddingVertical: spacing.sm,
-                borderRadius: radius.pill,
-                backgroundColor: active ? theme.brand : theme.surface,
-                borderWidth: 1,
-                borderColor: active ? theme.brand : theme.border,
-              }}
-            >
-              <Text
-                style={{
-                  fontSize: fontSize.sm,
-                  fontWeight: "700",
-                  color: active ? theme.onBrand : theme.textMuted,
-                }}
-              >
-                {item}
-              </Text>
-            </Pressable>
-          );
-        })}
-      </ScrollView>
-
-      {docs.length === 0 ? (
+      {error ? (
+        <Card>
+          <Text style={{ color: theme.danger, fontSize: fontSize.sm }}>
+            {error}
+          </Text>
+        </Card>
+      ) : filtered.length === 0 ? (
         <Card>
           <View
             style={{
@@ -105,25 +96,25 @@ export default function DocumentsScreen() {
               size={40}
               color={theme.textMuted}
             />
-            <AppText variant="muted">No documents match your search.</AppText>
+            <AppText variant="muted">
+              {docs.length === 0
+                ? "Nothing here yet. Upload a document to get started."
+                : "No documents match your search."}
+            </AppText>
           </View>
         </Card>
       ) : (
-        docs.map((doc) => (
-          <Card key={doc.id} onPress={() => router.push("/summary")}>
+        filtered.map((doc) => (
+          <Card
+            key={doc.id}
+            onPress={() =>
+              router.push({
+                pathname: "/summary",
+                params: { docId: doc.id, title: doc.title },
+              })
+            }
+          >
             <View style={{ gap: spacing.sm }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                }}
-              >
-                <Pill label={doc.category} tone="brand" />
-                <Text style={{ fontSize: fontSize.xs, color: theme.textMuted }}>
-                  {doc.date}
-                </Text>
-              </View>
               <Text
                 style={{
                   fontSize: fontSize.lg,
@@ -133,29 +124,18 @@ export default function DocumentsScreen() {
               >
                 {doc.title}
               </Text>
-              <Text
-                numberOfLines={2}
-                style={{
-                  fontSize: fontSize.sm,
-                  color: theme.textMuted,
-                  lineHeight: 20,
-                }}
-              >
-                {doc.summary}
-              </Text>
-              <View
-                style={{
-                  flexDirection: "row",
-                  gap: spacing.lg,
-                  marginTop: 2,
-                }}
-              >
-                <Meta icon="document-outline" text={`${doc.pages} pages`} />
-                <Meta
-                  icon="text-outline"
-                  text={`${(doc.words / 1000).toFixed(1)}k words`}
-                />
-              </View>
+              {doc.summary ? (
+                <Text
+                  numberOfLines={2}
+                  style={{
+                    fontSize: fontSize.sm,
+                    color: theme.textMuted,
+                    lineHeight: 20,
+                  }}
+                >
+                  {doc.summary}
+                </Text>
+              ) : null}
             </View>
           </Card>
         ))

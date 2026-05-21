@@ -80,9 +80,7 @@ function AppLayout({ theme, onThemeToggle }) {
 
   return (
     <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
-      {!hideNavbar && (
-        <Navbar theme={theme} onThemeToggle={onThemeToggle} />
-      )}
+      {!hideNavbar && <Navbar theme={theme} onThemeToggle={onThemeToggle} />}
       <Box sx={{ flexGrow: 1 }}>
         <Routes>
           <Route path="/home" element={<Home theme={theme} />} />

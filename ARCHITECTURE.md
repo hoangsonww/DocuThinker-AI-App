@@ -2581,6 +2581,110 @@ For more details, refer to:
 
 ---
 
+## Client-Side Auth Symmetry
+
+The web frontend (`frontend/src/utils/auth.js`) and the mobile client (`mobile-app/lib/auth.ts`) share a deliberately symmetric model. Both store `customToken` + `userId` under the same keys, both broadcast change events, and both let downstream UI re-render reactively instead of polling.
+
+```mermaid
+graph TB
+    subgraph Web["Web — utils/auth.js"]
+        WLS["localStorage<br/>token + userId"]
+        WEvt["window event<br/>auth-change"]
+        WStorage["native 'storage' event<br/>(cross-tab)"]
+    end
+
+    subgraph Mobile["Mobile — lib/auth.ts"]
+        MAS["AsyncStorage<br/>token + userId"]
+        MEmit["module-level emitter<br/>Set&lt;Listener&gt;"]
+    end
+
+    subgraph Backend["Backend"]
+        Login["POST /login"]
+        FB[(Firebase Auth)]
+    end
+
+    Login --> FB
+    FB -->|customToken + userId| Login
+    Login -.->|response body| WLS
+    Login -.->|response body| MAS
+
+    WLS --> WEvt
+    WLS -.-> WStorage
+    MAS --> MEmit
+
+    WEvt -->|Navbar, Profile, …| WReact[Web screens re-render]
+    WStorage -->|other tabs| WReact
+    MEmit -->|_layout, Home, Profile, …| MReact[Mobile screens re-render]
+```
+
+| Concern | Web (`utils/auth.js`) | Mobile (`lib/auth.ts`) |
+|---|---|---|
+| Storage | `localStorage` (sync) | `AsyncStorage` (async, hydrated once at boot) |
+| Cache | n/a | module-level `cachedToken` / `cachedUserId` so getters stay sync |
+| Same-runtime broadcast | `window.dispatchEvent(new Event("auth-change"))` | `listeners.forEach(fn => fn())` |
+| Cross-context broadcast | native `storage` event (cross-tab) | n/a (each app is its own process) |
+| Public surface | `isAuthenticated`, `setAuth`, `clearAuth`, `onAuthChange` | identical names + `hydrateAuth`, `getToken`, `getUserId` |
+| Auto-logout | clamped `setTimeout` keyed on JWT `exp` | (deferred — same primitives available) |
+
+This symmetry is intentional: any improvement to one side maps trivially to the other.
+
+### Mobile screen graph
+
+```mermaid
+flowchart LR
+    Boot(["App boot"]) --> Hydrate["hydrateAuth"]
+    Hydrate --> Gate{"authenticated?"}
+    Gate -- "no" --> Login["login"]
+    Gate -- "yes" --> Tabs["tabs group"]
+    Login --> Register["register"]
+    Register --> Login
+    Login -- "setAuth" --> Tabs
+    Tabs --> Home["Home"]
+    Tabs --> Lib["Library"]
+    Tabs --> Prof["Profile"]
+    Home --> Upload["upload"]
+    Home --> Summary["summary"]
+    Lib --> Summary
+    Upload -- "upload OK" --> Summary
+    Summary --> Chat["chat"]
+    Prof -- "clearAuth" --> Login
+```
+
+### Mobile upload boundary
+
+```mermaid
+flowchart TB
+    subgraph Mobile["Mobile client"]
+        Pick["expo-document-picker"]
+        Read["expo-file-system<br/>readAsStringAsync UTF-8"]
+        Post["POST /upload<br/>JSON userId + title + text"]
+        Pick --> Read --> Post
+    end
+
+    subgraph Skipped["PDF / DOCX path (mobile)"]
+        Note["⚠️ Not supported on mobile<br/>RN parsers need expo prebuild<br/>drops Expo Go<br/>Vercel multipart limit ~4.5 MB"]
+    end
+
+    subgraph Web["Web client"]
+        WPick["FileReader / dropzone"]
+        WPdf["pdfjs-dist"]
+        WDocx["mammoth"]
+        WTxt["FileReader"]
+        WPost["POST /upload<br/>JSON userId + title + text"]
+        WPick --> WPdf --> WPost
+        WPick --> WDocx --> WPost
+        WPick --> WTxt --> WPost
+    end
+
+    Post --> Backend["Express /upload"]
+    WPost --> Backend
+    Backend --> Summary["generateSummary + Firestore write"]
+```
+
+Net effect: both clients converge on the same `POST /upload` shape (`{userId, title, text}`) and the same `/documents/:userId` read surface — the only difference is which file types each client can parse before sending plain text.
+
+---
+
 **Last Updated**: January 2025
 **Version**: 2.0.0 - Enterprise DevOps Edition
 **Author**: [Son Nguyen](https://github.com/hoangsonww)

@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { ReactNode } from "react";
+import { ComponentProps, ReactNode } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
@@ -59,7 +59,11 @@ export function ScreenHeader({
         )}
         {subtitle && (
           <Text
-            style={{ fontSize: fontSize.sm, color: theme.textMuted, marginTop: 2 }}
+            style={{
+              fontSize: fontSize.sm,
+              color: theme.textMuted,
+              marginTop: 2,
+            }}
           >
             {subtitle}
           </Text>
@@ -74,10 +78,12 @@ export function Screen({
   children,
   scroll = true,
   header,
+  scrollProps,
 }: {
   children: ReactNode;
   scroll?: boolean;
   header?: ReactNode;
+  scrollProps?: Partial<ComponentProps<typeof ScrollView>>;
 }) {
   const theme = useTheme();
   const insets = useSafeAreaInsets();
@@ -101,6 +107,7 @@ export function Screen({
           }}
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          {...scrollProps}
         >
           {children}
         </ScrollView>
