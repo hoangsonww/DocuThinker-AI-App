@@ -47,9 +47,26 @@ export function getPrefs(): Prefs {
 }
 
 export async function setPrefs(patch: Partial<Prefs>): Promise<void> {
+  const before = cache;
   cache = { ...cache, ...patch };
   await AsyncStorage.setItem(KEY, JSON.stringify(cache));
+  // Run any registered "apply-before-emit" hooks (e.g. text scale must mutate
+  // the shared fontSize object before listeners re-render — otherwise
+  // subscribers read stale values).
+  if (before.textScale !== cache.textScale) {
+    applyHooks.forEach((fn) => fn(cache));
+  }
   emit();
+}
+
+type ApplyHook = (p: Prefs) => void;
+const applyHooks = new Set<ApplyHook>();
+
+export function registerApplyHook(fn: ApplyHook): () => void {
+  applyHooks.add(fn);
+  // Run once immediately so callers see the current state.
+  fn(cache);
+  return () => applyHooks.delete(fn);
 }
 
 export function onPrefsChange(handler: Listener): () => void {

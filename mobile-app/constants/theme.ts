@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { useColorScheme as useSystemColorScheme } from "react-native";
 
-import { getPrefs, onPrefsChange, TEXT_SCALE } from "@/lib/prefs";
+import {
+  getPrefs,
+  onPrefsChange,
+  registerApplyHook,
+  TEXT_SCALE,
+} from "@/lib/prefs";
 
 // DocuThinker brand palette — an orange accent shared with the web app.
 export const brand = {
@@ -52,10 +57,19 @@ export type Theme = typeof lightTheme;
 
 export function useTheme(): Theme {
   const system = useSystemColorScheme();
-  const [choice, setChoice] = useState(() => getPrefs().theme);
-  useEffect(() => onPrefsChange((p) => setChoice(p.theme)), []);
+  // Subscribe to the whole prefs blob, not just theme: any change (theme OR
+  // text scale) must re-render the screen so `fontSize` mutations made by
+  // `applyScale` take effect immediately. Without this, screens that imported
+  // `fontSize.md` at render time keep showing the old size until they
+  // unmount/remount or rerender for another reason.
+  const [prefs, setPrefsState] = useState(() => getPrefs());
+  useEffect(() => onPrefsChange((p) => setPrefsState(p)), []);
   const resolved =
-    choice === "dark" ? "dark" : choice === "light" ? "light" : system;
+    prefs.theme === "dark"
+      ? "dark"
+      : prefs.theme === "light"
+        ? "light"
+        : system;
   return resolved === "dark" ? darkTheme : lightTheme;
 }
 
@@ -112,17 +126,15 @@ function applyScale(scale: number) {
 export function useFontScale(): number {
   const [scale, setScale] = useState(() => TEXT_SCALE[getPrefs().textScale]);
   useEffect(() => {
-    return onPrefsChange((p) => {
-      const next = TEXT_SCALE[p.textScale];
-      applyScale(next);
-      setScale(next);
-    });
+    return onPrefsChange((p) => setScale(TEXT_SCALE[p.textScale]));
   }, []);
   return scale;
 }
 
-// Apply current scale at module load so initial render matches stored prefs.
-applyScale(TEXT_SCALE[getPrefs().textScale]);
+// Always mutate `fontSize` before any listener runs — `setPrefs` invokes hooks
+// synchronously ahead of the emit, so subscribers (every screen via useTheme)
+// re-render against fresh values instead of the previous scale.
+registerApplyHook((p) => applyScale(TEXT_SCALE[p.textScale]));
 
 // A soft elevation usable cross-platform (iOS shadow + Android elevation).
 export function elevation(theme: Theme, level: 1 | 2 | 3 = 1) {
