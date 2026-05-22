@@ -1,32 +1,35 @@
-import { Link, Stack } from "expo-router";
-import { StyleSheet } from "react-native";
+import { router } from "expo-router";
+import { View } from "react-native";
 
-import { ThemedText } from "@/components/ThemedText";
-import { ThemedView } from "@/components/ThemedView";
+import { Screen } from "@/components/Screen";
+import { AppText, Button, IconCircle } from "@/components/ui";
+import { spacing } from "@/constants/theme";
 
 export default function NotFoundScreen() {
   return (
-    <>
-      <Stack.Screen options={{ title: "Oops!" }} />
-      <ThemedView style={styles.container}>
-        <ThemedText type="title">This screen doesn't exist.</ThemedText>
-        <Link href="/" style={styles.link}>
-          <ThemedText type="link">Go to home screen!</ThemedText>
-        </Link>
-      </ThemedView>
-    </>
+    <Screen scroll={false}>
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+          padding: spacing.xxl,
+          gap: spacing.lg,
+        }}
+      >
+        <IconCircle name="compass-outline" size={92} />
+        <AppText variant="display">404</AppText>
+        <AppText variant="muted" style={{ textAlign: "center" }}>
+          We couldn&apos;t find that page. It may have been moved or removed.
+        </AppText>
+        <View style={{ alignSelf: "stretch", marginTop: spacing.sm }}>
+          <Button
+            label="Back to Home"
+            icon="home-outline"
+            onPress={() => router.replace("/")}
+          />
+        </View>
+      </View>
+    </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  link: {
-    marginTop: 15,
-    paddingVertical: 15,
-  },
-});

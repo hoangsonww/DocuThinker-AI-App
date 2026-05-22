@@ -25,6 +25,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import LoginIcon from "@mui/icons-material/Login";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import { isAuthenticated, clearAuth, onAuthChange } from "../utils/auth";
 
 const activeStyle = {
   borderBottom: "3px solid #f57c00",
@@ -32,23 +33,16 @@ const activeStyle = {
   paddingBottom: "4px",
 };
 
-const Navbar = ({ theme, onThemeToggle, onLogout }) => {
+const Navbar = ({ theme, onThemeToggle }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const isLargeScreen = useMediaQuery("(min-width:1111px)");
 
   useEffect(() => {
-    const checkLoggedInStatus = () => {
-      const userId = localStorage.getItem("userId");
-      setIsLoggedIn(!!userId);
-    };
-
-    checkLoggedInStatus();
-
-    const interval = setInterval(checkLoggedInStatus, 1000);
-
-    return () => clearInterval(interval);
+    const sync = () => setIsLoggedIn(isAuthenticated());
+    sync();
+    return onAuthChange(sync);
   }, []);
 
   const toggleDrawer = (open) => (event) => {
@@ -62,11 +56,8 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    onLogout();
+    clearAuth();
     navigate("/login");
-    setIsLoggedIn(false);
   };
 
   const renderNavLinks = (

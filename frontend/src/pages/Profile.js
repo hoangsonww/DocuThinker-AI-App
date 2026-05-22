@@ -17,6 +17,7 @@ import {
   Save as SaveIcon,
 } from "@mui/icons-material";
 import axios from "axios";
+import { clearAuth } from "../utils/auth";
 
 const Profile = ({ theme }) => {
   const [email, setEmail] = useState("");
@@ -548,7 +549,7 @@ const Profile = ({ theme }) => {
           color="secondary"
           sx={{ mt: 3, font: "inherit" }}
           onClick={() => {
-            localStorage.removeItem("userId");
+            clearAuth();
             window.location.reload();
           }}
         >

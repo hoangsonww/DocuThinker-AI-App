@@ -130,12 +130,6 @@ The frontend consists of several pages and components that make up the user inte
   <img src="../images/forgot-password-dark.png" alt="Forgot Password Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
-### Responsive Design - Example
-
-<p align="center">
-  <img src="../images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
-</p>
-
 ## File Structure
 
 Here is the complete file structure for the **DocuThinker Frontend**. The frontend is located under `DocuThinker-AI-App/frontend`:
@@ -181,7 +175,74 @@ DocuThinker-AI-App/
 - **assets/**: Contains static assets such as images, fonts, etc.
 - **components/**: Reusable React components like `Navbar`, `Footer`, and `GoogleAnalytics`.
 - **pages/**: React components representing the different pages of the app (e.g., `Home`, `LandingPage`, `Login`).
+- **utils/**: Cross-cutting client utilities — most importantly `auth.js`, the event-driven session helper shared by `Login`, `Profile`, and `Navbar`.
 - **public/**: Contains the `index.html` and other public files that aren't processed by Webpack.
+
+## Client-side Auth (`src/utils/auth.js`)
+
+Session state lives in `localStorage` under two keys (`token`, `userId`) and is broadcast through a custom `"auth-change"` event plus the native cross-tab `storage` event. Screens subscribe via `onAuthChange(handler)` and re-render the instant the keys change — there is no polling.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant Login as pages/Login.js
+    participant Auth as utils/auth.js
+    participant LS as localStorage
+    participant Navbar as components/Navbar.js
+    participant OtherTab as Other tab
+
+    User->>Login: Submit credentials
+    Login->>Auth: setAuth(customToken, userId)
+    Auth->>LS: setItem(token), setItem(userId)
+    Auth-->>Navbar: dispatchEvent("auth-change")
+    Navbar->>Navbar: setIsLoggedIn(isAuthenticated())
+    Auth-->>OtherTab: native "storage" event<br/>(cross-tab only)
+    OtherTab->>OtherTab: re-render with logged-in state
+
+    User->>Navbar: Click Sign out
+    Navbar->>Auth: clearAuth()
+    Auth->>LS: removeItem(token), removeItem(userId)
+    Auth-->>Navbar: dispatchEvent("auth-change")
+    Navbar->>Navbar: setIsLoggedIn(false)
+```
+
+Public surface:
+
+| Export | Use |
+|---|---|
+| `isAuthenticated()` | Sync `!!localStorage.getItem("userId")` |
+| `setAuth(token, userId)` | Write both keys + emit |
+| `clearAuth()` | Remove both keys + emit |
+| `onAuthChange(handler)` | Subscribe (same tab + cross-tab); returns unsubscribe |
+
+### Notable refactors landed in the latest PR
+
+- **`Navbar` keys its login state on `userId`, not JWT expiry.** Custom tokens have a 1-hour `exp`, but the user's actual session is gated by the presence of `userId` — using expiry caused the navbar to flip on/off during long sessions.
+- **JWT expiry timer clamped to setTimeout's 32-bit max.** Tokens with an `exp` more than ~24.8 days out previously caused `setTimeout` overflow and fired immediately. The clamp keeps the timer dormant until the cap.
+- **1-second JWT polling replaced with event-driven `onAuthChange`.** Removed the redundant `setInterval` that was reading `localStorage` every tick across multiple components.
+- **Dead `isLoggedIn` prop drilling removed.** `Navbar` reads auth state through the utility directly; callers no longer pass it down.
+- **`jest` + `jest-environment-jsdom` declared explicitly.** The test runner no longer relies on transitive resolution and runs `npm test` cleanly.
+
+```mermaid
+flowchart LR
+    subgraph PR["What the PR changes"]
+        A[utils/auth.js<br/>new utility]
+        B[Login.js<br/>setAuth on success]
+        C[Profile.js<br/>clearAuth on signout]
+        D[Navbar.js<br/>onAuthChange subscribe]
+    end
+
+    A --> B
+    A --> C
+    A --> D
+
+    B -.->|emit| D
+    C -.->|emit| D
+    D -.->|read| LS[(localStorage<br/>token + userId)]
+    B -.->|write| LS
+    C -.->|remove| LS
+```
 
 ## Prerequisites
 
@@ -265,11 +326,23 @@ Here are the most important scripts available in the `package.json`:
 
 ## Key Features
 
-- **Document Upload**: Users can upload documents (PDF, Word) and get real-time AI summaries and key insights.
-- **Authentication**: Users can register, log in, and reset their passwords.
+- **Document Upload**: Users can upload documents (PDF, Word, plain text). PDF/DOCX are parsed **client-side** with `pdfjs-dist` and `mammoth` so the backend only ever receives plain text — keeping the request payload small and Vercel-serverless-friendly.
+- **Authentication**: Email/password, Google OAuth, and password reset. Session state is event-driven via `utils/auth.js` (see the diagram above) — no polling, no prop drilling.
+- **Auto-logout on token expiry**: A single `setTimeout`, clamped to the 32-bit limit, fires `clearAuth` when the JWT's `exp` is reached.
+- **Cross-tab sync**: Sign out in one tab and other open tabs update instantly via the native `storage` event.
 - **Google Analytics Integration**: User activity is tracked via Google Analytics.
 - **Dark Mode Support**: Theme toggle between dark and light modes.
-- **Responsive Design**: Works well on both desktop and mobile devices.
+- **Responsive Design**: Works well on both desktop and mobile-form-factor browsers; for native iOS/Android, see [`mobile-app/`](../mobile-app/README.md).
+
+## Testing
+
+The test runner is `jest` with `jest-environment-jsdom`. Both are declared explicitly in `package.json` (no transitive-only resolution). To run the suite:
+
+```bash
+npm test -- --watchAll=false
+```
+
+There are six suites under `src/__tests__/` covering structure, package metadata, source content, deps, runtime basics, and README presence — they currently total 35 assertions.
 
 ## Screenshots
 

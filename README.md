@@ -621,13 +621,52 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
 
 ### **Mobile App's View**
 
-<p align="center">
-  <img src="images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
-</p>
+Real signed-in captures from the React Native (Expo SDK 51) build, iPhone 16 Pro / iOS 18.5 on the top row and Pixel 6 / API 34 on the bottom. Full walkthrough lives in [MOBILE_APPS.md](MOBILE_APPS.md), and the mobile-only deep dive is at [mobile-app/README.md](mobile-app/README.md).
 
-<p align="center">
-  <img src="images/navigation-drawer.png" alt="Navigation Drawer" width="50%" style="border-radius: 8px">
-</p>
+#### Unauthenticated
+
+| Login | Register | Forgot password |
+| --- | --- | --- |
+| <img src="images/mobile-ios-login.png" width="220" alt="iOS Login"> | <img src="images/mobile-ios-register.png" width="220" alt="iOS Register"> | <img src="images/mobile-ios-forgot.png" width="220" alt="iOS Forgot"> |
+| <img src="images/mobile-android-login.png" width="220" alt="Android Login"> | <img src="images/mobile-android-register.png" width="220" alt="Android Register"> | <img src="images/mobile-android-forgot.png" width="220" alt="Android Forgot"> |
+
+#### Authenticated tabs
+
+| Home | Library | Profile |
+| --- | --- | --- |
+| <img src="images/mobile-ios-home.png" width="220" alt="iOS Home"> | <img src="images/mobile-ios-library.png" width="220" alt="iOS Library"> | <img src="images/mobile-ios-profile.png" width="220" alt="iOS Profile"> |
+| <img src="images/mobile-android-home.png" width="220" alt="Android Home"> | <img src="images/mobile-android-library.png" width="220" alt="Android Library"> | <img src="images/mobile-android-profile.png" width="220" alt="Android Profile"> |
+
+#### Document flow (Upload → Summary → Chat)
+
+| Upload | Summary | Chat |
+| --- | --- | --- |
+| <img src="images/mobile-ios-upload.png" width="220" alt="iOS Upload"> | <img src="images/mobile-ios-summary.png" width="220" alt="iOS Summary"> | <img src="images/mobile-ios-chat.png" width="220" alt="iOS Chat"> |
+| <img src="images/mobile-android-upload.png" width="220" alt="Android Upload"> | <img src="images/mobile-android-summary.png" width="220" alt="Android Summary"> | <img src="images/mobile-android-chat.png" width="220" alt="Android Chat"> |
+
+> Summary now also has **Generate key ideas** and **Generate discussion points** actions wired to `POST /generate-key-ideas` + `POST /generate-discussion-points`. All assistant output renders through `react-native-markdown-display` so bold text, bullet lists, fenced code, and links look the same on iOS, Android, and web.
+
+#### Settings
+
+| Account | Appearance | Connections |
+| --- | --- | --- |
+| <img src="images/mobile-ios-account.png" width="220" alt="iOS Account"> | <img src="images/mobile-ios-appearance.png" width="220" alt="iOS Appearance"> | <img src="images/mobile-ios-connections.png" width="220" alt="iOS Connections"> |
+| <img src="images/mobile-android-account.png" width="220" alt="Android Account"> | <img src="images/mobile-android-appearance.png" width="220" alt="Android Appearance"> | <img src="images/mobile-android-connections.png" width="220" alt="Android Connections"> |
+
+| Privacy & security | Help & support |
+| --- | --- |
+| <img src="images/mobile-ios-privacy.png" width="220" alt="iOS Privacy"> | <img src="images/mobile-ios-help.png" width="220" alt="iOS Help"> |
+| <img src="images/mobile-android-privacy.png" width="220" alt="Android Privacy"> | <img src="images/mobile-android-help.png" width="220" alt="Android Help"> |
+
+> Every Profile menu row is fully implemented — no stubs. Account uses `/update-email` + `/update-password`. Appearance persists Theme + Text size and syncs explicit Light/Dark choices to `/update-theme`. Connections round-trip through `/social-media` + `/update-social-media`. Privacy can delete every document via `DELETE /documents/:userId` and shows live session details (token preview + decoded JWT expiry). Help is a real FAQ + `mailto:` contact + repo + version info.
+
+#### Loading states
+
+| iOS | Android |
+| --- | --- |
+| <img src="images/mobile-ios-home-loading.png" width="220" alt="iOS Home loading"> | <img src="images/mobile-android-home-loading.png" width="220" alt="Android Home loading"> |
+
+Home, Library, Profile, Account, Connections, and Privacy all show animated skeleton placeholders during the first fetch so they never read "0 Documents · 0 Days active" before the real numbers land. The Library `Documents / Days active / Docs / week` row replaces the old `∞ Insights` placeholder with a real activity metric derived from the existing `docCount` and `daysActive` data.
 
 <h2 id="complete-file-structure">📂 Complete File Structure</h2>
 
@@ -749,18 +788,26 @@ DocuThinker-AI-App/
 │   ├── README.md                     # Frontend README file
 │   └── package.lock                  # Lock file for dependencies
 │
-├── mobile-app/                       # Mobile app directory
-│   ├── app/                          # React Native app directory
-│   ├── .env                          # Environment variables file for the mobile app
-│   ├── app.json                      # Expo configuration file
-│   ├── components/                   # Reusable components for the mobile app
-│   ├── assets/                       # Static assets for the mobile app
-│   ├── constants/                    # Constants for the mobile app
-│   ├── hooks/                        # Custom hooks for the mobile app
-│   ├── scripts/                      # Scripts for the mobile app
-│   ├── babel.config.js               # Babel configuration file
+├── mobile-app/                       # React Native (Expo SDK 51) client
+│   ├── app/                          # File-based routes (expo-router)
+│   │   ├── _layout.tsx               # Root stack + auth gate (hydrate, redirect)
+│   │   ├── login.tsx                 # Email/password → setAuth
+│   │   ├── register.tsx              # New account → /login
+│   │   ├── upload.tsx                # expo-document-picker + /upload
+│   │   ├── summary.tsx               # Renders /upload or /document-details
+│   │   ├── chat.tsx                  # /chat round-trip with sessionId
+│   │   └── (tabs)/                   # Home, Library, Profile (bottom tabs)
+│   ├── components/                   # Screen primitives + UI kit (Card, Pill, …)
+│   ├── constants/                    # theme.ts, Colors.ts, static UI copy
+│   ├── lib/
+│   │   ├── auth.ts                   # AsyncStorage + emitter (mirrors web auth.js)
+│   │   └── api.ts                    # fetch wrapper + endpoint map
+│   ├── hooks/                        # Custom hooks (useColorScheme)
+│   ├── assets/                       # Static assets (images, fonts)
+│   ├── app.json                      # Expo config (scheme: docuthinker)
+│   ├── babel.config.js               # Babel configuration
 │   ├── package.json                  # Project dependencies and scripts
-│   └── tsconfig.json                 # TypeScript configuration file
+│   └── tsconfig.json                 # TypeScript configuration
 │
 ├── aws/                              # AWS deployment assets (ECR/ECS/CloudFormation/CDK)
 │   ├── README.md
@@ -908,19 +955,52 @@ Additionally, **basic fullstack development knowledge and AI/ML concepts** are r
 
 ### **Running the Mobile App**
 
-1. **Navigate to the mobile app directory**:
+The mobile app is a real React Native (Expo SDK 51) client that authenticates against the same backend as the web. Accounts created via the web work on mobile and vice versa.
+
+1. **Install dependencies**:
    ```bash
    cd mobile-app
+   npm ci
    ```
-2. **Install dependencies**:
-   ```bash
-    npm install
-   ```
-3. **Start the Expo server**:
+2. **Start the Expo dev server**:
    ```bash
    npx expo start
    ```
-4. **Run the app on an emulator or physical device**: Follow the instructions in the terminal to run the app on an emulator or physical device.
+   Metro listens on `http://localhost:8081`.
+3. **Attach a simulator/emulator**:
+   - Press `i` to launch (and bundle for) the booted iOS Simulator.
+   - Press `a` to launch (and bundle for) the booted Android AVD.
+   - Or deep-link manually:
+     ```bash
+     xcrun simctl openurl booted "exp://127.0.0.1:8081"
+     adb shell am start -a android.intent.action.VIEW -d "exp://10.0.2.2:8081" host.exp.exponent
+     ```
+4. **Sign in** with a real account (web-created credentials work) and confirm Home shows your real document count.
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant CLI as npx expo start
+    participant Metro as Metro :8081
+    participant iOS as iOS Sim
+    participant AVD as Android AVD
+
+    Dev->>CLI: start
+    CLI->>Metro: bundle entry.js
+    Dev->>CLI: press i
+    CLI->>iOS: install Expo Go (SDK 51) if missing
+    CLI->>iOS: openurl exp://127.0.0.1:8081
+    iOS->>Metro: fetch bundle
+    Metro-->>iOS: iOS bundle
+    Dev->>CLI: press a
+    CLI->>AVD: install Expo Go (SDK 51) if missing
+    CLI->>AVD: am start exp://10.0.2.2:8081
+    AVD->>Metro: fetch bundle
+    Metro-->>AVD: Android bundle
+```
+
+> [!TIP]
+> Expo Go pins one SDK runtime per device. If your device has Go for a different SDK installed, `expo start` will prompt to reinstall the matching version. The swap is reversible — opening another project later prompts the swap back. Detailed troubleshooting lives in [`mobile-app/README.md`](mobile-app/README.md#troubleshooting).
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
 
@@ -1396,17 +1476,84 @@ For more information about GraphQL, visit the [official documentation](https://g
 
 <h2 id="mobile-app">📱 Mobile App</h2>
 
-The **DocuThinker** mobile app is built using **React Native** and **Expo**. It provides a mobile-friendly interface for users to upload documents, generate summaries, and chat with an AI. The mobile app integrates with the backend API to provide a seamless experience across devices.
+The **DocuThinker** mobile app is a real React Native client (Expo SDK 51, TypeScript, `expo-router`) that talks directly to the same Vercel backend the web frontend uses. It is **not** a shell or mock — every screen reads from real endpoints, and accounts created via the web app sign in on mobile without any extra step.
 
-Currently, it is in development and will be released soon on both the **App Store** and **Google Play Store**.
+```mermaid
+graph LR
+    subgraph Web["💻 docuthinker.vercel.app"]
+        WLogin[Login.js]
+        WAuth["utils/auth.js<br/>localStorage + event"]
+    end
 
-Stay tuned for the release of the **DocuThinker** mobile app!
+    subgraph Mobile["📱 Expo Go / native build"]
+        MLogin[login.tsx]
+        MAuth["lib/auth.ts<br/>AsyncStorage + emitter"]
+    end
 
-Below is a screenshot of the mobile app (in development):
+    subgraph Backend["☁️ docuthinker-app-backend-api.vercel.app"]
+        Login["/login"]
+        FB[(Firebase Auth)]
+    end
 
-<p align="center">
-  <img src="images/responsive.png" alt="Mobile App" width="50%" style="border-radius: 8px">
-</p>
+    WLogin --> Login
+    MLogin --> Login
+    Login --> FB
+    Login -->|customToken + userId| WAuth
+    Login -->|customToken + userId| MAuth
+```
+
+### What landed in this PR
+
+- **Persistent session**: Login persists `customToken` + `userId` in `AsyncStorage`; root layout hydrates on boot.
+- **Auth gate**: `app/_layout.tsx` redirects unauthed users to `/login` and authed users away from `/login` automatically.
+- **Real backend wiring**: Home / Library / Profile / Summary / Chat all hit live endpoints — see the parity table below.
+- **Document picker**: `expo-document-picker` + `expo-file-system` for plain-text uploads (see [Upload Limitation](#upload-limitation-mobile)).
+- **UI fixes**: `Pill` accepts an `align` prop so the "Pro member" badge centers on Profile; settings rows on Profile are now real `Pressable`s with `onPress` (showing "Coming soon" `Alert`s where the underlying flow isn't wired yet).
+- **Mock data removed**: `Alex Carter` and the canned document list are gone. The only static content left is the four feature tiles on the Home screen.
+
+### Web ↔ mobile parity
+
+| Capability | Web | Mobile (this PR) | Backend |
+|---|---|---|---|
+| Email + password sign-in | ✅ | ✅ | `POST /login` |
+| Register | ✅ | ✅ | `POST /register` |
+| Forgot password | ✅ | UI stub | `POST /forgot-password` |
+| Google sign-in | ✅ | UI stub | n/a |
+| Document list | ✅ | ✅ pull-to-refresh | `GET /documents/:userId` |
+| Document summary | ✅ | ✅ | `GET /document-details/:userId/:docId` |
+| Profile (email, docs, days) | ✅ | ✅ | `/users/:id`, `/document-count/:id`, `/days-since-joined/:id`, `/user-joined-date/:id` |
+| Document chat | ✅ | ✅ | `POST /chat` |
+| Upload .txt/.md | ✅ | ✅ | `POST /upload` |
+| Upload PDF/DOCX | ✅ (client-side parse) | ❌ (see below) | `POST /upload` |
+| Document analytics dashboard | ✅ | future | — |
+| Account / appearance / notifications panes | ✅ | UI stubs | — |
+
+### Mobile auth state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Hydrating: app/_layout mount
+    Hydrating --> Anonymous: AsyncStorage empty
+    Hydrating --> Authed: userId present
+
+    Anonymous --> Authed: setAuth() after POST /login
+    Authed --> Anonymous: clearAuth() (Sign out)
+    Authed --> Loading: tab focus → fetch
+    Loading --> Ready: 4 parallel GETs resolve
+    Ready --> Refreshing: pull-to-refresh
+    Refreshing --> Ready
+```
+
+### Upload limitation (mobile)
+
+The backend `/upload` endpoint expects `{userId, title, text}` JSON. The web frontend parses PDF/DOCX **in the browser** with `pdfjs-dist` + `mammoth` before posting plain text. The mobile app does not currently ship a comparable RN parser because:
+
+1. RN equivalents (`react-native-pdf`, mammoth + xmldom polyfill) require native modules and `expo prebuild`, which would drop the Expo Go workflow.
+2. Routing binary uploads through Vercel is not reliable — serverless functions have a small request-body limit (~4.5 MB) and short hobby-tier timeouts, which makes streaming larger PDFs through a new multipart endpoint fragile.
+
+So: **mobile uploads .txt/.md; web uploads PDF/DOCX**. Both clients see the same documents in `/documents/:userId`, so the round-trip surface is consistent.
+
+For the full mobile architecture (screen map, API client class diagram, lifecycle, troubleshooting) see **[mobile-app/README.md](mobile-app/README.md)**.
 
 <h2 id="containerization">📦 Containerization</h2>
 
