@@ -35,6 +35,13 @@ export default function SummaryScreen() {
   );
   const [error, setError] = useState<string | null>(null);
 
+  const [keyIdeas, setKeyIdeas] = useState<string>("");
+  const [discussion, setDiscussion] = useState<string>("");
+  const [busyIdeas, setBusyIdeas] = useState(false);
+  const [busyDiscussion, setBusyDiscussion] = useState(false);
+  const [ideasError, setIdeasError] = useState<string | null>(null);
+  const [discussionError, setDiscussionError] = useState<string | null>(null);
+
   useEffect(() => {
     if (params.summary || !params.docId) return;
     const userId = getUserId();
@@ -59,6 +66,38 @@ export default function SummaryScreen() {
   const readingTime = wordCount
     ? `${Math.max(1, Math.round(wordCount / 200))} min read`
     : null;
+
+  async function handleGenerateKeyIdeas() {
+    if (!originalText) return;
+    setIdeasError(null);
+    setBusyIdeas(true);
+    try {
+      const result = await api.generateKeyIdeas(originalText);
+      setKeyIdeas(result.keyIdeas || "");
+    } catch (e) {
+      setIdeasError(
+        e instanceof Error ? e.message : "Couldn't generate key ideas.",
+      );
+    } finally {
+      setBusyIdeas(false);
+    }
+  }
+
+  async function handleGenerateDiscussion() {
+    if (!originalText) return;
+    setDiscussionError(null);
+    setBusyDiscussion(true);
+    try {
+      const result = await api.generateDiscussionPoints(originalText);
+      setDiscussion(result.discussionPoints || "");
+    } catch (e) {
+      setDiscussionError(
+        e instanceof Error ? e.message : "Couldn't generate discussion points.",
+      );
+    } finally {
+      setBusyDiscussion(false);
+    }
+  }
 
   return (
     <Screen header={<ScreenHeader title="Analysis" showBack />}>
@@ -101,8 +140,66 @@ export default function SummaryScreen() {
               })
             }
           />
+          <Button
+            label={
+              busyIdeas
+                ? "Generating…"
+                : keyIdeas
+                  ? "Refresh key ideas"
+                  : "Generate key ideas"
+            }
+            icon="bulb-outline"
+            variant="outline"
+            disabled={!originalText || busyIdeas}
+            loading={busyIdeas}
+            onPress={handleGenerateKeyIdeas}
+          />
+          <Button
+            label={
+              busyDiscussion
+                ? "Generating…"
+                : discussion
+                  ? "Refresh discussion points"
+                  : "Generate discussion points"
+            }
+            icon="people-outline"
+            variant="outline"
+            disabled={!originalText || busyDiscussion}
+            loading={busyDiscussion}
+            onPress={handleGenerateDiscussion}
+          />
         </View>
       </Card>
+
+      {(keyIdeas || ideasError) ? (
+        <Card>
+          <View style={{ gap: spacing.md }}>
+            <Pill label="KEY IDEAS" tone="brand" />
+            {ideasError ? (
+              <Text style={{ color: theme.danger, fontSize: fontSize.sm }}>
+                {ideasError}
+              </Text>
+            ) : (
+              <MarkdownText text={keyIdeas} tone="body" />
+            )}
+          </View>
+        </Card>
+      ) : null}
+
+      {(discussion || discussionError) ? (
+        <Card>
+          <View style={{ gap: spacing.md }}>
+            <Pill label="DISCUSSION POINTS" tone="neutral" />
+            {discussionError ? (
+              <Text style={{ color: theme.danger, fontSize: fontSize.sm }}>
+                {discussionError}
+              </Text>
+            ) : (
+              <MarkdownText text={discussion} tone="body" />
+            )}
+          </View>
+        </Card>
+      ) : null}
 
       <View
         style={{

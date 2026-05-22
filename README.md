@@ -644,7 +644,29 @@ Real signed-in captures from the React Native (Expo SDK 51) build, iPhone 16 Pro
 | <img src="images/mobile-ios-upload.png" width="220" alt="iOS Upload"> | <img src="images/mobile-ios-summary.png" width="220" alt="iOS Summary"> | <img src="images/mobile-ios-chat.png" width="220" alt="iOS Chat"> |
 | <img src="images/mobile-android-upload.png" width="220" alt="Android Upload"> | <img src="images/mobile-android-summary.png" width="220" alt="Android Summary"> | <img src="images/mobile-android-chat.png" width="220" alt="Android Chat"> |
 
-> Summary and Chat render LLM Markdown via `react-native-markdown-display` so bold text, bullet lists, fenced code, and links look the same on iOS, Android, and web.
+> Summary now also has **Generate key ideas** and **Generate discussion points** actions wired to `POST /generate-key-ideas` + `POST /generate-discussion-points`. All assistant output renders through `react-native-markdown-display` so bold text, bullet lists, fenced code, and links look the same on iOS, Android, and web.
+
+#### Settings
+
+| Account | Appearance | Connections |
+| --- | --- | --- |
+| <img src="images/mobile-ios-account.png" width="220" alt="iOS Account"> | <img src="images/mobile-ios-appearance.png" width="220" alt="iOS Appearance"> | <img src="images/mobile-ios-connections.png" width="220" alt="iOS Connections"> |
+| <img src="images/mobile-android-account.png" width="220" alt="Android Account"> | <img src="images/mobile-android-appearance.png" width="220" alt="Android Appearance"> | <img src="images/mobile-android-connections.png" width="220" alt="Android Connections"> |
+
+| Privacy & security | Help & support |
+| --- | --- |
+| <img src="images/mobile-ios-privacy.png" width="220" alt="iOS Privacy"> | <img src="images/mobile-ios-help.png" width="220" alt="iOS Help"> |
+| <img src="images/mobile-android-privacy.png" width="220" alt="Android Privacy"> | <img src="images/mobile-android-help.png" width="220" alt="Android Help"> |
+
+> Every Profile menu row is fully implemented — no stubs. Account uses `/update-email` + `/update-password`. Appearance persists Theme + Text size and syncs explicit Light/Dark choices to `/update-theme`. Connections round-trip through `/social-media` + `/update-social-media`. Privacy can delete every document via `DELETE /documents/:userId` and shows live session details (token preview + decoded JWT expiry). Help is a real FAQ + `mailto:` contact + repo + version info.
+
+#### Loading states
+
+| iOS | Android |
+| --- | --- |
+| <img src="images/mobile-ios-home-loading.png" width="220" alt="iOS Home loading"> | <img src="images/mobile-android-home-loading.png" width="220" alt="Android Home loading"> |
+
+Home, Library, Profile, Account, Connections, and Privacy all show animated skeleton placeholders during the first fetch so they never read "0 Documents · 0 Days active" before the real numbers land. The Library `Documents / Days active / Docs / week` row replaces the old `∞ Insights` placeholder with a real activity metric derived from the existing `docCount` and `daysActive` data.
 
 <h2 id="complete-file-structure">📂 Complete File Structure</h2>
 

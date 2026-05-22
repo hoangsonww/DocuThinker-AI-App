@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Pressable, RefreshControl, Text, View } from "react-native";
 
 import { Screen } from "@/components/Screen";
+import { Skeleton, SkeletonLines } from "@/components/Skeleton";
 import { AppText, Avatar, Card, IconCircle, Logo } from "@/components/ui";
 import { homeFeatures } from "@/constants/sampleData";
 import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
@@ -48,15 +49,31 @@ function HomeHeader({ initials }: { initials: string }) {
   );
 }
 
-function StatChip({ value, label }: { value: string; label: string }) {
+function StatChip({
+  value,
+  label,
+  loading,
+}: {
+  value: string;
+  label: string;
+  loading?: boolean;
+}) {
   const theme = useTheme();
   return (
-    <Card style={{ flex: 1, padding: spacing.md, gap: 2 }}>
-      <Text
-        style={{ fontSize: fontSize.xl, fontWeight: "800", color: theme.text }}
-      >
-        {value}
-      </Text>
+    <Card style={{ flex: 1, padding: spacing.md, gap: 4 }}>
+      {loading ? (
+        <Skeleton height={fontSize.xl} width="60%" />
+      ) : (
+        <Text
+          style={{
+            fontSize: fontSize.xl,
+            fontWeight: "800",
+            color: theme.text,
+          }}
+        >
+          {value}
+        </Text>
+      )}
       <Text
         style={{
           fontSize: fontSize.xs,
@@ -75,10 +92,14 @@ export default function HomeScreen() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [docs, setDocs] = useState<DocumentSummary[]>([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(async () => {
     const userId = getUserId();
-    if (!userId) return;
+    if (!userId) {
+      setLoaded(true);
+      return;
+    }
     try {
       const [email, count, days, list] = await Promise.all([
         api.getUserEmail(userId).catch(() => ({ email: "" })),
@@ -96,6 +117,8 @@ export default function HomeScreen() {
     } catch (e) {
       // Network/transient error — keep prior state, surface nothing aggressive.
       console.warn("home load failed", e);
+    } finally {
+      setLoaded(true);
     }
   }, []);
 
@@ -112,6 +135,16 @@ export default function HomeScreen() {
   const initials = stats?.initials ?? "?";
   const docCount = stats?.documentCount ?? 0;
   const daysActive = stats?.daysSinceJoined ?? 0;
+  // Replace the old "∞" placeholder with a real activity metric derived from
+  // numbers we already fetch.
+  const docsPerWeek =
+    daysActive > 0 ? (docCount * 7) / Math.max(daysActive, 1) : docCount;
+  const docsPerWeekLabel =
+    docCount === 0
+      ? "0"
+      : docsPerWeek >= 10
+        ? Math.round(docsPerWeek).toString()
+        : docsPerWeek.toFixed(1);
 
   return (
     <Screen
@@ -202,9 +235,21 @@ export default function HomeScreen() {
       </View>
 
       <View style={{ flexDirection: "row", gap: spacing.md }}>
-        <StatChip value={String(docCount)} label="Documents" />
-        <StatChip value={String(daysActive)} label="Days active" />
-        <StatChip value="∞" label="Insights" />
+        <StatChip
+          value={String(docCount)}
+          label="Documents"
+          loading={!loaded}
+        />
+        <StatChip
+          value={String(daysActive)}
+          label="Days active"
+          loading={!loaded}
+        />
+        <StatChip
+          value={docsPerWeekLabel}
+          label="Docs / week"
+          loading={!loaded}
+        />
       </View>
 
       <View style={{ gap: spacing.md }}>
@@ -282,7 +327,25 @@ export default function HomeScreen() {
             </Text>
           </Pressable>
         </View>
-        {docs.length === 0 ? (
+        {!loaded ? (
+          [0, 1, 2].map((i) => (
+            <Card key={i}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                  gap: spacing.md,
+                }}
+              >
+                <Skeleton width={36} height={36} rounded="md" />
+                <View style={{ flex: 1, gap: 6 }}>
+                  <Skeleton height={14} width="70%" />
+                  <Skeleton height={10} width="40%" />
+                </View>
+              </View>
+            </Card>
+          ))
+        ) : docs.length === 0 ? (
           <Card>
             <View
               style={{

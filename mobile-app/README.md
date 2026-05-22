@@ -67,7 +67,29 @@ Every screen, captured on real signed-in state (account `newemail@example.com`, 
 | ![iOS Upload](../images/mobile-ios-upload.png) | ![iOS Summary](../images/mobile-ios-summary.png) | ![iOS Chat](../images/mobile-ios-chat.png) |
 | ![Android Upload](../images/mobile-android-upload.png) | ![Android Summary](../images/mobile-android-summary.png) | ![Android Chat](../images/mobile-android-chat.png) |
 
-> Summary and Chat both render Markdown via `react-native-markdown-display` (see `components/MarkdownText.tsx`) so bold text, bullet lists, and code blocks show up the same way they do in the web app's `ReactMarkdown` output.
+> Summary now also has **Generate key ideas** and **Generate discussion points** buttons that hit `POST /generate-key-ideas` and `POST /generate-discussion-points`. Both responses render through `MarkdownText` so the lists, bold, and headings come through styled the same as the web client.
+
+### Settings
+
+| Account details | Appearance | Connections |
+| --- | --- | --- |
+| ![iOS Account](../images/mobile-ios-account.png) | ![iOS Appearance](../images/mobile-ios-appearance.png) | ![iOS Connections](../images/mobile-ios-connections.png) |
+| ![Android Account](../images/mobile-android-account.png) | ![Android Appearance](../images/mobile-android-appearance.png) | ![Android Connections](../images/mobile-android-connections.png) |
+
+| Privacy & security | Help & support |
+| --- | --- |
+| ![iOS Privacy](../images/mobile-ios-privacy.png) | ![iOS Help](../images/mobile-ios-help.png) |
+| ![Android Privacy](../images/mobile-android-privacy.png) | ![Android Help](../images/mobile-android-help.png) |
+
+> Every settings row is fully implemented — no "coming soon" stubs. Account writes via `/update-email` + `/update-password`, Appearance persists via `lib/prefs.ts` and pushes light/dark to `/update-theme`, Connections round-trip through `/social-media` + `/update-social-media`, and Privacy can purge all docs via `DELETE /documents/:userId`.
+
+### Loading states
+
+| iOS — Home loading | Android — Home loading |
+| --- | --- |
+| ![iOS Home loading](../images/mobile-ios-home-loading.png) | ![Android Home loading](../images/mobile-android-home-loading.png) |
+
+Stat chips and recent-doc rows show animated `Skeleton` placeholders (see `components/Skeleton.tsx`) on first load so the screen never reads "0 Documents · 0 Days active" before the real numbers arrive. The same pattern is used on Library, Profile, Account, Connections, and Privacy.
 
 ---
 

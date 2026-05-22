@@ -1,9 +1,10 @@
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, Pressable, RefreshControl, Text, View } from "react-native";
+import { Pressable, RefreshControl, Text, View } from "react-native";
 
 import { Screen, ScreenHeader } from "@/components/Screen";
+import { Skeleton } from "@/components/Skeleton";
 import {
   AppText,
   Avatar,
@@ -43,17 +44,33 @@ function initialsOf(email: string): string {
   return (first + second).toUpperCase();
 }
 
-function StatBox({ value, label }: { value: string; label: string }) {
+function StatBox({
+  value,
+  label,
+  loading,
+}: {
+  value: string;
+  label: string;
+  loading?: boolean;
+}) {
   const theme = useTheme();
   return (
     <Card
-      style={{ flex: 1, padding: spacing.md, alignItems: "center", gap: 2 }}
+      style={{ flex: 1, padding: spacing.md, alignItems: "center", gap: 4 }}
     >
-      <Text
-        style={{ fontSize: fontSize.xl, fontWeight: "800", color: theme.brand }}
-      >
-        {value}
-      </Text>
+      {loading ? (
+        <Skeleton height={fontSize.xl} width="55%" />
+      ) : (
+        <Text
+          style={{
+            fontSize: fontSize.xl,
+            fontWeight: "800",
+            color: theme.brand,
+          }}
+        >
+          {value}
+        </Text>
+      )}
       <Text
         style={{
           fontSize: fontSize.xs,
@@ -71,10 +88,14 @@ export default function ProfileScreen() {
   const theme = useTheme();
   const [data, setData] = useState<ProfileData | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [loaded, setLoaded] = useState(false);
 
   const load = useCallback(async () => {
     const userId = getUserId();
-    if (!userId) return;
+    if (!userId) {
+      setLoaded(true);
+      return;
+    }
     try {
       const [email, count, days, joined] = await Promise.all([
         api.getUserEmail(userId).catch(() => ({ email: "" })),
@@ -96,6 +117,8 @@ export default function ProfileScreen() {
       });
     } catch (e) {
       console.warn("profile load failed", e);
+    } finally {
+      setLoaded(true);
     }
   }, []);
 
@@ -114,40 +137,36 @@ export default function ProfileScreen() {
     router.replace("/login");
   }
 
-  function notYetAvailable(label: string) {
-    Alert.alert(label, "This is coming soon to the mobile app.");
-  }
-
   const settings: SettingsRow[] = [
     {
       icon: "person-outline",
       label: "Account details",
-      hint: "Name, email and password",
-      onPress: () => notYetAvailable("Account details"),
+      hint: "Email, password and sign out",
+      onPress: () => router.push("/settings/account"),
     },
     {
       icon: "color-palette-outline",
       label: "Appearance",
       hint: "Theme and text size",
-      onPress: () => notYetAvailable("Appearance"),
+      onPress: () => router.push("/settings/appearance"),
     },
     {
-      icon: "notifications-outline",
-      label: "Notifications",
-      hint: "Email and push alerts",
-      onPress: () => notYetAvailable("Notifications"),
+      icon: "link-outline",
+      label: "Connections",
+      hint: "GitHub, LinkedIn and other profile links",
+      onPress: () => router.push("/settings/connections"),
     },
     {
       icon: "shield-checkmark-outline",
       label: "Privacy & security",
-      hint: "Data, sessions and permissions",
-      onPress: () => notYetAvailable("Privacy & security"),
+      hint: "Session info and data controls",
+      onPress: () => router.push("/settings/privacy"),
     },
     {
       icon: "help-circle-outline",
       label: "Help & support",
-      hint: "FAQ, guides and contact",
-      onPress: () => notYetAvailable("Help & support"),
+      hint: "FAQ, contact and app info",
+      onPress: () => router.push("/settings/help"),
     },
   ];
 
@@ -163,34 +182,48 @@ export default function ProfileScreen() {
       <Card>
         <View style={{ alignItems: "center", gap: spacing.sm }}>
           <Avatar initials={data?.initials ?? "?"} size={76} />
-          <Text
-            style={{
-              fontSize: fontSize.xl,
-              fontWeight: "800",
-              color: theme.text,
-              textAlign: "center",
-            }}
-          >
-            {data?.email ? data.email.split("@")[0] : "Welcome"}
-          </Text>
-          <Text
-            style={{
-              fontSize: fontSize.sm,
-              color: theme.textMuted,
-              textAlign: "center",
-            }}
-          >
-            {data?.email || "Loading…"}
-          </Text>
+          {loaded ? (
+            <>
+              <Text
+                style={{
+                  fontSize: fontSize.xl,
+                  fontWeight: "800",
+                  color: theme.text,
+                  textAlign: "center",
+                }}
+              >
+                {data?.email ? data.email.split("@")[0] : "Welcome"}
+              </Text>
+              <Text
+                style={{
+                  fontSize: fontSize.sm,
+                  color: theme.textMuted,
+                  textAlign: "center",
+                }}
+              >
+                {data?.email || "Sign in to see your profile."}
+              </Text>
+            </>
+          ) : (
+            <View style={{ alignItems: "center", gap: spacing.sm, width: "100%" }}>
+              <Skeleton height={fontSize.xl} width="50%" />
+              <Skeleton height={fontSize.sm} width="75%" />
+            </View>
+          )}
           <Pill label="Pro member" tone="brand" align="center" />
         </View>
       </Card>
 
       <View style={{ flexDirection: "row", gap: spacing.md }}>
-        <StatBox value={String(data?.documentCount ?? 0)} label="Documents" />
+        <StatBox
+          value={String(data?.documentCount ?? 0)}
+          label="Documents"
+          loading={!loaded}
+        />
         <StatBox
           value={String(data?.daysSinceJoined ?? 0)}
           label="Days active"
+          loading={!loaded}
         />
       </View>
 

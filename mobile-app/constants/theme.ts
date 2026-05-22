@@ -1,4 +1,7 @@
-import { useColorScheme } from "@/hooks/useColorScheme";
+import { useEffect, useState } from "react";
+import { useColorScheme as useSystemColorScheme } from "react-native";
+
+import { getPrefs, onPrefsChange, TEXT_SCALE } from "@/lib/prefs";
 
 // DocuThinker brand palette — an orange accent shared with the web app.
 export const brand = {
@@ -48,7 +51,12 @@ export const darkTheme = {
 export type Theme = typeof lightTheme;
 
 export function useTheme(): Theme {
-  return useColorScheme() === "dark" ? darkTheme : lightTheme;
+  const system = useSystemColorScheme();
+  const [choice, setChoice] = useState(() => getPrefs().theme);
+  useEffect(() => onPrefsChange((p) => setChoice(p.theme)), []);
+  const resolved =
+    choice === "dark" ? "dark" : choice === "light" ? "light" : system;
+  return resolved === "dark" ? darkTheme : lightTheme;
 }
 
 export const spacing = {
@@ -69,7 +77,17 @@ export const radius = {
   pill: 999,
 } as const;
 
-export const fontSize = {
+export type FontSize = {
+  xs: number;
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  xxl: number;
+  display: number;
+};
+
+const BASE_FONT_SIZE: FontSize = {
   xs: 12,
   sm: 13,
   md: 15,
@@ -77,7 +95,34 @@ export const fontSize = {
   xl: 20,
   xxl: 26,
   display: 33,
-} as const;
+};
+
+// `fontSize` is consumed all over the app as a static object. Scaling it
+// dynamically would force every screen to read from a hook; instead we mutate
+// the same object in-place when the user changes the text-scale pref. The
+// emitter then asks React to re-render via the listener in `useFontScale`.
+export const fontSize: FontSize = { ...BASE_FONT_SIZE };
+
+function applyScale(scale: number) {
+  (Object.keys(BASE_FONT_SIZE) as (keyof FontSize)[]).forEach((key) => {
+    fontSize[key] = Math.round(BASE_FONT_SIZE[key] * scale);
+  });
+}
+
+export function useFontScale(): number {
+  const [scale, setScale] = useState(() => TEXT_SCALE[getPrefs().textScale]);
+  useEffect(() => {
+    return onPrefsChange((p) => {
+      const next = TEXT_SCALE[p.textScale];
+      applyScale(next);
+      setScale(next);
+    });
+  }, []);
+  return scale;
+}
+
+// Apply current scale at module load so initial render matches stored prefs.
+applyScale(TEXT_SCALE[getPrefs().textScale]);
 
 // A soft elevation usable cross-platform (iOS shadow + Android elevation).
 export function elevation(theme: Theme, level: 1 | 2 | 3 = 1) {

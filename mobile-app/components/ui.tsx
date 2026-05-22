@@ -447,3 +447,208 @@ export function AppText({
     </Text>
   );
 }
+
+/* ---------------------------------------------------------- SettingsRow -- */
+
+export function SettingsRow({
+  icon,
+  label,
+  hint,
+  right,
+  onPress,
+  destructive = false,
+  first = false,
+}: {
+  icon?: IconName;
+  label: string;
+  hint?: string;
+  right?: ReactNode;
+  onPress?: () => void;
+  destructive?: boolean;
+  first?: boolean;
+}) {
+  const theme = useTheme();
+  const rowStyle = (pressed: boolean): ViewStyle => ({
+    flexDirection: "row",
+    alignItems: "center",
+    gap: spacing.md,
+    padding: spacing.md,
+    borderTopWidth: first ? 0 : 1,
+    borderTopColor: theme.border,
+    backgroundColor: pressed ? theme.surfaceAlt : "transparent",
+  });
+  if (!onPress) {
+    return (
+      <View style={rowStyle(false)}>
+        {icon ? <IconCircle name={icon} size={40} /> : null}
+        <View style={{ flex: 1 }}>
+          <Text
+            style={{
+              fontSize: fontSize.md,
+              fontWeight: "700",
+              color: destructive ? theme.danger : theme.text,
+            }}
+          >
+            {label}
+          </Text>
+          {hint ? (
+            <Text style={{ fontSize: fontSize.xs, color: theme.textMuted }}>
+              {hint}
+            </Text>
+          ) : null}
+        </View>
+        {right ?? null}
+      </View>
+    );
+  }
+  return (
+    <Pressable
+      onPress={onPress}
+      style={({ pressed }) => rowStyle(pressed)}
+    >
+      {icon ? <IconCircle name={icon} size={40} /> : null}
+      <View style={{ flex: 1 }}>
+        <Text
+          style={{
+            fontSize: fontSize.md,
+            fontWeight: "700",
+            color: destructive ? theme.danger : theme.text,
+          }}
+        >
+          {label}
+        </Text>
+        {hint ? (
+          <Text style={{ fontSize: fontSize.xs, color: theme.textMuted }}>
+            {hint}
+          </Text>
+        ) : null}
+      </View>
+      {right !== undefined ? (
+        right
+      ) : (
+        <Ionicons name="chevron-forward" size={18} color={theme.textMuted} />
+      )}
+    </Pressable>
+  );
+}
+
+/* --------------------------------------------------------------- Toggle -- */
+
+export function Toggle({
+  value,
+  onChange,
+}: {
+  value: boolean;
+  onChange: (next: boolean) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <Pressable
+      onPress={() => onChange(!value)}
+      hitSlop={6}
+      style={{
+        width: 46,
+        height: 28,
+        borderRadius: 14,
+        backgroundColor: value ? theme.brand : theme.surfaceAlt,
+        borderWidth: 1,
+        borderColor: value ? theme.brand : theme.border,
+        justifyContent: "center",
+        paddingHorizontal: 3,
+        alignItems: value ? "flex-end" : "flex-start",
+      }}
+    >
+      <View
+        style={{
+          width: 20,
+          height: 20,
+          borderRadius: 10,
+          backgroundColor: theme.surface,
+        }}
+      />
+    </Pressable>
+  );
+}
+
+/* ----------------------------------------------------------- ChoiceGroup */
+
+export function ChoiceGroup<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: { value: T; label: string; hint?: string }[];
+  value: T;
+  onChange: (next: T) => void;
+}) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        borderRadius: radius.md,
+        backgroundColor: theme.surface,
+        borderWidth: 1,
+        borderColor: theme.border,
+        overflow: "hidden",
+      }}
+    >
+      {options.map((opt, index) => {
+        const active = opt.value === value;
+        return (
+          <Pressable
+            key={opt.value}
+            onPress={() => onChange(opt.value)}
+            style={({ pressed }) => ({
+              flexDirection: "row",
+              alignItems: "center",
+              padding: spacing.md,
+              gap: spacing.md,
+              borderTopWidth: index === 0 ? 0 : 1,
+              borderTopColor: theme.border,
+              backgroundColor: pressed ? theme.surfaceAlt : "transparent",
+            })}
+          >
+            <View
+              style={{
+                width: 20,
+                height: 20,
+                borderRadius: 10,
+                borderWidth: 2,
+                borderColor: active ? theme.brand : theme.border,
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              {active ? (
+                <View
+                  style={{
+                    width: 10,
+                    height: 10,
+                    borderRadius: 5,
+                    backgroundColor: theme.brand,
+                  }}
+                />
+              ) : null}
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text
+                style={{
+                  fontSize: fontSize.md,
+                  fontWeight: "700",
+                  color: theme.text,
+                }}
+              >
+                {opt.label}
+              </Text>
+              {opt.hint ? (
+                <Text style={{ fontSize: fontSize.xs, color: theme.textMuted }}>
+                  {opt.hint}
+                </Text>
+              ) : null}
+            </View>
+          </Pressable>
+        );
+      })}
+    </View>
+  );
+}
