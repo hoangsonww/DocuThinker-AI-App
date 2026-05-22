@@ -15,6 +15,7 @@
   "scripts": {
     "lint": "npm run format",
     "start": "cd frontend && npm start",
+    "dev": "cd frontend && npm start",
     "build": "cd frontend && npm run build",
     "test": "cd frontend && npm test",
     "eject": "cd frontend && npm run eject",
