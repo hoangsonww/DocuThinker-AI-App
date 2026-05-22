@@ -502,10 +502,7 @@ export function SettingsRow({
     );
   }
   return (
-    <Pressable
-      onPress={onPress}
-      style={({ pressed }) => rowStyle(pressed)}
-    >
+    <Pressable onPress={onPress} style={({ pressed }) => rowStyle(pressed)}>
       {icon ? <IconCircle name={icon} size={40} /> : null}
       <View style={{ flex: 1 }}>
         <Text

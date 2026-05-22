@@ -131,7 +131,7 @@ export default function ChatScreen() {
           role: "assistant",
           text:
             e instanceof Error
-              ? `Sorry — ${e.message}`
+              ? `Sorry - ${e.message}`
               : "Sorry, something went wrong.",
         },
       ]);

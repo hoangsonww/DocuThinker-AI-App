@@ -5,18 +5,12 @@ import { Alert, Text, View } from "react-native";
 
 import { Screen, ScreenHeader } from "@/components/Screen";
 import { Skeleton } from "@/components/Skeleton";
-import {
-  AppText,
-  Button,
-  Card,
-  Pill,
-  TextField,
-} from "@/components/ui";
+import { AppText, Button, Card, Pill, TextField } from "@/components/ui";
 import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
 import { api } from "@/lib/api";
 import { clearAuth, getUserId } from "@/lib/auth";
 
-// Mirrors frontend/src/pages/Profile.js — uses /update-email + /update-password
+// Mirrors frontend/src/pages/Profile.js - uses /update-email + /update-password
 // against the same backend the web client hits. Both endpoints work directly
 // against Firebase Auth (no email re-verification), so once the request
 // succeeds we sign the user out so they can re-authenticate with the new
@@ -82,9 +76,7 @@ export default function AccountSettingsScreen() {
         router.replace("/login");
       }, 1200);
     } catch (e) {
-      setError(
-        e instanceof Error ? e.message : "Unable to update your email.",
-      );
+      setError(e instanceof Error ? e.message : "Unable to update your email.");
     } finally {
       setEmailBusy(false);
     }
@@ -123,17 +115,21 @@ export default function AccountSettingsScreen() {
   }
 
   function confirmSignOut() {
-    Alert.alert("Sign out", "You'll need to sign in again to access your documents.", [
-      { text: "Cancel", style: "cancel" },
-      {
-        text: "Sign out",
-        style: "destructive",
-        onPress: async () => {
-          await clearAuth();
-          router.replace("/login");
+    Alert.alert(
+      "Sign out",
+      "You'll need to sign in again to access your documents.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Sign out",
+          style: "destructive",
+          onPress: async () => {
+            await clearAuth();
+            router.replace("/login");
+          },
         },
-      },
-    ]);
+      ],
+    );
   }
 
   return (
@@ -185,7 +181,7 @@ export default function AccountSettingsScreen() {
         <View style={{ gap: spacing.md }}>
           <AppText variant="subtitle">Change email</AppText>
           <AppText variant="muted">
-            Updates your DocuThinker email everywhere — web and mobile.
+            Updates your DocuThinker email everywhere - web and mobile.
           </AppText>
           <TextField
             label="New email"

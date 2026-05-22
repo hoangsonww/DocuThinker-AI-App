@@ -232,7 +232,13 @@ export default function DocumentsScreen() {
                 disabled={safePage <= 1}
                 onPress={() => setPage(safePage - 1)}
               />
-              <Text style={{ color: theme.textMuted, fontSize: fontSize.sm, fontWeight: "700" }}>
+              <Text
+                style={{
+                  color: theme.textMuted,
+                  fontSize: fontSize.sm,
+                  fontWeight: "700",
+                }}
+              >
                 Page {safePage} of {totalPages}
                 <Text style={{ color: theme.textMuted, fontWeight: "500" }}>
                   {"  ·  "}

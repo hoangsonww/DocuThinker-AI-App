@@ -62,7 +62,7 @@ export default function AppearanceSettingsScreen() {
         <View style={{ gap: spacing.sm }}>
           <AppText variant="subtitle">Text size</AppText>
           <AppText variant="muted">
-            Live preview — every screen scales with the choice you pick.
+            Live preview - every screen scales with the choice you pick.
           </AppText>
           <Text
             style={{

@@ -205,7 +205,9 @@ export default function ProfileScreen() {
               </Text>
             </>
           ) : (
-            <View style={{ alignItems: "center", gap: spacing.sm, width: "100%" }}>
+            <View
+              style={{ alignItems: "center", gap: spacing.sm, width: "100%" }}
+            >
               <Skeleton height={fontSize.xl} width="50%" />
               <Skeleton height={fontSize.sm} width="75%" />
             </View>

@@ -1,6 +1,6 @@
 // Local appearance prefs persisted through AsyncStorage.
 //
-// Backend has /update-theme but only accepts "light" | "dark" — so we hold
+// Backend has /update-theme but only accepts "light" | "dark" - so we hold
 // `system` locally and only push explicit choices to the backend. Text scale
 // is mobile-only (no backend column).
 
@@ -36,7 +36,7 @@ export async function hydratePrefs(): Promise<void> {
       cache = { ...DEFAULTS, ...parsed };
     }
   } catch {
-    // Bad JSON or storage error — fall back to defaults.
+    // Bad JSON or storage error - fall back to defaults.
   }
   hydrated = true;
   emit();
@@ -51,7 +51,7 @@ export async function setPrefs(patch: Partial<Prefs>): Promise<void> {
   cache = { ...cache, ...patch };
   await AsyncStorage.setItem(KEY, JSON.stringify(cache));
   // Run any registered "apply-before-emit" hooks (e.g. text scale must mutate
-  // the shared fontSize object before listeners re-render — otherwise
+  // the shared fontSize object before listeners re-render - otherwise
   // subscribers read stale values).
   if (before.textScale !== cache.textScale) {
     applyHooks.forEach((fn) => fn(cache));

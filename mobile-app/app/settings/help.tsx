@@ -14,7 +14,7 @@ const FAQS: { q: string; a: string }[] = [
   },
   {
     q: "Will my web documents show up on mobile?",
-    a: "Yes — DocuThinker mobile signs in against the same Firebase Auth pool the web client uses. Every document, summary, and chat history is shared.",
+    a: "Yes - DocuThinker mobile signs in against the same Firebase Auth pool the web client uses. Every document, summary, and chat history is shared.",
   },
   {
     q: "How do I change my email or password?",
@@ -41,9 +41,7 @@ export default function HelpSettingsScreen() {
       <Card>
         <View style={{ gap: spacing.sm }}>
           <AppText variant="subtitle">Frequently asked</AppText>
-          <AppText variant="muted">
-            Tap a question to see the answer.
-          </AppText>
+          <AppText variant="muted">Tap a question to see the answer.</AppText>
         </View>
       </Card>
 

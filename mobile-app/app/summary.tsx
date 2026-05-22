@@ -171,7 +171,7 @@ export default function SummaryScreen() {
         </View>
       </Card>
 
-      {(keyIdeas || ideasError) ? (
+      {keyIdeas || ideasError ? (
         <Card>
           <View style={{ gap: spacing.md }}>
             <Pill label="KEY IDEAS" tone="brand" />
@@ -186,7 +186,7 @@ export default function SummaryScreen() {
         </Card>
       ) : null}
 
-      {(discussion || discussionError) ? (
+      {discussion || discussionError ? (
         <Card>
           <View style={{ gap: spacing.md }}>
             <Pill label="DISCUSSION POINTS" tone="neutral" />

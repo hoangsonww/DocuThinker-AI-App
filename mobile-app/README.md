@@ -1,4 +1,4 @@
-# DocuThinker Mobile — React Native + Expo
+# DocuThinker Mobile - React Native + Expo
 
 The DocuThinker mobile app is a production-grade React Native (Expo SDK 51) client that talks directly to the deployed DocuThinker backend. It mirrors the web frontend's auth model and feature surface so users can sign in once and analyze, browse, and chat with their documents from iOS or Android.
 
@@ -35,7 +35,7 @@ The DocuThinker mobile app is a production-grade React Native (Expo SDK 51) clie
 | **Persistence** | `@react-native-async-storage/async-storage` |
 | **Backend** | `https://docuthinker-app-backend-api.vercel.app` (shared with web) |
 | **Auth model** | Firebase custom token + userId, identical to web client |
-| **Runtime** | Expo Go (SDK 51) — `npx expo start` |
+| **Runtime** | Expo Go (SDK 51) - `npx expo start` |
 | **Min targets** | iOS 14+, Android 7+ |
 
 The app **is not a shell or mock**. Every screen reads from the same Vercel backend the web frontend uses. Sample data is limited to static UI copy (the four feature tiles on the Home screen).
@@ -81,11 +81,11 @@ Every screen, captured on real signed-in state (account `newemail@example.com`, 
 | ![iOS Privacy](../images/mobile-ios-privacy.png) | ![iOS Help](../images/mobile-ios-help.png) |
 | ![Android Privacy](../images/mobile-android-privacy.png) | ![Android Help](../images/mobile-android-help.png) |
 
-> Every settings row is fully implemented — no "coming soon" stubs. Account writes via `/update-email` + `/update-password`, Appearance persists via `lib/prefs.ts` and pushes light/dark to `/update-theme`, Connections round-trip through `/social-media` + `/update-social-media`, and Privacy can purge all docs via `DELETE /documents/:userId`.
+> Every settings row is fully implemented - no "coming soon" stubs. Account writes via `/update-email` + `/update-password`, Appearance persists via `lib/prefs.ts` and pushes light/dark to `/update-theme`, Connections round-trip through `/social-media` + `/update-social-media`, and Privacy can purge all docs via `DELETE /documents/:userId`.
 
 ### Loading states
 
-| iOS — Home loading | Android — Home loading |
+| iOS - Home loading | Android - Home loading |
 | --- | --- |
 | ![iOS Home loading](../images/mobile-ios-home-loading.png) | ![Android Home loading](../images/mobile-android-home-loading.png) |
 
@@ -141,7 +141,7 @@ graph TB
     REST --> AI
 ```
 
-The data plane is a single `fetch` wrapper (`lib/api.ts`) that all screens consume. The control plane is a tiny module-level emitter in `lib/auth.ts` that broadcasts login/logout — `app/_layout.tsx` subscribes to it and redirects between the auth stack (`/login`, `/register`) and the tabs group depending on whether a `userId` is present.
+The data plane is a single `fetch` wrapper (`lib/api.ts`) that all screens consume. The control plane is a tiny module-level emitter in `lib/auth.ts` that broadcasts login/logout - `app/_layout.tsx` subscribes to it and redirects between the auth stack (`/login`, `/register`) and the tabs group depending on whether a `userId` is present.
 
 ---
 
@@ -176,7 +176,7 @@ flowchart LR
     TabProf -- "Sign out" --> Boot
 ```
 
-Every transition out of an authed route into `/login` flows through `clearAuth()`, which removes the AsyncStorage keys and broadcasts to the root layout — no hard refresh required.
+Every transition out of an authed route into `/login` flows through `clearAuth()`, which removes the AsyncStorage keys and broadcasts to the root layout - no hard refresh required.
 
 ---
 
@@ -288,7 +288,7 @@ stateDiagram-v2
     Authed --> Anonymous: 401 from API (future)
 ```
 
-Each tab is responsible for its own data. There is no global store — by design, since each screen needs only its own slice, and React Query / Redux would be overkill for this surface. Pull-to-refresh re-runs the `useCallback` loader on Home, Library, and Profile.
+Each tab is responsible for its own data. There is no global store - by design, since each screen needs only its own slice, and React Query / Redux would be overkill for this surface. Pull-to-refresh re-runs the `useCallback` loader on Home, Library, and Profile.
 
 ---
 
@@ -338,7 +338,7 @@ mobile-app/
 - **Expo CLI** via `npx expo` (no global install required)
 - **Xcode 15+** with at least one iOS Simulator runtime + device (for iOS)
 - **Android Studio** with an AVD (for Android)
-- **Expo Go for SDK 51** on simulators/devices — `npx expo start` will offer to install it the first time
+- **Expo Go for SDK 51** on simulators/devices - `npx expo start` will offer to install it the first time
 
 ### Install
 
@@ -394,7 +394,7 @@ adb shell am start -a android.intent.action.VIEW -d "exp://10.0.2.2:8081" host.e
 
 ### SDK 51 vs SDK 52 Expo Go
 
-Expo Go pins one SDK runtime per device. If Go is already installed at a different SDK, `expo start` prompts you to reinstall. Reverting is symmetric — opening another SDK 52 project later will prompt to reinstall SDK 52 Go.
+Expo Go pins one SDK runtime per device. If Go is already installed at a different SDK, `expo start` prompts you to reinstall. Reverting is symmetric - opening another SDK 52 project later will prompt to reinstall SDK 52 Go.
 
 ---
 
@@ -406,7 +406,7 @@ Expo Go pins one SDK runtime per device. If Go is already installed at a differe
 export const BASE_URL = "https://docuthinker-app-backend-api.vercel.app";
 ```
 
-There is no `.env` for mobile in this PR. To point at a local backend, edit `BASE_URL` (and remember Android emulators reach the host as `10.0.2.2`, not `localhost`). The deployed Vercel backend uses the same Firebase project the web frontend authenticates against — accounts created via [docuthinker.vercel.app](https://docuthinker.vercel.app) sign in on mobile without any extra step.
+There is no `.env` for mobile in this PR. To point at a local backend, edit `BASE_URL` (and remember Android emulators reach the host as `10.0.2.2`, not `localhost`). The deployed Vercel backend uses the same Firebase project the web frontend authenticates against - accounts created via [docuthinker.vercel.app](https://docuthinker.vercel.app) sign in on mobile without any extra step.
 
 ---
 
@@ -435,10 +435,10 @@ flowchart TB
     MPost --> Backend
 ```
 
-The backend `/upload` endpoint expects `{userId, title, text}` JSON — it does not parse binary files. The web frontend handles PDF/DOCX by parsing **in the browser** before sending text. The mobile app does not currently ship a comparable RN PDF/DOCX parser because:
+The backend `/upload` endpoint expects `{userId, title, text}` JSON - it does not parse binary files. The web frontend handles PDF/DOCX by parsing **in the browser** before sending text. The mobile app does not currently ship a comparable RN PDF/DOCX parser because:
 
 1. RN equivalents (`react-native-pdf`, mammoth + xmldom polyfill) require native modules and `expo prebuild`, which would drop the Expo Go workflow this app deliberately preserves.
-2. Routing binary uploads through Vercel is not reliable — Vercel serverless functions have a small request-body limit (~4.5 MB) and short hobby-tier timeouts, which makes streaming larger PDFs through `/upload-file` fragile.
+2. Routing binary uploads through Vercel is not reliable - Vercel serverless functions have a small request-body limit (~4.5 MB) and short hobby-tier timeouts, which makes streaming larger PDFs through `/upload-file` fragile.
 
 Net effect: **upload .txt/.md from mobile; upload PDF/DOCX from the web app**. Both clients then see the same documents in `/documents/:userId`, so the round-trip surface is consistent.
 
@@ -446,7 +446,7 @@ Net effect: **upload .txt/.md from mobile; upload PDF/DOCX from the web app**. B
 
 ## Testing
 
-There is no dedicated unit test suite in this PR — the screens are thin wrappers around `lib/api.ts`, and `lib/auth.ts` is exercised end-to-end on every dev cycle. To smoke-test:
+There is no dedicated unit test suite in this PR - the screens are thin wrappers around `lib/api.ts`, and `lib/auth.ts` is exercised end-to-end on every dev cycle. To smoke-test:
 
 ```bash
 # Type-check
@@ -477,7 +477,7 @@ End-to-end verification path:
 | Symptom | Cause | Fix |
 |---|---|---|
 | `Project is incompatible with this version of Expo Go` | Device has SDK ≠ 51 Go installed | Let `expo start` install matching Go, or uninstall via `adb uninstall host.exp.exponent` / `xcrun simctl uninstall booted host.exp.Exponent` and re-run |
-| Login screen flashes then loops | Vercel backend cold-start returned 5xx | Wait ~10 s and retry — the backend warms up after the first hit |
+| Login screen flashes then loops | Vercel backend cold-start returned 5xx | Wait ~10 s and retry - the backend warms up after the first hit |
 | Android emulator can't reach Metro | App used `localhost:8081` from emulator | Use `10.0.2.2:8081` (AVD's loopback to the host) |
 | "Could not connect to development server" on a stale URL | Go cached a sub-server URL from a prior `expo start --port` | `xcrun simctl terminate booted host.exp.Exponent` / `adb shell am force-stop host.exp.exponent`, then re-open with the current port |
 | iOS Simulator has no devices available | Fresh Xcode install with no AVD-equivalent | `xcrun simctl create "iPhone 16 Pro" com.apple.CoreSimulator.SimDeviceType.iPhone-16-Pro com.apple.CoreSimulator.SimRuntime.iOS-18-5 && xcrun simctl boot <udid>` |
@@ -486,7 +486,7 @@ End-to-end verification path:
 
 ## Roadmap
 
-- Native PDF/DOCX parsing (requires `expo prebuild` — tracked separately)
+- Native PDF/DOCX parsing (requires `expo prebuild` - tracked separately)
 - Native Google sign-in (currently a UI stub on mobile)
 - Push notifications via Expo Notifications + APNs/FCM
 - Offline doc caching via SQLite
@@ -497,6 +497,6 @@ End-to-end verification path:
 
 ## License
 
-CC-BY-NC 4.0 — see [LICENSE.md](../LICENSE.md).
+CC-BY-NC 4.0 - see [LICENSE.md](../LICENSE.md).
 
 Built by [Son Nguyen](https://github.com/hoangsonww).

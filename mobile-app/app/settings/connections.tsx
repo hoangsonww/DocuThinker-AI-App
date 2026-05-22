@@ -34,11 +34,36 @@ const PROVIDERS: {
   icon: keyof typeof Ionicons.glyphMap;
   prefix: string;
 }[] = [
-  { key: "github", label: "GitHub", icon: "logo-github", prefix: "https://github.com/" },
-  { key: "linkedin", label: "LinkedIn", icon: "logo-linkedin", prefix: "https://linkedin.com/in/" },
-  { key: "twitter", label: "X / Twitter", icon: "logo-twitter", prefix: "https://x.com/" },
-  { key: "instagram", label: "Instagram", icon: "logo-instagram", prefix: "https://instagram.com/" },
-  { key: "facebook", label: "Facebook", icon: "logo-facebook", prefix: "https://facebook.com/" },
+  {
+    key: "github",
+    label: "GitHub",
+    icon: "logo-github",
+    prefix: "https://github.com/",
+  },
+  {
+    key: "linkedin",
+    label: "LinkedIn",
+    icon: "logo-linkedin",
+    prefix: "https://linkedin.com/in/",
+  },
+  {
+    key: "twitter",
+    label: "X / Twitter",
+    icon: "logo-twitter",
+    prefix: "https://x.com/",
+  },
+  {
+    key: "instagram",
+    label: "Instagram",
+    icon: "logo-instagram",
+    prefix: "https://instagram.com/",
+  },
+  {
+    key: "facebook",
+    label: "Facebook",
+    icon: "logo-facebook",
+    prefix: "https://facebook.com/",
+  },
 ];
 
 export default function ConnectionsScreen() {
@@ -94,7 +119,7 @@ export default function ConnectionsScreen() {
         <View style={{ gap: spacing.xs }}>
           <AppText variant="subtitle">Profile links</AppText>
           <AppText variant="muted">
-            Add your usernames so DocuThinker can show them on your profile —
+            Add your usernames so DocuThinker can show them on your profile -
             the same handles appear on the web app.
           </AppText>
         </View>

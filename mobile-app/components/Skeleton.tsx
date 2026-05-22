@@ -56,7 +56,7 @@ export function Skeleton({
   );
 }
 
-// Stacked text lines — useful where a multi-line text block is loading.
+// Stacked text lines - useful where a multi-line text block is loading.
 export function SkeletonLines({
   lines = 3,
   lineHeight = 12,

@@ -115,7 +115,7 @@ export default function HomeScreen() {
       });
       setDocs(Array.isArray(list) ? list : []);
     } catch (e) {
-      // Network/transient error — keep prior state, surface nothing aggressive.
+      // Network/transient error - keep prior state, surface nothing aggressive.
       console.warn("home load failed", e);
     } finally {
       setLoaded(true);

@@ -10,7 +10,12 @@ import { View } from "react-native";
 import "react-native-reanimated";
 
 import { hydrateAuth, isAuthenticated, onAuthChange } from "@/lib/auth";
-import { hydratePrefs, getPrefs, onPrefsChange, ThemeChoice } from "@/lib/prefs";
+import {
+  hydratePrefs,
+  getPrefs,
+  onPrefsChange,
+  ThemeChoice,
+} from "@/lib/prefs";
 import { useFontScale } from "@/constants/theme";
 import { useColorScheme as useSystemColorScheme } from "@/hooks/useColorScheme";
 

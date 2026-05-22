@@ -11,10 +11,10 @@ import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
 import { api } from "@/lib/api";
 import { getUserId } from "@/lib/auth";
 
-const SAMPLE_TITLE = "DocuThinker Sample — Spring 2026 Update";
+const SAMPLE_TITLE = "DocuThinker Sample - Spring 2026 Update";
 const SAMPLE_TEXT = `DocuThinker Sample Document
 
-Quarterly Product Update — Spring 2026
+Quarterly Product Update - Spring 2026
 
 Overview
 This quarter we shipped three large initiatives: the mobile app rebuild, end-to-end JWT enhancements, and a unified document-chat experience that finally feels native on both web and iOS/Android.
@@ -187,7 +187,7 @@ export default function UploadScreen() {
                 textAlign: "center",
               }}
             >
-              Tap to browse — .txt, .md, or other plain-text files
+              Tap to browse - .txt, .md, or other plain-text files
             </Text>
           </View>
         </Pressable>

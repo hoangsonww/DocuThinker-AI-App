@@ -8,7 +8,7 @@ import {
   TEXT_SCALE,
 } from "@/lib/prefs";
 
-// DocuThinker brand palette — an orange accent shared with the web app.
+// DocuThinker brand palette - an orange accent shared with the web app.
 export const brand = {
   orange: "#F57C00",
   orangeBright: "#FF9800",
@@ -131,7 +131,7 @@ export function useFontScale(): number {
   return scale;
 }
 
-// Always mutate `fontSize` before any listener runs — `setPrefs` invokes hooks
+// Always mutate `fontSize` before any listener runs - `setPrefs` invokes hooks
 // synchronously ahead of the emit, so subscribers (every screen via useTheme)
 // re-render against fresh values instead of the previous scale.
 registerApplyHook((p) => applyScale(TEXT_SCALE[p.textScale]));

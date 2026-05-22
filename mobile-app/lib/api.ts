@@ -29,7 +29,7 @@ async function request<T>(
       const body = await response.json();
       message = body?.error || body?.message || message;
     } catch {
-      // response had no JSON body — keep the status-based message
+      // response had no JSON body - keep the status-based message
     }
     throw new Error(message);
   }
@@ -49,7 +49,7 @@ export type DocumentSummary = {
 };
 
 // Backend returns /documents/:userId as an object keyed by numeric strings
-// plus a "message" field — mirror the web client's normalization so the
+// plus a "message" field - mirror the web client's normalization so the
 // mobile list renders the same items the web app shows.
 function normalizeDocumentsResponse(raw: unknown): DocumentSummary[] {
   if (Array.isArray(raw)) return raw as DocumentSummary[];

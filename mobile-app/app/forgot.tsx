@@ -8,7 +8,7 @@ import { AppText, Button, TextField } from "@/components/ui";
 import { fontSize, radius, spacing, useTheme } from "@/constants/theme";
 import { api } from "@/lib/api";
 
-// Mirrors frontend/src/pages/ForgotPassword.js — two-step flow:
+// Mirrors frontend/src/pages/ForgotPassword.js - two-step flow:
 // 1. POST /verify-email confirms the account exists.
 // 2. POST /forgot-password updates the password for that account.
 

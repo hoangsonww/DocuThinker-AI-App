@@ -54,6 +54,7 @@
   },
   "scripts": {
     "start": "craco start",
+    "dev": "craco start",
     "build": "craco build",
     "test": "jest",
     "test:watch": "jest --watch",

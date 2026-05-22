@@ -17,16 +17,16 @@ import { clearAuth, getToken, getUserId } from "@/lib/auth";
 // Mirrors the destructive "Delete all documents" flow on web's DocumentsPage.
 
 function shortenToken(token: string | null): string {
-  if (!token) return "—";
+  if (!token) return "-";
   if (token.length < 32) return token;
   return `${token.slice(0, 8)}…${token.slice(-8)}`;
 }
 
 function decodeJwtExpiry(token: string | null): string {
-  if (!token) return "—";
+  if (!token) return "-";
   try {
     const payload = token.split(".")[1];
-    if (!payload) return "—";
+    if (!payload) return "-";
     const b64 = payload.replace(/-/g, "+").replace(/_/g, "/");
     const pad = "=".repeat((4 - (b64.length % 4)) % 4);
     const json = JSON.parse(globalThis.atob(b64 + pad));
@@ -34,9 +34,9 @@ function decodeJwtExpiry(token: string | null): string {
       return new Date(json.exp * 1000).toLocaleString();
     }
   } catch {
-    // Token isn't a standard JWT — fine.
+    // Token isn't a standard JWT - fine.
   }
-  return "—";
+  return "-";
 }
 
 export default function PrivacySettingsScreen() {
@@ -92,7 +92,9 @@ export default function PrivacySettingsScreen() {
             setBusy(true);
             try {
               await api.deleteAllDocuments(userId);
-              setInfo(`Deleted ${docCount} document${docCount === 1 ? "" : "s"}.`);
+              setInfo(
+                `Deleted ${docCount} document${docCount === 1 ? "" : "s"}.`,
+              );
               setDocCount(0);
             } catch (e) {
               setError(
@@ -141,12 +143,12 @@ export default function PrivacySettingsScreen() {
       <Card>
         <View style={{ gap: spacing.sm }}>
           <AppText variant="subtitle">Current session</AppText>
-          <KeyRow label="User ID" value={userId ?? "—"} />
+          <KeyRow label="User ID" value={userId ?? "-"} />
           <KeyRow label="Backend" value={BASE_URL} />
           <KeyRow label="Token preview" value={shortenToken(token)} />
           <KeyRow label="Token expires" value={decodeJwtExpiry(token)} />
           {loaded ? (
-            <KeyRow label="Joined" value={joinedDate || "—"} />
+            <KeyRow label="Joined" value={joinedDate || "-"} />
           ) : (
             <View
               style={{
@@ -179,7 +181,7 @@ export default function PrivacySettingsScreen() {
           <AppText variant="muted">
             Your documents are stored encrypted at rest in Firebase. Summaries
             and chat threads live on the same account. Deleting documents here
-            also removes them from the web app — there's one shared store.
+            also removes them from the web app - there's one shared store.
           </AppText>
           {loaded ? (
             <Text
@@ -218,8 +220,8 @@ export default function PrivacySettingsScreen() {
         color={theme.textMuted}
         style={{ textAlign: "center" }}
       >
-        We don't yet support full account deletion in-app. To permanently
-        remove your DocuThinker account, email support@docuthinker.app.
+        We don't yet support full account deletion in-app. To permanently remove
+        your DocuThinker account, email support@docuthinker.app.
       </AppText>
     </Screen>
   );
@@ -228,7 +230,13 @@ export default function PrivacySettingsScreen() {
 function KeyRow({ label, value }: { label: string; value: string }) {
   const theme = useTheme();
   return (
-    <View style={{ flexDirection: "row", gap: spacing.md, alignItems: "flex-start" }}>
+    <View
+      style={{
+        flexDirection: "row",
+        gap: spacing.md,
+        alignItems: "flex-start",
+      }}
+    >
       <Text
         style={{
           width: 120,
