@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
   useLocation,
 } from "react-router-dom";
 import { Box } from "@mui/material";
@@ -21,6 +22,7 @@ import Profile from "./pages/Profile";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFoundPage from "./pages/NotFoundPage";
 import TermsOfService from "./pages/TermsOfService";
+import { isAuthenticated } from "./utils/auth";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./App.css";
@@ -43,6 +45,11 @@ function useTrackPageView() {
       });
     }
   }, [location]);
+}
+
+// Redirect logged-in users away from guest-only pages.
+function RequireGuest({ children }) {
+  return isAuthenticated() ? <Navigate to="/home" replace /> : children;
 }
 
 // Launches the app
@@ -90,7 +97,11 @@ function AppLayout({ theme, onThemeToggle }) {
           <Route path="/documents" element={<DocumentsPage theme={theme} />} />
           <Route
             path="/forgot-password"
-            element={<ForgotPassword theme={theme} />}
+            element={
+              <RequireGuest>
+                <ForgotPassword theme={theme} />
+              </RequireGuest>
+            }
           />
           <Route path="/profile" element={<Profile theme={theme} />} />
           <Route
@@ -101,8 +112,22 @@ function AppLayout({ theme, onThemeToggle }) {
             path="/terms-of-service"
             element={<TermsOfService theme={theme} />}
           />
-          <Route path="/login" element={<Login theme={theme} />} />
-          <Route path="/register" element={<Register theme={theme} />} />
+          <Route
+            path="/login"
+            element={
+              <RequireGuest>
+                <Login theme={theme} />
+              </RequireGuest>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <RequireGuest>
+                <Register theme={theme} />
+              </RequireGuest>
+            }
+          />
           <Route path="*" element={<NotFoundPage theme={theme} />} />
         </Routes>
       </Box>
