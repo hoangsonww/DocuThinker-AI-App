@@ -19,6 +19,7 @@ import LandingPage from "./pages/LandingPage";
 import ForgotPassword from "./pages/ForgotPassword";
 import DocumentsPage from "./pages/DocumentsPage";
 import Profile from "./pages/Profile";
+import Passkeys from "./pages/Passkeys";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFoundPage from "./pages/NotFoundPage";
 import TermsOfService from "./pages/TermsOfService";
@@ -50,6 +51,11 @@ function useTrackPageView() {
 // Redirect logged-in users away from guest-only pages.
 function RequireGuest({ children }) {
   return isAuthenticated() ? <Navigate to="/home" replace /> : children;
+}
+
+// Redirect signed-out users away from account-only pages.
+function RequireAuth({ children }) {
+  return isAuthenticated() ? children : <Navigate to="/login" replace />;
 }
 
 // Launches the app
@@ -104,6 +110,14 @@ function AppLayout({ theme, onThemeToggle }) {
             }
           />
           <Route path="/profile" element={<Profile theme={theme} />} />
+          <Route
+            path="/passkeys"
+            element={
+              <RequireAuth>
+                <Passkeys theme={theme} />
+              </RequireAuth>
+            }
+          />
           <Route
             path="/privacy-policy"
             element={<PrivacyPolicy theme={theme} />}

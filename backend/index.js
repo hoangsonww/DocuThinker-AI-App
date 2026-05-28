@@ -44,6 +44,16 @@ const {
   refineSummary,
 } = require("./controllers/controllers");
 
+const {
+  getRegistrationOptions,
+  verifyRegistration,
+  getAuthenticationOptions,
+  verifyAuthentication,
+  listPasskeys,
+  renamePasskey,
+  deletePasskey,
+} = require("./controllers/passkeyController");
+
 const app = express();
 app.use(express.json());
 
@@ -172,6 +182,15 @@ app.post("/content-rewriting", contentRewriting);
 app.get("/search-documents/:userId", searchDocuments);
 app.post("/process-audio", processAudioFile);
 app.post("/refine-summary", refineSummary);
+
+// Passkey (WebAuthn) routes
+app.post("/passkey/register/options", getRegistrationOptions);
+app.post("/passkey/register/verify", verifyRegistration);
+app.post("/passkey/authenticate/options", getAuthenticationOptions);
+app.post("/passkey/authenticate/verify", verifyAuthentication);
+app.get("/passkeys/:userId", listPasskeys);
+app.patch("/passkeys/:userId/:credentialId", renamePasskey);
+app.delete("/passkeys/:userId/:credentialId", deletePasskey);
 
 // Error handling for unsupported routes
 app.use((req, res) => {

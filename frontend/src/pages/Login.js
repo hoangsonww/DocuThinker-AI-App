@@ -9,19 +9,24 @@ import {
   Link,
   IconButton,
   InputAdornment,
+  Divider,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
+import FingerprintIcon from "@mui/icons-material/Fingerprint";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setAuth } from "../utils/auth";
+import { authenticateWithPasskey, isPasskeySupported } from "../utils/passkeys";
 
 const Login = ({ theme }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  const passkeySupported = isPasskeySupported();
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -50,6 +55,22 @@ const Login = ({ theme }) => {
       } else {
         setError("Login failed. Please try again.");
       }
+    }
+  };
+
+  const handlePasskeyLogin = async () => {
+    setPasskeyLoading(true);
+    setError("");
+    try {
+      const { customToken, userId } = await authenticateWithPasskey(
+        email.trim() || undefined,
+      );
+      setAuth(customToken, userId);
+      navigate("/home");
+    } catch (err) {
+      setError(err.message || "Passkey sign-in failed. Please try again.");
+    } finally {
+      setPasskeyLoading(false);
     }
   };
 
@@ -203,6 +224,53 @@ const Login = ({ theme }) => {
             )}
           </Button>
         </form>
+
+        {/* Passkey sign-in */}
+        {passkeySupported && (
+          <>
+            <Divider
+              sx={{
+                my: "1.5rem",
+                font: "inherit",
+                fontSize: "13px",
+                color: theme === "dark" ? "#aaa" : "#999",
+                "&::before, &::after": {
+                  borderColor: theme === "dark" ? "#555" : "#ddd",
+                },
+              }}
+            >
+              or
+            </Divider>
+
+            <Button
+              type="button"
+              fullWidth
+              variant="outlined"
+              onClick={handlePasskeyLogin}
+              disabled={passkeyLoading || loading}
+              startIcon={!passkeyLoading ? <FingerprintIcon /> : null}
+              sx={{
+                borderColor: "#f57c00",
+                color: "#f57c00",
+                font: "inherit",
+                fontWeight: 600,
+                textTransform: "none",
+                padding: "0.7rem",
+                borderRadius: "8px",
+                "&:hover": {
+                  borderColor: "#e65100",
+                  bgcolor: "rgba(245,124,0,0.08)",
+                },
+              }}
+            >
+              {passkeyLoading ? (
+                <CircularProgress size={22} sx={{ color: "#f57c00" }} />
+              ) : (
+                "Sign in with a passkey"
+              )}
+            </Button>
+          </>
+        )}
 
         {/* Forgot Password Link */}
         <Box
