@@ -12,6 +12,8 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import PasskeyPromptModal from "../components/PasskeyPromptModal";
+import { isPasskeySupported } from "../utils/passkeys";
 
 const Register = ({ theme }) => {
   const [email, setEmail] = useState("");
@@ -22,6 +24,8 @@ const Register = ({ theme }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [passkeyModalOpen, setPasskeyModalOpen] = useState(false);
+  const [newUserId, setNewUserId] = useState(null);
   const navigate = useNavigate();
 
   const handleRegister = async (e) => {
@@ -43,15 +47,20 @@ const Register = ({ theme }) => {
       );
       setLoading(false);
       setSuccess("User registered successfully! You can now login.");
-      setEmail("");
       setPassword("");
       setConfirmPassword("");
 
-      setTimeout(() => {
-        navigate("/login");
-      }, 1500);
-
-      console.log(response.data);
+      const registeredUserId = response.data && response.data.userId;
+      if (registeredUserId && isPasskeySupported()) {
+        // Invite the brand-new user to set up a passkey before sending them
+        // to the login page.
+        setNewUserId(registeredUserId);
+        setPasskeyModalOpen(true);
+      } else {
+        setTimeout(() => {
+          navigate("/login");
+        }, 1500);
+      }
     } catch (err) {
       setLoading(false);
       setError(err.response?.data.details || err.message);
@@ -67,7 +76,14 @@ const Register = ({ theme }) => {
     setShowConfirmPassword((prev) => !prev);
   };
 
+  const handlePasskeyModalClose = () => {
+    setPasskeyModalOpen(false);
+    setEmail("");
+    navigate("/login");
+  };
+
   return (
+    <>
     <Box
       sx={{
         maxWidth: "400px",
@@ -267,6 +283,14 @@ const Register = ({ theme }) => {
         </Typography>
       </form>
     </Box>
+
+      <PasskeyPromptModal
+        open={passkeyModalOpen}
+        userId={newUserId}
+        theme={theme}
+        onClose={handlePasskeyModalClose}
+      />
+    </>
   );
 };
 

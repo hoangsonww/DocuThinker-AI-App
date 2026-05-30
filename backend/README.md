@@ -21,6 +21,7 @@ The backend is currently hosted on Render and can be accessed at [https://docuth
 ## Features
 
 - **User Registration & Authentication**: Using Firebase for authentication.
+- **Passkeys / WebAuthn**: Passwordless, phishing-resistant sign-in via `@simplewebauthn/server`. Supports multiple credentials per user and a usernameless (discoverable) login flow; a successful assertion mints a Firebase custom token, matching the `/login` contract.
 - **Document Upload & Summarization**: Supports PDF and Word documents.
 - **AI-Driven Key Ideas & Discussion Points**: Google Generative AI.
 - **Password Reset Functionality**: Email-based password reset.
@@ -74,6 +75,12 @@ FIREBASE_CLIENT_X509_CERT_URL=https://www.googleapis.com/robot/v1/metadata/x509/
 
 GOOGLE_AI_API_KEY=your-google-generative-ai-api-key
 FIREBASE_DATABASE_URL=https://your-project-id.firebaseio.com
+
+# Passkeys / WebAuthn (optional — defaults are derived from the request Origin).
+# Pin these for production / custom domains:
+WEBAUTHN_RP_ID=docuthinker-fullstack-app.vercel.app
+WEBAUTHN_ORIGINS=https://docuthinker-fullstack-app.vercel.app
+WEBAUTHN_RP_NAME=DocuThinker
 ```
 
 Make sure to replace these values with your Firebase and Google Generative AI credentials.
@@ -135,6 +142,13 @@ The backend of **DocuThinker** provides the following API endpoints:
 | ---------- | ------------------------------------ | --------------------------------------------------------------------------------------------------- |
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
+| POST       | `/passkey/register/options`          | Begin passkey registration; returns WebAuthn creation options + a `flowId`.                         |
+| POST       | `/passkey/register/verify`           | Verify the authenticator attestation and store the new passkey credential.                          |
+| POST       | `/passkey/authenticate/options`      | Begin passkey login (email-scoped or discoverable); returns options + `flowId`.                     |
+| POST       | `/passkey/authenticate/verify`       | Verify the assertion and return a Firebase custom token + user ID (same contract as `/login`).      |
+| GET        | `/passkeys/{userId}`                 | List all passkeys registered to a user (public metadata only).                                      |
+| PATCH      | `/passkeys/{userId}/{credentialId}`  | Rename one of the user's passkeys.                                                                  |
+| DELETE     | `/passkeys/{userId}/{credentialId}`  | Delete one of the user's passkeys.                                                                 |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
 | POST       | `/generate-key-ideas`                | Generate key ideas from the document text.                                                          |
 | POST       | `/generate-discussion-points`        | Generate discussion points from the document text.                                                  |
@@ -161,6 +175,32 @@ Example:
 ```bash
 Authorization: Bearer <your-jwt-token>
 ```
+
+### Passkeys (WebAuthn)
+
+Passwordless sign-in is implemented with [`@simplewebauthn/server`](https://simplewebauthn.dev/) and lives in
+`controllers/passkeyController.js` (HTTP + ceremony logic) and `models/passkeyModel.js` (Firestore access).
+
+**Data model (Firestore):**
+
+- `passkeys/{credentialId}` — one document per credential: `userId`, `publicKey` (base64url), `counter`,
+  `transports`, `deviceType`, `backedUp`, `aaguid`, `name`, `createdAt`, `lastUsedAt`. A user may own many.
+- `webauthnChallenges/{flowId}` — short-lived (5-minute TTL) registration/authentication challenges, deleted as
+  soon as they are consumed.
+
+**Ceremonies:**
+
+1. **Register** — `POST /passkey/register/options` (returns options + `flowId`, excluding already-enrolled
+   credentials) → browser creates the credential → `POST /passkey/register/verify` validates the attestation and
+   stores it.
+2. **Authenticate** — `POST /passkey/authenticate/options` (email-scoped or discoverable) → browser produces an
+   assertion → `POST /passkey/authenticate/verify` validates it, bumps the signature counter (clone detection),
+   and returns a **Firebase custom token + `userId`** — the same shape as `/login`, so the client's auth flow is
+   identical for password and passkey sign-in.
+
+**Configuration:** the Relying Party ID and expected origin are derived from the request `Origin` header by
+default, and can be pinned for production via `WEBAUTHN_RP_ID`, `WEBAUTHN_ORIGINS`, and `WEBAUTHN_RP_NAME` (see
+[Environment Variables](#environment-variables)).
 
 ### Testing the API
 
@@ -190,7 +230,7 @@ curl --location --request POST 'http://localhost:3000/upload' \
 The backend of DocuThinker comes with self-documenting APIs using **Swagger**.
 
 - You can interact with the APIs at `http://localhost:3000/api-docs`.
-- This Swagger documentation is automatically generated from the JSDoc comments in `index.js` and `controllers.js`.
+- This Swagger documentation is automatically generated from the JSDoc comments in `index.js`, `controllers/controllers.js`, `controllers/passkeyController.js`, and `models/models.js`.
 
 ### Authorization
 

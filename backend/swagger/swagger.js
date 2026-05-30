@@ -57,6 +57,7 @@ const swaggerOptions = {
   apis: [
     path.resolve(__dirname, "../index.js"),
     path.resolve(__dirname, "../controllers/controllers.js"),
+    path.resolve(__dirname, "../controllers/passkeyController.js"),
     path.resolve(__dirname, "../models/models.js"),
   ],
 };

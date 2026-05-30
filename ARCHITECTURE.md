@@ -40,6 +40,7 @@ DocuThinker is an **enterprise-grade**, full-stack AI-powered document analysis 
 - **Content Rewriting**: Style-based content transformation
 - **Semantic Search**: Vector-based document search using embeddings
 - **User Management**: Firebase Authentication with social login options
+- **Passkeys (WebAuthn)**: Passwordless, phishing-resistant sign-in; multiple credentials per user, managed from a dedicated Passkeys page. A successful assertion mints a Firebase custom token, so passkeys plug into the existing session model unchanged
 - **Cloud-Native Architecture**: Kubernetes-based deployment with microservices
 - **Observability**: Full-stack monitoring with OpenTelemetry, Prometheus, Grafana, Jaeger, and Coralogix
 - **Security**: mTLS, OPA policy enforcement, runtime security with Falco, SonarQube code quality gates, Snyk vulnerability management
@@ -504,9 +505,57 @@ classDiagram
         +Date lastAccess
     }
 
+    class Passkey {
+        +String credentialId
+        +String userId
+        +String publicKey
+        +Number counter
+        +Array transports
+        +String deviceType
+        +Boolean backedUp
+        +String name
+        +Date createdAt
+        +Date lastUsedAt
+    }
+
     User "1" --> "*" Document : has
     User "1" --> "1" Analytics : has
+    User "1" --> "*" Passkey : has
 ```
+
+#### Passkey (WebAuthn) Authentication
+
+Passwordless sign-in is implemented with `@simplewebauthn/server` (`controllers/passkeyController.js`,
+`models/passkeyModel.js`) and stored in two Firestore collections:
+
+- `passkeys/{credentialId}` — one document per credential, linked to the account via `userId` (a user may own many).
+- `webauthnChallenges/{flowId}` — short-lived (5-minute TTL) registration/authentication challenges, consumed once.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant FE as Frontend (@simplewebauthn/browser)
+    participant BE as Backend (@simplewebauthn/server)
+    participant FS as Firestore
+    participant FB as Firebase Auth
+
+    User->>FE: Click "Sign in with a passkey"
+    FE->>BE: POST /passkey/authenticate/options
+    BE->>FS: store challenge {flowId}
+    BE-->>FE: options + flowId
+    FE->>User: OS passkey prompt (biometric / PIN)
+    User-->>FE: assertion
+    FE->>BE: POST /passkey/authenticate/verify {flowId, response}
+    BE->>FS: load challenge + credential, verify, bump counter
+    BE->>FB: createCustomToken(userId)
+    BE-->>FE: { customToken, userId }
+    FE->>FE: setAuth(customToken, userId)
+```
+
+The Relying Party ID / expected origin default to the request `Origin` and can be pinned via
+`WEBAUTHN_RP_ID` / `WEBAUTHN_ORIGINS` / `WEBAUTHN_RP_NAME`. Because verification returns the same
+`{ customToken, userId }` as `/login`, passkeys reuse the existing client session model verbatim.
 
 ---
 
@@ -1868,6 +1917,7 @@ graph TB
     subgraph "Layer 3: Authentication"
         FIREBASE[Firebase Auth]
         JWT[JWT Tokens]
+        WEBAUTHN[Passkeys / WebAuthn<br/>Phishing-resistant]
         RBAC[Kubernetes RBAC]
     end
 

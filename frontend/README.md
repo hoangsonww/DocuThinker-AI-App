@@ -22,6 +22,7 @@ The **DocuThinker Frontend** is built using **React** and **Material-UI** to cre
 
 - Upload documents (PDF or Word) for AI-based summarization and key insights generation.
 - Register, log in, and reset their passwords.
+- Sign in passwordlessly with **passkeys** (WebAuthn) and manage them from a dedicated Passkeys page.
 - View and interact with the document processing results in a user-friendly way.
 
 ## User Interfaces
@@ -147,16 +148,22 @@ DocuThinker-AI-App/
 │   │   │   ├── ChatModal.js          # Chat modal component
 │   │   │   ├── Spinner.js            # Loading spinner component
 │   │   │   ├── UploadModal.js        # Document upload modal component
-│   │   │   ├── Navbar.js             # Navigation bar component
+│   │   │   ├── PasskeyPromptModal.js # Post-sign-up "create a passkey" modal
+│   │   │   ├── Navbar.js             # Navigation bar (with Account dropdown)
 │   │   │   ├── Footer.js             # Footer component
 │   │   │   └── GoogleAnalytics.js    # Google Analytics integration component
 │   │   ├── pages/
 │   │   │   ├── Home.js               # Home page where documents are uploaded
 │   │   │   ├── LandingPage.js        # Welcome and information page
-│   │   │   ├── Login.js              # Login page
+│   │   │   ├── Login.js              # Login page (incl. "Sign in with a passkey")
 │   │   │   ├── Register.js           # Registration page
+│   │   │   ├── Passkeys.js           # Passkey management page (add/rename/delete)
 │   │   │   ├── ForgotPassword.js     # Forgot password page
 │   │   │   └── HowToUse.js           # Page explaining how to use the app
+│   │   ├── utils/
+│   │   │   ├── auth.js               # Event-driven client session helper
+│   │   │   ├── api.js                # Centralized API base URL
+│   │   │   └── passkeys.js           # WebAuthn (passkey) client helpers
 │   │   ├── App.js                    # Main App component
 │   │   ├── index.js                  # Entry point for the React app
 │   │   ├── App.css                   # Global CSS 1
@@ -244,6 +251,24 @@ flowchart LR
     C -.->|remove| LS
 ```
 
+## Passkeys (WebAuthn)
+
+Passwordless sign-in is implemented with [`@simplewebauthn/browser`](https://simplewebauthn.dev/), wrapped in
+`src/utils/passkeys.js`. The browser library and the backend's `@simplewebauthn/server` are a matched pair: the
+server emits the options JSON consumed here, and the response JSON produced here is verified verbatim by the
+server.
+
+| Surface | What it does |
+|---|---|
+| `pages/Login.js` | "Sign in with a passkey" button — discoverable (usernameless) or email-scoped. On success it calls the same `setAuth(token, userId)` as password login. |
+| `components/PasskeyPromptModal.js` | Shown right after sign-up to invite the user to enroll their first passkey (a styled modal, **never** a native `alert`/`prompt`). |
+| `pages/Passkeys.js` | Account-only page (guarded by `RequireAuth`) to add, rename, and delete multiple passkeys, with "Synced / This device" badges and themed dialogs. |
+| `components/Navbar.js` | When signed in, the Logout button becomes an **Account** dropdown → **Passkeys** + **Log Out** (Log Out stays destructive-red); the mobile drawer gets a Passkeys entry. |
+
+`utils/passkeys.js` exposes `isPasskeySupported()`, `registerPasskey()`, `authenticateWithPasskey()`,
+`listPasskeys()`, `renamePasskey()`, and `deletePasskey()`. The backend origin comes from `utils/api.js`
+(`REACT_APP_API_BASE_URL`, falling back to the deployed backend).
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed on your machine:
@@ -279,6 +304,7 @@ Ensure you have an `.env` file in the `frontend/` directory with the necessary e
 
 ```bash
 REACT_APP_BACKEND_URL=http://localhost:3000       # Backend URL for API requests
+REACT_APP_API_BASE_URL=http://localhost:3000      # Backend origin for passkey/API calls (optional; defaults to the deployed backend)
 REACT_APP_GOOGLE_ANALYTICS_ID=G-XXXXXX            # Google Analytics ID (optional)
 ```
 
@@ -328,6 +354,7 @@ Here are the most important scripts available in the `package.json`:
 
 - **Document Upload**: Users can upload documents (PDF, Word, plain text). PDF/DOCX are parsed **client-side** with `pdfjs-dist` and `mammoth` so the backend only ever receives plain text — keeping the request payload small and Vercel-serverless-friendly.
 - **Authentication**: Email/password, Google OAuth, and password reset. Session state is event-driven via `utils/auth.js` (see the diagram above) — no polling, no prop drilling.
+- **Passkeys (WebAuthn)**: Passwordless sign-in with fingerprint, face, or device PIN via `@simplewebauthn/browser`. Users can register multiple passkeys, are invited to create one right after sign-up (a styled modal — never a native prompt), and manage them (add/rename/delete) on the **Passkeys** page reached from the navbar **Account** dropdown. Passkey login reuses the same `setAuth(token, userId)` flow as password login.
 - **Auto-logout on token expiry**: A single `setTimeout`, clamped to the 32-bit limit, fires `clearAuth` when the JWT's `exp` is reached.
 - **Cross-tab sync**: Sign out in one tab and other open tabs update instantly via the native `storage` event.
 - **Google Analytics Integration**: User activity is tracked via Google Analytics.

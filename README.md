@@ -109,6 +109,7 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
 - **Document Analytics**: View interactive and charts-powered analytics such as word count, reading time, sentiment distribution, and more!
 - **Profile Management**: Update your profile information, social media links, and theme settings.
 - **User Authentication**: Secure registration, login, and password reset functionality.
+- **Passwordless Sign-In (Passkeys / WebAuthn)**: Register multiple passkeys and sign in with your fingerprint, face, or device PIN — no password required. A post-sign-up prompt invites users to enroll, and a dedicated **Passkeys** page lets them add, rename, and delete keys.
 - **Document History**: View all uploaded documents and their details.
 - **Mobile App Integration**: React Native mobile app for on-the-go document management.
 - **Dark Mode Support**: Toggle between light and dark themes for better accessibility.
@@ -731,12 +732,14 @@ DocuThinker-AI-App/
 │   ├── middleware/
 │   │   └── jwt.js                    # Authentication middleware with JWT for the app's backend
 │   ├── controllers/
-│   │   └── controllers.js            # Controls the flow of data and logic
+│   │   ├── controllers.js            # Controls the flow of data and logic
+│   │   └── passkeyController.js      # Passkey (WebAuthn) ceremony + endpoints
 │   ├── graphql/
 │   │   ├── resolvers.js              # Resolvers for querying data from the database
 │   │   └── schema.js                 # GraphQL schema for querying data from the database
 │   ├── models/
-│   │   └── models.js                 # Data models for interacting with the database
+│   │   ├── models.js                 # Data models for interacting with the database
+│   │   └── passkeyModel.js           # Firestore access for passkeys & challenges
 │   ├── services/
 │   │   └── services.js               # Models for interacting with database and AI/ML services
 │   ├── views/
@@ -1010,6 +1013,13 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 |------------|--------------------------------------|-----------------------------------------------------------------------------------------------------|
 | POST       | `/register`                          | Register a new user in Firebase Authentication and Firestore, saving their email and creation date. |
 | POST       | `/login`                             | Log in a user and return a custom token along with the user ID.                                     |
+| POST       | `/passkey/register/options`          | Begin passkey registration; returns WebAuthn creation options + a `flowId`.                         |
+| POST       | `/passkey/register/verify`           | Verify the authenticator attestation and store the new passkey credential.                          |
+| POST       | `/passkey/authenticate/options`      | Begin passkey login (email-scoped or discoverable/usernameless); returns options + `flowId`.        |
+| POST       | `/passkey/authenticate/verify`       | Verify the assertion and return a Firebase custom token + user ID (same contract as `/login`).      |
+| GET        | `/passkeys/{userId}`                 | List all passkeys registered to a user (public metadata only).                                      |
+| PATCH      | `/passkeys/{userId}/{credentialId}`  | Rename one of the user's passkeys.                                                                  |
+| DELETE     | `/passkeys/{userId}/{credentialId}`  | Delete one of the user's passkeys.                                                                 |
 | POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
 | POST       | `/generate-key-ideas`                | Generate key ideas from the document text.                                                          |
 | POST       | `/generate-discussion-points`        | Generate discussion points from the document text.                                                  |

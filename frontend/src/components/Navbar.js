@@ -11,6 +11,9 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  Menu,
+  MenuItem,
+  Divider,
   useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -25,6 +28,9 @@ import PersonIcon from "@mui/icons-material/Person";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import LoginIcon from "@mui/icons-material/Login";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import VpnKeyIcon from "@mui/icons-material/VpnKey";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { isAuthenticated, clearAuth, onAuthChange } from "../utils/auth";
 
 const activeStyle = {
@@ -36,8 +42,10 @@ const activeStyle = {
 const Navbar = ({ theme, onThemeToggle }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [accountAnchor, setAccountAnchor] = useState(null);
   const navigate = useNavigate();
   const isLargeScreen = useMediaQuery("(min-width:1111px)");
+  const accountMenuOpen = Boolean(accountAnchor);
 
   useEffect(() => {
     const sync = () => setIsLoggedIn(isAuthenticated());
@@ -55,7 +63,16 @@ const Navbar = ({ theme, onThemeToggle }) => {
     setDrawerOpen(open);
   };
 
+  const handleAccountOpen = (event) => setAccountAnchor(event.currentTarget);
+  const handleAccountClose = () => setAccountAnchor(null);
+
+  const handlePasskeys = () => {
+    handleAccountClose();
+    navigate("/passkeys");
+  };
+
   const handleLogout = () => {
+    handleAccountClose();
     clearAuth();
     navigate("/login");
   };
@@ -144,21 +161,80 @@ const Navbar = ({ theme, onThemeToggle }) => {
       </Button>
 
       {isLoggedIn ? (
-        <Button
-          onClick={handleLogout}
-          sx={{
-            color: "red",
-            "&:hover": { color: "white", transform: "scale(1.04)" },
-            marginRight: 2,
-            font: "inherit",
-            textTransform: "none",
-            display: "flex",
-            alignItems: "center",
-            transition: "transform 0.2s ease",
-          }}
-        >
-          <ExitToAppIcon sx={{ marginRight: 1 }} /> Logout
-        </Button>
+        <>
+          <Button
+            onClick={handleAccountOpen}
+            aria-haspopup="true"
+            aria-expanded={accountMenuOpen ? "true" : undefined}
+            endIcon={
+              <KeyboardArrowDownIcon
+                sx={{
+                  transition: "transform 0.2s ease",
+                  transform: accountMenuOpen ? "rotate(180deg)" : "none",
+                }}
+              />
+            }
+            sx={{
+              color: theme === "dark" ? "white" : "black",
+              marginRight: 2,
+              font: "inherit",
+              textTransform: "none",
+              display: "flex",
+              alignItems: "center",
+              transition: "transform 0.2s ease",
+              "&:hover": {
+                bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                transform: { xs: "none", md: "scale(1.04)" },
+              },
+            }}
+          >
+            <AccountCircleIcon sx={{ marginRight: 1 }} /> Account
+          </Button>
+          <Menu
+            anchorEl={accountAnchor}
+            open={accountMenuOpen}
+            onClose={handleAccountClose}
+            anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+            transformOrigin={{ vertical: "top", horizontal: "right" }}
+            PaperProps={{
+              sx: {
+                mt: 1,
+                minWidth: 180,
+                borderRadius: "12px",
+                bgcolor: theme === "dark" ? "#2a2a2a" : "white",
+                color: theme === "dark" ? "white" : "black",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.18)",
+                fontFamily: "Poppins, sans-serif",
+              },
+            }}
+          >
+            <MenuItem
+              onClick={handlePasskeys}
+              sx={{
+                font: "inherit",
+                py: 1.2,
+                "&:hover": { bgcolor: theme === "dark" ? "#3a3a3a" : "#f5f5f5" },
+              }}
+            >
+              <VpnKeyIcon sx={{ marginRight: 1.5, color: "#f57c00" }} /> Passkeys
+            </MenuItem>
+            <Divider sx={{ borderColor: theme === "dark" ? "#3a3a3a" : "#eee" }} />
+            <MenuItem
+              onClick={handleLogout}
+              sx={{
+                font: "inherit",
+                py: 1.2,
+                color: "red",
+                "&:hover": {
+                  bgcolor: theme === "dark" ? "#3a3a3a" : "#fdeded",
+                  color: "red",
+                },
+              }}
+            >
+              <ExitToAppIcon sx={{ marginRight: 1.5, color: "red" }} /> Log Out
+            </MenuItem>
+          </Menu>
+        </>
       ) : (
         <Button
           component={NavLink}
@@ -369,24 +445,49 @@ const Navbar = ({ theme, onThemeToggle }) => {
               <ListItemText disableTypography primary="Profile" />
             </ListItem>
             {isLoggedIn ? (
-              <ListItem
-                button
-                onClick={handleLogout}
-                sx={{
-                  color: "red",
-                  "&:hover": {
+              <>
+                <ListItem
+                  button
+                  component={NavLink}
+                  to="/passkeys"
+                  sx={{
+                    color: theme === "dark" ? "white" : "black",
+                    "&:hover": {
+                      color: theme === "dark" ? "white" : "black",
+                      bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                    },
+                    borderRadius: "8px",
+                  }}
+                >
+                  <ListItemIcon
+                    sx={{
+                      minWidth: "40px",
+                      color: theme === "dark" ? "white" : "black",
+                    }}
+                  >
+                    <VpnKeyIcon />
+                  </ListItemIcon>
+                  <ListItemText disableTypography primary="Passkeys" />
+                </ListItem>
+                <ListItem
+                  button
+                  onClick={handleLogout}
+                  sx={{
                     color: "red",
-                    bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-                  },
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                }}
-              >
-                <ListItemIcon sx={{ minWidth: "40px", color: "red" }}>
-                  <ExitToAppIcon />
-                </ListItemIcon>
-                <ListItemText disableTypography primary="Logout" />
-              </ListItem>
+                    "&:hover": {
+                      color: "red",
+                      bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                    },
+                    borderRadius: "8px",
+                    cursor: "pointer",
+                  }}
+                >
+                  <ListItemIcon sx={{ minWidth: "40px", color: "red" }}>
+                    <ExitToAppIcon />
+                  </ListItemIcon>
+                  <ListItemText disableTypography primary="Log Out" />
+                </ListItem>
+              </>
             ) : (
               <ListItem
                 button
