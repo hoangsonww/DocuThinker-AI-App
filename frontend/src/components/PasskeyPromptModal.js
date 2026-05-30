@@ -28,7 +28,8 @@ const Benefit = ({ icon, title, subtitle, theme }) => (
         height: 36,
         borderRadius: "10px",
         flexShrink: 0,
-        bgcolor: theme === "dark" ? "rgba(245,124,0,0.16)" : "rgba(245,124,0,0.12)",
+        bgcolor:
+          theme === "dark" ? "rgba(245,124,0,0.16)" : "rgba(245,124,0,0.12)",
         color: ORANGE,
       }}
     >
@@ -83,7 +84,11 @@ const PasskeyPromptModal = ({ open, onClose, userId, theme }) => {
   };
 
   return (
-    <Modal open={open} onClose={() => (loading ? null : onClose(false))} closeAfterTransition>
+    <Modal
+      open={open}
+      onClose={() => (loading ? null : onClose(false))}
+      closeAfterTransition
+    >
       <Fade in={open}>
         <Box
           sx={{
@@ -108,7 +113,12 @@ const PasskeyPromptModal = ({ open, onClose, userId, theme }) => {
             <Box sx={{ py: 2 }}>
               <CheckCircleIcon sx={{ fontSize: 64, color: "#2e7d32", mb: 1 }} />
               <Typography
-                sx={{ font: "inherit", fontWeight: 600, fontSize: "20px", mb: 1 }}
+                sx={{
+                  font: "inherit",
+                  fontWeight: 600,
+                  fontSize: "20px",
+                  mb: 1,
+                }}
               >
                 Passkey created!
               </Typography>
@@ -189,7 +199,12 @@ const PasskeyPromptModal = ({ open, onClose, userId, theme }) => {
               {error && (
                 <Alert
                   severity="error"
-                  sx={{ font: "inherit", fontSize: "13px", textAlign: "left", mb: 2 }}
+                  sx={{
+                    font: "inherit",
+                    fontSize: "13px",
+                    textAlign: "left",
+                    mb: 2,
+                  }}
                 >
                   {error}
                 </Alert>
@@ -200,9 +215,7 @@ const PasskeyPromptModal = ({ open, onClose, userId, theme }) => {
                 variant="contained"
                 onClick={handleCreate}
                 disabled={loading}
-                startIcon={
-                  !loading ? <FingerprintIcon /> : null
-                }
+                startIcon={!loading ? <FingerprintIcon /> : null}
                 sx={{
                   bgcolor: ORANGE,
                   color: "white",
