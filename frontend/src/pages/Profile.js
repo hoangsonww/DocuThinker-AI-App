@@ -112,6 +112,11 @@ const Profile = ({ theme }) => {
       ? "0 2px 12px rgba(0,0,0,0.35)"
       : "0 2px 14px rgba(0,0,0,0.06)",
   };
+  const tooltipSlotProps = {
+    tooltip: {
+      sx: { fontFamily: "Poppins, sans-serif", fontSize: "12px" },
+    },
+  };
 
   useEffect(() => {
     setRandomAvatar(
@@ -812,7 +817,7 @@ const Profile = ({ theme }) => {
                       loadingPlatform[platform] ? (
                         <CircularProgress size={22} sx={{ color: ORANGE }} />
                       ) : (
-                        <Tooltip title="Save">
+                        <Tooltip title="Save" slotProps={tooltipSlotProps}>
                           <IconButton
                             size="small"
                             onClick={() => handleUpdateSocialMedia(platform)}
@@ -822,7 +827,10 @@ const Profile = ({ theme }) => {
                         </Tooltip>
                       )
                     ) : (
-                      <Tooltip title={`Edit ${meta.label}`}>
+                      <Tooltip
+                        title={`Edit ${meta.label}`}
+                        slotProps={tooltipSlotProps}
+                      >
                         <IconButton
                           size="small"
                           onClick={() => setEditingField(platform)}
