@@ -13,3 +13,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/*
+ * MUI outlined text fields: keep the floating label and the notch (the
+ * <legend> that cuts the gap in the outline) in the SAME font. When the
+ * visible label is Poppins but the legend is left as the default font, the
+ * legend reserves a narrower gap than the wider Poppins label needs, so the
+ * label overflows and collides with the outline border. Forcing both to
+ * Poppins makes the measured widths match and the gap line up everywhere.
+ */
+.MuiInputLabel-root,
+.MuiOutlinedInput-notchedOutline legend,
+.MuiOutlinedInput-notchedOutline legend span {
+  font-family: "Poppins", sans-serif !important;
+}

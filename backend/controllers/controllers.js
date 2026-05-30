@@ -1370,13 +1370,18 @@ exports.updateSocialMedia = async (req, res) => {
     // Get the current socialMedia data
     const currentData = userDoc.data().socialMedia || {};
 
+    // Pick the incoming value, fall back to existing, then to "" so we never
+    // hand Firestore an `undefined` (it rejects undefined field values).
+    const pick = (incoming, current) =>
+      incoming !== undefined ? incoming : current !== undefined ? current : "";
+
     // Merge with the new data
     const updatedData = {
-      github: github !== undefined ? github : currentData.github,
-      linkedin: linkedin !== undefined ? linkedin : currentData.linkedin,
-      facebook: facebook !== undefined ? facebook : currentData.facebook,
-      instagram: instagram !== undefined ? instagram : currentData.instagram,
-      twitter: twitter !== undefined ? twitter : currentData.twitter,
+      github: pick(github, currentData.github),
+      linkedin: pick(linkedin, currentData.linkedin),
+      facebook: pick(facebook, currentData.facebook),
+      instagram: pick(instagram, currentData.instagram),
+      twitter: pick(twitter, currentData.twitter),
     };
 
     // Update the social media links in Firestore

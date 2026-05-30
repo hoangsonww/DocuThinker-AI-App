@@ -410,7 +410,14 @@ const Profile = ({ theme }) => {
                 boxShadow: "0 6px 18px rgba(0,0,0,0.22)",
               }}
             />
-            <Box sx={{ flexGrow: 1, minWidth: 0, pb: { sm: 0.5 } }}>
+            <Box
+              sx={{
+                flexGrow: 1,
+                minWidth: 0,
+                pt: { xs: 1.5, sm: 2 },
+                pb: { sm: 0.5 },
+              }}
+            >
               <Typography
                 sx={{
                   font: "inherit",
@@ -699,7 +706,7 @@ const Profile = ({ theme }) => {
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
+                      alignItems: isEditing ? "flex-end" : "center",
                       gap: 1.5,
                       py: 1.5,
                     }}
@@ -741,7 +748,7 @@ const Profile = ({ theme }) => {
                           autoFocus
                           onChange={handleSocialMediaChange}
                           onKeyPress={(e) => handleKeyPress(e, platform)}
-                          sx={{ mt: 0.5 }}
+                          sx={{ mt: 1.5 }}
                           inputProps={{
                             style: {
                               fontFamily: "Poppins, sans-serif",
