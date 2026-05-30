@@ -213,12 +213,17 @@ const Navbar = ({ theme, onThemeToggle }) => {
               sx={{
                 font: "inherit",
                 py: 1.2,
-                "&:hover": { bgcolor: theme === "dark" ? "#3a3a3a" : "#f5f5f5" },
+                "&:hover": {
+                  bgcolor: theme === "dark" ? "#3a3a3a" : "#f5f5f5",
+                },
               }}
             >
-              <VpnKeyIcon sx={{ marginRight: 1.5, color: "#f57c00" }} /> Passkeys
+              <VpnKeyIcon sx={{ marginRight: 1.5, color: "#f57c00" }} />{" "}
+              Passkeys
             </MenuItem>
-            <Divider sx={{ borderColor: theme === "dark" ? "#3a3a3a" : "#eee" }} />
+            <Divider
+              sx={{ borderColor: theme === "dark" ? "#3a3a3a" : "#eee" }}
+            />
             <MenuItem
               onClick={handleLogout}
               sx={{

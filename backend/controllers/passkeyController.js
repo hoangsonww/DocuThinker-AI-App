@@ -321,7 +321,8 @@ exports.verifyRegistration = async (req, res) => {
       deviceType: credentialDeviceType || "singleDevice",
       backedUp: !!credentialBackedUp,
       aaguid: aaguid || null,
-      name: (name && String(name).trim().slice(0, MAX_PASSKEY_NAME_LENGTH)) ||
+      name:
+        (name && String(name).trim().slice(0, MAX_PASSKEY_NAME_LENGTH)) ||
         defaultPasskeyName(req),
       createdAt: new Date(),
       lastUsedAt: null,

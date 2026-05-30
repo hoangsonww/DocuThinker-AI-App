@@ -56,7 +56,11 @@ const Passkeys = ({ theme }) => {
   const [passkeys, setPasskeys] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [snack, setSnack] = useState({ open: false, message: "", severity: "success" });
+  const [snack, setSnack] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
 
   // Add dialog
   const [addOpen, setAddOpen] = useState(false);
@@ -166,7 +170,25 @@ const Passkeys = ({ theme }) => {
     mt: 1,
     backgroundColor: dark ? "#3a3a3a" : "#fff",
     borderRadius: "8px",
-    input: { color: dark ? "white" : "black", fontFamily: "Poppins, sans-serif" },
+    input: {
+      color: dark ? "white" : "black",
+      fontFamily: "Poppins, sans-serif",
+      "&::placeholder": {
+        fontFamily: "Poppins, sans-serif",
+        opacity: dark ? 0.6 : 0.55,
+      },
+    },
+  };
+
+  const inputLabelSx = {
+    color: dark ? "#bbb" : "#666",
+    fontFamily: "Poppins, sans-serif",
+  };
+
+  const tooltipSlotProps = {
+    tooltip: {
+      sx: { fontFamily: "Poppins, sans-serif", fontSize: "12px" },
+    },
   };
 
   return (
@@ -213,7 +235,8 @@ const Passkeys = ({ theme }) => {
                   color: dark ? "#bbb" : "#666",
                 }}
               >
-                Password-free sign-in with your fingerprint, face, or device PIN.
+                Password-free sign-in with your fingerprint, face, or device
+                PIN.
               </Typography>
             </Box>
           </Box>
@@ -244,10 +267,13 @@ const Passkeys = ({ theme }) => {
         </Box>
 
         {!supported && (
-          <Alert severity="warning" sx={{ font: "inherit", mb: 3, borderRadius: "10px" }}>
-            This browser or device doesn't support passkeys. You can still manage
-            existing passkeys here, but you'll need a compatible device to add a
-            new one.
+          <Alert
+            severity="warning"
+            sx={{ font: "inherit", mb: 3, borderRadius: "10px" }}
+          >
+            This browser or device doesn't support passkeys. You can still
+            manage existing passkeys here, but you'll need a compatible device
+            to add a new one.
           </Alert>
         )}
 
@@ -256,7 +282,12 @@ const Passkeys = ({ theme }) => {
             severity="error"
             sx={{ font: "inherit", mb: 3, borderRadius: "10px" }}
             action={
-              <Button color="inherit" size="small" onClick={load} sx={{ font: "inherit" }}>
+              <Button
+                color="inherit"
+                size="small"
+                onClick={load}
+                sx={{ font: "inherit" }}
+              >
                 Retry
               </Button>
             }
@@ -281,9 +312,17 @@ const Passkeys = ({ theme }) => {
               bgcolor: dark ? "#262626" : "white",
             }}
           >
-            <VpnKeyIcon sx={{ fontSize: 56, color: dark ? "#555" : "#ccc", mb: 1 }} />
+            <VpnKeyIcon
+              sx={{ fontSize: 56, color: dark ? "#555" : "#ccc", mb: 1 }}
+            />
             <Typography
-              sx={{ font: "inherit", fontWeight: 600, fontSize: "18px", mb: 0.5 }}
+              sx={{
+                font: "inherit",
+                fontWeight: 600,
+                fontSize: "18px",
+                mb: 0.5,
+                color: dark ? "#f5f5f5" : "#1a1a1a",
+              }}
             >
               No passkeys yet
             </Typography>
@@ -355,7 +394,9 @@ const Passkeys = ({ theme }) => {
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      bgcolor: dark ? "rgba(245,124,0,0.16)" : "rgba(245,124,0,0.12)",
+                      bgcolor: dark
+                        ? "rgba(245,124,0,0.16)"
+                        : "rgba(245,124,0,0.12)",
                       color: ORANGE,
                     }}
                   >
@@ -399,14 +440,22 @@ const Passkeys = ({ theme }) => {
                           font: "inherit",
                           fontSize: "11px",
                           height: 22,
-                          color: pk.backedUp ? "#2e7d32" : dark ? "#bbb" : "#666",
+                          color: pk.backedUp
+                            ? "#2e7d32"
+                            : dark
+                              ? "#bbb"
+                              : "#666",
                           bgcolor: pk.backedUp
                             ? "rgba(46,125,50,0.12)"
                             : dark
                               ? "#333"
                               : "#f0f0f0",
                           "& .MuiChip-icon": {
-                            color: pk.backedUp ? "#2e7d32" : dark ? "#bbb" : "#666",
+                            color: pk.backedUp
+                              ? "#2e7d32"
+                              : dark
+                                ? "#bbb"
+                                : "#666",
                           },
                         }}
                       />
@@ -432,7 +481,10 @@ const Passkeys = ({ theme }) => {
                           setRenameTarget(pk);
                           setRenameValue(pk.name);
                         }}
-                        sx={{ color: dark ? "#bbb" : "#666", "&:hover": { color: ORANGE } }}
+                        sx={{
+                          color: dark ? "#bbb" : "#666",
+                          "&:hover": { color: ORANGE },
+                        }}
                       >
                         <EditIcon fontSize="small" />
                       </IconButton>
@@ -440,7 +492,10 @@ const Passkeys = ({ theme }) => {
                     <Tooltip title="Remove">
                       <IconButton
                         onClick={() => setDeleteTarget(pk)}
-                        sx={{ color: "#d32f2f", "&:hover": { color: "#b71c1c" } }}
+                        sx={{
+                          color: "#d32f2f",
+                          "&:hover": { color: "#b71c1c" },
+                        }}
                       >
                         <DeleteOutlineIcon fontSize="small" />
                       </IconButton>
@@ -464,7 +519,11 @@ const Passkeys = ({ theme }) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText
-            sx={{ font: "inherit", fontSize: "14px", color: dark ? "#bbb" : "#666" }}
+            sx={{
+              font: "inherit",
+              fontSize: "14px",
+              color: dark ? "#bbb" : "#666",
+            }}
           >
             Give this passkey a name so you can recognize it later. Your browser
             will then ask you to confirm with your device.
@@ -477,15 +536,19 @@ const Passkeys = ({ theme }) => {
             value={addName}
             onChange={(e) => setAddName(e.target.value)}
             inputProps={{ maxLength: 60 }}
-            sx={textFieldSx}
-            InputLabelProps={{ style: { color: dark ? "#bbb" : "#666" } }}
+            sx={{ ...textFieldSx, mt: 3 }}
+            InputLabelProps={{ style: inputLabelSx }}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={() => setAddOpen(false)}
             disabled={adding}
-            sx={{ font: "inherit", textTransform: "none", color: dark ? "#bbb" : "#666" }}
+            sx={{
+              font: "inherit",
+              textTransform: "none",
+              color: dark ? "#bbb" : "#666",
+            }}
           >
             Cancel
           </Button>
@@ -504,7 +567,11 @@ const Passkeys = ({ theme }) => {
               "&:hover": { bgcolor: "#e65100" },
             }}
           >
-            {adding ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Continue"}
+            {adding ? (
+              <CircularProgress size={20} sx={{ color: "white" }} />
+            ) : (
+              "Continue"
+            )}
           </Button>
         </DialogActions>
       </Dialog>
@@ -527,14 +594,18 @@ const Passkeys = ({ theme }) => {
             onChange={(e) => setRenameValue(e.target.value)}
             inputProps={{ maxLength: 60 }}
             sx={textFieldSx}
-            InputLabelProps={{ style: { color: dark ? "#bbb" : "#666" } }}
+            InputLabelProps={{ style: inputLabelSx }}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
           <Button
             onClick={() => setRenameTarget(null)}
             disabled={renaming}
-            sx={{ font: "inherit", textTransform: "none", color: dark ? "#bbb" : "#666" }}
+            sx={{
+              font: "inherit",
+              textTransform: "none",
+              color: dark ? "#bbb" : "#666",
+            }}
           >
             Cancel
           </Button>
@@ -552,7 +623,11 @@ const Passkeys = ({ theme }) => {
               "&:hover": { bgcolor: "#e65100" },
             }}
           >
-            {renaming ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Save"}
+            {renaming ? (
+              <CircularProgress size={20} sx={{ color: "white" }} />
+            ) : (
+              "Save"
+            )}
           </Button>
         </DialogActions>
       </Dialog>
@@ -568,7 +643,11 @@ const Passkeys = ({ theme }) => {
         </DialogTitle>
         <DialogContent>
           <DialogContentText
-            sx={{ font: "inherit", fontSize: "14px", color: dark ? "#bbb" : "#666" }}
+            sx={{
+              font: "inherit",
+              fontSize: "14px",
+              color: dark ? "#bbb" : "#666",
+            }}
           >
             {deleteTarget ? (
               <>
@@ -584,7 +663,11 @@ const Passkeys = ({ theme }) => {
           <Button
             onClick={() => setDeleteTarget(null)}
             disabled={deleting}
-            sx={{ font: "inherit", textTransform: "none", color: dark ? "#bbb" : "#666" }}
+            sx={{
+              font: "inherit",
+              textTransform: "none",
+              color: dark ? "#bbb" : "#666",
+            }}
           >
             Cancel
           </Button>
@@ -602,7 +685,11 @@ const Passkeys = ({ theme }) => {
               "&:hover": { bgcolor: "#b71c1c" },
             }}
           >
-            {deleting ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Remove"}
+            {deleting ? (
+              <CircularProgress size={20} sx={{ color: "white" }} />
+            ) : (
+              "Remove"
+            )}
           </Button>
         </DialogActions>
       </Dialog>

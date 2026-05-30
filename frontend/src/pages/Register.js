@@ -84,205 +84,205 @@ const Register = ({ theme }) => {
 
   return (
     <>
-    <Box
-      sx={{
-        maxWidth: "400px",
-        margin: "2rem auto",
-        padding: "2rem",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-        bgcolor: theme === "dark" ? "#333" : "white",
-        color: theme === "dark" ? "white" : "black",
-        textAlign: "center",
-        transition: "background-color 0.3s ease, color 0.3s ease",
-      }}
-    >
-      <Typography
-        variant="h4"
+      <Box
         sx={{
-          mb: 3,
-          color: "#f57c00",
-          font: "inherit",
-          fontWeight: "600",
-          fontSize: "32px",
+          maxWidth: "400px",
+          margin: "2rem auto",
+          padding: "2rem",
+          borderRadius: "12px",
+          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+          bgcolor: theme === "dark" ? "#333" : "white",
+          color: theme === "dark" ? "white" : "black",
+          textAlign: "center",
+          transition: "background-color 0.3s ease, color 0.3s ease",
         }}
       >
-        Register
-      </Typography>
-
-      {/* Error Message */}
-      {error && (
-        <Alert
-          severity="error"
-          sx={{ mb: 2, font: "inherit", fontSize: "16px" }}
-        >
-          {error}
-        </Alert>
-      )}
-
-      {/* Success Message */}
-      {success && (
-        <Alert
-          severity="success"
-          sx={{ mb: 2, font: "inherit", fontSize: "16px" }}
-        >
-          {success}
-        </Alert>
-      )}
-
-      {/* Registration Form */}
-      <form onSubmit={handleRegister}>
-        <TextField
-          label="Email"
-          variant="outlined"
-          fullWidth
-          required
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          sx={{
-            mb: 2,
-            fontFamily: "Poppins, sans-serif",
-            backgroundColor: theme === "dark" ? "#555" : "#fff",
-            borderRadius: "8px",
-            input: { color: theme === "dark" ? "white" : "black" },
-          }}
-          inputProps={{
-            style: { fontFamily: "Poppins, sans-serif" },
-          }}
-          InputLabelProps={{
-            style: {
-              fontFamily: "Poppins, sans-serif",
-              color: theme === "dark" ? "white" : "black",
-            },
-          }}
-        />
-        <TextField
-          label="Password"
-          variant="outlined"
-          fullWidth
-          required
-          type={showPassword ? "text" : "password"}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          sx={{
-            mb: 2,
-            fontFamily: "Poppins, sans-serif",
-            backgroundColor: theme === "dark" ? "#555" : "#fff",
-            borderRadius: "8px",
-            input: { color: theme === "dark" ? "white" : "black" },
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle password visibility"
-                  onClick={handleTogglePasswordVisibility}
-                  edge="end"
-                  sx={{ color: theme === "dark" ? "white" : "#333" }}
-                >
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-            style: { fontFamily: "Poppins, sans-serif" },
-          }}
-          InputLabelProps={{
-            style: {
-              fontFamily: "Poppins, sans-serif",
-              color: theme === "dark" ? "white" : "black",
-            },
-          }}
-        />
-        <TextField
-          label="Confirm Password"
-          variant="outlined"
-          fullWidth
-          required
-          type={showConfirmPassword ? "text" : "password"}
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          sx={{
-            mb: 2,
-            fontFamily: "Poppins, sans-serif",
-            backgroundColor: theme === "dark" ? "#555" : "#fff",
-            borderRadius: "8px",
-            input: { color: theme === "dark" ? "white" : "black" },
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton
-                  aria-label="toggle confirm password visibility"
-                  onClick={handleToggleConfirmPasswordVisibility}
-                  edge="end"
-                  sx={{ color: theme === "dark" ? "white" : "#333" }}
-                >
-                  {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-            style: { fontFamily: "Poppins, sans-serif" },
-          }}
-          InputLabelProps={{
-            style: {
-              fontFamily: "Poppins, sans-serif",
-              color: theme === "dark" ? "white" : "black",
-            },
-          }}
-        />
-
-        <Button
-          type="submit"
-          variant="contained"
-          fullWidth
-          sx={{
-            bgcolor: "#f57c00",
-            color: "white",
-            fontFamily: "Poppins, sans-serif",
-            padding: "0.75rem",
-            fontSize: "16px",
-            mt: 2,
-            "&:hover": {
-              bgcolor: "#e65100",
-            },
-          }}
-          disabled={loading}
-        >
-          {loading ? (
-            <CircularProgress size={24} sx={{ color: "white" }} />
-          ) : (
-            "Register"
-          )}
-        </Button>
-
-        {/* Login Link */}
         <Typography
-          variant="body1"
+          variant="h4"
           sx={{
-            mt: 3,
+            mb: 3,
+            color: "#f57c00",
             font: "inherit",
-            color: theme === "dark" ? "white" : "black",
+            fontWeight: "600",
+            fontSize: "32px",
           }}
         >
-          Already have an account?{" "}
-          <Button
-            color="primary"
+          Register
+        </Typography>
+
+        {/* Error Message */}
+        {error && (
+          <Alert
+            severity="error"
+            sx={{ mb: 2, font: "inherit", fontSize: "16px" }}
+          >
+            {error}
+          </Alert>
+        )}
+
+        {/* Success Message */}
+        {success && (
+          <Alert
+            severity="success"
+            sx={{ mb: 2, font: "inherit", fontSize: "16px" }}
+          >
+            {success}
+          </Alert>
+        )}
+
+        {/* Registration Form */}
+        <form onSubmit={handleRegister}>
+          <TextField
+            label="Email"
+            variant="outlined"
+            fullWidth
+            required
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             sx={{
-              padding: 0,
-              font: "inherit",
-              "&:hover": {
-                bgcolor: "#f57c00",
-                color: "white",
+              mb: 2,
+              fontFamily: "Poppins, sans-serif",
+              backgroundColor: theme === "dark" ? "#555" : "#fff",
+              borderRadius: "8px",
+              input: { color: theme === "dark" ? "white" : "black" },
+            }}
+            inputProps={{
+              style: { fontFamily: "Poppins, sans-serif" },
+            }}
+            InputLabelProps={{
+              style: {
+                fontFamily: "Poppins, sans-serif",
+                color: theme === "dark" ? "white" : "black",
               },
             }}
-            onClick={() => navigate("/login")}
+          />
+          <TextField
+            label="Password"
+            variant="outlined"
+            fullWidth
+            required
+            type={showPassword ? "text" : "password"}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{
+              mb: 2,
+              fontFamily: "Poppins, sans-serif",
+              backgroundColor: theme === "dark" ? "#555" : "#fff",
+              borderRadius: "8px",
+              input: { color: theme === "dark" ? "white" : "black" },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle password visibility"
+                    onClick={handleTogglePasswordVisibility}
+                    edge="end"
+                    sx={{ color: theme === "dark" ? "white" : "#333" }}
+                  >
+                    {showPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+              style: { fontFamily: "Poppins, sans-serif" },
+            }}
+            InputLabelProps={{
+              style: {
+                fontFamily: "Poppins, sans-serif",
+                color: theme === "dark" ? "white" : "black",
+              },
+            }}
+          />
+          <TextField
+            label="Confirm Password"
+            variant="outlined"
+            fullWidth
+            required
+            type={showConfirmPassword ? "text" : "password"}
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            sx={{
+              mb: 2,
+              fontFamily: "Poppins, sans-serif",
+              backgroundColor: theme === "dark" ? "#555" : "#fff",
+              borderRadius: "8px",
+              input: { color: theme === "dark" ? "white" : "black" },
+            }}
+            InputProps={{
+              endAdornment: (
+                <InputAdornment position="end">
+                  <IconButton
+                    aria-label="toggle confirm password visibility"
+                    onClick={handleToggleConfirmPasswordVisibility}
+                    edge="end"
+                    sx={{ color: theme === "dark" ? "white" : "#333" }}
+                  >
+                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                  </IconButton>
+                </InputAdornment>
+              ),
+              style: { fontFamily: "Poppins, sans-serif" },
+            }}
+            InputLabelProps={{
+              style: {
+                fontFamily: "Poppins, sans-serif",
+                color: theme === "dark" ? "white" : "black",
+              },
+            }}
+          />
+
+          <Button
+            type="submit"
+            variant="contained"
+            fullWidth
+            sx={{
+              bgcolor: "#f57c00",
+              color: "white",
+              fontFamily: "Poppins, sans-serif",
+              padding: "0.75rem",
+              fontSize: "16px",
+              mt: 2,
+              "&:hover": {
+                bgcolor: "#e65100",
+              },
+            }}
+            disabled={loading}
           >
-            Login
+            {loading ? (
+              <CircularProgress size={24} sx={{ color: "white" }} />
+            ) : (
+              "Register"
+            )}
           </Button>
-        </Typography>
-      </form>
-    </Box>
+
+          {/* Login Link */}
+          <Typography
+            variant="body1"
+            sx={{
+              mt: 3,
+              font: "inherit",
+              color: theme === "dark" ? "white" : "black",
+            }}
+          >
+            Already have an account?{" "}
+            <Button
+              color="primary"
+              sx={{
+                padding: 0,
+                font: "inherit",
+                "&:hover": {
+                  bgcolor: "#f57c00",
+                  color: "white",
+                },
+              }}
+              onClick={() => navigate("/login")}
+            >
+              Login
+            </Button>
+          </Typography>
+        </form>
+      </Box>
 
       <PasskeyPromptModal
         open={passkeyModalOpen}

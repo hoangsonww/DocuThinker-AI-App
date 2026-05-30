@@ -61,7 +61,11 @@ beforeEach(() => {
 describe("getRegistrationOptions", () => {
   it("rejects when userId is missing", async () => {
     await controller.getRegistrationOptions(makeReq({ body: {} }), res);
-    expect(sendErrorResponse).toHaveBeenCalledWith(res, 400, "userId is required");
+    expect(sendErrorResponse).toHaveBeenCalledWith(
+      res,
+      400,
+      "userId is required",
+    );
   });
 
   it("returns 404 when the user does not exist", async () => {
@@ -95,9 +99,7 @@ describe("getRegistrationOptions", () => {
     expect(webauthn.generateRegistrationOptions).toHaveBeenCalledWith(
       expect.objectContaining({
         rpID: "app.example.com",
-        excludeCredentials: [
-          { id: "existing", transports: ["internal"] },
-        ],
+        excludeCredentials: [{ id: "existing", transports: ["internal"] }],
       }),
     );
     expect(Challenge.save).toHaveBeenCalledWith(
@@ -316,10 +318,17 @@ describe("listPasskeys / renamePasskey / deletePasskey", () => {
   it("returns 404 when renaming a passkey the user does not own", async () => {
     Passkey.getById.mockResolvedValue({ userId: "someone-else" });
     await controller.renamePasskey(
-      makeReq({ params: { userId: "u1", credentialId: "c1" }, body: { name: "X" } }),
+      makeReq({
+        params: { userId: "u1", credentialId: "c1" },
+        body: { name: "X" },
+      }),
       res,
     );
-    expect(sendErrorResponse).toHaveBeenCalledWith(res, 404, "Passkey not found");
+    expect(sendErrorResponse).toHaveBeenCalledWith(
+      res,
+      404,
+      "Passkey not found",
+    );
     expect(Passkey.rename).not.toHaveBeenCalled();
   });
 
@@ -342,8 +351,13 @@ describe("listPasskeys / renamePasskey / deletePasskey", () => {
       res,
     );
     expect(Passkey.remove).toHaveBeenCalledWith("c1");
-    expect(sendSuccessResponse).toHaveBeenCalledWith(res, 200, "Passkey deleted", {
-      id: "c1",
-    });
+    expect(sendSuccessResponse).toHaveBeenCalledWith(
+      res,
+      200,
+      "Passkey deleted",
+      {
+        id: "c1",
+      },
+    );
   });
 });
