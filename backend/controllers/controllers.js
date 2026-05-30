@@ -15,6 +15,12 @@ const {
   rewriteContent,
   processAudio,
   refineSummary,
+  indexDocumentForSearch,
+  performSemanticSearch,
+  workspaceQuestionAnswering,
+  getWorkspaceIndexStatus,
+  reindexUserWorkspace,
+  uploadDocumentWithIndexing,
 } = require("../services/services");
 const { sendErrorResponse, sendSuccessResponse } = require("../views/views");
 const { IncomingForm } = require("formidable");
@@ -1763,5 +1769,345 @@ exports.refineSummary = async (req, res) => {
     res.status(200).send({ refinedSummary });
   } catch (error) {
     res.status(500).send({ error: error.message });
+  }
+};
+
+/**
+ * @swagger
+ * /v1/search/semantic:
+ *   post:
+ *     summary: Perform semantic search across user's documents
+ *     description: Search documents using vector embeddings with optional filters
+ *     tags:
+ *       - Workspace Search
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - query
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: User ID
+ *               query:
+ *                 type: string
+ *                 description: Search query
+ *               topK:
+ *                 type: integer
+ *                 default: 10
+ *                 description: Number of results to return
+ *               filters:
+ *                 type: object
+ *                 properties:
+ *                   mimeTypes:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   tags:
+ *                     type: array
+ *                     items:
+ *                       type: string
+ *                   dateFrom:
+ *                     type: string
+ *                     format: date-time
+ *                   dateTo:
+ *                     type: string
+ *                     format: date-time
+ *     responses:
+ *       200:
+ *         description: Search results
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 results:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       docId:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       snippet:
+ *                         type: string
+ *                       score:
+ *                         type: number
+ *                       location:
+ *                         type: string
+ *                       mimeType:
+ *                         type: string
+ *                       tags:
+ *                         type: array
+ *                         items:
+ *                           type: string
+ *                       updatedAt:
+ *                         type: string
+ */
+exports.semanticSearch = async (req, res) => {
+  try {
+    const { userId, query, topK = 10, filters = {} } = req.body;
+
+    // Validate inputs
+    if (!userId || !query) {
+      return sendErrorResponse(res, 400, "userId and query are required");
+    }
+
+    if (typeof query !== "string" || query.trim() === "") {
+      return sendErrorResponse(res, 400, "Query must be a non-empty string");
+    }
+
+    // Perform semantic search
+    const results = await performSemanticSearch(userId, query, topK, filters);
+
+    sendSuccessResponse(res, 200, "Semantic search completed successfully", {
+      results,
+      query,
+      totalResults: results.length
+    });
+
+  } catch (error) {
+    console.error("Error in semantic search:", error);
+    sendErrorResponse(res, 500, "Failed to perform semantic search", error.message);
+  }
+};
+
+/**
+ * @swagger
+ * /v1/qa/workspace:
+ *   post:
+ *     summary: Answer questions using workspace documents (RAG)
+ *     description: Use retrieval-augmented generation to answer questions based on user's document collection
+ *     tags:
+ *       - Workspace Search
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *               - question
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: User ID
+ *               question:
+ *                 type: string
+ *                 description: Question to answer
+ *               topK:
+ *                 type: integer
+ *                 default: 5
+ *                 description: Number of context documents to use
+ *               filters:
+ *                 type: object
+ *                 description: Optional filters for document selection
+ *               stream:
+ *                 type: boolean
+ *                 default: false
+ *                 description: Whether to stream the response
+ *     responses:
+ *       200:
+ *         description: Q&A response with citations
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 answer:
+ *                   type: string
+ *                 citations:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: integer
+ *                       docId:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       snippet:
+ *                         type: string
+ *                       location:
+ *                         type: string
+ *                       score:
+ *                         type: number
+ *                 contextFound:
+ *                   type: boolean
+ *                 question:
+ *                   type: string
+ */
+exports.workspaceQA = async (req, res) => {
+  try {
+    const { userId, question, topK = 5, filters = {}, stream = false } = req.body;
+
+    // Validate inputs
+    if (!userId || !question) {
+      return sendErrorResponse(res, 400, "userId and question are required");
+    }
+
+    if (typeof question !== "string" || question.trim() === "") {
+      return sendErrorResponse(res, 400, "Question must be a non-empty string");
+    }
+
+    // For streaming responses, we'll implement later
+    if (stream) {
+      return sendErrorResponse(res, 501, "Streaming responses not yet implemented");
+    }
+
+    // Perform Q&A
+    const result = await workspaceQuestionAnswering(userId, question, topK, filters);
+
+    sendSuccessResponse(res, 200, "Question answered successfully", result);
+
+  } catch (error) {
+    console.error("Error in workspace Q&A:", error);
+    sendErrorResponse(res, 500, "Failed to answer question", error.message);
+  }
+};
+
+/**
+ * @swagger
+ * /v1/index/status:
+ *   get:
+ *     summary: Get indexing status for user's workspace
+ *     description: Retrieve information about the user's document index
+ *     tags:
+ *       - Workspace Search
+ *     parameters:
+ *       - in: query
+ *         name: userId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: Index status information
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 userId:
+ *                   type: string
+ *                 totalDocuments:
+ *                   type: integer
+ *                 totalChunks:
+ *                   type: integer
+ *                 lastUpdated:
+ *                   type: string
+ *                 vectorStoreSize:
+ *                   type: integer
+ */
+exports.getIndexStatus = async (req, res) => {
+  try {
+    const { userId } = req.query;
+
+    if (!userId) {
+      return sendErrorResponse(res, 400, "userId is required");
+    }
+
+    const status = await getWorkspaceIndexStatus(userId);
+    
+    sendSuccessResponse(res, 200, "Index status retrieved successfully", status);
+
+  } catch (error) {
+    console.error("Error getting index status:", error);
+    sendErrorResponse(res, 500, "Failed to get index status", error.message);
+  }
+};
+
+/**
+ * @swagger
+ * /v1/index/reindex:
+ *   post:
+ *     summary: Reindex user's workspace
+ *     description: Rebuild the search index for a user's documents
+ *     tags:
+ *       - Workspace Search
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - userId
+ *             properties:
+ *               userId:
+ *                 type: string
+ *                 description: User ID
+ *               docIds:
+ *                 type: array
+ *                 items:
+ *                   type: string
+ *                 description: Optional specific document IDs to reindex
+ *     responses:
+ *       200:
+ *         description: Reindexing completed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 documentsCount:
+ *                   type: integer
+ */
+exports.reindexWorkspace = async (req, res) => {
+  try {
+    const { userId, docIds } = req.body;
+
+    if (!userId) {
+      return sendErrorResponse(res, 400, "userId is required");
+    }
+
+    // For now, we'll reindex all documents for the user
+    // In a full implementation, this would handle specific docIds
+    const result = await reindexUserWorkspace(userId);
+    
+    sendSuccessResponse(res, 200, "Reindexing initiated", result);
+
+  } catch (error) {
+    console.error("Error reindexing workspace:", error);
+    sendErrorResponse(res, 500, "Failed to reindex workspace", error.message);
+  }
+};
+
+/**
+ * Enhanced document upload with automatic indexing
+ * Updates the existing upload endpoint to include semantic search indexing
+ */
+exports.uploadDocumentEnhanced = async (req, res) => {
+  try {
+    const { title, text, userId } = req.body;
+
+    if (!text || !title) {
+      return sendErrorResponse(res, 400, "Text and title are required");
+    }
+
+    if (!userId) {
+      return sendErrorResponse(res, 400, "User ID is required for indexing");
+    }
+
+    // Use enhanced upload service that includes indexing
+    const result = await uploadDocumentWithIndexing(userId, title, text);
+
+    sendSuccessResponse(res, 200, "Document uploaded and indexed successfully", result);
+
+  } catch (error) {
+    console.error("Error in enhanced document upload:", error);
+    sendErrorResponse(res, 500, "Failed to upload and index document", error.message);
   }
 };

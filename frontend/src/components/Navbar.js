@@ -25,6 +25,9 @@ import PersonIcon from "@mui/icons-material/Person";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import LoginIcon from "@mui/icons-material/Login";
 import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
+import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
+import GlobalSearchBar from "./GlobalSearchBar";
+import WorkspaceQAModal from "./WorkspaceQAModal";
 import { isAuthenticated, clearAuth, onAuthChange } from "../utils/auth";
 
 const activeStyle = {
@@ -36,6 +39,7 @@ const activeStyle = {
 const Navbar = ({ theme, onThemeToggle }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [qaModalOpen, setQaModalOpen] = useState(false);
   const navigate = useNavigate();
   const isLargeScreen = useMediaQuery("(min-width:1111px)");
 
@@ -58,6 +62,20 @@ const Navbar = ({ theme, onThemeToggle }) => {
   const handleLogout = () => {
     clearAuth();
     navigate("/login");
+  };
+
+  const handleSearchResultSelect = (result) => {
+    // Navigate to documents page with the selected document
+    navigate(`/documents?highlight=${result.docId}`);
+  };
+
+  const handleDocumentOpen = (docId, location) => {
+    // Navigate to specific document with location
+    navigate(`/documents?doc=${docId}&location=${location}`);
+  };
+
+  const openQAModal = () => {
+    setQaModalOpen(true);
   };
 
   const renderNavLinks = (
@@ -143,6 +161,27 @@ const Navbar = ({ theme, onThemeToggle }) => {
         <PersonIcon sx={{ marginRight: 1 }} /> Profile
       </Button>
 
+      {isLoggedIn && (
+        <Button
+          onClick={openQAModal}
+          sx={{
+            color: theme === "dark" ? "white" : "black",
+            marginRight: 2,
+            font: "inherit",
+            textTransform: "none",
+            display: "flex",
+            alignItems: "center",
+            transition: "transform 0.2s ease",
+            "&:hover": {
+              bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+              transform: { xs: "none", md: "scale(1.04)" },
+            },
+          }}
+        >
+          <QuestionAnswerIcon sx={{ marginRight: 1 }} /> Ask Workspace
+        </Button>
+      )}
+
       {isLoggedIn ? (
         <Button
           onClick={handleLogout}
@@ -214,22 +253,38 @@ const Navbar = ({ theme, onThemeToggle }) => {
         transition: "background-color 0.3s ease, color 0.3s ease",
       }}
     >
-      <Toolbar>
+      <Toolbar sx={{ gap: 2 }}>
         <Typography
           variant="h1"
           component={NavLink}
           to="/"
           sx={{
-            flexGrow: 1,
             color: "#f57c00",
             font: "inherit",
             fontWeight: "bold",
             fontSize: "2rem",
             textDecoration: "none",
+            mr: 2,
           }}
         >
           DocuThinker
         </Typography>
+
+        {/* Global Search Bar - only show when logged in */}
+        {isLoggedIn && (
+          <Box sx={{ 
+            flexGrow: 1, 
+            maxWidth: 500,
+            display: { xs: "none", md: "block" }
+          }}>
+            <GlobalSearchBar 
+              theme={theme} 
+              onResultSelect={handleSearchResultSelect}
+            />
+          </Box>
+        )}
+
+        {!isLoggedIn && <Box sx={{ flexGrow: 1 }} />}
 
         <Box sx={{ display: isLargeScreen ? "flex" : "none" }}>
           {renderNavLinks}
@@ -463,6 +518,14 @@ const Navbar = ({ theme, onThemeToggle }) => {
           </List>
         </Box>
       </Drawer>
+
+      {/* Workspace Q&A Modal */}
+      <WorkspaceQAModal
+        open={qaModalOpen}
+        onClose={() => setQaModalOpen(false)}
+        theme={theme}
+        onDocumentOpen={handleDocumentOpen}
+      />
     </AppBar>
   );
 };

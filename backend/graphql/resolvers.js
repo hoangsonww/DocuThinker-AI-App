@@ -1,4 +1,4 @@
-const { firestore } = require("../services/services");
+const { firestore, performSemanticSearch, workspaceQuestionAnswering } = require("../services/services");
 
 /**
  * Resolvers for the GraphQL schema
@@ -60,6 +60,58 @@ const resolvers = {
       }
 
       return userDoc.data().documents || [];
+    },
+
+    /**
+     * Perform semantic search across user's workspace
+     * @param _ The parent object
+     * @param userId The user ID
+     * @param query The search query
+     * @param topK Number of results to return
+     * @param filters Optional search filters
+     * @returns {Promise<*[]>} Search results
+     */
+    async workspaceSearch(_, { userId, query, topK = 10, filters = {} }) {
+      try {
+        if (!userId || !query) {
+          throw new Error("userId and query are required");
+        }
+
+        const results = await performSemanticSearch(userId, query, topK, filters);
+        return results || [];
+      } catch (error) {
+        console.error("Error in workspaceSearch resolver:", error);
+        throw new Error(`Failed to perform workspace search: ${error.message}`);
+      }
+    },
+
+    /**
+     * Answer questions using workspace documents (RAG)
+     * @param _ The parent object
+     * @param userId The user ID
+     * @param question The question to answer
+     * @param topK Number of context documents to use
+     * @param filters Optional document filters
+     * @returns {Promise<*>} Q&A response with citations
+     */
+    async workspaceQA(_, { userId, question, topK = 5, filters = {} }) {
+      try {
+        if (!userId || !question) {
+          throw new Error("userId and question are required");
+        }
+
+        const result = await workspaceQuestionAnswering(userId, question, topK, filters);
+        
+        return {
+          answer: result.answer || "I couldn't find relevant information to answer your question.",
+          citations: result.citations || [],
+          contextFound: result.contextFound || false,
+          question: result.question || question
+        };
+      } catch (error) {
+        console.error("Error in workspaceQA resolver:", error);
+        throw new Error(`Failed to answer workspace question: ${error.message}`);
+      }
     },
   },
 

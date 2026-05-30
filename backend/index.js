@@ -42,6 +42,11 @@ const {
   searchDocuments,
   processAudioFile,
   refineSummary,
+  semanticSearch,
+  workspaceQA,
+  getIndexStatus,
+  reindexWorkspace,
+  uploadDocumentEnhanced,
 } = require("./controllers/controllers");
 
 const app = express();
@@ -172,6 +177,13 @@ app.post("/content-rewriting", contentRewriting);
 app.get("/search-documents/:userId", searchDocuments);
 app.post("/process-audio", processAudioFile);
 app.post("/refine-summary", refineSummary);
+
+// Workspace Search and Q&A Routes
+app.post("/v1/search/semantic", semanticSearch);
+app.post("/v1/qa/workspace", workspaceQA);
+app.get("/v1/index/status", getIndexStatus);
+app.post("/v1/index/reindex", reindexWorkspace);
+app.post("/upload-enhanced", uploadDocumentEnhanced);
 
 // Error handling for unsupported routes
 app.use((req, res) => {
