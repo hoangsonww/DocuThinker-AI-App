@@ -1,0 +1,116 @@
+# Snyk Infrastructure as Code (IaC) Scanning Configuration
+# Scans Terraform, Kubernetes manifests, Helm charts, and Dockerfiles
+# Run: snyk iac test --severity-threshold=medium --report
+
+# ──────────────────────────────────────────────────────────────
+# Severity Thresholds
+# ──────────────────────────────────────────────────────────────
+severity_threshold: medium
+
+# Fail the scan if any issues at or above this severity
+fail_on: high
+
+# ──────────────────────────────────────────────────────────────
+# Scan Targets
+# ──────────────────────────────────────────────────────────────
+targets:
+  terraform:
+    enabled: true
+    paths:
+      - terraform/
+      - terraform/modules/
+    exclude:
+      - "**/.terraform/**"
+      - "**/terraform.tfstate*"
+
+  kubernetes:
+    enabled: true
+    paths:
+      - kubernetes/
+      - helm/docuthinker/templates/
+      - argocd/
+    exclude:
+      - "**/charts/**"
+
+  helm:
+    enabled: true
+    paths:
+      - helm/docuthinker/
+      - monitoring/
+      - security/sonarqube/
+      - security/snyk/
+    exclude:
+      - "**/charts/**"
+
+  dockerfiles:
+    enabled: true
+    paths:
+      - frontend/Dockerfile
+      - backend/Dockerfile
+      - orchestrator/Dockerfile
+      - ai_ml/Dockerfile
+
+  cloudformation:
+    enabled: false
+
+# ──────────────────────────────────────────────────────────────
+# Custom Rules
+# ──────────────────────────────────────────────────────────────
+custom_rules:
+  # Ensure all K8s deployments have resource limits
+  - id: CUSTOM-001
+    title: "Container resource limits required"
+    severity: high
+    description: "All containers must define CPU and memory limits"
+    path: "spec.template.spec.containers[*].resources.limits"
+    expected: "must exist"
+
+  # Ensure no containers run as root
+  - id: CUSTOM-002
+    title: "Containers must not run as root"
+    severity: high
+    description: "runAsNonRoot must be true"
+    path: "spec.template.spec.securityContext.runAsNonRoot"
+    expected: true
+
+  # Ensure TLS is enabled on ingress
+  - id: CUSTOM-003
+    title: "Ingress must use TLS"
+    severity: high
+    description: "All ingress resources must define TLS configuration"
+    path: "spec.tls"
+    expected: "must exist"
+
+  # Ensure secrets use external references
+  - id: CUSTOM-004
+    title: "No hardcoded secrets in manifests"
+    severity: critical
+    description: "Secrets must reference ExternalSecrets or secretKeyRef, not plaintext"
+
+# ──────────────────────────────────────────────────────────────
+# Ignore Rules
+# ──────────────────────────────────────────────────────────────
+ignore:
+  # ELK Elasticsearch requires privileged init container for vm.max_map_count
+  - rule: SNYK-CC-K8S-6
+    paths:
+      - "monitoring/elk/**"
+    reason: "Elasticsearch requires sysctl init container"
+    expires: "2027-01-01"
+
+  # SonarQube requires sysctl init for Elasticsearch
+  - rule: SNYK-CC-K8S-6
+    paths:
+      - "security/sonarqube/**"
+    reason: "SonarQube embedded ES requires vm.max_map_count"
+    expires: "2027-01-01"
+
+# ──────────────────────────────────────────────────────────────
+# Reporting
+# ──────────────────────────────────────────────────────────────
+reporting:
+  formats:
+    - json
+    - sarif
+  output_dir: "./security-reports/snyk-iac"
+  upload_to_snyk: true

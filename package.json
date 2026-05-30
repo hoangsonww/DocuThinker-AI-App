@@ -1,7 +1,7 @@
 {
   "name": "docuthinker-fullstack-app",
   "version": "1.1.0",
-  "description": "This is a fullstack application for DocuThinker",
+  "description": "DocuThinker is an AI-powered document analysis and summarization tool that helps users quickly understand and extract key insights from their documents. With support for various file formats, including PDFs, Word documents, and more, DocuThinker leverages advanced natural language processing techniques to provide accurate summaries and actionable insights. Whether you're a student, professional, or researcher, DocuThinker is designed to save you time and enhance your productivity by making document analysis effortless.",
   "license": "MIT",
   "author": "Son Nguyen",
   "repository": {
@@ -15,6 +15,7 @@
   "scripts": {
     "lint": "npm run format",
     "start": "cd frontend && npm start",
+    "dev": "cd frontend && npm start",
     "build": "cd frontend && npm run build",
     "test": "cd frontend && npm test",
     "eject": "cd frontend && npm run eject",

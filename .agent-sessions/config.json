@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "sessionIdFormat": "{YYYYMMDD}-{HHMMSS}-{agentName}",
+  "heartbeatIntervalMinutes": 30,
+  "staleThresholdMinutes": 60,
+  "maxConcurrentSessions": 3,
+  "retentionPolicy": {
+    "completedSessionsMaxAge": "90d",
+    "activeSessionStaleAction": "flag-for-review"
+  },
+  "requiredFields": [
+    "sessionId",
+    "agentId",
+    "role",
+    "objective",
+    "beadsWorked",
+    "filesModified",
+    "decisionsMade",
+    "handoffNotes"
+  ],
+  "metricsCollection": {
+    "trackTokenUsage": true,
+    "trackCost": true,
+    "trackDuration": true,
+    "trackIterations": true
+  },
+  "agentRolesRef": "../.claude/team-config.json",
+  "beadsStatusRef": "../.beads/.status.json"
+}

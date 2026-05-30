@@ -1,31 +1,56 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: backend-deployment
+  name: backend-blue
   labels:
     app: backend
+    tier: api
+    track: blue
 spec:
-  replicas: 1
+  replicas: 3
+  revisionHistoryLimit: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
   selector:
     matchLabels:
       app: backend
+      track: blue
   template:
     metadata:
       labels:
         app: backend
+        tier: api
+        track: blue
     spec:
       containers:
         - name: backend
-          image: docuthinker-backend:latest # Build and push this to a container registry
+          image: docuthinker-backend:latest
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
-          env:
-            - name: NODE_ENV
-              value: "production"
-          volumeMounts:
-            - name: backend-code
-              mountPath: /app
-      volumes:
-        - name: backend-code
-          hostPath:
-            path: /home/user/project/backend
+          envFrom:
+            - configMapRef:
+                name: docuthinker-config
+            - secretRef:
+                name: docuthinker-secrets
+                optional: true
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: "200m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"

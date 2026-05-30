@@ -1,0 +1,103 @@
+# KEDA Configuration - Event-Driven Autoscaling
+# Scale workloads based on events, queues, metrics, and schedules
+
+# Image configuration
+image:
+  keda:
+    repository: ghcr.io/kedacore/keda
+    tag: 2.12.0
+  metricsApiServer:
+    repository: ghcr.io/kedacore/keda-metrics-apiserver
+    tag: 2.12.0
+  webhooks:
+    repository: ghcr.io/kedacore/keda-admission-webhooks
+    tag: 2.12.0
+
+# Replicas
+replicaCount: 2
+
+# Resource configuration
+resources:
+  operator:
+    limits:
+      cpu: 1000m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+  metricServer:
+    limits:
+      cpu: 1000m
+      memory: 1000Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
+  webhooks:
+    limits:
+      cpu: 500m
+      memory: 500Mi
+    requests:
+      cpu: 50m
+      memory: 50Mi
+
+# Pod anti-affinity
+affinity:
+  podAntiAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      - labelSelector:
+          matchLabels:
+            app: keda-operator
+        topologyKey: kubernetes.io/hostname
+
+# RBAC
+rbac:
+  create: true
+
+# Service account
+serviceAccount:
+  create: true
+  name: keda-operator
+
+# Prometheus metrics
+prometheus:
+  metricServer:
+    enabled: true
+    port: 8080
+    path: /metrics
+  operator:
+    enabled: true
+    port: 8080
+    path: /metrics
+
+# Logging
+logging:
+  operator:
+    level: info
+    format: console
+  metricServer:
+    level: 0
+
+# Webhook configuration
+webhooks:
+  enabled: true
+  port: 9443
+
+# Pod Security Policy
+podSecurityPolicy:
+  enabled: false
+
+# CRDs
+crds:
+  install: true
+
+# Service configuration
+service:
+  type: ClusterIP
+  portHttp: 80
+  portHttps: 443
+  portHttpTarget: 8080
+
+# Pod annotations
+podAnnotations:
+  prometheus.io/scrape: "true"
+  prometheus.io/port: "8080"

@@ -18,6 +18,10 @@ def run_conversion(model_name, feature, output_dir):
 
 
 def main():
+    from ai_ml.core import load_settings
+
+    settings = load_settings()
+
     # Create base directories for ONNX models
     base_dirs = [
         "onnx_models/summarizer",
@@ -27,14 +31,7 @@ def main():
         "onnx_models/sentiment",
     ]
 
-    # Translation model mappings (language code to model name)
-    translations = {
-        "fr": "Helsinki-NLP/opus-mt-en-fr",
-        "de": "Helsinki-NLP/opus-mt-en-de",
-        "es": "Helsinki-NLP/opus-mt-en-es",
-        "it": "Helsinki-NLP/opus-mt-en-it",
-        "zh": "Helsinki-NLP/opus-mt-en-zh",
-    }
+    translations = settings.translation_models
 
     for dir_path in base_dirs:
         os.makedirs(dir_path, exist_ok=True)
@@ -45,7 +42,7 @@ def main():
 
     try:
         # Convert Summarizer model
-        run_conversion("facebook/bart-large-cnn", "summarization", "onnx_models/summarizer")
+        run_conversion(settings.fallback_hf_summarizer, "summarization", "onnx_models/summarizer")
 
         # Convert QA model
         run_conversion("distilbert-base-cased-distilled-squad", "question-answering", "onnx_models/qa")

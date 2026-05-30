@@ -1,0 +1,144 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: DocuThinker backend and ai-ml ECS services on Fargate
+
+Parameters:
+  VpcId:
+    Type: AWS::EC2::VPC::Id
+  PublicSubnets:
+    Type: List<AWS::EC2::Subnet::Id>
+  ClusterName:
+    Type: String
+    Default: docuthinker-cluster
+  BackendImage:
+    Type: String
+  AIMLImage:
+    Type: String
+  ContainerPort:
+    Type: Number
+    Default: 5000
+  AIMLPort:
+    Type: Number
+    Default: 8000
+  DesiredCount:
+    Type: Number
+    Default: 2
+  CPU:
+    Type: Number
+    Default: 512
+  Memory:
+    Type: Number
+    Default: 1024
+  SecretsPrefix:
+    Type: String
+    Default: docuthinker
+
+Resources:
+  Cluster:
+    Type: AWS::ECS::Cluster
+    Properties:
+      ClusterName: !Ref ClusterName
+
+  BackendTaskRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ecs-tasks.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy
+
+  BackendTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: docuthinker-backend
+      Cpu: !Ref CPU
+      Memory: !Ref Memory
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: !GetAtt BackendTaskRole.Arn
+      TaskRoleArn: !GetAtt BackendTaskRole.Arn
+      ContainerDefinitions:
+        - Name: backend
+          Image: !Ref BackendImage
+          PortMappings:
+            - ContainerPort: !Ref ContainerPort
+          Environment:
+            - Name: NODE_ENV
+              Value: production
+          Secrets:
+            - Name: OPENAI_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/openai'
+            - Name: ANTHROPIC_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/anthropic'
+            - Name: GOOGLE_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/google'
+
+  AIMLTaskDefinition:
+    Type: AWS::ECS::TaskDefinition
+    Properties:
+      Family: docuthinker-ai-ml
+      Cpu: !Ref CPU
+      Memory: !Ref Memory
+      NetworkMode: awsvpc
+      RequiresCompatibilities: [FARGATE]
+      ExecutionRoleArn: !GetAtt BackendTaskRole.Arn
+      TaskRoleArn: !GetAtt BackendTaskRole.Arn
+      ContainerDefinitions:
+        - Name: ai-ml
+          Image: !Ref AIMLImage
+          PortMappings:
+            - ContainerPort: !Ref AIMLPort
+          Environment:
+            - Name: DOCUTHINKER_SYNC_GRAPH
+              Value: "true"
+            - Name: DOCUTHINKER_SYNC_VECTOR
+              Value: "true"
+          Secrets:
+            - Name: OPENAI_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/openai'
+            - Name: ANTHROPIC_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/anthropic'
+            - Name: GOOGLE_API_KEY
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/google'
+            - Name: DOCUTHINKER_NEO4J_URI
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/neo4j'
+            - Name: DOCUTHINKER_CHROMA_DIR
+              ValueFrom: !Sub 'arn:aws:secretsmanager:${AWS::Region}:${AWS::AccountId}:secret:${SecretsPrefix}/chroma'
+
+  BackendService:
+    Type: AWS::ECS::Service
+    DependsOn: BackendTaskDefinition
+    Properties:
+      Cluster: !Ref Cluster
+      LaunchType: FARGATE
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref BackendTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: []
+          Subnets: !Ref PublicSubnets
+
+  AIMLService:
+    Type: AWS::ECS::Service
+    DependsOn: AIMLTaskDefinition
+    Properties:
+      Cluster: !Ref Cluster
+      LaunchType: FARGATE
+      DesiredCount: !Ref DesiredCount
+      TaskDefinition: !Ref AIMLTaskDefinition
+      NetworkConfiguration:
+        AwsvpcConfiguration:
+          AssignPublicIp: ENABLED
+          SecurityGroups: []
+          Subnets: !Ref PublicSubnets
+
+Outputs:
+  ClusterName:
+    Value: !Ref Cluster
+    Export:
+      Name: DocuThinkerCluster

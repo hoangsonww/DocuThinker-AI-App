@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-canary-service
+  labels:
+    app: backend
+    tier: api
+    track: canary
+spec:
+  selector:
+    app: backend
+    track: canary
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+  type: ClusterIP

@@ -1,18 +1,24 @@
-import logging
+"""Conversational helpers built on the shared document service."""
+
+from __future__ import annotations
+
 from langchain.chains import ConversationChain
 
-logger = logging.getLogger(__name__)
+from ai_ml.services import get_document_service
 
 
-def chat_with_ai(user_input: str, conversation_chain: ConversationChain) -> str:
-    """
-    Allows a user to chat with the AI. The conversation_chain should maintain history.
+def build_conversation_chain() -> ConversationChain:
+    service = get_document_service()
+    return service.create_conversation_chain()
 
-    conversation_chain can be a LangChain ConversationChain or your custom chain that stores state.
-    """
+
+def chat_with_ai(user_input: str, conversation_chain: ConversationChain | None = None) -> str:
+    chain = conversation_chain or build_conversation_chain()
     try:
-        response = conversation_chain.run(input=user_input)
+        response = chain.run(input=user_input)
         return response.strip()
-    except Exception as e:
-        logger.exception("Error in chat interface: %s", e)
-        return "An error occurred."
+    except Exception as exc:  # pragma: no cover - runtime safety
+        return f"Unable to respond: {exc}"
+
+
+__all__ = ["chat_with_ai", "build_conversation_chain"]

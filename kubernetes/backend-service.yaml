@@ -2,11 +2,15 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
+  labels:
+    app: backend
+    tier: api
 spec:
   selector:
     app: backend
+    track: blue
   ports:
     - protocol: TCP
       port: 3000
       targetPort: 3000
-  type: ClusterIP # Internal service
+  type: ClusterIP

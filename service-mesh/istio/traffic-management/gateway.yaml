@@ -1,0 +1,154 @@
+# Istio Gateway Configuration
+# Entry point for external traffic into the mesh
+
+---
+# Main application gateway with HTTPS
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: docuthinker-gateway
+  namespace: docuthinker-prod
+spec:
+  selector:
+    istio: ingressgateway
+
+  servers:
+  # HTTP server (redirect to HTTPS)
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "docuthinker.example.com"
+    - "api.docuthinker.example.com"
+    - "*.docuthinker.example.com"
+
+    # Redirect all HTTP to HTTPS
+    tls:
+      httpsRedirect: true
+
+  # HTTPS server for main application
+  - port:
+      number: 443
+      name: https-main
+      protocol: HTTPS
+    hosts:
+    - "docuthinker.example.com"
+    - "www.docuthinker.example.com"
+
+    tls:
+      mode: SIMPLE
+      credentialName: docuthinker-tls-cert
+      minProtocolVersion: TLSV1_2
+      cipherSuites:
+      - ECDHE-RSA-AES128-GCM-SHA256
+      - ECDHE-RSA-AES256-GCM-SHA384
+      - ECDHE-RSA-CHACHA20-POLY1305
+
+  # HTTPS server for API
+  - port:
+      number: 443
+      name: https-api
+      protocol: HTTPS
+    hosts:
+    - "api.docuthinker.example.com"
+
+    tls:
+      mode: SIMPLE
+      credentialName: api-docuthinker-tls-cert
+      minProtocolVersion: TLSV1_2
+
+  # mTLS server for service-to-service (if needed)
+  - port:
+      number: 15443
+      name: tls
+      protocol: TLS
+    hosts:
+    - "*.docuthinker-prod.svc.cluster.local"
+
+    tls:
+      mode: MUTUAL
+      credentialName: docuthinker-mtls-cert
+---
+# Egress Gateway for controlled external traffic
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: docuthinker-egress-gateway
+  namespace: docuthinker-prod
+spec:
+  selector:
+    istio: egressgateway
+
+  servers:
+  # External HTTPS services
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    hosts:
+    - "*.external-api.com"
+    - "*.googleapis.com"
+    - "*.amazonaws.com"
+
+    tls:
+      mode: PASSTHROUGH
+---
+# Service Entry for external services
+apiVersion: networking.istio.io/v1beta1
+kind: ServiceEntry
+metadata:
+  name: external-apis
+  namespace: docuthinker-prod
+spec:
+  hosts:
+  - "api.external-service.com"
+  - "*.googleapis.com"
+
+  ports:
+  - number: 443
+    name: https
+    protocol: HTTPS
+
+  location: MESH_EXTERNAL
+  resolution: DNS
+---
+# Virtual Service for egress traffic
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: egress-external-apis
+  namespace: docuthinker-prod
+spec:
+  hosts:
+  - "api.external-service.com"
+
+  gateways:
+  - docuthinker-egress-gateway
+  - mesh
+
+  tls:
+  - match:
+    - gateways:
+      - mesh
+      port: 443
+      sniHosts:
+      - "api.external-service.com"
+    route:
+    - destination:
+        host: istio-egressgateway.istio-system.svc.cluster.local
+        port:
+          number: 443
+
+  - match:
+    - gateways:
+      - docuthinker-egress-gateway
+      port: 443
+      sniHosts:
+      - "api.external-service.com"
+    route:
+    - destination:
+        host: api.external-service.com
+        port:
+          number: 443
+      weight: 100

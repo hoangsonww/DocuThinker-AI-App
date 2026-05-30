@@ -1,0 +1,148 @@
+# Coralogix Network Policies
+# Allows egress from monitoring namespace to Coralogix SaaS endpoints
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: coralogix-egress
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: coralogix
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: docuthinker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: opentelemetry-collector
+  policyTypes:
+    - Egress
+  egress:
+    # Coralogix ingestion endpoints (HTTPS/gRPC)
+    - ports:
+        - protocol: TCP
+          port: 443
+      to: []
+    # DNS resolution
+    - ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+      to: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: fluent-bit-coralogix-egress
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: coralogix
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: docuthinker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: fluent-bit
+  policyTypes:
+    - Egress
+  egress:
+    # Coralogix ingestion (HTTPS)
+    - ports:
+        - protocol: TCP
+          port: 443
+      to: []
+    # Kubernetes API server (for metadata enrichment)
+    - ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6443
+      to: []
+    # DNS resolution
+    - ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+      to: []
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: coralogix-cluster-collector-egress
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: coralogix
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: docuthinker
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: opentelemetry-cluster-collector
+  policyTypes:
+    - Egress
+  egress:
+    # Coralogix ingestion (HTTPS/gRPC)
+    - ports:
+        - protocol: TCP
+          port: 443
+      to: []
+    # Kubernetes API server
+    - ports:
+        - protocol: TCP
+          port: 443
+        - protocol: TCP
+          port: 6443
+      to: []
+    # DNS resolution
+    - ports:
+        - protocol: TCP
+          port: 53
+        - protocol: UDP
+          port: 53
+      to: []
+    # Prometheus scraping (internal)
+    - ports:
+        - protocol: TCP
+          port: 9090
+      to:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+---
+# Allow Prometheus to scrape Coralogix components for self-monitoring
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: coralogix-prometheus-ingress
+  namespace: monitoring
+  labels:
+    app.kubernetes.io/name: coralogix
+    app.kubernetes.io/component: network-policy
+    app.kubernetes.io/part-of: docuthinker
+spec:
+  podSelector:
+    matchExpressions:
+      - key: app.kubernetes.io/name
+        operator: In
+        values:
+          - opentelemetry-collector
+          - fluent-bit
+          - opentelemetry-cluster-collector
+  policyTypes:
+    - Ingress
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: monitoring
+          podSelector:
+            matchLabels:
+              app: prometheus
+      ports:
+        - protocol: TCP
+          port: 8888
+        - protocol: TCP
+          port: 8889
+        - protocol: TCP
+          port: 2020

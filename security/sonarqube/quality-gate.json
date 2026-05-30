@@ -1,0 +1,90 @@
+{
+  "name": "DocuThinker Production",
+  "conditions": [
+    {
+      "metric": "new_reliability_rating",
+      "op": "GT",
+      "error": "1",
+      "description": "New Reliability Rating worse than A"
+    },
+    {
+      "metric": "new_security_rating",
+      "op": "GT",
+      "error": "1",
+      "description": "New Security Rating worse than A"
+    },
+    {
+      "metric": "new_maintainability_rating",
+      "op": "GT",
+      "error": "1",
+      "description": "New Maintainability Rating worse than A"
+    },
+    {
+      "metric": "new_security_hotspots_reviewed",
+      "op": "LT",
+      "error": "100",
+      "description": "New Security Hotspots Reviewed < 100%"
+    },
+    {
+      "metric": "new_coverage",
+      "op": "LT",
+      "error": "70",
+      "description": "Coverage on New Code < 70%"
+    },
+    {
+      "metric": "new_duplicated_lines_density",
+      "op": "GT",
+      "error": "3",
+      "description": "Duplicated Lines on New Code > 3%"
+    },
+    {
+      "metric": "new_blocker_violations",
+      "op": "GT",
+      "error": "0",
+      "description": "New Blocker Issues > 0"
+    },
+    {
+      "metric": "new_critical_violations",
+      "op": "GT",
+      "error": "0",
+      "description": "New Critical Issues > 0"
+    },
+    {
+      "metric": "new_vulnerabilities",
+      "op": "GT",
+      "error": "0",
+      "description": "New Vulnerabilities > 0"
+    },
+    {
+      "metric": "new_bugs",
+      "op": "GT",
+      "error": "0",
+      "description": "New Bugs > 0"
+    },
+    {
+      "metric": "new_code_smells",
+      "op": "GT",
+      "error": "50",
+      "description": "New Code Smells > 50"
+    },
+    {
+      "metric": "reliability_rating",
+      "op": "GT",
+      "error": "3",
+      "description": "Overall Reliability Rating worse than C"
+    },
+    {
+      "metric": "security_rating",
+      "op": "GT",
+      "error": "2",
+      "description": "Overall Security Rating worse than B"
+    },
+    {
+      "metric": "sqale_rating",
+      "op": "GT",
+      "error": "3",
+      "description": "Overall Maintainability Rating worse than C"
+    }
+  ],
+  "provisioning_notes": "Import via SonarQube API: POST /api/qualitygates/create + /api/qualitygates/create_condition"
+}

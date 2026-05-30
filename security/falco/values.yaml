@@ -1,0 +1,179 @@
+# Falco Runtime Security Configuration
+# Detect anomalous activity and security threats at runtime
+
+image:
+  registry: docker.io
+  repository: falcosecurity/falco-no-driver
+  tag: 0.36.2
+
+# Resource configuration
+resources:
+  requests:
+    cpu: 100m
+    memory: 512Mi
+  limits:
+    cpu: 1000m
+    memory: 1Gi
+
+# Falco configuration
+falco:
+  # Rules files to load
+  rules_file:
+    - /etc/falco/falco_rules.yaml
+    - /etc/falco/falco_rules.local.yaml
+    - /etc/falco/k8s_audit_rules.yaml
+    - /etc/falco/rules.d
+
+  # Output channels
+  json_output: true
+  json_include_output_property: true
+  log_stderr: true
+  log_syslog: false
+  log_level: info
+
+  # Priority level to output
+  priority: notice
+
+  # Rate limiting
+  outputs:
+    rate: 1
+    max_burst: 1000
+
+  # Syscall event drops
+  syscall_event_drops:
+    actions:
+      - log
+      - alert
+    rate: 0.03333
+    max_burst: 10
+
+  # Buffered outputs
+  buffered_outputs: false
+
+  # Rule matching
+  rule_matching: first
+
+  # Watch config files
+  watch_config_files: true
+
+# Custom rules
+customRules:
+  rules-docuthinker.yaml: |-
+    # DocuThinker custom security rules
+
+    # Detect privilege escalation
+    - rule: Privilege Escalation Detected
+      desc: Detect attempts to escalate privileges
+      condition: >
+        spawned_process and
+        proc.name in (sudo, su) and
+        container.id != host
+      output: >
+        Privilege escalation attempt detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: WARNING
+      tags: [escalation, security]
+
+    # Detect sensitive file access
+    - rule: Read Sensitive File
+      desc: Detect reads of sensitive files
+      condition: >
+        open_read and
+        fd.name in (/etc/shadow, /etc/sudoers, /root/.ssh/id_rsa) and
+        container.id != host
+      output: >
+        Sensitive file accessed
+        (user=%user.name file=%fd.name container=%container.name)
+      priority: WARNING
+      tags: [filesystem, security]
+
+    # Detect reverse shell
+    - rule: Reverse Shell Detected
+      desc: Detect reverse shell activity
+      condition: >
+        spawned_process and
+        (proc.name in (nc, ncat, netcat, socat) or
+         proc.cmdline contains "/bin/sh" or
+         proc.cmdline contains "/bin/bash")
+      output: >
+        Reverse shell detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: CRITICAL
+      tags: [network, shell]
+
+    # Detect cryptocurrency mining
+    - rule: Cryptocurrency Mining Detected
+      desc: Detect cryptocurrency mining activity
+      condition: >
+        spawned_process and
+        proc.name in (xmrig, minerd, cpuminer, ethminer)
+      output: >
+        Cryptocurrency mining detected
+        (user=%user.name command=%proc.cmdline container=%container.name)
+      priority: CRITICAL
+      tags: [malware]
+
+# Falco Sidekick for alert routing
+falcosidekick:
+  enabled: true
+
+  # Webhook output
+  webhook:
+    address: ""
+
+  # Slack output
+  slack:
+    webhookurl: ""
+    channel: "#security-alerts"
+    username: "Falco"
+    outputformat: "all"
+    minimumpriority: "notice"
+
+  # AWS SNS
+  aws:
+    snsarn: ""
+    region: "us-east-1"
+
+  # PagerDuty
+  pagerduty:
+    routingkey: ""
+    minimumpriority: "critical"
+
+  # Prometheus metrics
+  prometheus:
+    enabled: true
+
+# Driver configuration (eBPF)
+driver:
+  kind: ebpf
+  ebpf:
+    enabled: true
+    hostNetwork: true
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8765
+
+# RBAC
+rbac:
+  create: true
+
+# Service account
+serviceAccount:
+  create: true
+  name: falco
+
+# Pod Security Policy
+podSecurityPolicy:
+  create: false
+
+# Tolerations for node selection
+tolerations:
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+
+# DaemonSet configuration
+daemonset:
+  updateStrategy:
+    type: RollingUpdate

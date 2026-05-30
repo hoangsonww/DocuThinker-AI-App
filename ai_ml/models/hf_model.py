@@ -1,102 +1,64 @@
+"""Compatibility helpers bridging historical Hugging Face flows to the new services."""
+
+from __future__ import annotations
+
 import logging
-from transformers import pipeline
-from langchain.llms import HuggingFacePipeline
-from langchain.chains import LLMChain
-from langchain.prompts import PromptTemplate
+from typing import Any, Dict
 
-from ai_ml.config import MODEL_NAMES, TRANSLATION_MODELS, PROMPT_TEMPLATES
+try:
+    from transformers import pipeline
+except ImportError:  # pragma: no cover - optional dependency
+    pipeline = None  # type: ignore
 
+from ai_ml.core import load_settings
 logger = logging.getLogger(__name__)
 
 
-def load_models():
-    models = {}
+class _SingleArgChain:
+    def __init__(self, func):
+        self._func = func
 
-    # Create a summarization chain using LangChain
-    try:
-        logger.info("Loading summarizer pipeline...")
-        summarizer_pipeline = pipeline("summarization", model=MODEL_NAMES["summarizer"])
-        summarizer_llm = HuggingFacePipeline(pipeline=summarizer_pipeline)
-        summarization_template = PromptTemplate(
-            input_variables=["text"],
-            template=PROMPT_TEMPLATES["summarization"]
-        )
-        models["summarizer_chain"] = LLMChain(llm=summarizer_llm, prompt=summarization_template)
-    except Exception as e:
-        logger.exception("Error loading summarization chain: %s", e)
-        raise e
-
-    # Create a QA chain using LangChain
-    try:
-        logger.info("Loading QA pipeline...")
-        qa_pipeline = pipeline("question-answering", model=MODEL_NAMES["qa"])
-        qa_llm = HuggingFacePipeline(pipeline=qa_pipeline)
-        qa_template = PromptTemplate(
-            input_variables=["context", "question"],
-            template=PROMPT_TEMPLATES["qa"]
-        )
-        models["qa_chain"] = LLMChain(llm=qa_llm, prompt=qa_template)
-    except Exception as e:
-        logger.exception("Error loading QA chain: %s", e)
-        raise e
-
-    # Create a discussion generation chain using LangChain
-    try:
-        logger.info("Loading discussion generator pipeline...")
-        discussion_pipeline = pipeline("text-generation", model=MODEL_NAMES["discussion"])
-        discussion_llm = HuggingFacePipeline(pipeline=discussion_pipeline)
-        discussion_template = PromptTemplate(
-            input_variables=["text"],
-            template=PROMPT_TEMPLATES["discussion"]
-        )
-        models["discussion_chain"] = LLMChain(llm=discussion_llm, prompt=discussion_template)
-    except Exception as e:
-        logger.exception("Error loading discussion chain: %s", e)
-        raise e
-
-    # Create a RAG chain using LangChain (via text2text-generation)
-    try:
-        logger.info("Loading RAG pipeline...")
-        rag_pipeline = pipeline("text2text-generation", model=MODEL_NAMES["rag"])
-        rag_llm = HuggingFacePipeline(pipeline=rag_pipeline)
-        rag_template = PromptTemplate(
-            input_variables=["text"],
-            template=PROMPT_TEMPLATES["rag"]
-        )
-        models["rag_chain"] = LLMChain(llm=rag_llm, prompt=rag_template)
-    except Exception as e:
-        logger.exception("Error loading RAG chain: %s", e)
-        raise e
-
-    # Load topic extraction (zero-shot classification) pipeline directly
-    try:
-        logger.info("Loading topic extraction pipeline...")
-        models["topic_extractor"] = pipeline("zero-shot-classification", model=MODEL_NAMES["topic_extractor"])
-    except Exception as e:
-        logger.exception("Error loading topic extractor: %s", e)
-        raise e
-
-    # Load sentiment analysis pipeline directly
-    try:
-        logger.info("Loading sentiment analyzer pipeline...")
-        models["sentiment_analyzer"] = pipeline("sentiment-analysis",
-                                                model="distilbert-base-uncased-finetuned-sst-2-english")
-    except Exception as e:
-        logger.exception("Error loading sentiment analyzer: %s", e)
-        raise e
-
-    return models
+    def run(self, text: str) -> Any:
+        return self._func(text)
 
 
-def load_translation_model(target_lang):
-    """
-    Dynamically load a translation pipeline for the specified target language.
-    The task name is constructed as 'translation_en_to_{target_lang}'.
-    """
-    if target_lang not in TRANSLATION_MODELS:
+class _QAChain:
+    def __init__(self, func):
+        self._func = func
+
+    def run(self, *, context: str, question: str) -> Any:
+        return self._func(context, question)
+
+
+def load_models() -> Dict[str, Any]:
+    """Return lightweight wrappers compatible with legacy notebook flows."""
+
+    from ai_ml.services import get_document_service
+
+    service = get_document_service()
+    return {
+        "summarizer_chain": _SingleArgChain(service.summarize),
+        "discussion_chain": _SingleArgChain(service.discussion_points),
+        "topic_extractor": service.extract_topics,
+        "sentiment_analyzer": service.sentiment,
+        "qa_chain": _QAChain(service.answer_question),
+        "rag_chain": service.pipeline,
+    }
+
+
+def load_translation_model(target_lang: str):
+    """Load a Hugging Face translation pipeline for the requested language."""
+
+    settings = load_settings()
+    model_map = settings.translation_models
+    if target_lang not in model_map:
         raise ValueError(f"Translation model for language '{target_lang}' is not configured.")
-    model_name = TRANSLATION_MODELS[target_lang]
+    if pipeline is None:
+        raise RuntimeError("transformers is required to instantiate translation models.")
+    model_name = model_map[target_lang]
     logger.info("Loading translator model for language '%s' (%s)...", target_lang, model_name)
     task_name = f"translation_en_to_{target_lang}"
-    translator = pipeline(task_name, model=model_name)
-    return translator
+    return pipeline(task_name, model=model_name)
+
+
+__all__ = ["load_models", "load_translation_model"]

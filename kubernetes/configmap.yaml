@@ -5,3 +5,5 @@ metadata:
 data:
   NODE_ENV: "production"
   REACT_APP_BACKEND_URL: "http://backend-service:3000"
+  NEXT_PUBLIC_API_BASE_URL: "http://backend-service:3000"
+  FRONTEND_PUBLIC_URL: "http://frontend-service:3001"

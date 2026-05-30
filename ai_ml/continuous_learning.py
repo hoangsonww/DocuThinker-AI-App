@@ -5,11 +5,13 @@ import json
 import logging
 from typing import List, Optional, Dict, Tuple
 
-from langchain.embeddings import HuggingFaceEmbeddings
-from langchain.vectorstores import FAISS
+from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.vectorstores import FAISS
 
 logger = logging.getLogger(__name__)
 VECTOR_STORE_PATH = "vector_store.faiss"  # Persistent file for FAISS index
+
+from ai_ml.core import load_settings
 
 
 # CONTINUOUS LEARNING MODULE - Allows the AI to learn from user interactions and feedback, and improve over time.
@@ -20,7 +22,8 @@ def load_vector_store() -> Tuple[FAISS, HuggingFaceEmbeddings]:
     Uses 'sentence-transformers/all-MiniLM-L6-v2' as the default embedding model.
     """
     try:
-        embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+        settings = load_settings()
+        embeddings = HuggingFaceEmbeddings(model_name=settings.embedding_model)
         if os.path.exists(VECTOR_STORE_PATH):
             with open(VECTOR_STORE_PATH, "rb") as f:
                 vector_store = pickle.load(f)
@@ -130,7 +133,7 @@ def reindex_vector_store(new_embedding_model: str) -> None:
     Useful if we wish to update the document representations as embedding quality improves.
     """
     try:
-        from langchain.embeddings import HuggingFaceEmbeddings
+        from langchain_community.embeddings import HuggingFaceEmbeddings
         vector_store, _ = load_vector_store()
         texts = [doc.page_content for doc in vector_store.docstore._dict.values()]
         metadatas = [doc.metadata for doc in vector_store.docstore._dict.values()]

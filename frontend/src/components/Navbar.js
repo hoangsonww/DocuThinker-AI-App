@@ -11,6 +11,7 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
+  useMediaQuery,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { NavLink, useNavigate } from "react-router-dom";
@@ -27,6 +28,7 @@ import AppRegistrationIcon from "@mui/icons-material/AppRegistration";
 import QuestionAnswerIcon from "@mui/icons-material/QuestionAnswer";
 import GlobalSearchBar from "./GlobalSearchBar";
 import WorkspaceQAModal from "./WorkspaceQAModal";
+import { isAuthenticated, clearAuth, onAuthChange } from "../utils/auth";
 
 const activeStyle = {
   borderBottom: "3px solid #f57c00",
@@ -34,23 +36,17 @@ const activeStyle = {
   paddingBottom: "4px",
 };
 
-const Navbar = ({ theme, onThemeToggle, onLogout }) => {
+const Navbar = ({ theme, onThemeToggle }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [qaModalOpen, setQaModalOpen] = useState(false);
   const navigate = useNavigate();
+  const isLargeScreen = useMediaQuery("(min-width:1111px)");
 
   useEffect(() => {
-    const checkLoggedInStatus = () => {
-      const userId = localStorage.getItem("userId");
-      setIsLoggedIn(!!userId);
-    };
-
-    checkLoggedInStatus();
-
-    const interval = setInterval(checkLoggedInStatus, 1000);
-
-    return () => clearInterval(interval);
+    const sync = () => setIsLoggedIn(isAuthenticated());
+    sync();
+    return onAuthChange(sync);
   }, []);
 
   const toggleDrawer = (open) => (event) => {
@@ -64,11 +60,8 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("userId");
-    onLogout();
+    clearAuth();
     navigate("/login");
-    setIsLoggedIn(false);
   };
 
   const handleSearchResultSelect = (result) => {
@@ -293,7 +286,9 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
 
         {!isLoggedIn && <Box sx={{ flexGrow: 1 }} />}
 
-        <Box sx={{ display: { xs: "none", md: "flex" } }}>{renderNavLinks}</Box>
+        <Box sx={{ display: isLargeScreen ? "flex" : "none" }}>
+          {renderNavLinks}
+        </Box>
 
         <IconButton
           onClick={onThemeToggle}
@@ -313,7 +308,7 @@ const Navbar = ({ theme, onThemeToggle, onLogout }) => {
           edge="start"
           color="inherit"
           aria-label="menu"
-          sx={{ display: { xs: "flex", md: "none", marginLeft: "4px" } }}
+          sx={{ display: isLargeScreen ? "none" : "flex", marginLeft: "4px" }}
           onClick={toggleDrawer(true)}
         >
           <MenuIcon sx={{ color: theme === "dark" ? "white" : "black" }} />

@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(find /c/Users/nguyens6/WebstormProjects/DocuThinker-AI-App/orchestrator -type f -name *.md -o -name .env*)"
+    ]
+  }
+}

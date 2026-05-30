@@ -1,7 +1,17 @@
 {
-  "name": "mobile-app",
+  "name": "docuthinker-mobile",
   "main": "expo-router/entry",
   "version": "1.0.0",
+  "description": "DocuThinker is an AI-powered document analysis and summarization tool that helps users quickly understand and extract key insights from their documents. With support for various file formats, including PDFs, Word documents, and more, DocuThinker leverages advanced natural language processing techniques to provide accurate summaries and actionable insights. Whether you're a student, professional, or researcher, DocuThinker is designed to save you time and enhance your productivity by making document analysis effortless.",
+  "license": "MIT",
+  "author": "Son Nguyen",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hoangsonww/DocuThinker-AI-App.git"
+  },
+  "bugs": {
+    "url": "https://github.com/hoangsonww/DocuThinker-AI-App/issues"
+  },
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
@@ -16,9 +26,12 @@
   },
   "dependencies": {
     "@expo/vector-icons": "^14.0.2",
+    "@react-native-async-storage/async-storage": "1.23.1",
     "@react-navigation/native": "^6.0.2",
     "expo": "~51.0.28",
     "expo-constants": "~16.0.2",
+    "expo-document-picker": "~12.0.2",
+    "expo-file-system": "~17.0.1",
     "expo-font": "~12.0.9",
     "expo-linking": "~6.3.1",
     "expo-router": "~3.5.23",
@@ -30,6 +43,7 @@
     "react-dom": "18.2.0",
     "react-native": "0.74.5",
     "react-native-gesture-handler": "~2.16.1",
+    "react-native-markdown-display": "^7.0.2",
     "react-native-reanimated": "~3.10.1",
     "react-native-safe-area-context": "4.10.5",
     "react-native-screens": "3.31.1",

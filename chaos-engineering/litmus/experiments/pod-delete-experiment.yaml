@@ -1,0 +1,126 @@
+# Pod Delete Chaos Experiment
+# Tests application resilience to sudden pod failures
+
+---
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosEngine
+metadata:
+  name: backend-pod-delete
+  namespace: docuthinker-prod
+spec:
+  # App information
+  appinfo:
+    appns: docuthinker-prod
+    applabel: 'app=backend'
+    appkind: deployment
+
+  # Chaos service account
+  chaosServiceAccount: litmus-admin
+
+  # Monitoring
+  monitoring: true
+
+  # Job cleanup policy
+  jobCleanUpPolicy: retain
+
+  # Chaos experiments
+  experiments:
+    - name: pod-delete
+      spec:
+        components:
+          env:
+            # Number of pods to delete
+            - name: TOTAL_CHAOS_DURATION
+              value: '60'
+
+            # Interval between chaos
+            - name: CHAOS_INTERVAL
+              value: '10'
+
+            # Force delete pods
+            - name: FORCE
+              value: 'false'
+
+            # Percentage of pods to kill
+            - name: PODS_AFFECTED_PERC
+              value: '50'
+
+            # Specific pod names (optional)
+            - name: TARGET_PODS
+              value: ''
+
+            # Sequence of chaos
+            - name: SEQUENCE
+              value: parallel
+
+            # Ramp time before chaos
+            - name: RAMP_TIME
+              value: '0'
+
+        # Probe definitions for health checks
+        probe:
+          - name: check-backend-availability
+            type: httpProbe
+            httpProbe/inputs:
+              url: http://backend.docuthinker-prod.svc.cluster.local:8080/health
+              method:
+                get:
+                  criteria: ==
+                  responseCode: "200"
+            mode: Continuous
+            runProperties:
+              probeTimeout: 5
+              interval: 2
+              retry: 3
+
+          - name: check-database-connection
+            type: cmdProbe
+            cmdProbe/inputs:
+              command: "curl -s http://backend:8080/health/db"
+              comparator:
+                type: string
+                criteria: contains
+                value: "healthy"
+            mode: Edge
+            runProperties:
+              probeTimeout: 10
+              interval: 5
+              retry: 2
+
+---
+# Pod Delete Experiment CronSchedule
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosSchedule
+metadata:
+  name: scheduled-pod-delete
+  namespace: docuthinker-prod
+spec:
+  schedule:
+    # Run every day at 2 AM
+    repeat:
+      timeRange:
+        startTime: "2023-01-01T02:00:00Z"
+      properties:
+        minChaosInterval: 24h
+
+  engineTemplateSpec:
+    appinfo:
+      appns: docuthinker-prod
+      applabel: 'app=backend'
+      appkind: deployment
+
+    chaosServiceAccount: litmus-admin
+    monitoring: true
+    jobCleanUpPolicy: delete
+
+    experiments:
+      - name: pod-delete
+        spec:
+          components:
+            env:
+              - name: TOTAL_CHAOS_DURATION
+                value: '60'
+              - name: CHAOS_INTERVAL
+                value: '10'
+              - name: PODS_AFFECTED_PERC
+                value: '30'

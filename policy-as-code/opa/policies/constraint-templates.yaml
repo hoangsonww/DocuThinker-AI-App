@@ -1,0 +1,373 @@
+# OPA Gatekeeper Constraint Templates
+# Define reusable policy templates for security and compliance
+
+---
+# Require specific labels on resources
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredlabels
+  annotations:
+    description: Requires resources to have specified labels
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredLabels
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            labels:
+              type: array
+              description: List of required labels
+              items:
+                type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredlabels
+
+        violation[{"msg": msg, "details": {"missing_labels": missing}}] {
+          provided := {label | input.review.object.metadata.labels[label]}
+          required := {label | label := input.parameters.labels[_]}
+          missing := required - provided
+          count(missing) > 0
+          msg := sprintf("You must provide labels: %v", [missing])
+        }
+
+---
+# Block privileged containers
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsprivilegedcontainer
+  annotations:
+    description: Blocks creation of privileged containers
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPrivilegedContainer
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsprivilegedcontainer
+
+        violation[{"msg": msg, "details": {}}] {
+          c := input_containers[_]
+          c.securityContext.privileged
+          msg := sprintf("Privileged container is not allowed: %v", [c.name])
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+---
+# Enforce container resource limits
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8srequiredresources
+  annotations:
+    description: Requires containers to have CPU and memory limits
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sRequiredResources
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8srequiredresources
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not container.resources.limits.cpu
+          msg := sprintf("Container %v has no CPU limit", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not container.resources.limits.memory
+          msg := sprintf("Container %v has no memory limit", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not container.resources.requests.cpu
+          msg := sprintf("Container %v has no CPU request", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          not container.resources.requests.memory
+          msg := sprintf("Container %v has no memory request", [container.name])
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+---
+# Block containers from running as root
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spspallowedusers
+  annotations:
+    description: Blocks containers running as root
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPAllowedUsers
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            runAsUser:
+              type: object
+              properties:
+                rule:
+                  type: string
+                ranges:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      min:
+                        type: integer
+                      max:
+                        type: integer
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spspallowedusers
+
+        violation[{"msg": msg}] {
+          input.parameters.runAsUser.rule == "MustRunAsNonRoot"
+          not input_runAsNonRoot(input.review.object)
+          msg := "Containers must not run as root"
+        }
+
+        violation[{"msg": msg}] {
+          input.parameters.runAsUser.rule == "MustRunAs"
+          not input_runAsUser_allowed(input.review.object)
+          msg := sprintf("Container runAsUser is not allowed. Must be in range %v", [input.parameters.runAsUser.ranges])
+        }
+
+        input_runAsNonRoot(o) {
+          o.spec.securityContext.runAsNonRoot
+        }
+
+        input_runAsUser_allowed(o) {
+          runAsUser := o.spec.securityContext.runAsUser
+          runAsUser >= input.parameters.runAsUser.ranges[_].min
+          runAsUser <= input.parameters.runAsUser.ranges[_].max
+        }
+
+---
+# Block latest image tag
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8simagetag
+  annotations:
+    description: Blocks use of latest image tag
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sImageTag
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8simagetag
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          image := container.image
+          endswith(image, ":latest")
+          msg := sprintf("Container %v uses latest tag which is not allowed", [container.name])
+        }
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          image := container.image
+          not contains(image, ":")
+          msg := sprintf("Container %v does not specify an image tag", [container.name])
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+---
+# Enforce trusted image registries
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8strustedimages
+  annotations:
+    description: Requires images from trusted registries
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sTrustedImages
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            registries:
+              type: array
+              items:
+                type: string
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8strustedimages
+
+        violation[{"msg": msg}] {
+          container := input_containers[_]
+          image := container.image
+          not image_from_trusted_registry(image)
+          msg := sprintf("Image %v is not from a trusted registry. Allowed: %v", [image, input.parameters.registries])
+        }
+
+        image_from_trusted_registry(image) {
+          registry := input.parameters.registries[_]
+          startswith(image, registry)
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+---
+# Block host namespaces
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spsphostnamespace
+  annotations:
+    description: Blocks use of host namespaces (network, PID, IPC)
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPHostNamespace
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spsphostnamespace
+
+        violation[{"msg": msg}] {
+          input.review.object.spec.hostNetwork
+          msg := "Using hostNetwork is not allowed"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.object.spec.hostPID
+          msg := "Using hostPID is not allowed"
+        }
+
+        violation[{"msg": msg}] {
+          input.review.object.spec.hostIPC
+          msg := "Using hostIPC is not allowed"
+        }
+
+---
+# Enforce read-only root filesystem
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8spspreadonlyrootfilesystem
+  annotations:
+    description: Requires containers to use read-only root filesystem
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sPSPReadOnlyRootFilesystem
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8spspreadonlyrootfilesystem
+
+        violation[{"msg": msg}] {
+          c := input_containers[_]
+          not input_read_only_root_fs(c)
+          msg := sprintf("Container %v must set readOnlyRootFilesystem to true", [c.name])
+        }
+
+        input_read_only_root_fs(c) {
+          c.securityContext.readOnlyRootFilesystem
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.containers[_]
+        }
+
+        input_containers[c] {
+          c := input.review.object.spec.initContainers[_]
+        }
+
+---
+# Enforce replica count for high availability
+apiVersion: templates.gatekeeper.sh/v1
+kind: ConstraintTemplate
+metadata:
+  name: k8sminreplicacount
+  annotations:
+    description: Enforces minimum replica count for deployments
+spec:
+  crd:
+    spec:
+      names:
+        kind: K8sMinReplicaCount
+      validation:
+        openAPIV3Schema:
+          type: object
+          properties:
+            min:
+              type: integer
+              description: Minimum number of replicas
+
+  targets:
+    - target: admission.k8s.gatekeeper.sh
+      rego: |
+        package k8sminreplicacount
+
+        violation[{"msg": msg}] {
+          input.review.kind.kind == "Deployment"
+          replicas := input.review.object.spec.replicas
+          replicas < input.parameters.min
+          msg := sprintf("Deployment must have at least %v replicas, found %v", [input.parameters.min, replicas])
+        }

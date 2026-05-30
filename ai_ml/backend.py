@@ -1,102 +1,76 @@
 import logging
-from models.hf_model import load_models, load_translation_model
-from processing.summarizer import summarize_text
-from processing.topic_extractor import extract_topics
-from processing.translator import translate_text
-from processing.sentiment import analyze_sentiment
-from qa.qa_system import answer_question
-from discussion.discussion_generator import generate_discussion_points
-from rag.rag_system import retrieval_augmented_generation
+from typing import Any, Dict, List, Optional
+
+from ai_ml.services import get_document_service
 
 logger = logging.getLogger(__name__)
-
-# Cache models to avoid reloading on each call
-MODELS = None
+SERVICE = get_document_service()
 
 
-def initialize_models():
-    global MODELS
-    if MODELS is None:
-        logger.info("Loading models and chains...")
-        MODELS = load_models()
-    return MODELS
+def analyze_document(
+    document: str,
+    question: Optional[str] = None,
+    translate_lang: str = "fr",
+    metadata: Optional[Dict[str, Any]] = None,
+) -> Dict[str, Any]:
+    """Analyze a document using the shared DocumentIntelligenceService."""
+
+    logger.debug("Backend analyze_document invoked (question=%s, translate=%s)", question, translate_lang)
+    return SERVICE.analyze_document(
+        document,
+        question=question,
+        translate_lang=translate_lang,
+        metadata=metadata,
+    )
 
 
-def analyze_document(document: str, question: str = None, translate_lang: str = "fr"):
-    """
-    Analyze the provided document and return a dictionary with the results.
+def summarize(document: str) -> str:
+    return SERVICE.summarize(document)
 
-    Parameters:
-      document (str): The document text.
-      question (str): Optional question for Q&A.
-      translate_lang (str): The target language code for translation.
 
-    Returns:
-      dict: Contains keys: summary, topics, translation, sentiment, qa, discussion, rag.
-    """
-    results = {}
-    models = initialize_models()
+def extract_topics(document: str) -> list[str]:
+    return SERVICE.extract_topics(document)
 
-    # Load translation pipeline for the specified target language.
-    try:
-        translator = load_translation_model(translate_lang)
-    except Exception as e:
-        logger.error("Error loading translation model: %s", e)
-        translator = None
 
-    try:
-        summary = summarize_text(document, models["summarizer_chain"])
-        results["summary"] = summary
-    except Exception as e:
-        logger.exception("Error during summarization: %s", e)
-        results["summary"] = None
+def discussion_points(document: str) -> str:
+    return SERVICE.discussion_points(document)
 
-    try:
-        topics = extract_topics(document, models["topic_extractor"])
-        results["topics"] = topics
-    except Exception as e:
-        logger.exception("Error during topic extraction: %s", e)
-        results["topics"] = None
 
-    try:
-        if translator:
-            translation = translate_text(document, translator)
-            results["translation"] = translation
-        else:
-            results["translation"] = None
-    except Exception as e:
-        logger.exception("Error during translation: %s", e)
-        results["translation"] = None
+def translate(document: str, target_lang: str) -> Optional[str]:
+    return SERVICE.translate(document, target_lang)
 
-    try:
-        sentiment = analyze_sentiment(document, models["sentiment_analyzer"])
-        results["sentiment"] = sentiment
-    except Exception as e:
-        logger.exception("Error during sentiment analysis: %s", e)
-        results["sentiment"] = None
 
-    if question:
-        try:
-            answer = answer_question(document, question, models["qa_chain"])
-            results["qa"] = answer
-        except Exception as e:
-            logger.exception("Error during Q&A: %s", e)
-            results["qa"] = None
-    else:
-        results["qa"] = None
+def sentiment(document: str) -> Dict[str, Any]:
+    return SERVICE.sentiment(document)
 
-    try:
-        discussion = generate_discussion_points(document, models["discussion_chain"])
-        results["discussion"] = discussion
-    except Exception as e:
-        logger.exception("Error during discussion generation: %s", e)
-        results["discussion"] = None
 
-    try:
-        rag_answer = retrieval_augmented_generation(document, models["rag_chain"])
-        results["rag"] = rag_answer
-    except Exception as e:
-        logger.exception("Error during RAG generation: %s", e)
-        results["rag"] = None
+def recommendations(document: str) -> str:
+    return SERVICE.recommendations(document)
 
-    return results
+
+def refined_summary(document: str, draft_summary: str) -> str:
+    return SERVICE.refine_summary(draft_summary, document)
+
+
+def rewritten(document: str, tone: str = "professional") -> str:
+    return SERVICE.rewrite(document, tone=tone)
+
+
+def generate_bullet_summary(document: str) -> str:
+    return SERVICE.bullet_summary(document)
+
+
+def sync_to_knowledge_graph(document: str, metadata: Dict[str, Any], agentic_payload: Dict[str, Any]) -> Dict[str, Any]:
+    return SERVICE.sync_to_knowledge_graph(document=document, agentic_payload=agentic_payload, metadata=metadata)
+
+
+def run_graph_query(query: str, params: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
+    return SERVICE.run_graph_query(query, params)
+
+
+def upsert_vector_document(document: str, metadata: Optional[Dict[str, Any]] = None, doc_id: Optional[str] = None) -> Dict[str, Any]:
+    return SERVICE.upsert_vector_document(document=document, metadata=metadata, doc_id=doc_id)
+
+
+def query_vector_index(query: str, n_results: Optional[int] = None) -> List[Dict[str, Any]]:
+    return SERVICE.query_vector_index(query, n_results=n_results)

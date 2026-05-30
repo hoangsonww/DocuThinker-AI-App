@@ -1,0 +1,131 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: docuthinker-prod
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: docuthinker
+
+  source:
+    repoURL: https://github.com/hoangsonww/DocuThinker-AI-App.git
+    targetRevision: master
+    path: helm/docuthinker
+    helm:
+      releaseName: docuthinker
+      valueFiles:
+        - values.yaml
+        - values-prod.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docuthinker-prod
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+      allowEmpty: false
+    syncOptions:
+      - CreateNamespace=true
+      - PrunePropagationPolicy=foreground
+      - PruneLast=true
+    retry:
+      limit: 5
+      backoff:
+        duration: 5s
+        factor: 2
+        maxDuration: 3m
+
+  ignoreDifferences:
+    - group: apps
+      kind: Deployment
+      jsonPointers:
+        - /spec/replicas
+
+  revisionHistoryLimit: 10
+
+  info:
+    - name: 'Environment:'
+      value: 'Production'
+    - name: 'Maintainer:'
+      value: 'Son Nguyen'
+---
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: docuthinker-staging
+  namespace: argocd
+spec:
+  project: docuthinker
+
+  source:
+    repoURL: https://github.com/hoangsonww/DocuThinker-AI-App.git
+    targetRevision: develop
+    path: helm/docuthinker
+    helm:
+      releaseName: docuthinker
+      valueFiles:
+        - values.yaml
+        - values-staging.yaml
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: docuthinker-staging
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+
+  revisionHistoryLimit: 10
+---
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: docuthinker
+  namespace: argocd
+spec:
+  description: DocuThinker AI Application Project
+
+  sourceRepos:
+    - https://github.com/hoangsonww/DocuThinker-AI-App.git
+
+  destinations:
+    - namespace: 'docuthinker-*'
+      server: https://kubernetes.default.svc
+    - namespace: argocd
+      server: https://kubernetes.default.svc
+
+  clusterResourceWhitelist:
+    - group: ''
+      kind: Namespace
+    - group: ''
+      kind: PersistentVolume
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRole
+    - group: rbac.authorization.k8s.io
+      kind: ClusterRoleBinding
+
+  namespaceResourceWhitelist:
+    - group: '*'
+      kind: '*'
+
+  roles:
+    - name: developer
+      description: Developers with read-only access
+      policies:
+        - p, proj:docuthinker:developer, applications, get, docuthinker/*, allow
+        - p, proj:docuthinker:developer, applications, sync, docuthinker/docuthinker-dev, allow
+      groups:
+        - docuthinker-developers
+
+    - name: admin
+      description: Admins with full access
+      policies:
+        - p, proj:docuthinker:admin, applications, *, docuthinker/*, allow
+      groups:
+        - docuthinker-admins

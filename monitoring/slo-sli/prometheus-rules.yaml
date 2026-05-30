@@ -1,0 +1,228 @@
+# Prometheus Recording Rules for SLI/SLO Monitoring
+# Define Service Level Indicators and track error budgets
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-slo-rules
+  namespace: monitoring
+data:
+  slo-rules.yaml: |
+    groups:
+      # Availability SLI
+      - name: availability_sli
+        interval: 30s
+        rules:
+          # Request success rate (SLI)
+          - record: sli:availability:ratio_rate5m
+            expr: |
+              sum(rate(http_requests_total{status!~"5.."}[5m])) by (service)
+              /
+              sum(rate(http_requests_total[5m])) by (service)
+
+          # Availability over 30 days
+          - record: sli:availability:ratio_rate30d
+            expr: |
+              sum(rate(http_requests_total{status!~"5.."}[30d])) by (service)
+              /
+              sum(rate(http_requests_total[30d])) by (service)
+
+      # Latency SLI
+      - name: latency_sli
+        interval: 30s
+        rules:
+          # P99 latency SLI
+          - record: sli:latency:p99_5m
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+              )
+
+          # P95 latency SLI
+          - record: sli:latency:p95_5m
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+              )
+
+          # P50 latency SLI
+          - record: sli:latency:p50_5m
+            expr: |
+              histogram_quantile(0.50,
+                sum(rate(http_request_duration_seconds_bucket[5m])) by (service, le)
+              )
+
+      # Error Budget
+      - name: error_budget
+        interval: 1m
+        rules:
+          # Error budget remaining (99.9% SLO = 0.1% error budget)
+          - record: slo:error_budget:remaining
+            expr: |
+              1 - (
+                (1 - sli:availability:ratio_rate30d)
+                /
+                (1 - 0.999)
+              )
+
+          # Error budget burn rate (how fast we're consuming error budget)
+          - record: slo:error_budget:burn_rate_1h
+            expr: |
+              (1 - sli:availability:ratio_rate5m)
+              /
+              (1 - 0.999)
+
+      # SLO Compliance
+      - name: slo_compliance
+        interval: 1m
+        rules:
+          # Availability SLO (99.9%)
+          - record: slo:availability:target
+            expr: 0.999
+
+          # Latency SLO P99 (500ms)
+          - record: slo:latency:p99_target_ms
+            expr: 500
+
+          # Latency SLO P95 (200ms)
+          - record: slo:latency:p95_target_ms
+            expr: 200
+
+          # Is availability SLO met?
+          - record: slo:availability:met
+            expr: sli:availability:ratio_rate30d >= 0.999
+
+          # Is latency SLO met?
+          - record: slo:latency:p99_met
+            expr: sli:latency:p99_5m <= 0.5
+
+      # Service-specific SLIs
+      - name: backend_sli
+        interval: 30s
+        rules:
+          # Backend API success rate
+          - record: backend:requests:success_rate
+            expr: |
+              sum(rate(http_requests_total{service="backend",status!~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{service="backend"}[5m]))
+
+          # Backend API P99 latency
+          - record: backend:requests:latency_p99
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(http_request_duration_seconds_bucket{service="backend"}[5m])) by (le)
+              )
+
+          # Backend database query latency
+          - record: backend:db:query_latency_p99
+            expr: |
+              histogram_quantile(0.99,
+                sum(rate(db_query_duration_seconds_bucket[5m])) by (le)
+              )
+
+      - name: frontend_sli
+        interval: 30s
+        rules:
+          # Frontend success rate
+          - record: frontend:requests:success_rate
+            expr: |
+              sum(rate(http_requests_total{service="frontend",status!~"5.."}[5m]))
+              /
+              sum(rate(http_requests_total{service="frontend"}[5m]))
+
+          # Page load time
+          - record: frontend:page_load:p95
+            expr: |
+              histogram_quantile(0.95,
+                sum(rate(page_load_duration_seconds_bucket[5m])) by (le)
+              )
+
+---
+# Prometheus Alert Rules for SLO Violations
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-slo-alerts
+  namespace: monitoring
+data:
+  slo-alerts.yaml: |
+    groups:
+      - name: slo_alerts
+        interval: 1m
+        rules:
+          # Fast burn: 2% error budget consumed in 1 hour
+          - alert: ErrorBudgetFastBurn
+            expr: slo:error_budget:burn_rate_1h > 14.4
+            for: 5m
+            labels:
+              severity: critical
+              component: slo
+            annotations:
+              summary: "Error budget burning too fast"
+              description: "{{ $value }}x burn rate detected. At this rate, monthly error budget will be exhausted in {{ 720 | humanizeDuration }}."
+
+          # Slow burn: 10% error budget consumed in 3 days
+          - alert: ErrorBudgetSlowBurn
+            expr: slo:error_budget:burn_rate_1h > 1
+            for: 1h
+            labels:
+              severity: warning
+              component: slo
+            annotations:
+              summary: "Error budget burning slowly"
+              description: "Error budget consumption rate: {{ $value }}x"
+
+          # Availability SLO violated
+          - alert: AvailabilitySLOViolation
+            expr: sli:availability:ratio_rate30d < 0.999
+            for: 5m
+            labels:
+              severity: critical
+              component: slo
+            annotations:
+              summary: "Availability SLO violated"
+              description: "30-day availability: {{ $value | humanizePercentage }}, SLO: 99.9%"
+
+          # Latency SLO violated
+          - alert: LatencyP99SLOViolation
+            expr: sli:latency:p99_5m > 0.5
+            for: 5m
+            labels:
+              severity: warning
+              component: slo
+            annotations:
+              summary: "P99 latency SLO violated"
+              description: "P99 latency: {{ $value }}s, SLO: 500ms"
+
+          # Error budget nearly exhausted
+          - alert: ErrorBudgetNearlyExhausted
+            expr: slo:error_budget:remaining < 0.1
+            for: 5m
+            labels:
+              severity: warning
+              component: slo
+            annotations:
+              summary: "Error budget nearly exhausted"
+              description: "{{ $value | humanizePercentage }} of error budget remaining"
+
+          # Backend-specific alerts
+          - alert: BackendAvailabilityDegraded
+            expr: backend:requests:success_rate < 0.99
+            for: 5m
+            labels:
+              severity: warning
+              service: backend
+            annotations:
+              summary: "Backend availability degraded"
+              description: "Success rate: {{ $value | humanizePercentage }}"
+
+          - alert: BackendLatencyHigh
+            expr: backend:requests:latency_p99 > 1
+            for: 5m
+            labels:
+              severity: warning
+              service: backend
+            annotations:
+              summary: "Backend latency high"
+              description: "P99 latency: {{ $value }}s"

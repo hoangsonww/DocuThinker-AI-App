@@ -1,6 +1,6 @@
 # **DocuThinker - AI-Powered Document Analysis and Summarization App**
 
-Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application that integrates an AI-powered document processing backend with a React-based frontend. The app allows users to upload documents for summarization, generate key insights, and chat with an AI based on the document's content.
+Welcome to **DocuThinker**! This is a full-stack application that integrates an AI-powered document processing backend, blue/green & canary deployment on an AWS infrastructure, and a React-based frontend. The app allows users to upload documents for summarization, generate key insights, chat with an AI, and do even more with the document's content.
 
 <p align="center">
   <a href="https://docuthinker.vercel.app" style="cursor: pointer">
@@ -12,7 +12,6 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
 
 - [**📖 Overview**](#-overview)
 - [**🚀 Live Deployments**](#live-deployments)
-  - [**Live Statuses**](#live-statuses)
 - [**✨ Features**](#features)
 - [**⚙️ Technologies**](#technologies)
 - [**🖼️ User Interface**](#user-interface)
@@ -24,19 +23,20 @@ Welcome to **DocuThinker**! This is a full-stack **(FERN-Stack)** application th
   - [**Running the Mobile App**](#running-the-mobile-app)
 - [**📋 API Endpoints**](#api-endpoints)
   - [**API Documentation**](#api-documentation)
-  - [**Using the `openapi.yaml` File**](#using-the-openapiyaml-file)
   - [**API Architecture**](#api-architecture)
   - [**API Testing**](#api-testing)
   - [**Error Handling**](#error-handling)
+- [**🤖 AI/ML Agentic Platform**](#ai-ml-agentic-platform)
+- [**🧩 Beads Task Coordination**](#beads-task-coordination)
 - [**🧰 GraphQL Integration**](#graphql-integration)
 - [**📱 Mobile App**](#mobile-app)
 - [**📦 Containerization**](#containerization)
 - [**🚧 Deployment**](#deployment)
   - [**Frontend Deployment (Vercel)**](#frontend-deployment-vercel)
-  - [**Backend Deployment (Render)**](#backend-deployment-render)
-  - [**Important Note about Backend Deployment (Please Read)**](#important-note-about-backend-deployment)
+  - [**Backend & AI/ML Deployment**](#backend--aiml-deployment)
 - [**⚖️ Load Balancing & Caching**](#load-balancing)
 - [**🔗 Jenkins Integration**](#jenkins)
+- [**🛠️ GitHub Actions Integration**](#github-actions)
 - [**🧪 Testing**](#testing)
   - [**Backend Unit & Integration Testing**](#backend-unit--integration-testing)
   - [**Frontend Unit & E2E Testing**](#frontend-unit--e2e-testing)
@@ -53,69 +53,44 @@ The **DocuThinker** app is designed to provide users with a simple, AI-powered d
 
 **DocuThinker** is created using the **FERN-Stack** architecture, which stands for **Firebase, Express, React, and Node.js**. The backend is built with Node.js and Express, integrating Firebase for user authentication and MongoDB for data storage. The frontend is built with React and Material-UI, providing a responsive and user-friendly interface.
 
-> [!IMPORTANT]
-> It is currently deployed live on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker-fullstack-app.vercel.app/)**.
+```mermaid
+graph LR
+    U[Client's Browser] -->|HTTPS| N[NGINX - SSL, Routing, Caching]
+N -->|static calls| A[React Frontend]
+N -->|/api/* proxy| B[Express Backend]
+A -->|REST API calls| N
+
+B --> C[Firebase Auth]
+B --> D[Firestore]
+B --> E[MongoDB]
+B --> F[Redis Cache]
+B --> G[AI/ML Services]
+
+A --> H[Material-UI]
+A --> I[React Router]
+
+G --> J[Google Cloud APIs]
+G --> K[LangChain]
+```
+
+Feel free to explore the app, upload documents, and interact with the AI! For architecture details, setup instructions, and more, please refer to the sections below, as well as the [ARCHITECTURE.md](ARCHITECTURE.md) file.
 
 <h2 id="live-deployments">🚀 Live Deployments</h2>
 
 > [!TIP]
 > Access the live app at **[https://docuthinker.vercel.app/](https://docuthinker.vercel.app/) by clicking on the link or copying it into your browser! 🚀**
 
-We have deployed the entire app on **Vercel** and **Render**. You can access the live app **[here](https://docuthinker.vercel.app)**.
+We have deployed the entire app on **Vercel** and **AWS**. You can access the live app **[here](https://docuthinker.vercel.app)**.
 
-- **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**.
+- **Frontend**: Deployed on **Vercel**. Access the live frontend **[here](https://docuthinker.vercel.app/)**. 
   - **Backup Frontend**: We have a backup of the frontend on **Netlify**. You can access the backup app **[here](https://docuthinker-ai-app.netlify.app/)**.
-- **Backend**: Deployed on **Vercel**. You can access the live backend **[here](https://docuthinker-app-backend-api.vercel.app/)**.
+- **Backend**: Deployed on **Vercel**. You can access the live backend **[here](https://docuthinker-app-backend-api.vercel.app/)**. This will take you to the Swagger API documentation that allows you to test the API endpoints directly from the browser.
   - **Backup Backend API**: Deployed on **Render**. You can access the backup backend **[here](https://docuthinker-ai-app.onrender.com/)**.
+  - **Optional AWS Deployment**: If you wish to deploy the backend on AWS, you can use the provided CloudFormation and CDK scripts in the `aws/` directory. It's a one-click deployment using AWS Fargate.
+- **AI/ML Services**: Deployed on **AWS**, which are then used by the backend for document processing and analysis. To use the AI/ML services, simply visit the backend URL **[here](https://docuthinker-app-backend-api.vercel.app/)**.
 
 > [!IMPORTANT]
 > The backend server may take a few seconds to wake up if it has been inactive for a while. The first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up.
-
-> [!NOTE]
-> Additionally, the Render-deployed backend is currently on the **Free Tier** of **Render**, so it may take longer to process your request since we are only allocated **512MB and 0.1 CPU**.
-
-### Live Statuses
-
-These badges indicate the current deployment status of the app, updating automatically based on the latest deployment status:
-
-<p align="center">
-  <a href="https://docuthinker-fullstack-app.vercel.app">
-    <img src="https://img.shields.io/badge/Deployed_with-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Deployment" />
-  </a>
-  <a href="https://docuthinker-ai-app.onrender.com/">
-    <img src="https://img.shields.io/badge/Render-Success-46E3B7?style=for-the-badge&logo=render&logoColor=black" alt="Render Success" />
-  </a>
-  <a href="https://docuthinker-ai-app.netlify.app">
-    <img src="https://img.shields.io/badge/Netlify-Backup_Deployed-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Netlify Backup" />
-  </a>
-  <a href="https://firebase.google.com">
-    <img src="https://img.shields.io/badge/Firebase-Functional-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase Functional" />
-  </a>
-  <a href="https://www.mongodb.com/cloud/atlas">
-    <img src="https://img.shields.io/badge/MongoDB_Atlas-Connected-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB Atlas" />
-  </a>
-  <a href="https://redis.io">
-    <img src="https://img.shields.io/badge/Redis-Cache_Enabled-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis Cache" />
-  </a>
-  <a href="https://www.rabbitmq.com">
-    <img src="https://img.shields.io/badge/RabbitMQ-Enabled-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ Enabled" />
-  </a>
-  <a href="https://graphql.org">
-    <img src="https://img.shields.io/badge/GraphQL-API-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL API" />
-  </a>
-  <a href="https://www.docker.com">
-    <img src="https://img.shields.io/badge/Dockerized-Yes-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Dockerized" />
-  </a>
-  <a href="https://kubernetes.io">
-    <img src="https://img.shields.io/badge/Kubernetes-Yes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
-  </a>
-  <a href="https://www.jenkins.io">
-    <img src="https://img.shields.io/badge/Jenkins-CI/CD-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins CI/CD" />
-  </a>
-  <a href="https://swagger.io">
-    <img src="https://img.shields.io/badge/Swagger_&_OpenAPI-Documented-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger & OpenAPI" />
-  </a>
-</p>
 
 <h2 id="features">✨ Features</h2>
 
@@ -131,131 +106,399 @@ These badges indicate the current deployment status of the app, updating automat
 - **Actionable Recommendations**: Get actionable recommendations based on your document content.
 - **Bullet Point Summaries**: Generate bullet point summaries for quick insights and understanding.
 - **Document Categorization**: Categorize documents based on their content for easy organization.
+- **Document Analytics**: View interactive and charts-powered analytics such as word count, reading time, sentiment distribution, and more!
 - **Profile Management**: Update your profile information, social media links, and theme settings.
 - **User Authentication**: Secure registration, login, and password reset functionality.
 - **Document History**: View all uploaded documents and their details.
 - **Mobile App Integration**: React Native mobile app for on-the-go document management.
+- **Dark Mode Support**: Toggle between light and dark themes for better accessibility.
 - **API Documentation**: Swagger (OpenAPI) documentation for all API endpoints.
 - **Authentication Middleware**: Secure routes with JWT and Firebase authentication middleware.
 - **Containerization**: Dockerized the app with Docker & K8s for easy deployment and scaling.
 - **Continuous Integration**: Automated testing and deployment with GitHub Actions & Jenkins.
+- **Load Balancing & Caching**: NGINX for load balancing and Redis for caching.
+- **Zero Downtime Deployment**: Blue/Green & Canary deployment strategies on AWS.
+- _and many more!_
 
 <h2 id="technologies">⚙️ Technologies</h2>
 
-- **Frontend**:
-  - **React**: JavaScript library for building user interfaces.
-  - **Material-UI**: React components for faster and easier web development.
-  - **Axios**: Promise-based HTTP client for making API requests.
-  - **React Router**: Declarative routing for React applications.
-  - **Context API**: State management for React applications.
-  - **TailwindCSS**: Utility-first CSS framework for styling.
-  - **Craco**: Create React App Configuration Override for customizing Webpack.
+DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/ML, mobile, infrastructure, and DevOps. Below is the complete technology stack.
+
+- **Frontend (Web)**:
+  - **React 18.3**: JavaScript library for building user interfaces.
+  - **Material-UI (MUI) 6**: React component library for UI development.
+  - **Tailwind CSS**: Utility-first CSS framework for rapid styling.
+  - **Emotion**: CSS-in-JS styling engine (used by MUI).
+  - **Axios**: Promise-based HTTP client for API requests.
+  - **React Router DOM 6**: Declarative client-side routing.
+  - **Context API**: Built-in React state management.
+  - **React Markdown / remark-gfm / rehype-katex / remark-math**: Markdown rendering with GitHub Flavored Markdown and LaTeX math.
+  - **KaTeX**: Fast LaTeX math typesetting.
+  - **Marked**: Markdown parser and compiler.
+  - **pdfjs-dist**: PDF rendering and viewing in the browser.
+  - **Mammoth**: DOCX-to-HTML document conversion.
+  - **React Dropzone**: Drag-and-drop file upload component.
+  - **React Helmet**: Document head management for SEO.
+  - **Dropbox SDK**: Dropbox file import integration.
+  - **Google API (gapi-script / react-oauth / react-google-picker)**: Google Drive and Picker integration.
+  - **mic-recorder-to-mp3**: Audio recording for voice chat.
+  - **Vercel Analytics & Speed Insights**: Frontend performance telemetry.
+  - **Web Vitals**: Core Web Vitals performance metrics.
+  - **Fontsource Poppins**: Self-hosted font loading.
+  - **UUID**: Unique identifier generation.
+  - **Craco**: Create React App Configuration Override for Webpack customization.
   - **Webpack**: Module bundler for JavaScript applications.
-  - **Jest**: JavaScript testing framework for unit and integration tests.
-  - **React Testing Library**: Testing utilities for React components.
-- **Backend**:
-  - **Express**: Web application framework for Node.js.
-  - **Redis**: In-memory data structure store for caching.
-  - **Firebase Admin SDK**: Firebase services for server-side applications.
-  - **Node.js**: JavaScript runtime for building scalable network applications.
-  - **Firebase Authentication**: Secure user authentication with Firebase.
-  - **Firebase Auth JWT**: Generate custom tokens for Firebase authentication.
-  - **Middlewares**: Firebase authentication middleware for securing routes and JWT middleware for token verification.
-  - **REST APIs**: Representational State Transfer for building APIs.
-  - **GraphQL**: Query language for APIs and runtime for executing queries.
-  - **RabbitMQ**: Message broker for handling asynchronous tasks and background jobs.
-  - **Swagger/OpenAPI**: API documentation for all endpoints.
-- **AI/ML Services**:
-  - **Google Cloud Natural Language API**: Machine learning models for text analysis.
-  - **Google Speech-to-Text API**: Speech recognition for voice chat integration & text extraction from audio.
-  - **Google AI Studio**: Tools for building and deploying machine learning models.
-  - **NLP**: Natural Language Processing for customized chat/text analysis and summarization models.
-  - **NER**: Named Entity Recognition for identifying entities in text.
-  - **POS Tagging**: Part-of-Speech Tagging for analyzing word types in text.
-  - **RAG**: Retrieval-Augmented Generation for generating responses in chat.
-  - **LangChain**: Handles document ingestion, text chunking, embedding storage, retrieval, summarization, and API chaining for generating insights from uploaded documents.
-- **Database**:
-  - **MongoDB**: NoSQL database for storing user data and documents.
-  - **Firestore**: Cloud Firestore for storing user data and documents.
-  - **Redis**: In-memory data structure store for caching.
+  - **Babel**: JavaScript transpilation (ES2015+ to browser-compatible code).
+  - **Buffer / Crypto-browserify / Stream-browserify**: Node.js polyfills for the browser.
+  - **Jest**: JavaScript testing framework.
+  - **React Testing Library**: Component testing utilities.
+  - **Prettier**: Code formatter.
+  - **ESLint**: JavaScript/JSX linting with React plugin.
+- **Backend (API Server)**:
+  - **Node.js 18+**: JavaScript runtime for scalable network applications.
+  - **Express 4**: Web application framework for Node.js.
+  - **Firebase Admin SDK 12**: Server-side Firebase services.
+  - **Firebase Authentication**: Secure user authentication.
+  - **JWT (jsonwebtoken)**: Token-based authentication middleware.
+  - **GraphQL / express-graphql / graphql-tools**: Flexible query API for data fetching.
+  - **Redis 4**: In-memory data store for caching and session management.
+  - **MongoDB**: NoSQL document database for user data.
+  - **Multer / Busboy / Formidable**: Multi-part file upload handling.
+  - **Mammoth**: DOCX-to-HTML conversion.
+  - **pdf-parse**: PDF text extraction.
+  - **Google APIs (googleapis)**: Google Drive, Docs, and Sheets integration.
+  - **Google Generative AI SDK**: Gemini model integration.
+  - **Sentiment (npm)**: Lightweight sentiment analysis.
+  - **RabbitMQ (amqplib)**: Message broker for async task processing.
+  - **Axios**: HTTP client for inter-service communication.
+  - **CORS**: Cross-Origin Resource Sharing middleware.
+  - **Dotenv**: Environment variable management.
+  - **UUID**: Unique identifier generation.
+  - **Serve Favicon**: Favicon middleware.
+  - **Swagger JSDoc / Swagger UI Express**: Interactive API documentation.
+  - **Nodemon**: Development auto-reload.
+- **Orchestrator (Agentic Architecture)**:
+  - **Anthropic AI SDK 0.39**: Claude model integration for the agent loop.
+  - **Google Generative AI SDK**: Gemini model integration and failover.
+  - **Model Context Protocol (MCP) SDK 1.12**: MCP server (13 tools) and client for agent interop.
+  - **Zod 3.24**: Runtime schema validation for all AI outputs (12 schemas).
+  - **Express 4**: HTTP server for orchestrator endpoints.
+  - **Supervisor Pattern**: Intent classification, task DAG decomposition, parallel dispatch.
+  - **Agent Loop (ReAct)**: Iterative tool-use cycle with up to 10 rounds.
+  - **Circuit Breaker**: Per-provider fault tolerance (CLOSED / OPEN / HALF_OPEN).
+  - **Cost Tracker**: Per-request token costing with daily/monthly budget enforcement.
+  - **Dead Letter Queue**: Failed operation retry with manual inspection queue.
+  - **Token Budget Manager**: Context window estimation for 7+ models with auto-compaction.
+  - **Conversation Store**: In-memory history with auto-summarization and LRU eviction.
+  - **Hybrid RAG**: Keyword (Redis) + semantic (Python) search with Reciprocal Rank Fusion.
+  - **Prompt Cache Strategy**: 3-layer Anthropic prompt caching (system, document, history).
+  - **14 Versioned System Prompts**: Covering all document operations, chat modes, and classification.
+- **AI/ML Services (Python)**:
+  - **FastAPI / Uvicorn**: High-performance async REST API server.
+  - **Python 3.10+**: Core runtime.
+  - **LangChain**: Document chunking, embeddings, and LLM orchestration.
+  - **LangGraph**: Stateful agentic RAG pipeline (4-node state machine).
+  - **CrewAI**: Multi-agent collaboration (Analyst → Cross-Referencer → Insights Curator).
+  - **OpenAI GPT-4o / GPT-4o-mini**: Primary analysis and structured QA.
+  - **Anthropic Claude 3.5 Sonnet / Haiku**: Insights curation and sentiment analysis.
+  - **Google Gemini 1.5 Pro**: Cross-referencing and fact verification.
+  - **FAISS (CPU)**: In-memory vector search for per-request RAG retrieval.
+  - **ChromaDB**: Persistent on-disk vector store for cross-session semantic recall.
+  - **Neo4j**: Knowledge graph database for document-topic relationship mapping.
+  - **sentence-transformers (all-MiniLM-L6-v2)**: Local embedding generation.
+  - **PyTorch**: Deep learning runtime for transformer models.
+  - **Transformers (HuggingFace)**: Translation models and NLP pipelines.
+  - **ONNX / ONNX Runtime / Optimum**: Model optimization and accelerated inference.
+  - **Optuna**: Hyperparameter tuning for ML experiments.
+  - **ROUGE Score**: Summarization quality metrics.
+  - **Pandas**: Data processing and analysis.
+  - **Matplotlib**: Data visualization.
+  - **MCP Server (Python)**: 7-tool MCP server for external agent integration.
+  - **Requests**: HTTP library for inter-service calls.
+  - **Python-dotenv**: Environment variable management.
+  - **NLP / NER / POS Tagging**: Named entity recognition and linguistic analysis.
+  - **RAG**: Retrieval-Augmented Generation combining vector search with LLM inference.
+  - **Google Cloud NLP API**: Machine learning models for text analysis.
+  - **Google Speech-to-Text API**: Speech recognition for voice chat.
+- **Database & Storage**:
+  - **PostgreSQL**: Primary relational database (RDS Multi-AZ in production, Helm chart in-cluster).
+  - **MongoDB**: NoSQL document store for user data.
+  - **Firestore**: Cloud Firestore for real-time data sync.
+  - **Redis**: In-memory cache and session store (ElastiCache in production).
+  - **Neo4j**: Graph database for knowledge graphs.
+  - **ChromaDB**: Vector database for embedding persistence.
+  - **FAISS**: In-memory vector similarity search.
+  - **Mongoose**: MongoDB object modeling for Node.js.
+  - **Flyway**: Database schema migrations for PostgreSQL.
 - **Mobile App**:
-  - **React Native**: JavaScript framework for building mobile applications.
-  - **Expo**: Framework and platform for universal React applications.
-  - **Firebase SDK**: Firebase services for mobile applications.
-  - **React Navigation**: Routing and navigation for React Native apps.
+  - **React Native 0.74**: Cross-platform mobile framework.
+  - **Expo 51**: Universal React application platform.
+  - **Expo Router**: File-system based routing.
+  - **React Navigation**: Stack and tab navigation.
+  - **React Native Reanimated**: High-performance animations.
+  - **React Native Gesture Handler**: Native gesture management.
+  - **React Native Web**: React Native components for web browsers.
+  - **React Native Safe Area Context**: Safe area insets.
+  - **React Native Screens**: Native navigation primitives.
+  - **Expo Vector Icons / Constants / Font / Linking / Splash Screen / Status Bar**: Expo SDK modules.
+  - **Firebase SDK**: Authentication and real-time features.
+  - **TypeScript**: Static type checking.
+  - **Jest / Jest-Expo / React Test Renderer**: Mobile testing.
+- **VS Code Extension**:
+  - **TypeScript**: Extension development language.
+  - **VS Code Extension API**: IDE integration for document analysis workflows.
+  - **VSCE**: Extension packaging and publishing.
 - **API Documentation**:
-  - **Swagger**: OpenAPI documentation for all API endpoints.
-  - **OpenAPI**: Specification for building APIs with RESTful architecture.
-- **Containerization**:
-  - **Docker**: Containerization platform for building, shipping, and running applications.
-  - **Kubernetes**: Container orchestration for automating deployment, scaling, and management.
-- **Load Balancing & Caching**:
-  - **NGINX**: Web server for load balancing, reverse proxying, and caching.
+  - **Swagger / OpenAPI 3.0**: Interactive API docs for all endpoints.
+  - **GraphiQL**: In-browser GraphQL query editor.
+  - **Postman**: API development and testing collections.
+- **Containerization & Orchestration**:
+  - **Docker**: Multi-stage builds for all services (7 Dockerfiles: frontend, backend, orchestrator, AI/ML, NGINX, mobile, devcontainer).
+  - **Docker Compose**: Local multi-service orchestration.
+  - **Kubernetes 1.28+**: Container orchestration with Deployments, Services, Ingress, PDBs, NetworkPolicies.
+  - **Helm 3.13+**: Kubernetes package management (PostgreSQL, Redis, custom charts).
+  - **ArgoCD**: GitOps-based continuous deployment with Application and AppProject CRDs.
+  - **Devcontainer**: VS Code remote container development environment.
+- **Service Mesh & Networking**:
+  - **Istio 1.20**: Service mesh with mTLS, sidecar injection, traffic management, authorization policies.
+  - **Envoy**: High-performance proxy sidecar (embedded in Istio).
+  - **NGINX Ingress Controller**: Reverse proxy, rate limiting, TLS termination, load balancing.
+  - **Kiali**: Service mesh observability dashboard.
+  - **cert-manager**: Automated Let's Encrypt TLS certificate provisioning.
+- **Cloud Infrastructure (AWS)**:
+  - **Terraform 1.5+**: Infrastructure as Code with S3/DynamoDB state backend.
+  - **EKS (Elastic Kubernetes Service)**: Managed Kubernetes cluster.
+  - **VPC**: Multi-AZ networking with public/private subnets.
+  - **RDS**: Managed PostgreSQL (Multi-AZ production).
+  - **ElastiCache**: Managed Redis cluster.
+  - **S3**: Object storage (uploads, backups, Terraform state) with lifecycle policies.
+  - **CloudFront**: CDN for frontend asset delivery.
+  - **WAF (Web Application Firewall)**: Rate limiting and geo-blocking.
+  - **Secrets Manager**: Credential and secret management.
+  - **CloudWatch**: Monitoring, logging, and alerting.
+  - **AWS Backup**: Automated RDS and S3 backup schedules.
+  - **ECS Fargate**: Serverless container execution (CloudFormation-based).
+  - **IAM / IRSA**: Fine-grained service account permissions.
+- **Monitoring & Observability**:
+  - **Prometheus**: Metrics collection with Prometheus Operator, Node Exporter, and kube-state-metrics.
+  - **Grafana**: Dashboards and visualization with Loki integration.
+  - **Jaeger**: Distributed tracing with Elasticsearch backend.
+  - **Zipkin**: Distributed tracing (OpenTelemetry receiver).
+  - **Loki**: Log aggregation.
+  - **ELK Stack (Elasticsearch, Logstash, Kibana)**: Centralized logging, processing, and search.
+  - **OpenTelemetry Collector**: Unified traces, metrics, and logs pipeline (OTLP, Jaeger, Zipkin, Prometheus receivers).
+  - **Coralogix**: Unified SaaS observability platform with TCO optimization — receives logs, metrics, and traces via OTel OTLP/gRPC; Fluent Bit DaemonSet for node-level log shipping; Prometheus remote write for metric correlation; 12 production alerts; recording rules; TCO cost policies; Terraform-managed via `coralogix/coralogix` provider.
+  - **AlertManager**: Alert routing with Slack and PagerDuty integrations.
+  - **SLI/SLO Monitoring**: Prometheus recording rules for availability and latency tracking.
+- **Security & Compliance**:
+  - **HashiCorp Vault 1.15**: Secrets management with HA Raft storage, AWS KMS seal, CSI provider.
+  - **External Secrets Operator**: Syncs secrets from Vault and AWS Secrets Manager into Kubernetes.
+  - **Falco 0.36**: Runtime security monitoring with eBPF driver, custom rules, Falcosidekick alerting.
+  - **OPA Gatekeeper 3.14**: Policy-as-code enforcement with constraint templates, mutation webhooks, and audit logging.
+  - **Trivy**: Container image and filesystem vulnerability scanning.
+  - **SonarQube 10.4 Enterprise**: Static code analysis with multi-module scanning (frontend, backend, orchestrator, AI/ML), quality gates (14 conditions), custom quality profiles for JS/TS/Python, coverage tracking ≥70%, and security hotspot review.
+  - **Snyk**: Continuous vulnerability management — open source dependency scanning, container image scanning with license compliance (GPL/AGPL blocked), Infrastructure as Code analysis (Terraform/K8s/Helm), SAST code analysis, and in-cluster Kubernetes controller for runtime workload monitoring.
+- **Progressive Delivery & Autoscaling**:
+  - **Flagger 1.34**: Automated canary deployments with Istio and Prometheus analysis.
+  - **KEDA 2.12**: Event-driven pod autoscaling (2–10 replicas).
+  - **HPA (Horizontal Pod Autoscaler)**: CPU/memory-based pod scaling.
+  - **Blue/Green Deployments**: Zero-downtime release strategy via Jenkins pipelines.
+  - **Canary Deployments**: Gradual traffic shifting with automated rollback.
+- **Chaos Engineering**:
+  - **Litmus Chaos**: Resilience testing platform with pod-delete, cpu-hog, memory-hog, network-latency, network-loss, container-kill, disk-fill, node-drain, and AWS-specific chaos experiments (ec2-terminate, ebs-loss, az-outage).
+- **Backup & Disaster Recovery**:
+  - **Velero**: Kubernetes cluster backup and restore.
+  - **AWS Backup**: Managed backup for RDS and S3.
+  - **S3 Versioning + Glacier Lifecycle**: Long-term archival with automated transitions.
 - **CI/CD & Deployment**:
-  - **GitHub Actions**: Automated workflows for testing and deployment.
-  - **Jenkins**: Automation server for continuous integration and deployment.
-  - **Render**: Cloud platform for hosting and scaling web applications. (Used to deploy the backend)
-  - **Vercel**: Cloud platform for hosting and deploying web applications. (Used to deploy the frontend)
-  - **Netlify**: Cloud platform for hosting and deploying web applications. (Used as a backup)
-- _and more!_
+  - **GitHub Actions**: Primary CI pipeline (lint, test, coverage, Docker build & push to GHCR, deploy).
+  - **GitLab CI**: Multi-stage pipeline (pre-check, build, test, security, package, deploy, post-deploy, cleanup).
+  - **CircleCI**: Orb-based pipeline (Node, Python, AWS-EKS, Docker, SonarCloud, k6).
+  - **Jenkins**: Multi-stage pipeline with canary and blue/green deployment stages.
+  - **SonarQube / SonarCloud**: Static code analysis and quality gates.
+  - **GHCR (GitHub Container Registry)**: Docker image registry.
+  - **Vercel**: Frontend hosting with analytics.
+  - **Render**: Backend hosting (fallback).
+  - **Netlify**: Frontend hosting (backup).
+- **Testing & Quality**:
+  - **Jest**: Unit and integration testing (frontend, backend, orchestrator, mobile).
+  - **React Testing Library**: Component testing with user-event simulation.
+  - **Supertest**: HTTP endpoint testing.
+  - **pytest**: Python test framework for AI/ML services.
+  - **k6**: Load and performance testing (baseline, stress, spike, soak, breakpoint scenarios).
+  - **ESLint**: JavaScript/TypeScript linting.
+  - **Prettier**: Code formatting.
+  - **Postman**: API development and testing.
+
+> For a comprehensive deep-dive into the AI/ML architecture with visual diagrams, see [**AI_ML.md**](AI_ML.md).
 
 <p align="center">
-  <!-- Frontend -->
-  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
-  <img src="https://img.shields.io/badge/Material--UI-0081CB?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
+
+  <!-- 🔤 Languages & Runtimes -->
+  <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black" alt="JavaScript" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Python_3.10+-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python" />
+  <img src="https://img.shields.io/badge/Node.js_18+-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
+  <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white" alt="HTML5" />
+  <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white" alt="CSS3" />
+
+  <!-- 🖥️ Frontend (Web) -->
+  <img src="https://img.shields.io/badge/React_18-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/Material--UI_6-0081CB?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
   <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
-  <img src="https://img.shields.io/badge/Craco-61DAFB?style=for-the-badge&logo=webpack&logoColor=white" alt="Craco" />
+  <img src="https://img.shields.io/badge/Emotion-DB7093?style=for-the-badge&logo=emotion&logoColor=white" alt="Emotion" />
+  <img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router" />
+  <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" alt="Axios" />
   <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=white" alt="Webpack" />
-  <img src="https://img.shields.io/badge/React_Native-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native" />
-  <img src="https://img.shields.io/badge/Expo-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
-  <img src="https://img.shields.io/badge/React_Navigation-123456?style=for-the-badge&logo=react-router&logoColor=white" alt="React Navigation" />
+  <img src="https://img.shields.io/badge/Craco-61DAFB?style=for-the-badge&logo=webpack&logoColor=white" alt="Craco" />
+  <img src="https://img.shields.io/badge/Babel-F9DC3E?style=for-the-badge&logo=babel&logoColor=black" alt="Babel" />
+  <img src="https://img.shields.io/badge/React_Markdown-000000?style=for-the-badge&logo=markdown&logoColor=white" alt="React Markdown" />
+  <img src="https://img.shields.io/badge/KaTeX-000000?style=for-the-badge&logo=latex&logoColor=white" alt="KaTeX" />
+  <img src="https://img.shields.io/badge/PDF.js-FF6600?style=for-the-badge&logo=adobeacrobatreader&logoColor=white" alt="PDF.js" />
+  <img src="https://img.shields.io/badge/React_Dropzone-2196F3?style=for-the-badge&logo=react&logoColor=white" alt="React Dropzone" />
+  <img src="https://img.shields.io/badge/React_Helmet-4B0082?style=for-the-badge&logo=react&logoColor=white" alt="React Helmet" />
+  <img src="https://img.shields.io/badge/Dropbox-0061FF?style=for-the-badge&logo=dropbox&logoColor=white" alt="Dropbox" />
+  <img src="https://img.shields.io/badge/Google_Drive-4285F4?style=for-the-badge&logo=googledrive&logoColor=white" alt="Google Drive" />
+  <img src="https://img.shields.io/badge/Vercel_Analytics-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel Analytics" />
 
-  <!-- Backend -->
-  <img src="https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js&logoColor=white" alt="Node.js" />
-  <img src="https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
-  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase" />
-  <img src="https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firebase Auth" />
-  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
-  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
-  <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=white" alt="Firestore" />
-  <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
+  <!-- 📱 Mobile -->
+  <img src="https://img.shields.io/badge/React_Native_0.74-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native" />
+  <img src="https://img.shields.io/badge/Expo_51-000020?style=for-the-badge&logo=expo&logoColor=white" alt="Expo" />
+  <img src="https://img.shields.io/badge/React_Navigation-6B52AE?style=for-the-badge&logo=react&logoColor=white" alt="React Navigation" />
+  <img src="https://img.shields.io/badge/React_Native_Web-61DAFB?style=for-the-badge&logo=react&logoColor=white" alt="React Native Web" />
+  <img src="https://img.shields.io/badge/React_Native_Reanimated-7B61FF?style=for-the-badge&logo=react&logoColor=white" alt="React Native Reanimated" />
+
+  <!-- ⚙️ Backend & API -->
+  <img src="https://img.shields.io/badge/Express_4-000000?style=for-the-badge&logo=express&logoColor=white" alt="Express" />
   <img src="https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL" />
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
+  <img src="https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase Auth" />
+  <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT" />
+  <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
+  <img src="https://img.shields.io/badge/Multer-FF6F00?style=for-the-badge&logo=express&logoColor=white" alt="Multer" />
+  <img src="https://img.shields.io/badge/Nodemon-76D04B?style=for-the-badge&logo=nodemon&logoColor=white" alt="Nodemon" />
 
-  <!-- AI/ML -->
+  <!-- 🤖 Orchestrator & AI Agents -->
+  <img src="https://img.shields.io/badge/Anthropic_SDK-191919?style=for-the-badge&logo=anthropic&logoColor=white" alt="Anthropic SDK" />
+  <img src="https://img.shields.io/badge/MCP_SDK-5A29E4?style=for-the-badge&logo=anthropic&logoColor=white" alt="MCP" />
+  <img src="https://img.shields.io/badge/Zod-3E67B1?style=for-the-badge&logo=zod&logoColor=white" alt="Zod" />
+
+  <!-- 🧠 AI/ML & LLMs -->
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/Uvicorn-2C8EBB?style=for-the-badge&logo=gunicorn&logoColor=white" alt="Uvicorn" />
+  <img src="https://img.shields.io/badge/LangChain-2C8EBB?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
+  <img src="https://img.shields.io/badge/LangGraph-8A2BE2?style=for-the-badge&logo=apacheairflow&logoColor=white" alt="LangGraph" />
+  <img src="https://img.shields.io/badge/CrewAI-1F6FEB?style=for-the-badge&logo=robot&logoColor=white" alt="CrewAI" />
+  <img src="https://img.shields.io/badge/OpenAI_GPT--4o-412991?style=for-the-badge&logo=openai&logoColor=white" alt="OpenAI" />
+  <img src="https://img.shields.io/badge/Anthropic_Claude-191919?style=for-the-badge&logo=anthropic&logoColor=white" alt="Claude" />
+  <img src="https://img.shields.io/badge/Google_Gemini-4285F4?style=for-the-badge&logo=googlegemini&logoColor=white" alt="Gemini" />
+  <img src="https://img.shields.io/badge/PyTorch-EE4C2C?style=for-the-badge&logo=pytorch&logoColor=white" alt="PyTorch" />
+  <img src="https://img.shields.io/badge/HuggingFace-FFD21E?style=for-the-badge&logo=huggingface&logoColor=black" alt="HuggingFace" />
+  <img src="https://img.shields.io/badge/ONNX-005CED?style=for-the-badge&logo=onnx&logoColor=white" alt="ONNX" />
+  <img src="https://img.shields.io/badge/Sentence_Transformers-FF6F00?style=for-the-badge&logo=huggingface&logoColor=white" alt="Sentence Transformers" />
+  <img src="https://img.shields.io/badge/Optuna-0290D5?style=for-the-badge&logo=optuna&logoColor=white" alt="Optuna" />
+  <img src="https://img.shields.io/badge/Pandas-150458?style=for-the-badge&logo=pandas&logoColor=white" alt="Pandas" />
+  <img src="https://img.shields.io/badge/Matplotlib-11557C?style=for-the-badge&logo=matplotlib&logoColor=white" alt="Matplotlib" />
+  <img src="https://img.shields.io/badge/RAG-6495ED?style=for-the-badge&logo=chatbot&logoColor=white" alt="RAG" />
   <img src="https://img.shields.io/badge/Google_Cloud_NLP-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Cloud NLP" />
   <img src="https://img.shields.io/badge/Google_Speech--to--Text-4285F4?style=for-the-badge&logo=googlecloud&logoColor=white" alt="Google Speech-to-Text" />
-  <img src="https://img.shields.io/badge/Google_AI_Studio-4285F4?style=for-the-badge&logo=google&logoColor=white" alt="Google AI Studio" />
-  <img src="https://img.shields.io/badge/NLP_&amp;_NLTK-00599C?style=for-the-badge&logo=apachedolphinscheduler&logoColor=white" alt="Natural Language Processing" />
-  <img src="https://img.shields.io/badge/NER-007ACC?style=for-the-badge&logo=apachenetbeanside&logoColor=white" alt="Named Entity Recognition" />
-  <img src="https://img.shields.io/badge/POS_Tagging-123456?style=for-the-badge&logo=posit&logoColor=white" alt="POS Tagging" />
-  <img src="https://img.shields.io/badge/Retrieval%20Augmented%20Generation%20(RAG)-6495ED?style=for-the-badge&logo=chatbot&logoColor=white" alt="Retrieval-Augmented Generation" />
-  <img src="https://img.shields.io/badge/LangChain-999999?style=for-the-badge&logo=langchain&logoColor=white" alt="LangChain" />
 
-  <!-- Containerization, Deployment, CI/CD -->
+  <!-- 🗄️ Databases & Vector Stores -->
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
+  <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firestore" />
+  <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/Neo4j-4581C3?style=for-the-badge&logo=neo4j&logoColor=white" alt="Neo4j" />
+  <img src="https://img.shields.io/badge/FAISS-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="FAISS" />
+  <img src="https://img.shields.io/badge/ChromaDB-7834F8?style=for-the-badge&logo=databricks&logoColor=white" alt="ChromaDB" />
+  <img src="https://img.shields.io/badge/Mongoose-880000?style=for-the-badge&logo=mongoose&logoColor=white" alt="Mongoose" />
+  <img src="https://img.shields.io/badge/Flyway-CC0200?style=for-the-badge&logo=flyway&logoColor=white" alt="Flyway" />
+
+  <!-- 🏗️ Infrastructure & Containers -->
   <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/Docker_Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose" />
   <img src="https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+  <img src="https://img.shields.io/badge/Helm-0F1689?style=for-the-badge&logo=helm&logoColor=white" alt="Helm" />
+  <img src="https://img.shields.io/badge/Terraform-7B42BC?style=for-the-badge&logo=terraform&logoColor=white" alt="Terraform" />
+  <img src="https://img.shields.io/badge/ArgoCD-EF7B4D?style=for-the-badge&logo=argo&logoColor=white" alt="ArgoCD" />
+  <img src="https://img.shields.io/badge/Devcontainer-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="Devcontainer" />
+
+  <!-- ☁️ AWS Cloud -->
+  <img src="https://img.shields.io/badge/AWS-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white" alt="AWS" />
+  <img src="https://img.shields.io/badge/EKS-FF9900?style=for-the-badge&logo=amazoneks&logoColor=white" alt="EKS" />
+  <img src="https://img.shields.io/badge/ECS_Fargate-FF9900?style=for-the-badge&logo=amazonecs&logoColor=white" alt="ECS Fargate" />
+  <img src="https://img.shields.io/badge/S3-569A31?style=for-the-badge&logo=amazons3&logoColor=white" alt="S3" />
+  <img src="https://img.shields.io/badge/CloudFront-232F3E?style=for-the-badge&logo=amazonwebservices&logoColor=white" alt="CloudFront" />
+  <img src="https://img.shields.io/badge/RDS-527FFF?style=for-the-badge&logo=amazonrds&logoColor=white" alt="RDS" />
+  <img src="https://img.shields.io/badge/ElastiCache-C925D1?style=for-the-badge&logo=amazonelasticache&logoColor=white" alt="ElastiCache" />
+  <img src="https://img.shields.io/badge/WAF-FF9900?style=for-the-badge&logo=amazonwebservices&logoColor=white" alt="WAF" />
+  <img src="https://img.shields.io/badge/CloudWatch-FF4F8B?style=for-the-badge&logo=amazoncloudwatch&logoColor=white" alt="CloudWatch" />
+  <img src="https://img.shields.io/badge/Secrets_Manager-DD344C?style=for-the-badge&logo=awssecretsmanager&logoColor=white" alt="Secrets Manager" />
+  <img src="https://img.shields.io/badge/IAM-DD344C?style=for-the-badge&logo=amazoniam&logoColor=white" alt="IAM" />
+
+  <!-- 🔗 Service Mesh & Networking -->
+  <img src="https://img.shields.io/badge/Istio-466BB0?style=for-the-badge&logo=istio&logoColor=white" alt="Istio" />
+  <img src="https://img.shields.io/badge/Envoy-AC6199?style=for-the-badge&logo=envoyproxy&logoColor=white" alt="Envoy" />
   <img src="https://img.shields.io/badge/NGINX-269539?style=for-the-badge&logo=nginx&logoColor=white" alt="NGINX" />
+  <img src="https://img.shields.io/badge/Kiali-0097A7?style=for-the-badge&logo=kiali&logoColor=white" alt="Kiali" />
+  <img src="https://img.shields.io/badge/cert--manager-326CE5?style=for-the-badge&logo=letsencrypt&logoColor=white" alt="cert-manager" />
+
+  <!-- 📊 Monitoring & Observability -->
+  <img src="https://img.shields.io/badge/Prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus" />
+  <img src="https://img.shields.io/badge/Grafana-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana" />
+  <img src="https://img.shields.io/badge/Jaeger-66CFE3?style=for-the-badge&logo=jaeger&logoColor=black" alt="Jaeger" />
+  <img src="https://img.shields.io/badge/Zipkin-FE8019?style=for-the-badge&logo=openzipkin&logoColor=white" alt="Zipkin" />
+  <img src="https://img.shields.io/badge/Loki-F46800?style=for-the-badge&logo=grafana&logoColor=white" alt="Loki" />
+  <img src="https://img.shields.io/badge/OpenTelemetry-000000?style=for-the-badge&logo=opentelemetry&logoColor=white" alt="OpenTelemetry" />
+  <img src="https://img.shields.io/badge/Elasticsearch-005571?style=for-the-badge&logo=elasticsearch&logoColor=white" alt="Elasticsearch" />
+  <img src="https://img.shields.io/badge/Logstash-005571?style=for-the-badge&logo=logstash&logoColor=white" alt="Logstash" />
+  <img src="https://img.shields.io/badge/Kibana-005571?style=for-the-badge&logo=kibana&logoColor=white" alt="Kibana" />
+  <img src="https://img.shields.io/badge/AlertManager-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="AlertManager" />
+  <img src="https://img.shields.io/badge/Coralogix-6C63FF?style=for-the-badge&logo=datadog&logoColor=white" alt="Coralogix" />
+
+  <!-- 🔒 Security & Compliance -->
+  <img src="https://img.shields.io/badge/Vault-FFEC6E?style=for-the-badge&logo=vault&logoColor=black" alt="Vault" />
+  <img src="https://img.shields.io/badge/External_Secrets-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="External Secrets" />
+  <img src="https://img.shields.io/badge/Falco-00AEC7?style=for-the-badge&logo=falco&logoColor=white" alt="Falco" />
+  <img src="https://img.shields.io/badge/OPA_Gatekeeper-7D9AAA?style=for-the-badge&logo=openpolicyagent&logoColor=white" alt="OPA Gatekeeper" />
+  <img src="https://img.shields.io/badge/Trivy-1904DA?style=for-the-badge&logo=aqua&logoColor=white" alt="Trivy" />
+  <img src="https://img.shields.io/badge/SonarQube-4E9BCD?style=for-the-badge&logo=sonarqubecloud&logoColor=white" alt="SonarQube" />
+  <img src="https://img.shields.io/badge/Snyk-4C4A73?style=for-the-badge&logo=snyk&logoColor=white" alt="Snyk" />
+
+  <!-- 🔄 Progressive Delivery & Resilience -->
+  <img src="https://img.shields.io/badge/Flagger-4B8BBE?style=for-the-badge&logo=fluxcd&logoColor=white" alt="Flagger" />
+  <img src="https://img.shields.io/badge/KEDA-326CE5?style=for-the-badge&logo=keda&logoColor=white" alt="KEDA" />
+  <img src="https://img.shields.io/badge/Velero-42A5F5?style=for-the-badge&logo=kubernetes&logoColor=white" alt="Velero" />
+  <img src="https://img.shields.io/badge/Litmus_Chaos-E95420?style=for-the-badge&logo=litmus&logoColor=white" alt="Litmus Chaos" />
+
+  <!-- 🚀 CI/CD & Hosting -->
   <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions" />
+  <img src="https://img.shields.io/badge/GitLab_CI-FC6D26?style=for-the-badge&logo=gitlab&logoColor=white" alt="GitLab CI" />
+  <img src="https://img.shields.io/badge/CircleCI-343434?style=for-the-badge&logo=circleci&logoColor=white" alt="CircleCI" />
   <img src="https://img.shields.io/badge/Jenkins-D24939?style=for-the-badge&logo=jenkins&logoColor=white" alt="Jenkins" />
-  <img src="https://img.shields.io/badge/Render-FF6B6B?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
+  <img src="https://img.shields.io/badge/GHCR-181717?style=for-the-badge&logo=github&logoColor=white" alt="GHCR" />
   <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+  <img src="https://img.shields.io/badge/Render-FF6B6B?style=for-the-badge&logo=render&logoColor=white" alt="Render" />
   <img src="https://img.shields.io/badge/Netlify-00C7B7?style=for-the-badge&logo=netlify&logoColor=white" alt="Netlify" />
 
-  <!-- API Documentation -->
+  <!-- 📖 API Documentation -->
   <img src="https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black" alt="Swagger" />
-  <img src="https://img.shields.io/badge/OpenAPI-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white" alt="OpenAPI" />
-  <img src="https://img.shields.io/badge/JSON-000000?style=for-the-badge&logo=json&logoColor=white" alt="JSON" />
-  <img src="https://img.shields.io/badge/YAML-FFCA28?style=for-the-badge&logo=yaml&logoColor=black" alt="YAML" />
+  <img src="https://img.shields.io/badge/OpenAPI_3.0-6BA539?style=for-the-badge&logo=openapiinitiative&logoColor=white" alt="OpenAPI" />
   <img src="https://img.shields.io/badge/REST_API-00599C?style=for-the-badge&logo=fastapi&logoColor=white" alt="REST API" />
-
-  <!-- Testing & Tools -->
-  <img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
-  <img src="https://img.shields.io/badge/React_Testing_Library-FFCA28?style=for-the-badge&logo=testing-library&logoColor=black" alt="React Testing Library" />
-  <img src="https://img.shields.io/badge/Supertest-FFCA28?style=for-the-badge&logo=testrail&logoColor=black" alt="Supertest" />
   <img src="https://img.shields.io/badge/Postman-FF6C37?style=for-the-badge&logo=postman&logoColor=white" alt="Postman" />
-  <img src="https://img.shields.io/badge/ESLint-4B3263?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
+
+  <!-- 🧪 Testing & Quality -->
+  <img src="https://img.shields.io/badge/Jest-C21325?style=for-the-badge&logo=jest&logoColor=white" alt="Jest" />
+  <img src="https://img.shields.io/badge/React_Testing_Library-E33332?style=for-the-badge&logo=testing-library&logoColor=white" alt="React Testing Library" />
+  <img src="https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white" alt="pytest" />
+  <img src="https://img.shields.io/badge/k6-7D64FF?style=for-the-badge&logo=k6&logoColor=white" alt="k6" />
+  <img src="https://img.shields.io/badge/Supertest-009688?style=for-the-badge&logo=testinglibrary&logoColor=white" alt="Supertest" />
+  <img src="https://img.shields.io/badge/ESLint-4B32C3?style=for-the-badge&logo=eslint&logoColor=white" alt="ESLint" />
   <img src="https://img.shields.io/badge/Prettier-F7B93E?style=for-the-badge&logo=prettier&logoColor=black" alt="Prettier" />
-  <img src="https://img.shields.io/badge/VSCode_Extension-007ACC?style=for-the-badge&logo=gitextensions&logoColor=white" alt="VS Code Extension" />
+
+  <!-- 🔧 Developer Tools -->
+  <img src="https://img.shields.io/badge/VS_Code_Extension-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white" alt="VS Code Extension" />
+  <img src="https://img.shields.io/badge/Dotenv-ECD53F?style=for-the-badge&logo=dotenv&logoColor=black" alt="Dotenv" />
 </p>
 
 <h2 id="user-interface">🖼️ User Interface</h2>
@@ -266,12 +509,6 @@ These badges indicate the current deployment status of the app, updating automat
 
 <p align="center">
   <img src="images/landing.png" alt="Landing Page" width="100%" style="border-radius: 8px">
-</p>
-
-### **Landing Page - Dark Mode**
-
-<p align="center">
-  <img src="images/landing-dark.png" alt="Landing Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Document Upload Page**
@@ -322,6 +559,12 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="images/chat-dark.png" alt="Chat Modal - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
+### **Document Analytics**
+
+<p align="center">
+  <img src="images/analytics.png" alt="Document Analytics" width="100%" style="border-radius: 8px">
+</p>
+
 ### **Documents Page**
 
 <p align="center">
@@ -358,22 +601,10 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="images/how-to-use.png" alt="How To Use Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **How To Use Page - Dark Mode**
-
-<p align="center">
-  <img src="images/how-to-use-dark.png" alt="How To Use Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Login Page**
 
 <p align="center">
   <img src="images/login.png" alt="Login Page" width="100%" style="border-radius: 8px">
-</p>
-
-### **Login Page - Dark Mode**
-
-<p align="center">
-  <img src="images/login-dark.png" alt="Login Page - Dark Mode" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Registration Page**
@@ -382,53 +613,60 @@ These badges indicate the current deployment status of the app, updating automat
   <img src="images/register.png" alt="Registration Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Registration Page - Dark Mode**
-
-<p align="center">
-  <img src="images/register-dark.png" alt="Registration Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Forgot Password Page**
 
 <p align="center">
   <img src="images/forgot-password.png" alt="Forgot Password Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Forgot Password Page - Dark Mode**
+### **Mobile App's View**
 
-<p align="center">
-  <img src="images/forgot-password-dark.png" alt="Forgot Password Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
+Real signed-in captures from the React Native (Expo SDK 51) build, iPhone 16 Pro / iOS 18.5 on the top row and Pixel 6 / API 34 on the bottom. Full walkthrough lives in [MOBILE_APPS.md](MOBILE_APPS.md), and the mobile-only deep dive is at [mobile-app/README.md](mobile-app/README.md).
 
-### **Responsive Design Example**
+#### Unauthenticated
 
-<p align="center">
-  <img src="images/responsive.png" alt="Responsive Design" width="50%" style="border-radius: 8px">
-</p>
+| Login | Register | Forgot password |
+| --- | --- | --- |
+| <img src="images/mobile-ios-login.png" width="220" alt="iOS Login"> | <img src="images/mobile-ios-register.png" width="220" alt="iOS Register"> | <img src="images/mobile-ios-forgot.png" width="220" alt="iOS Forgot"> |
+| <img src="images/mobile-android-login.png" width="220" alt="Android Login"> | <img src="images/mobile-android-register.png" width="220" alt="Android Register"> | <img src="images/mobile-android-forgot.png" width="220" alt="Android Forgot"> |
 
-### **Navigation Drawer**
+#### Authenticated tabs
 
-<p align="center">
-  <img src="images/navigation-drawer.png" alt="Navigation Drawer" width="50%" style="border-radius: 8px">
-</p>
+| Home | Library | Profile |
+| --- | --- | --- |
+| <img src="images/mobile-ios-home.png" width="220" alt="iOS Home"> | <img src="images/mobile-ios-library.png" width="220" alt="iOS Library"> | <img src="images/mobile-ios-profile.png" width="220" alt="iOS Profile"> |
+| <img src="images/mobile-android-home.png" width="220" alt="Android Home"> | <img src="images/mobile-android-library.png" width="220" alt="Android Library"> | <img src="images/mobile-android-profile.png" width="220" alt="Android Profile"> |
 
-### **404 Not Found Page**
+#### Document flow (Upload → Summary → Chat)
 
-<p align="center">
-  <img src="images/404.png" alt="404 Not Found Page" width="100%" style="border-radius: 8px">
-</p>
+| Upload | Summary | Chat |
+| --- | --- | --- |
+| <img src="images/mobile-ios-upload.png" width="220" alt="iOS Upload"> | <img src="images/mobile-ios-summary.png" width="220" alt="iOS Summary"> | <img src="images/mobile-ios-chat.png" width="220" alt="iOS Chat"> |
+| <img src="images/mobile-android-upload.png" width="220" alt="Android Upload"> | <img src="images/mobile-android-summary.png" width="220" alt="Android Summary"> | <img src="images/mobile-android-chat.png" width="220" alt="Android Chat"> |
 
-### **404 Not Found Page - Dark Mode**
+> Summary now also has **Generate key ideas** and **Generate discussion points** actions wired to `POST /generate-key-ideas` + `POST /generate-discussion-points`. All assistant output renders through `react-native-markdown-display` so bold text, bullet lists, fenced code, and links look the same on iOS, Android, and web.
 
-<p align="center">
-  <img src="images/404-dark.png" alt="404 Not Found Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
+#### Settings
 
-### **Footer**
+| Account | Appearance | Connections |
+| --- | --- | --- |
+| <img src="images/mobile-ios-account.png" width="220" alt="iOS Account"> | <img src="images/mobile-ios-appearance.png" width="220" alt="iOS Appearance"> | <img src="images/mobile-ios-connections.png" width="220" alt="iOS Connections"> |
+| <img src="images/mobile-android-account.png" width="220" alt="Android Account"> | <img src="images/mobile-android-appearance.png" width="220" alt="Android Appearance"> | <img src="images/mobile-android-connections.png" width="220" alt="Android Connections"> |
 
-<p align="center">
-  <img src="images/footer.png" alt="Footer" width="100%" style="border-radius: 8px">
-</p>
+| Privacy & security | Help & support |
+| --- | --- |
+| <img src="images/mobile-ios-privacy.png" width="220" alt="iOS Privacy"> | <img src="images/mobile-ios-help.png" width="220" alt="iOS Help"> |
+| <img src="images/mobile-android-privacy.png" width="220" alt="Android Privacy"> | <img src="images/mobile-android-help.png" width="220" alt="Android Help"> |
+
+> Every Profile menu row is fully implemented — no stubs. Account uses `/update-email` + `/update-password`. Appearance persists Theme + Text size and syncs explicit Light/Dark choices to `/update-theme`. Connections round-trip through `/social-media` + `/update-social-media`. Privacy can delete every document via `DELETE /documents/:userId` and shows live session details (token preview + decoded JWT expiry). Help is a real FAQ + `mailto:` contact + repo + version info.
+
+#### Loading states
+
+| iOS | Android |
+| --- | --- |
+| <img src="images/mobile-ios-home-loading.png" width="220" alt="iOS Home loading"> | <img src="images/mobile-android-home-loading.png" width="220" alt="Android Home loading"> |
+
+Home, Library, Profile, Account, Connections, and Privacy all show animated skeleton placeholders during the first fetch so they never read "0 Documents · 0 Days active" before the real numbers land. The Library `Documents / Days active / Docs / week` row replaces the old `∞ Insights` placeholder with a real activity metric derived from the existing `docCount` and `daysActive` data.
 
 <h2 id="complete-file-structure">📂 Complete File Structure</h2>
 
@@ -436,16 +674,60 @@ The **DocuThinker** app is organized into separate subdirectories for the fronte
 
 ```
 DocuThinker-AI-App/
+├── .beads/                           # Beads task coordination system
+│   ├── .status.json                  # Agent reservations & active bead tracking
+│   ├── README.md                     # Beads workflow quick-reference
+│   ├── active/                       # Beads available for agents to pick up
+│   ├── completed/                    # Archive of finished beads
+│   └── templates/
+│       └── feature-bead.md           # Template for new feature beads
+├── .agent-sessions/                  # Agent session history & coordination
+│   ├── README.md                     # Session management guide
+│   ├── SCHEMA.md                     # Session data structure specification
+│   ├── config.json                   # Session configuration
+│   ├── active/                       # Sessions currently in progress
+│   ├── completed/                    # Archived finished sessions
+│   └── templates/
+│       ├── session-log.md            # Standard session log template
+│       ├── handoff-report.md         # Agent-to-agent handoff template
+│       └── escalation-report.md      # Conflict / blocker escalation template
+├── .claude/                          # Claude Code workspace settings
+├── .mcp.json                         # MCP server configuration
+├── AGENTS.md                         # Agent behavior instructions
+├── CLAUDE.md                         # Claude Code project instructions
+├── ai_ml/                            # AI/ML pipelines & services directory (Python)
+├── orchestrator/                     # Agentic orchestration layer (Node.js)
+│   ├── core/
+│   │   ├── supervisor.js             # Intent classification, decomposition, dispatch
+│   │   ├── circuit-breaker.js        # Per-provider circuit breaker state machine
+│   │   ├── agent-loop.js             # Iterative tool-use agent loop
+│   │   ├── handoff.js                # Cross-agent context transfer
+│   │   ├── batch-processor.js        # Concurrent batch document processing
+│   │   ├── cost-tracker.js           # Token cost tracking with budget limits
+│   │   ├── dlq.js                    # Dead letter queue with retry logic
+│   │   ├── python-bridge.js          # HTTP bridge to Python AI/ML service
+│   │   ├── providers.js              # Unified LLM client (Claude + Gemini)
+│   │   └── tool-registry.js          # Tool registration and dispatch
+│   ├── context/
+│   │   ├── token-budget.js           # Context window management
+│   │   ├── conversation-store.js     # Auto-summarizing conversation memory
+│   │   ├── observability.js          # OTel-compatible context metrics
+│   │   └── hybrid-rag.js             # Keyword + semantic search with RRF
+│   ├── prompts/
+│   │   ├── system-prompts.js         # 14 versioned system prompts
+│   │   └── cache-strategy.js         # 3-layer Anthropic prompt caching
+│   ├── schemas/
+│   │   └── ai-outputs.js             # 12 Zod validation schemas
+│   ├── mcp/
+│   │   ├── server.js                 # MCP server exposing 13 tools
+│   │   └── client.js                 # MCP client for external servers
+│   ├── __tests__/
+│   │   └── orchestrator.test.js      # Integration tests (Jest)
+│   ├── Dockerfile                    # Production container (node:20-alpine)
+│   ├── package.json                  # Dependencies and scripts
+│   └── index.js                      # Express server entry point (port 4000)
+│
 ├── backend/
-│   ├── ai_ml/
-│   │   ├── perform_ner_pos.py        # Named Entity Recognition and Part-of-Speech Tagging
-│   │   ├── sen_analysis.py           # Sentiment analysis for document text
-│   │   ├── chat.js                   # Chatbot integration for AI chat functionality
-│   │   ├── analyzer.js               # Document analyzer for generating key ideas and discussion points
-│   │   ├── textStatistics.js         # Text statistics for analyzing document content
-│   │   ├── documentClassifier.js     # Document classifier for categorizing documents
-│   │   ├── summarizer.js             # Document summarizer for generating summaries
-│   │   └── (and many more files...)  # Additional AI/ML services
 │   ├── middleware/
 │   │   └── jwt.js                    # Authentication middleware with JWT for the app's backend
 │   ├── controllers/
@@ -506,19 +788,37 @@ DocuThinker-AI-App/
 │   ├── README.md                     # Frontend README file
 │   └── package.lock                  # Lock file for dependencies
 │
-├── mobile-app/                       # Mobile app directory
-│   ├── app/                          # React Native app directory
-│   ├── .env                          # Environment variables file for the mobile app
-│   ├── app.json                      # Expo configuration file
-│   ├── components/                   # Reusable components for the mobile app
-│   ├── assets/                       # Static assets for the mobile app
-│   ├── constants/                    # Constants for the mobile app
-│   ├── hooks/                        # Custom hooks for the mobile app
-│   ├── scripts/                      # Scripts for the mobile app
-│   ├── babel.config.js               # Babel configuration file
+├── mobile-app/                       # React Native (Expo SDK 51) client
+│   ├── app/                          # File-based routes (expo-router)
+│   │   ├── _layout.tsx               # Root stack + auth gate (hydrate, redirect)
+│   │   ├── login.tsx                 # Email/password → setAuth
+│   │   ├── register.tsx              # New account → /login
+│   │   ├── upload.tsx                # expo-document-picker + /upload
+│   │   ├── summary.tsx               # Renders /upload or /document-details
+│   │   ├── chat.tsx                  # /chat round-trip with sessionId
+│   │   └── (tabs)/                   # Home, Library, Profile (bottom tabs)
+│   ├── components/                   # Screen primitives + UI kit (Card, Pill, …)
+│   ├── constants/                    # theme.ts, Colors.ts, static UI copy
+│   ├── lib/
+│   │   ├── auth.ts                   # AsyncStorage + emitter (mirrors web auth.js)
+│   │   └── api.ts                    # fetch wrapper + endpoint map
+│   ├── hooks/                        # Custom hooks (useColorScheme)
+│   ├── assets/                       # Static assets (images, fonts)
+│   ├── app.json                      # Expo config (scheme: docuthinker)
+│   ├── babel.config.js               # Babel configuration
 │   ├── package.json                  # Project dependencies and scripts
-│   └── tsconfig.json                 # TypeScript configuration file
+│   └── tsconfig.json                 # TypeScript configuration
 │
+├── aws/                              # AWS deployment assets (ECR/ECS/CloudFormation/CDK)
+│   ├── README.md
+│   ├── cloudformation/
+│   │   └── fargate-service.yaml      # Reference Fargate stack for backend + ai_ml services
+│   ├── infrastructure/
+│   │   ├── cdk-app.ts                # CDK entrypoint
+│   │   └── lib/docuthinker-stack.ts  # CDK stack definition
+│   └── scripts/
+│       └── local-env.sh              # Helper to mirror production env vars locally
+│ 
 ├── kubernetes/                       # Kubernetes configuration files
 │   ├── manifests/                    # Kubernetes manifests for deployment, service, and ingress
 │   ├── backend-deployment.yaml       # Deployment configuration for the backend
@@ -545,7 +845,6 @@ DocuThinker-AI-App/
 ├── vercel.json                       # Vercel configuration file
 ├── openapi.yaml                      # OpenAPI specification for API documentation
 ├── manage_docuthinker.sh             # Shell script for managing and starting the app (both frontend & backend)
-├── jenkins_cicd.sh                   # Shell script for managing the Jenkins CI/CD pipeline
 ├── .gitignore                        # Git ignore file
 ├── LICENSE.md                        # License file for the project
 ├── README.md                         # Comprehensive README for the whole app
@@ -656,19 +955,52 @@ Additionally, **basic fullstack development knowledge and AI/ML concepts** are r
 
 ### **Running the Mobile App**
 
-1. **Navigate to the mobile app directory**:
+The mobile app is a real React Native (Expo SDK 51) client that authenticates against the same backend as the web. Accounts created via the web work on mobile and vice versa.
+
+1. **Install dependencies**:
    ```bash
    cd mobile-app
+   npm ci
    ```
-2. **Install dependencies**:
-   ```bash
-    npm install
-   ```
-3. **Start the Expo server**:
+2. **Start the Expo dev server**:
    ```bash
    npx expo start
    ```
-4. **Run the app on an emulator or physical device**: Follow the instructions in the terminal to run the app on an emulator or physical device.
+   Metro listens on `http://localhost:8081`.
+3. **Attach a simulator/emulator**:
+   - Press `i` to launch (and bundle for) the booted iOS Simulator.
+   - Press `a` to launch (and bundle for) the booted Android AVD.
+   - Or deep-link manually:
+     ```bash
+     xcrun simctl openurl booted "exp://127.0.0.1:8081"
+     adb shell am start -a android.intent.action.VIEW -d "exp://10.0.2.2:8081" host.exp.exponent
+     ```
+4. **Sign in** with a real account (web-created credentials work) and confirm Home shows your real document count.
+
+```mermaid
+sequenceDiagram
+    participant Dev as Developer
+    participant CLI as npx expo start
+    participant Metro as Metro :8081
+    participant iOS as iOS Sim
+    participant AVD as Android AVD
+
+    Dev->>CLI: start
+    CLI->>Metro: bundle entry.js
+    Dev->>CLI: press i
+    CLI->>iOS: install Expo Go (SDK 51) if missing
+    CLI->>iOS: openurl exp://127.0.0.1:8081
+    iOS->>Metro: fetch bundle
+    Metro-->>iOS: iOS bundle
+    Dev->>CLI: press a
+    CLI->>AVD: install Expo Go (SDK 51) if missing
+    CLI->>AVD: am start exp://10.0.2.2:8081
+    AVD->>Metro: fetch bundle
+    Metro-->>AVD: Android bundle
+```
+
+> [!TIP]
+> Expo Go pins one SDK runtime per device. If your device has Go for a different SDK installed, `expo start` will prompt to reinstall the matching version. The swap is reversible — opening another project later prompts the swap back. Detailed troubleshooting lives in [`mobile-app/README.md`](mobile-app/README.md#troubleshooting).
 
 <h2 id="api-endpoints">📋 API Endpoints</h2>
 
@@ -711,6 +1043,9 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
+> [!NOTE]
+> This list is not exhaustive. For a complete list of API endpoints, please refer to the **Swagger** or **Redoc** documentation of the backend server.
+
 ### API Documentation
 
 - **Swagger Documentation**: You can access the Swagger documentation for all API endpoints by running the backend server and navigating to `http://localhost:5000/api-docs`.
@@ -729,58 +1064,6 @@ npx openapi-generator-cli generate -i http://localhost:5000/api-docs -g typescri
 ```
 
 This will generate TypeScript files for the API endpoints in the `api` directory. Feel free to replace or modify the command as needed.
-
-### Using the `openapi.yaml` File
-
-1. **View the API Documentation**
-
-- Open [Swagger Editor](https://editor.swagger.io/).
-- Upload the `openapi.yaml` file or paste its content.
-- Visualize and interact with the API documentation.
-
-2. **Test the API**
-
-- Import `openapi.yaml` into [Postman](https://www.postman.com/):
-  - Open Postman → Import → Select `openapi.yaml`.
-  - Test the API endpoints directly from Postman.
-- Or use [Swagger UI](https://swagger.io/tools/swagger-ui/):
-  - Provide the file URL or upload it to view and test endpoints.
-
-3. **Generate Client Libraries**
-
-- Install OpenAPI Generator:
-  ```bash
-  npm install @openapitools/openapi-generator-cli -g
-  ```
-- Generate a client library:
-  ```bash
-  openapi-generator-cli generate -i openapi.yaml -g <language> -o ./client
-  ```
-- Replace `<language>` with the desired programming language.
-
-4. **Generate Server Stubs**
-
-- Generate a server stub:
-  ```bash
-  openapi-generator-cli generate -i openapi.yaml -g <framework> -o ./server
-  ```
-- Replace `<framework>` with the desired framework.
-
-5. **Run a Mock Server**
-
-- Install Prism:
-  ```bash
-  npm install -g @stoplight/prism-cli
-  ```
-- Start the mock server:
-  ```bash
-  prism mock openapi.yaml
-  ```
-
-6. **Validate the OpenAPI File**
-
-- Use [Swagger Validator](https://validator.swagger.io/):
-  - Upload `openapi.yaml` or paste its content to check for errors.
 
 ### **API Architecture**
 
@@ -833,6 +1116,250 @@ The backend APIs uses centralized error handling to capture and log errors. Resp
 }
 ```
 
+<h2 id="ai-ml-agentic-platform">🤖 AI/ML Agentic Platform</h2>
+
+DocuThinker employs a **two-layer agentic architecture** that separates orchestration concerns (Node.js) from AI/ML execution (Python), connected by a resilient bridge with circuit breakers, cost controls, and full observability.
+
+### Architecture Overview
+
+| Layer | Technology | Port | Responsibility |
+|-------|-----------|------|----------------|
+| **Orchestrator** | Node.js 18+ / Express | `4000` | Supervisor routing, agent loops, tool dispatch, cost tracking, MCP |
+| **AI/ML Backend** | Python / FastAPI | `8000` | LLM inference, RAG pipelines, NER, CrewAI multi-agent, vector/graph stores |
+
+```mermaid
+graph TB
+    subgraph "Clients"
+        WEB[React Frontend]
+        EXT[External Agents / MCP]
+    end
+
+    subgraph "Orchestrator :4000"
+        SUP[Supervisor<br/>classify / decompose / dispatch]
+        AL[Agent Loop<br/>tool-use cycle up to 10 iters]
+        CB[Circuit Breaker<br/>CLOSED / OPEN / HALF_OPEN]
+        CT[Cost Tracker<br/>daily + monthly budgets]
+        BP[Batch Processor<br/>concurrent doc processing]
+        DLQ[Dead Letter Queue<br/>retry + DLQ]
+        HO[Handoff Manager<br/>cross-agent context transfer]
+        TR[Tool Registry<br/>local + Python-bridge tools]
+        TB[Token Budget Manager<br/>context window guard]
+        CS[Conversation Store<br/>auto-summarizing history]
+        OBS[Context Observability<br/>OTel-compatible metrics]
+        PC[Prompt Cache Strategy<br/>3-layer Anthropic caching]
+        MCP_S[MCP Server<br/>13 tools over stdio]
+        MCP_C[MCP Client<br/>connect to external servers]
+    end
+
+    subgraph "AI/ML Backend :8000"
+        PY_SVC[DocumentIntelligenceService]
+        RAG[Agentic RAG Pipeline]
+        CREW[CrewAI Multi-Agent]
+        NLP[SpaCy NER / Sentiment]
+        VEC[ChromaDB Vectors]
+        KG[Neo4j Knowledge Graph]
+    end
+
+    subgraph "LLM Providers"
+        CLAUDE[Anthropic Claude]
+        GEMINI[Google Gemini]
+    end
+
+    WEB -->|REST| SUP
+    EXT -->|MCP stdio| MCP_S
+    SUP --> AL
+    SUP --> BP
+    AL --> TR
+    TR -->|Python Bridge| PY_SVC
+    AL --> CB
+    CB --> CLAUDE
+    CB --> GEMINI
+    CT -.->|budget check| SUP
+    TB -.->|token check| SUP
+    DLQ -.->|retry| SUP
+    HO -.->|context| AL
+    CS -.->|history| AL
+    OBS -.->|metrics| CT
+    PC -.->|cache hints| AL
+    PY_SVC --> RAG
+    PY_SVC --> CREW
+    PY_SVC --> NLP
+    RAG --> VEC
+    RAG --> KG
+```
+
+### Orchestrator Components
+
+The orchestrator (`orchestrator/`) is a standalone Node.js service providing:
+
+- **Supervisor** -- Classifies incoming requests into 18+ intents via route matching or LLM classification, checks token budgets, decomposes multi-step tasks (e.g., upload = extract + summarize + store), dispatches to handlers with dependency resolution, and aggregates results. Includes automatic provider failover.
+- **Circuit Breaker** -- Per-provider state machine (CLOSED / OPEN / HALF_OPEN) that trips after configurable failure thresholds and auto-recovers after a cooldown with a single probe request.
+- **Agent Loop** -- Agentic tool-use cycle that iterates up to `maxIterations` (default 10), calling tools via the Tool Registry and feeding results back until the LLM produces a final response.
+- **Handoff Manager** -- Transfers execution context between agents (Node-to-Node or Node-to-Python) with conversation summarization and task state serialization.
+- **Batch Processor** -- Processes document arrays with configurable batch size (10) and concurrency (3), reporting per-document success/failure and overall success rate.
+- **Cost Tracker** -- Records per-request costs using real token pricing for Claude, GPT-4, and Gemini models. Enforces daily and monthly budget limits with 80% threshold warnings.
+- **Dead Letter Queue** -- Failed operations retry up to `maxRetries` (default 3) before moving to the DLQ for manual inspection.
+- **Python Bridge** -- HTTP client to the Python AI/ML service with circuit breaker integration, configurable timeouts, and methods for RAG, NER, sentiment, graph queries, and vector search.
+- **Tool Registry** -- Registers local tools (e.g., `analyze_document_text`) and Python-bridged tools (e.g., `extract_entities`, `rag_search`, `vector_search`, `knowledge_graph_query`, `python_sentiment`). Tools are exposed to the Agent Loop in Anthropic tool-use format.
+
+### Context Management
+
+- **Token Budget Manager** -- Estimates token usage across 7+ models, checks against context windows (200K for Claude, 2M for Gemini), and provides compaction via conversation summarization.
+- **Conversation Store** -- In-memory store keyed by `userId:documentId`. Auto-summarizes history when messages exceed 20, evicts LRU conversations beyond 10,000, and builds context-injected message arrays with document context and summaries.
+- **Context Observability** -- Records per-request utilization metrics, exposes OpenTelemetry-compatible metric format, tracks cache hit rates, and alerts on >80% context utilization.
+- **Hybrid RAG** -- Combines keyword search (Redis) and semantic search (Python vector store) using Reciprocal Rank Fusion for re-ranking.
+
+### Prompt Engineering
+
+- **14 versioned system prompts** covering summarization, key ideas, discussion points, sentiment, bullet summary, rewrite, recommendations, categorization, translation, document chat, voice chat, general chat, batch coordination, and intent classification.
+- **12 Zod schemas** validating all AI outputs (summary, keyIdeas, discussionPoints, sentiment, bulletSummary, rewrite, recommendations, category, chat, intent, batch, analytics).
+- **3-layer prompt caching** using Anthropic's `cache_control: ephemeral` on system prompts, document context, and conversation history.
+
+### MCP Integration
+
+- **MCP Server** (`orchestrator/mcp/server.js`) -- Exposes 13 tools over stdio transport: `document_summarize`, `document_key_ideas`, `document_sentiment`, `document_discussion_points`, `document_analytics`, `document_bullet_summary`, `document_rewrite`, `document_recommendations`, `document_chat`, `system_health`, `system_costs`, `rag_query`, `knowledge_graph_query`.
+- **MCP Client** (`orchestrator/mcp/client.js`) -- Connects to external MCP servers via stdio transport, enabling the orchestrator to consume tools from other agents.
+
+### Orchestrator API Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/health` | System health with circuit breaker, cost, cache, DLQ, and provider status |
+| `GET` | `/api/costs` | Cost usage report by provider and intent |
+| `GET` | `/api/circuits` | Circuit breaker state for all providers |
+| `GET` | `/api/context-metrics` | Context utilization and cache hit rate metrics |
+| `GET` | `/api/dlq` | Dead letter queue stats and recent messages |
+| `GET` | `/api/tools` | Registered tool definitions and count |
+| `POST` | `/api/tools/execute` | Execute a registered tool by name |
+| `POST` | `/api/token-check` | Check token budget for a given model/prompt/messages |
+| `POST` | `/api/supervisor/process` | Route a request through the supervisor pipeline |
+| `POST` | `/api/agent/run` | Run the agentic tool-use loop with a message and context |
+| `POST` | `/api/batch/process` | Batch process multiple documents (summarize, keyIdeas, sentiment) |
+| `POST` | `/api/conversations/:userId/:documentId/message` | Add a message to a conversation |
+| `GET` | `/api/conversations/:userId/:documentId` | Retrieve conversation history |
+| `DELETE` | `/api/conversations/:userId/:documentId` | Clear a conversation |
+
+> [!TIP]
+> Visit the [`orchestrator/README.md`](orchestrator/README.md) for full API request/response examples and the [`ai_ml/README.md`](ai_ml/README.md) for the Python AI/ML layer.
+
+<h2 id="beads-task-coordination">🧩 Beads Task Coordination</h2>
+
+DocuThinker AI agents (and humans) use a **Beads** sub-architecture to coordinate work across multiple AI agents and humans operating on the same codebase. A *bead* is a self-contained, dependency-aware task unit that any agent can pick up, execute, and complete — enabling safe parallel development without merge conflicts.
+
+### Why Beads?
+
+When several AI agents (or human developers) work concurrently, they risk editing the same files and producing conflicting changes. Beads solve this with:
+
+- **Atomic task definitions** — each bead specifies exactly which files to read, modify, or create.
+- **File reservations** — agents claim files before editing, preventing concurrent writes.
+- **Dependency graphs** — beads declare upstream/downstream dependencies so work executes in the correct order.
+- **Acceptance criteria** — every bead includes testable conditions that must pass before the task is considered complete.
+
+### Bead Lifecycle
+
+```mermaid
+stateDiagram-v2
+    [*] --> Authored: Bead created from template
+    Authored --> Claimed: Agent reserves files via .status.json
+    Claimed --> InProgress: Agent begins implementation
+    InProgress --> Testing: Code changes complete
+    Testing --> Done: Acceptance criteria pass
+    Testing --> InProgress: Tests fail — iterate
+    Done --> [*]: Reservations released
+    InProgress --> Blocked: Dependency not met
+    Blocked --> InProgress: Dependency resolved
+```
+
+### Directory Structure
+
+```
+.beads/
+├── .status.json          # Live agent reservations & bead counters
+├── README.md             # Quick-start guide for the beads workflow
+└── templates/
+    └── feature-bead.md   # Canonical bead template
+```
+
+### Status Tracking (`.beads/.status.json`)
+
+The status file is the single source of truth for agent coordination:
+
+```json
+{
+  "version": "1.0.0",
+  "agents": {},
+  "reservations": {},
+  "lastUpdated": null,
+  "beadsCompleted": 0,
+  "beadsActive": 0
+}
+```
+
+| Field | Purpose |
+|-------|---------|
+| `agents` | Map of active agent IDs to their metadata (name, start time, current bead) |
+| `reservations` | Map of file paths to the agent ID that holds the reservation |
+| `beadsCompleted` | Counter of successfully finished beads |
+| `beadsActive` | Counter of beads currently in progress |
+
+### Bead Template
+
+Every bead follows a structured template (`.beads/templates/feature-bead.md`):
+
+| Section | Description |
+|---------|-------------|
+| **Background** | Why the work exists |
+| **Current State** | Files to read before starting |
+| **Desired Outcome** | Specific, testable result |
+| **Files to Touch** | Explicit list of files to read, enhance, or create |
+| **Dependencies** | Upstream beads that must finish first and downstream beads this unblocks |
+| **Acceptance Criteria** | Checklist including "all existing tests still pass" |
+
+### Conflict Zones vs. Safe Parallel Zones
+
+Certain files are **single-agent only** — only one agent may hold a reservation at a time:
+
+| Conflict Zone File | Reason |
+|--------------------|--------|
+| `docker-compose.yml` | Shared service definitions |
+| `ai_ml/services/orchestrator.py` | Central AI/ML entry point |
+| `ai_ml/providers/registry.py` | LLM provider configuration |
+| `orchestrator/index.js` | Orchestrator entry point |
+| Shared config files | Cross-service settings |
+
+**Safe parallel zones** (multiple agents can work simultaneously):
+- Separate service directories (e.g., `ai_ml/providers/` vs. `orchestrator/context/`)
+- Independent test files
+- New files in new directories
+- Documentation files (excluding shared configs)
+
+### Agent Communication Protocol
+
+```mermaid
+sequenceDiagram
+    participant A as Agent
+    participant S as .status.json
+    participant C as Codebase
+
+    A->>S: 1. Check for conflicts
+    S-->>A: No reservation on target files
+    A->>S: 2. Post reservation (agent ID + file list)
+    A->>C: 3. Implement bead instructions
+    A->>C: 4. Run tests (acceptance criteria)
+    A->>S: 5. Release reservations
+    A->>S: 6. Increment beadsCompleted
+```
+
+Agents must:
+1. **Check** `.beads/.status.json` before starting any work.
+2. **Reserve** files by posting their agent ID and claimed file paths.
+3. **Update** status every 30 minutes while actively working.
+4. **Release** all reservations upon completion or failure.
+5. Use branch naming: `agent/<agent-name>/<bead-id>`.
+
+> [!NOTE]
+> For the full agent coordination protocol including conflict resolution and escalation, see [AGENTS.md](AGENTS.md). For how beads integrate with the AI/ML pipeline, see [AI_ML.md](AI_ML.md).
+
 <h2 id="graphql-integration">🧰 GraphQL Integration</h2>
 
 ### Introduction to GraphQL in Our Application
@@ -851,7 +1378,7 @@ Our application supports a fully-featured **GraphQL API** that allows clients to
 1. **GraphQL Endpoint**:  
    The GraphQL endpoint is available at:
    ```
-   https://docuthinker-ai-app.onrender.com/graphql
+   https://docuthinker-app-backend-api.vercel.app/graphql
    ```
    Or, if you are running the backend locally, the endpoint will be:
    ```
@@ -949,65 +1476,189 @@ For more information about GraphQL, visit the [official documentation](https://g
 
 <h2 id="mobile-app">📱 Mobile App</h2>
 
-The **DocuThinker** mobile app is built using **React Native** and **Expo**. It provides a mobile-friendly interface for users to upload documents, generate summaries, and chat with an AI. The mobile app integrates with the backend API to provide a seamless experience across devices.
+The **DocuThinker** mobile app is a real React Native client (Expo SDK 51, TypeScript, `expo-router`) that talks directly to the same Vercel backend the web frontend uses. It is **not** a shell or mock — every screen reads from real endpoints, and accounts created via the web app sign in on mobile without any extra step.
 
-Currently, it is in development and will be released soon on both the **App Store** and **Google Play Store**.
+```mermaid
+graph LR
+    subgraph Web["💻 docuthinker.vercel.app"]
+        WLogin[Login.js]
+        WAuth["utils/auth.js<br/>localStorage + event"]
+    end
 
-Stay tuned for the release of the **DocuThinker** mobile app!
+    subgraph Mobile["📱 Expo Go / native build"]
+        MLogin[login.tsx]
+        MAuth["lib/auth.ts<br/>AsyncStorage + emitter"]
+    end
 
-Below is a screenshot of the mobile app (in development):
+    subgraph Backend["☁️ docuthinker-app-backend-api.vercel.app"]
+        Login["/login"]
+        FB[(Firebase Auth)]
+    end
 
-<p align="center">
-  <img src="images/responsive.png" alt="Mobile App" width="50%" style="border-radius: 8px">
-</p>
+    WLogin --> Login
+    MLogin --> Login
+    Login --> FB
+    Login -->|customToken + userId| WAuth
+    Login -->|customToken + userId| MAuth
+```
+
+### What landed in this PR
+
+- **Persistent session**: Login persists `customToken` + `userId` in `AsyncStorage`; root layout hydrates on boot.
+- **Auth gate**: `app/_layout.tsx` redirects unauthed users to `/login` and authed users away from `/login` automatically.
+- **Real backend wiring**: Home / Library / Profile / Summary / Chat all hit live endpoints — see the parity table below.
+- **Document picker**: `expo-document-picker` + `expo-file-system` for plain-text uploads (see [Upload Limitation](#upload-limitation-mobile)).
+- **UI fixes**: `Pill` accepts an `align` prop so the "Pro member" badge centers on Profile; settings rows on Profile are now real `Pressable`s with `onPress` (showing "Coming soon" `Alert`s where the underlying flow isn't wired yet).
+- **Mock data removed**: `Alex Carter` and the canned document list are gone. The only static content left is the four feature tiles on the Home screen.
+
+### Web ↔ mobile parity
+
+| Capability | Web | Mobile (this PR) | Backend |
+|---|---|---|---|
+| Email + password sign-in | ✅ | ✅ | `POST /login` |
+| Register | ✅ | ✅ | `POST /register` |
+| Forgot password | ✅ | UI stub | `POST /forgot-password` |
+| Google sign-in | ✅ | UI stub | n/a |
+| Document list | ✅ | ✅ pull-to-refresh | `GET /documents/:userId` |
+| Document summary | ✅ | ✅ | `GET /document-details/:userId/:docId` |
+| Profile (email, docs, days) | ✅ | ✅ | `/users/:id`, `/document-count/:id`, `/days-since-joined/:id`, `/user-joined-date/:id` |
+| Document chat | ✅ | ✅ | `POST /chat` |
+| Upload .txt/.md | ✅ | ✅ | `POST /upload` |
+| Upload PDF/DOCX | ✅ (client-side parse) | ❌ (see below) | `POST /upload` |
+| Document analytics dashboard | ✅ | future | — |
+| Account / appearance / notifications panes | ✅ | UI stubs | — |
+
+### Mobile auth state machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> Hydrating: app/_layout mount
+    Hydrating --> Anonymous: AsyncStorage empty
+    Hydrating --> Authed: userId present
+
+    Anonymous --> Authed: setAuth() after POST /login
+    Authed --> Anonymous: clearAuth() (Sign out)
+    Authed --> Loading: tab focus → fetch
+    Loading --> Ready: 4 parallel GETs resolve
+    Ready --> Refreshing: pull-to-refresh
+    Refreshing --> Ready
+```
+
+### Upload limitation (mobile)
+
+The backend `/upload` endpoint expects `{userId, title, text}` JSON. The web frontend parses PDF/DOCX **in the browser** with `pdfjs-dist` + `mammoth` before posting plain text. The mobile app does not currently ship a comparable RN parser because:
+
+1. RN equivalents (`react-native-pdf`, mammoth + xmldom polyfill) require native modules and `expo prebuild`, which would drop the Expo Go workflow.
+2. Routing binary uploads through Vercel is not reliable — serverless functions have a small request-body limit (~4.5 MB) and short hobby-tier timeouts, which makes streaming larger PDFs through a new multipart endpoint fragile.
+
+So: **mobile uploads .txt/.md; web uploads PDF/DOCX**. Both clients see the same documents in `/documents/:userId`, so the round-trip surface is consistent.
+
+For the full mobile architecture (screen map, API client class diagram, lifecycle, troubleshooting) see **[mobile-app/README.md](mobile-app/README.md)**.
 
 <h2 id="containerization">📦 Containerization</h2>
 
-The **DocuThinker** app can be containerized using **Docker** for easy deployment and scaling. Follow these steps to containerize the app:
+The **DocuThinker** app can be containerized using **Docker** for easy deployment and scaling. The `docker-compose.yml` defines all services including the new agentic orchestrator.
 
-1. Run the following command to build the Docker image:
+1. Run the following command to build and start all services:
    ```bash
    docker compose up --build
    ```
 
-2. The app will be containerized and ready to run on port 3000.
+2. All services will start on their respective ports (see table below).
 
 You can also view the image in the **Docker Hub** repository **[here](https://hub.docker.com/repository/docker/hoangsonw/docuthinker-ai-app/)**.
 
+#### Docker Compose Services
+
+| Service | Container | Port | Description |
+|---------|-----------|------|-------------|
+| `frontend` | `docuthinker-frontend` | `3001` | React frontend |
+| `backend` | `docuthinker-backend` | `3000` | Express API server |
+| `orchestrator` | `docuthinker-orchestrator` | `4000` | Agentic orchestration layer (Node.js) |
+| `ai-ml` | `docuthinker-ai-ml` | `8000` | Python AI/ML services (FastAPI) |
+| `redis` | `docuthinker-redis` | `6379` | In-memory cache (Redis 7 Alpine) |
+| `firebase` | firebase | -- | Firebase emulator |
+
+The orchestrator container includes a health check (`/health`), runs as a non-root user, and depends on Redis being healthy before starting.
+
+```mermaid
+graph TB
+    A[Docker Compose] --> B[Frontend Container]
+    A --> C[Backend Container]
+    A --> O[Orchestrator Container]
+    A --> ML[AI/ML Container]
+    A --> D[Redis Container]
+    A --> F[Firebase Container]
+    B -->|Port 3001| G[React App]
+    C -->|Port 3000| H[Express Server]
+    O -->|Port 4000| I[Agentic Orchestrator]
+    ML -->|Port 8000| J[FastAPI AI/ML]
+    D -->|Port 6379| K[Redis Cache]
+    I -->|Python Bridge| J
+    I -->|Circuit Breaker| L[Claude / Gemini]
+    H -->|REST| I
+```
+
 <h2 id="deployment">🚧 Deployment</h2>
+
+DocuThinker now ships primarily via **Kubernetes** with **blue/green promotion plus weighted canaries** driven by the updated **Jenkinsfile**. **Vercel/Render** remain as backup endpoints, and **AWS ECS Fargate** is still available as an alternative target.
+
+```mermaid
+graph TB
+    GIT[GitHub Repo] --> JENKINS[Jenkins Pipeline]
+    JENKINS --> TEST[Install + Lint + Tests]
+    TEST --> BUILD[Containerize Frontend + Backend]
+    BUILD --> REG[Push Images to Registry]
+    REG --> CANARY[Canary Deploy - 10% weight]
+    CANARY --> BG[Promote to Blue/Green]
+    BG --> USERS[Live Traffic]
+    JENKINS --> VERCEL[Vercel Fallback Deploy]
+    VERCEL --> USERS
+```
+
+### **Production Rollouts (Kubernetes blue/green + canary)**
+
+- Stable traffic is routed by `backend-service`/`frontend-service` to the active `track` (`blue` by default). Canary traffic is handled by `*-canary-service` through the weighted ingress (`ingress.yaml`) using the `X-DocuThinker-Canary: always` header.
+- Jenkins builds images tagged `${GIT_SHA}-${BUILD_NUMBER}`, pushes them to `$REGISTRY`, deploys the target color (scaled to 3 replicas), and rolls out canaries (1 replica each). Promotion is a gated manual input before the service selector flips to the new color and the previous color scales to `0`.
+- To promote manually outside Jenkins:
+
+  ```bash
+  TARGET=green  # or blue
+  kubectl -n <ns> scale deployment/backend-$TARGET --replicas=3
+  kubectl -n <ns> scale deployment/frontend-$TARGET --replicas=3
+  kubectl -n <ns> patch service backend-service -p "{\"spec\": {\"selector\": {\"app\": \"backend\", \"track\": \"$TARGET\"}}}"
+  kubectl -n <ns> patch service frontend-service -p "{\"spec\": {\"selector\": {\"app\": \"frontend\", \"track\": \"$TARGET\"}}}"
+  kubectl -n <ns> scale deployment/backend-$( [ "$TARGET" = "blue" ] && echo green || echo blue ) --replicas=0
+  kubectl -n <ns> scale deployment/frontend-$( [ "$TARGET" = "blue" ] && echo green || echo blue ) --replicas=0
+  ```
+
+See `kubernetes/README.md` for the full rollout flow, ingress weighting, and rollback commands.
 
 ### **Frontend Deployment (Vercel)**
 
-1. **Install the Vercel CLI**:
+- Production hosting remains on **Vercel**. The Jenkins pipeline runs tests/builds and then calls `vercel --prod` using the `vercel-token` credential when the `main` branch updates.
+- To deploy manually:
 
-   ```bash
-   npm install -g vercel
-   ```
+  ```bash
+  npm install -g vercel
+  vercel --prod
+  ```
 
-2. **Deploy the frontend**:
+- The live site stays at **https://docuthinker.vercel.app** with Netlify retained as a static backup.
 
-   ```bash
-   vercel
-   ```
+### **Backend & AI/ML Deployment**
 
-3. **Follow the instructions in your terminal to complete the deployment**.
+- Primary API traffic now runs on the Kubernetes blue/green stack defined in `kubernetes/backend-*.yaml`, fronted by `backend-service` and the NGINX ingress canary (`ingress.yaml`). Vercel (`https://docuthinker-app-backend-api.vercel.app/`) and Render (`https://docuthinker-ai-app.onrender.com/`) remain as backup endpoints.
+- Jenkins builds backend images, pushes them to the configured `$REGISTRY`, deploys the next color alongside canary pods, and flips the service selector after manual approval.
+- AWS remains available as an alternate target. The stack in [`aws/`](aws/README.md) still provisions Fargate services if you prefer ECS over Kubernetes.
+- To run the new rollout flow by hand:
 
-### **Backend Deployment (Render)**
-
-- The backend can be deployed on platforms like **Heroku**, **Render**, or **Vercel**.
-
-- Currently, we are using **Render** to host the backend. You can access the live backend **[here](https://docuthinker-ai-app.onrender.com/)**.
-
-### **Important Note about Backend Deployment**
-
-> [!IMPORTANT]
-> - Please note that we are currently on the **Free Tier** of **Render**. This means that the backend server may take a few seconds to wake up if it has been inactive for a while.
->
-> - Therefore, the first API call may take a bit longer to respond. Subsequent calls should be faster as the server warms up. It is completely normal to take up to 2 minutes for the first API call to respond.
->
-> - Also, the **Free Tier** of **Render** only allocates **512MB and 0.1 CPU**. This may result in slower response times for API calls and document processing.
->
-> - Additionally, during high traffic periods, the server may take longer to respond, although we have employed [NGINX](#load-balancing) for load balancing and caching.
+  ```bash
+  kubectl apply -f kubernetes/configmap.yaml
+  kubectl apply -f kubernetes/backend-service.yaml kubernetes/backend-canary-service.yaml
+  kubectl apply -f kubernetes/backend-deployment-blue.yaml kubernetes/backend-deployment-green.yaml kubernetes/backend-deployment-canary.yaml
+  # See kubernetes/README.md for the promotion/rollback commands
+  ```
 
 <h2 id="load-balancing">⚖️ Load Balancing & Caching</h2>
 
@@ -1024,28 +1675,47 @@ You can also view the image in the **Docker Hub** repository **[here](https://hu
 
 <h2 id="jenkins">🔗 Jenkins Integration</h2>
 
-- We are using **Jenkins** for continuous integration and deployment. The Jenkins pipeline is set up to automatically test and deploy the app whenever changes are pushed to the main branch.
-- The pipeline runs the tests, builds the app, and deploys it to **Vercel** and **Render**. Feel free to visit the pipeline at **[`Jenkinsfile`](Jenkinsfile)**.
-- The pipeline is triggered automatically whenever a new commit is pushed to the main branch.
-- You can set up your own Jenkins pipeline to automate testing and deployment for your projects by following these commands and steps:
+- The refreshed **Jenkinsfile** now mirrors production rollouts: checkout → install (`npm ci`) → lint/test → build → docker build/push (`$REGISTRY`) → canary deploy → manual promotion to blue/green on Kubernetes, with an optional Vercel deploy as fallback.
+- Credentials required by the pipeline:
+  - `docuthinker-registry` – username/password for the container registry set in `REGISTRY`.
+  - `kubeconfig-docuthinker` – kubeconfig file used for all `kubectl` invocations.
+  - `vercel-token` – optional Vercel API token (keeps the legacy deploy available).
+- For local Jenkins bootstrap:
 
-1. **Install Jenkins**:
-   ```bash
-   brew install jenkins
-   ```
-2. **Start Jenkins**:
-   ```bash
-   brew services start jenkins
-   ```
-3. **Access Jenkins**:
-   Open your browser and go to `http://localhost:8080` to access the Jenkins dashboard.
+  ```bash
+  brew install jenkins-lts
+  brew services start jenkins-lts
+  open http://localhost:8080
+  ```
 
-4. **Follow the instructions to set up Jenkins and create a new pipeline**.
+- Create a Pipeline job pointing to this repository, set `REGISTRY`, `KUBE_CONTEXT`, and `KUBE_NAMESPACE` as job/env vars, and assign the credentials above. Jenkins will run automatically on every push to `main`.
+- Promotion is gated with an input step during the canary stage; the pipeline patches `backend-service`/`frontend-service` to the new track and scales down the previous color after approval.
+- See [`Jenkinsfile`](Jenkinsfile) for the full stage definitions and environment configuration.
 
-If successful, you should see the Jenkins pipeline running and deploying the app automatically whenever changes are pushed to the main branch. Here is an example:
+If successful, you should see the Jenkins pipeline running tests, pushing images, rolling out the canary, and promoting blue/green automatically whenever changes are merged. Example dashboard:
 
 <p align="center">
   <img src="images/jenkins.png" alt="Jenkins Pipeline" width="100%" style="border-radius: 8px">
+</p>
+
+<h2 id="github-actions">🛠️ GitHub Actions Integration</h2>
+
+In addition to Jenkins, we also have a **GitHub Actions** workflow set up for CI/CD. The workflow is defined in the `.github/workflows/ci.yml` file.
+
+The GitHub Actions workflow includes the following steps:
+- **Checkout Code**: Checks out the code from the repository.
+- **Set up Node.js**: Sets up the Node.js environment.
+- **Install Dependencies**: Installs the dependencies for the frontend, backend, and ai_ml packages.
+- **Run Tests**: Runs the tests for the frontend, backend, and ai_ml packages.
+- **Build Artifacts**: Builds the artifacts for the frontend, backend, and ai_ml packages.
+- **Deploy to Vercel**: Deploys the frontend to Vercel using the `vercel-token` secret.
+- **Build and Push Docker Images**: Builds and pushes the Docker images for the backend and ai_ml packages to Docker Hub using the `dockerhub-username` and `dockerhub-password` secrets, as well as to GHCR using the `ghcr-token` secret.
+- **Notify on Failure**: Sends a notification to a Slack channel if any of the steps fail.
+- **Notify on Success**: Sends a notification to a Slack channel if all the steps succeed.
+- **Cleanup**: Cleans up the workspace after the workflow is complete.
+
+<p align="center">
+  <img src="images/github-actions.png" alt="GitHub Actions Workflow" width="100%" style="border-radius: 8px">
 </p>
 
 <h2 id="testing">🧪 Testing</h2>
@@ -1106,9 +1776,30 @@ This will run the unit tests and end-to-end tests for the frontend app using **J
 <h2 id="kubernetes">🚢 Kubernetes Integration</h2>
 
 - We are using **Kubernetes** for container orchestration and scaling. The app can be deployed on a Kubernetes cluster for high availability and scalability.
+- Blue/green deployments plus canary ingress are defined in `kubernetes/*.yaml`; see `kubernetes/README.md` for promotion/rollback commands.
 - The Kubernetes configuration files are included in the repository for easy deployment. You can find the files in the `kubernetes` directory.
 - Feel free to explore the Kubernetes configuration files and deploy the app on your own Kubernetes cluster.
 - You can also use **Google Kubernetes Engine (GKE)**, **Amazon EKS**, or **Azure AKS** to deploy the app on a managed Kubernetes cluster.
+
+```mermaid
+graph TB
+    A[Kubernetes Cluster] --> B[Ingress Controller]
+    B --> C[Frontend Service]
+    B --> D[Backend Service]
+    C --> E[Frontend Pods]
+    D --> F[Backend Pods]
+    E --> G[Pod 1]
+    E --> H[Pod 2]
+    E --> I[Pod 3]
+    F --> J[Pod 1]
+    F --> K[Pod 2]
+    F --> L[Pod 3]
+    D --> M[ConfigMap]
+    D --> N[Secrets]
+    D --> O[Persistent Volume]
+    O --> P[MongoDB]
+    O --> Q[Redis]
+```
 
 <h2 id="vscode-extension">⚛️ VS Code Extension</h2>
 
@@ -1173,14 +1864,21 @@ This project is licensed under the **Creative Commons Attribution-NonCommercial 
 <h2 id="alternative-docs">📚 Additional Documentation</h2>
 
 For more information on the **DocuThinker** app, please refer to the following resources:
-- **[Web-Based Documentation](https://hoangsonww.github.io/DocuThinker-AI-App/)**
+- **[Architecture Documentation](ARCHITECTURE.md)**
+- **[AI/ML Documentation](ai_ml/README.md)**
 - **[Backend README](backend/README.md)**
+- **[API Documentation](https://docuthinker-app-backend-api.vercel.app/)**
+- **[Deployment Documentation](DEVOPS.md)**
 - **[Frontend README](frontend/README.md)**
 - **[Mobile App README](mobile-app/README.md)**
+- **[AWS Deployment Documentation](aws/README.md)**
+- **[NGINX Documentation](nginx/README.md)**
+
+However, this README file should already provide a comprehensive overview of the project ~
 
 <h2 id="author">👨‍💻 Author</h2>
 
-Here are some information about me:
+Here are some information about me - the project's humble creator:
 - **[Son Nguyen](https://github.com/hoangsonww)** - An aspiring Software Developer & Data Scientist
 - Feel free to connect with me on **[LinkedIn](https://www.linkedin.com/in/hoangsonw/)**.
 - If you have any questions or feedback, please feel free to reach out to me at **[hoangson091104@gmail.com](mailto:hoangson091104@gmail.com)**.
@@ -1191,7 +1889,8 @@ Here are some information about me:
 
 **Happy Coding and Analyzing! 🚀**
 
-**Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024-2025.**
+**Created with ❤️ by [Son Nguyen](https://github.com/hoangsonww) in 2024-2025.** 
+Licensed under the **[Creative Commons Attribution-NonCommercial License](LICENSE.md)**.
 
 ---
 

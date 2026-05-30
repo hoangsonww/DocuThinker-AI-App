@@ -3,6 +3,7 @@ import {
   BrowserRouter as Router,
   Routes,
   Route,
+  Navigate,
   useLocation,
 } from "react-router-dom";
 import { Box } from "@mui/material";
@@ -21,6 +22,7 @@ import Profile from "./pages/Profile";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import NotFoundPage from "./pages/NotFoundPage";
 import TermsOfService from "./pages/TermsOfService";
+import { isAuthenticated } from "./utils/auth";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/react";
 import "./App.css";
@@ -45,20 +47,19 @@ function useTrackPageView() {
   }, [location]);
 }
 
+// Redirect logged-in users away from guest-only pages.
+function RequireGuest({ children }) {
+  return isAuthenticated() ? <Navigate to="/home" replace /> : children;
+}
+
 // Launches the app
 function App() {
   const [theme, setTheme] = useState(getStoredTheme());
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     document.body.style.backgroundColor =
       theme === "dark" ? "#121212" : "#ffffff";
   }, [theme]);
-
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
-  }, []);
 
   const handleThemeToggle = () => {
     const newTheme = theme === "dark" ? "light" : "dark";
@@ -73,52 +74,65 @@ function App() {
         <GoogleAnalytics />
         <TrackPageView />
         <SpeedInsights />
-        <Box
-          sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-        >
-          <Navbar
-            theme={theme}
-            onThemeToggle={handleThemeToggle}
-            isLoggedIn={isLoggedIn}
-            onLogout={() => setIsLoggedIn(false)}
-          />
-          <Box sx={{ flexGrow: 1 }}>
-            <Routes>
-              <Route path="/home" element={<Home theme={theme} />} />
-              <Route path="/" element={<LandingPage theme={theme} />} />
-              <Route path="/landing" element={<LandingPage theme={theme} />} />
-              <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
-              <Route
-                path="/documents"
-                element={<DocumentsPage theme={theme} />}
-              />
-              <Route
-                path="/forgot-password"
-                element={<ForgotPassword theme={theme} />}
-              />
-              <Route path="/profile" element={<Profile theme={theme} />} />
-              <Route
-                path="/privacy-policy"
-                element={<PrivacyPolicy theme={theme} />}
-              />
-              <Route
-                path="/terms-of-service"
-                element={<TermsOfService theme={theme} />}
-              />
-              <Route
-                path="/login"
-                element={
-                  <Login onLogin={() => setIsLoggedIn(true)} theme={theme} />
-                }
-              />
-              <Route path="/register" element={<Register theme={theme} />} />
-              <Route path="*" element={<NotFoundPage theme={theme} />} />
-            </Routes>
-          </Box>
-          <Footer />
-        </Box>
+        <AppLayout theme={theme} onThemeToggle={handleThemeToggle} />
       </Router>
     </GoogleOAuthProvider>
+  );
+}
+
+function AppLayout({ theme, onThemeToggle }) {
+  const location = useLocation();
+  const hideNavbar =
+    location.pathname === "/" || location.pathname.startsWith("/landing");
+
+  return (
+    <Box sx={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      {!hideNavbar && <Navbar theme={theme} onThemeToggle={onThemeToggle} />}
+      <Box sx={{ flexGrow: 1 }}>
+        <Routes>
+          <Route path="/home" element={<Home theme={theme} />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/landing" element={<LandingPage />} />
+          <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
+          <Route path="/documents" element={<DocumentsPage theme={theme} />} />
+          <Route
+            path="/forgot-password"
+            element={
+              <RequireGuest>
+                <ForgotPassword theme={theme} />
+              </RequireGuest>
+            }
+          />
+          <Route path="/profile" element={<Profile theme={theme} />} />
+          <Route
+            path="/privacy-policy"
+            element={<PrivacyPolicy theme={theme} />}
+          />
+          <Route
+            path="/terms-of-service"
+            element={<TermsOfService theme={theme} />}
+          />
+          <Route
+            path="/login"
+            element={
+              <RequireGuest>
+                <Login theme={theme} />
+              </RequireGuest>
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              <RequireGuest>
+                <Register theme={theme} />
+              </RequireGuest>
+            }
+          />
+          <Route path="*" element={<NotFoundPage theme={theme} />} />
+        </Routes>
+      </Box>
+      <Footer />
+    </Box>
   );
 }
 

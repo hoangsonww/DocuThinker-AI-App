@@ -1,0 +1,222 @@
+# SonarQube Server — Kubernetes Helm Values
+# Production-grade SonarQube deployment with PostgreSQL, persistence, and security
+# Chart: sonarqube/sonarqube (https://SonarSource.github.io/helm-chart-sonarqube)
+
+replicaCount: 2
+
+image:
+  repository: sonarqube
+  tag: "10.4-enterprise"
+  pullPolicy: IfNotPresent
+
+edition: enterprise
+
+ingress:
+  enabled: true
+  ingressClassName: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "64m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+  hosts:
+    - name: sonarqube.docuthinker.com
+      path: /
+      pathType: Prefix
+  tls:
+    - secretName: sonarqube-tls
+      hosts:
+        - sonarqube.docuthinker.com
+
+service:
+  type: ClusterIP
+  externalPort: 9000
+  internalPort: 9000
+
+resources:
+  requests:
+    cpu: 1000m
+    memory: 2Gi
+  limits:
+    cpu: 4000m
+    memory: 6Gi
+
+persistence:
+  enabled: true
+  storageClass: gp3
+  accessMode: ReadWriteOnce
+  size: 50Gi
+
+# JVM tuning for production workloads
+jvmOpts: "-Xmx4g -Xms2g -XX:MaxMetaspaceSize=512m -XX:+UseG1GC -XX:+ExplicitGCInvokesConcurrent"
+jvmCeOpts: "-Xmx2g -Xms1g -XX:MaxMetaspaceSize=256m -XX:+UseG1GC"
+
+# PostgreSQL database (SonarQube backend)
+postgresql:
+  enabled: true
+  auth:
+    existingSecret: sonarqube-db-credentials
+    secretKeys:
+      adminPasswordKey: postgresql-password
+      userPasswordKey: password
+    username: sonarqube
+    database: sonarqube
+  primary:
+    persistence:
+      enabled: true
+      storageClass: gp3
+      size: 50Gi
+    resources:
+      requests:
+        cpu: 500m
+        memory: 1Gi
+      limits:
+        cpu: 2000m
+        memory: 4Gi
+  metrics:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+
+# SonarQube configuration
+sonarProperties:
+  # Authentication
+  sonar.forceAuthentication: "true"
+  sonar.core.serverBaseURL: "https://sonarqube.docuthinker.com"
+
+  # Security
+  sonar.web.sso.enable: "false"
+  sonar.web.sessionTimeoutInMinutes: "480"
+
+  # Telemetry
+  sonar.telemetry.enable: "false"
+
+  # Webhooks (notify CI on analysis completion)
+  sonar.webhooks.global: "1"
+
+  # Housekeeping
+  sonar.dbcleaner.daysBeforeDeletingClosedIssues: "30"
+  sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek: "4"
+  sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByMonth: "12"
+  sonar.dbcleaner.weeksBeforeDeletingAllSnapshots: "260"
+
+  # Compute Engine (analysis workers)
+  sonar.ce.workerCount: "4"
+
+  # Elasticsearch embedded settings
+  sonar.search.javaOpts: "-Xmx1g -Xms512m -XX:MaxMetaspaceSize=256m"
+
+# Pod security
+securityContext:
+  fsGroup: 1000
+  runAsUser: 1000
+  runAsNonRoot: true
+
+containerSecurityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+  capabilities:
+    drop:
+      - ALL
+
+# Init sysctl container for Elasticsearch requirements
+initSysctl:
+  enabled: true
+  vmMaxMapCount: 524288
+  fsFileMax: 131072
+
+# Init filesystem container
+initFs:
+  enabled: true
+
+# Monitoring
+prometheusMonitoring:
+  podMonitor:
+    enabled: true
+    interval: 30s
+
+prometheusExporter:
+  enabled: true
+  config:
+    rules:
+      - pattern: ".*"
+
+# Plugins (pre-installed)
+plugins:
+  install:
+    - https://github.com/dependency-check/dependency-check-sonar-plugin/releases/download/5.0.0/sonar-dependency-check-plugin-5.0.0.jar
+
+# Pod disruption budget
+pdb:
+  enabled: true
+  minAvailable: 1
+
+# Anti-affinity for HA
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchLabels:
+              app: sonarqube
+          topologyKey: kubernetes.io/hostname
+
+# Topology spread
+topologySpreadConstraints:
+  - maxSkew: 1
+    topologyKey: topology.kubernetes.io/zone
+    whenUnsatisfiable: ScheduleAnyway
+    labelSelector:
+      matchLabels:
+        app: sonarqube
+
+# Network policy
+networkPolicy:
+  enabled: true
+  prometheusNamespace: monitoring
+
+# Annotations
+annotations:
+  app.kubernetes.io/part-of: docuthinker
+  app.kubernetes.io/component: code-quality
+
+# Liveness and readiness probes
+livenessProbe:
+  sonarWebContext: /
+  initialDelaySeconds: 120
+  periodSeconds: 30
+  failureThreshold: 6
+  timeoutSeconds: 5
+
+readinessProbe:
+  sonarWebContext: /
+  initialDelaySeconds: 60
+  periodSeconds: 10
+  failureThreshold: 6
+  timeoutSeconds: 5
+
+startupProbe:
+  sonarWebContext: /
+  initialDelaySeconds: 45
+  periodSeconds: 10
+  failureThreshold: 24
+  timeoutSeconds: 5
+
+# Extra environment variables
+extraEnv:
+  - name: SONAR_LOG_LEVEL
+    value: "INFO"
+  - name: SONAR_WEB_JAVAOPTS
+    value: "-Xmx4g -Xms2g"
+
+# Extra volumes (for plugins, certs, etc.)
+extraVolumes:
+  - name: sonar-plugins
+    emptyDir: {}
+extraVolumeMounts:
+  - name: sonar-plugins
+    mountPath: /opt/sonarqube/extensions/plugins

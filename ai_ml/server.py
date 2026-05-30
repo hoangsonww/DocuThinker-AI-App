@@ -1,5 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from typing import Any, Dict, Optional
 import uvicorn
 
 # Import the core analysis function
@@ -12,6 +13,7 @@ class AnalysisRequest(BaseModel):
     document: str
     question: str = None
     translate_lang: str = "fr"
+    metadata: Optional[Dict[str, Any]] = None
 
 
 @app.post("/analyze")
@@ -20,7 +22,8 @@ async def analyze(req: AnalysisRequest):
         results = analyze_document(
             document=req.document,
             question=req.question,
-            translate_lang=req.translate_lang
+            translate_lang=req.translate_lang,
+            metadata=req.metadata,
         )
         return results
     except Exception as e:
