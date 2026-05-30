@@ -642,6 +642,164 @@ paths:
           description: Summary refined successfully
         400:
           description: Invalid input
+  /passkey/register/options:
+    post:
+      summary: Begin passkey registration
+      description: Generate WebAuthn registration options (a challenge) for the signed-in user. Returns a flowId that must be echoed back on verify.
+      operationId: getPasskeyRegistrationOptions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+              required:
+                - userId
+      responses:
+        200:
+          description: Registration options generated
+        404:
+          description: User not found
+  /passkey/register/verify:
+    post:
+      summary: Complete passkey registration
+      description: Verify the authenticator attestation and store the new credential.
+      operationId: verifyPasskeyRegistration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                flowId:
+                  type: string
+                name:
+                  type: string
+                response:
+                  type: object
+                  description: The RegistrationResponseJSON produced by the browser.
+              required:
+                - userId
+                - flowId
+                - response
+      responses:
+        201:
+          description: Passkey registered successfully
+        400:
+          description: Verification failed or session expired
+        409:
+          description: Passkey already registered
+  /passkey/authenticate/options:
+    post:
+      summary: Begin passkey authentication
+      description: Generate WebAuthn authentication options. Provide an email to scope to that account's credentials, or omit it for a discoverable (usernameless) flow.
+      operationId: getPasskeyAuthenticationOptions
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+      responses:
+        200:
+          description: Authentication options generated
+  /passkey/authenticate/verify:
+    post:
+      summary: Complete passkey authentication
+      description: Verify the authenticator assertion and, on success, return a Firebase custom token and userId (the same contract as /login).
+      operationId: verifyPasskeyAuthentication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                flowId:
+                  type: string
+                response:
+                  type: object
+                  description: The AuthenticationResponseJSON produced by the browser.
+              required:
+                - flowId
+                - response
+      responses:
+        200:
+          description: Authentication successful; returns customToken and userId
+        401:
+          description: Passkey not recognized or verification failed
+  /passkeys/{userId}:
+    get:
+      summary: List a user's passkeys
+      operationId: listPasskeys
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Passkeys retrieved successfully
+  /passkeys/{userId}/{credentialId}:
+    patch:
+      summary: Rename a passkey
+      operationId: renamePasskey
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: credentialId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+              required:
+                - name
+      responses:
+        200:
+          description: Passkey renamed
+        404:
+          description: Passkey not found
+    delete:
+      summary: Delete a passkey
+      operationId: deletePasskey
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: credentialId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Passkey deleted
+        404:
+          description: Passkey not found
 components:
   schemas:
     User:
@@ -669,3 +827,31 @@ components:
           type: string
         code:
           type: integer
+    Passkey:
+      type: object
+      description: A registered WebAuthn passkey (public metadata only; the public key is never returned).
+      properties:
+        id:
+          type: string
+          description: The credential ID (base64url), used as the document key.
+        name:
+          type: string
+        deviceType:
+          type: string
+          enum:
+            - singleDevice
+            - multiDevice
+        backedUp:
+          type: boolean
+          description: Whether the credential is synced/backed up across the user's devices.
+        transports:
+          type: array
+          items:
+            type: string
+        createdAt:
+          type: string
+          format: date-time
+        lastUsedAt:
+          type: string
+          format: date-time
+          nullable: true
