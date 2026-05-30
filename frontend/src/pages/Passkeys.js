@@ -173,6 +173,21 @@ const Passkeys = ({ theme }) => {
     input: {
       color: dark ? "white" : "black",
       fontFamily: "Poppins, sans-serif",
+      "&::placeholder": {
+        fontFamily: "Poppins, sans-serif",
+        opacity: dark ? 0.6 : 0.55,
+      },
+    },
+  };
+
+  const inputLabelSx = {
+    color: dark ? "#bbb" : "#666",
+    fontFamily: "Poppins, sans-serif",
+  };
+
+  const tooltipSlotProps = {
+    tooltip: {
+      sx: { fontFamily: "Poppins, sans-serif", fontSize: "12px" },
     },
   };
 
@@ -521,8 +536,8 @@ const Passkeys = ({ theme }) => {
             value={addName}
             onChange={(e) => setAddName(e.target.value)}
             inputProps={{ maxLength: 60 }}
-            sx={textFieldSx}
-            InputLabelProps={{ style: { color: dark ? "#bbb" : "#666" } }}
+            sx={{ ...textFieldSx, mt: 3 }}
+            InputLabelProps={{ style: inputLabelSx }}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>
@@ -579,7 +594,7 @@ const Passkeys = ({ theme }) => {
             onChange={(e) => setRenameValue(e.target.value)}
             inputProps={{ maxLength: 60 }}
             sx={textFieldSx}
-            InputLabelProps={{ style: { color: dark ? "#bbb" : "#666" } }}
+            InputLabelProps={{ style: inputLabelSx }}
           />
         </DialogContent>
         <DialogActions sx={{ px: 3, pb: 2 }}>

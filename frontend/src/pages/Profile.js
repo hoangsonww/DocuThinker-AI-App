@@ -6,6 +6,11 @@ import {
   TextField,
   IconButton,
   CircularProgress,
+  Avatar,
+  Chip,
+  Divider,
+  Paper,
+  Tooltip,
 } from "@mui/material";
 import {
   GitHub,
@@ -15,9 +20,21 @@ import {
   Twitter,
   Edit as EditIcon,
   Save as SaveIcon,
+  Close as CloseIcon,
+  Description as DescriptionIcon,
+  CalendarMonth as CalendarMonthIcon,
+  EventAvailable as EventAvailableIcon,
+  Today as TodayIcon,
+  Email as EmailIcon,
+  Logout as LogoutIcon,
+  OpenInNew as OpenInNewIcon,
+  CheckCircle as CheckCircleIcon,
+  AccountCircle as AccountCircleIcon,
 } from "@mui/icons-material";
 import axios from "axios";
 import { clearAuth } from "../utils/auth";
+
+const ORANGE = "#f57c00";
 
 const Profile = ({ theme }) => {
   const [email, setEmail] = useState("");
@@ -80,6 +97,21 @@ const Profile = ({ theme }) => {
     instagram: false,
     twitter: false,
   });
+
+  const dark = theme === "dark";
+  const pageBg = dark ? "#1e1e1e" : "#f5f5f5";
+  const cardBg = dark ? "#2a2a2a" : "#ffffff";
+  const subText = dark ? "#b5b5b5" : "#666";
+  const heading = dark ? "#ffffff" : "#1a1a1a";
+  const cardBorder = dark ? "1px solid #3a3a3a" : "1px solid #ececec";
+  const cardSx = {
+    bgcolor: cardBg,
+    border: cardBorder,
+    borderRadius: "18px",
+    boxShadow: dark
+      ? "0 2px 12px rgba(0,0,0,0.35)"
+      : "0 2px 14px rgba(0,0,0,0.06)",
+  };
 
   useEffect(() => {
     setRandomAvatar(
@@ -234,16 +266,49 @@ const Profile = ({ theme }) => {
     }
   };
 
+  const socialMeta = {
+    github: {
+      label: "GitHub",
+      icon: <GitHub />,
+      color: dark ? "#fff" : "#24292f",
+    },
+    linkedin: { label: "LinkedIn", icon: <LinkedIn />, color: "#0a66c2" },
+    facebook: { label: "Facebook", icon: <Facebook />, color: "#1877f2" },
+    instagram: { label: "Instagram", icon: <Instagram />, color: "#e4405f" },
+    twitter: { label: "Twitter", icon: <Twitter />, color: "#1da1f2" },
+  };
+
+  const stats = [
+    {
+      icon: <DescriptionIcon />,
+      label: "Documents Uploaded",
+      value: documentCount ?? "—",
+    },
+    {
+      icon: <CalendarMonthIcon />,
+      label: "Days Since Joined",
+      value: daysSinceJoined ?? "—",
+    },
+    {
+      icon: <EventAvailableIcon />,
+      label: "Date Joined",
+      value: joinedDate || "—",
+    },
+    { icon: <TodayIcon />, label: "Today", value: today },
+  ];
+
   if (loading) {
     return (
       <Box
-        display="flex"
-        justifyContent="center"
-        alignItems="center"
-        p={4}
-        height="100vh"
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          backgroundColor: pageBg,
+        }}
       >
-        <CircularProgress />
+        <CircularProgress sx={{ color: ORANGE }} />
       </Box>
     );
   }
@@ -255,306 +320,570 @@ const Profile = ({ theme }) => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          textAlign: "center",
-          height: "100vh",
-          backgroundColor: theme === "dark" ? "#222" : "#f4f4f4",
+          minHeight: "100vh",
+          px: 2,
+          backgroundColor: pageBg,
+          fontFamily: "Poppins, sans-serif",
         }}
       >
-        <Typography
-          variant="h5"
+        <Paper
+          elevation={0}
           sx={{
-            color: theme === "dark" ? "#fff" : "#000",
-            font: "inherit",
-            fontSize: "24px",
-            fontWeight: "bold",
+            ...cardSx,
+            p: { xs: 4, md: 5 },
             textAlign: "center",
+            maxWidth: "420px",
           }}
         >
-          You are not signed in. Please{" "}
-          <a href="/login" style={{ color: "#f57c00" }}>
-            log in
-          </a>{" "}
-          to view your profile.
-        </Typography>
+          <AccountCircleIcon sx={{ fontSize: 56, color: ORANGE, mb: 1 }} />
+          <Typography
+            sx={{
+              font: "inherit",
+              fontWeight: 700,
+              fontSize: "20px",
+              color: heading,
+              mb: 1,
+            }}
+          >
+            You're not signed in
+          </Typography>
+          <Typography
+            sx={{ font: "inherit", fontSize: "14px", color: subText }}
+          >
+            Please{" "}
+            <a href="/login" style={{ color: ORANGE, fontWeight: 600 }}>
+              log in
+            </a>{" "}
+            to view your profile.
+          </Typography>
+        </Paper>
       </Box>
     );
   }
 
+  const username = email && email.includes("@") ? email.split("@")[0] : email;
+
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "flex-start",
-        height: "100vh",
-        backgroundColor: theme === "dark" ? "#222" : "#f4f4f4",
-        paddingTop: 8,
-        paddingBottom: 20,
+        minHeight: "100vh",
+        backgroundColor: pageBg,
         transition: "background-color 0.3s ease",
+        py: { xs: 3, md: 5 },
+        px: 2,
+        fontFamily: "Poppins, sans-serif",
       }}
     >
-      <Box
-        sx={{
-          backgroundColor: theme === "dark" ? "#333" : "#fff",
-          color: theme === "dark" ? "#fff" : "#000",
-          padding: 4,
-          borderRadius: 2,
-          width: "400px",
-          textAlign: "center",
-          boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          transition: "background-color 0.3s ease",
-        }}
-      >
-        {/* Avatar Section */}
-        <Box
-          sx={{
-            width: 150,
-            height: 150,
-            borderRadius: "50%",
-            overflow: "hidden",
-            margin: "0 auto 16px",
-            border: "3px solid #f57c00",
-          }}
-        >
-          <img
-            src={randomAvatar}
-            alt="User Avatar"
-            style={{ width: "100%", height: "100%", objectFit: "cover" }}
+      <Box sx={{ maxWidth: "860px", mx: "auto" }}>
+        {/* ===== Hero ===== */}
+        <Paper elevation={0} sx={{ ...cardSx, overflow: "hidden", mb: 3 }}>
+          <Box
+            sx={{
+              height: { xs: 90, md: 110 },
+              background: `linear-gradient(135deg, ${ORANGE} 0%, #ff8a00 55%, #ffb74d 100%)`,
+            }}
           />
-        </Box>
+          <Box
+            sx={{
+              px: { xs: 3, md: 4 },
+              pb: 3,
+              mt: { xs: "-52px", sm: "-60px" },
+              display: "flex",
+              flexDirection: { xs: "column", sm: "row" },
+              alignItems: { xs: "center", sm: "flex-end" },
+              gap: 2,
+              textAlign: { xs: "center", sm: "left" },
+            }}
+          >
+            <Avatar
+              src={randomAvatar}
+              alt="User Avatar"
+              sx={{
+                width: { xs: 104, sm: 120 },
+                height: { xs: 104, sm: 120 },
+                border: `4px solid ${cardBg}`,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.22)",
+              }}
+            />
+            <Box sx={{ flexGrow: 1, minWidth: 0, pb: { sm: 0.5 } }}>
+              <Typography
+                sx={{
+                  font: "inherit",
+                  fontWeight: 700,
+                  fontSize: { xs: "22px", md: "26px" },
+                  color: heading,
+                  lineHeight: 1.2,
+                }}
+              >
+                Welcome, {username}!
+              </Typography>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 0.5,
+                  justifyContent: { xs: "center", sm: "flex-start" },
+                  mt: 0.5,
+                }}
+              >
+                <EmailIcon sx={{ fontSize: 16, color: subText }} />
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    fontSize: "14px",
+                    color: subText,
+                    wordBreak: "break-all",
+                  }}
+                >
+                  {email}
+                </Typography>
+              </Box>
+            </Box>
+            <Chip
+              icon={<CheckCircleIcon sx={{ color: "#2e7d32 !important" }} />}
+              label="Active member"
+              sx={{
+                font: "inherit",
+                fontWeight: 600,
+                fontSize: "12px",
+                color: dark ? "#a5d6a7" : "#2e7d32",
+                bgcolor: dark ? "rgba(46,125,50,0.18)" : "rgba(46,125,50,0.1)",
+                border: "none",
+              }}
+            />
+          </Box>
+        </Paper>
 
-        <Typography
-          variant="h5"
-          sx={{ mb: 2, font: "inherit", fontWeight: "bold", fontSize: "24px" }}
-        >
-          Welcome, {email.split("@")[0]}!
-        </Typography>
-
-        <div
-          style={{ borderBottom: "1px solid #ccc", marginBottom: "16px" }}
-        ></div>
-
-        <Typography
-          variant="h5"
-          sx={{ mb: 2, font: "inherit", fontWeight: "bold", fontSize: "20px" }}
-        >
-          Your Profile
-        </Typography>
-
-        {/* Display Email */}
+        {/* ===== Stat cards ===== */}
         <Box
           sx={{
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
-            mb: 1.5,
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr 1fr", md: "repeat(4, 1fr)" },
+            gap: { xs: 1.5, md: 2 },
+            mb: 3,
           }}
         >
-          <Typography sx={{ font: "inherit" }}>
-            <strong>Email:</strong> {email}
-          </Typography>
-          <IconButton onClick={() => setIsEditingEmail(true)}>
-            <EditIcon
-              sx={{
-                color: theme === "dark" ? "#fff" : "#000",
-                "&:hover": { color: "#f57c00" },
-              }}
-              title="Edit Email Address"
-            />
-          </IconButton>
+          {stats.map((s) => (
+            <Paper
+              key={s.label}
+              elevation={0}
+              sx={{ ...cardSx, p: { xs: 2, md: 2.5 }, textAlign: "center" }}
+            >
+              <Box
+                sx={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "12px",
+                  mx: "auto",
+                  mb: 1.2,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: ORANGE,
+                  bgcolor: dark
+                    ? "rgba(245,124,0,0.16)"
+                    : "rgba(245,124,0,0.1)",
+                }}
+              >
+                {s.icon}
+              </Box>
+              <Typography
+                sx={{
+                  font: "inherit",
+                  fontWeight: 700,
+                  fontSize: { xs: "16px", md: "18px" },
+                  color: heading,
+                  lineHeight: 1.2,
+                  wordBreak: "break-word",
+                }}
+              >
+                {s.value}
+              </Typography>
+              <Typography
+                sx={{
+                  font: "inherit",
+                  fontSize: "12px",
+                  color: subText,
+                  mt: 0.5,
+                }}
+              >
+                {s.label}
+              </Typography>
+            </Paper>
+          ))}
         </Box>
 
-        {/* Editable email field */}
-        {isEditingEmail && (
-          <Box sx={{ mb: 2 }}>
-            <TextField
-              fullWidth
-              label="New Email"
-              variant="outlined"
-              value={newEmail}
-              onChange={(e) => setNewEmail(e.target.value)}
-              sx={{ mb: 2, textAlign: "center" }}
-              inputProps={{
-                style: {
-                  fontFamily: "Poppins, sans-serif",
-                  color: theme === "dark" ? "white" : "black",
-                },
+        {/* ===== Account ===== */}
+        <Paper elevation={0} sx={{ ...cardSx, p: { xs: 3, md: 3.5 }, mb: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 2.5 }}>
+            <EmailIcon sx={{ color: ORANGE, fontSize: 22 }} />
+            <Typography
+              sx={{
+                font: "inherit",
+                fontWeight: 700,
+                fontSize: "17px",
+                color: heading,
               }}
-              InputLabelProps={{
-                style: {
-                  fontFamily: "Poppins, sans-serif",
-                  color: theme === "dark" ? "white" : "#000",
-                },
-              }}
-            />
-            <Box sx={{ position: "relative" }}>
-              <Button
-                onClick={handleUpdateEmail}
-                variant="contained"
-                color="primary"
-                fullWidth
-                disabled={updatingEmail}
-                sx={{ font: "inherit" }}
+            >
+              Account
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              gap: 2,
+            }}
+          >
+            <Box sx={{ minWidth: 0 }}>
+              <Typography
+                sx={{ font: "inherit", fontSize: "12px", color: subText }}
               >
-                {updatingEmail ? "Updating..." : "Update Email"}
-              </Button>
-              {updatingEmail && (
-                <CircularProgress
-                  size={24}
-                  sx={{
-                    color: "white",
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    marginTop: "-12px",
-                    marginLeft: "-12px",
-                  }}
-                />
-              )}
-            </Box>
-            {error && (
-              <Typography color="error" sx={{ mt: 1, font: "inherit" }}>
-                {error}
+                Email address
               </Typography>
+              <Typography
+                sx={{
+                  font: "inherit",
+                  fontSize: "15px",
+                  fontWeight: 600,
+                  color: heading,
+                  wordBreak: "break-all",
+                }}
+              >
+                {email}
+              </Typography>
+            </Box>
+            {!isEditingEmail && (
+              <Button
+                startIcon={<EditIcon />}
+                onClick={() => {
+                  setNewEmail(email);
+                  setIsEditingEmail(true);
+                }}
+                sx={{
+                  font: "inherit",
+                  textTransform: "none",
+                  fontWeight: 600,
+                  color: ORANGE,
+                  flexShrink: 0,
+                  "&:hover": { bgcolor: "rgba(245,124,0,0.08)" },
+                }}
+              >
+                Edit
+              </Button>
             )}
           </Box>
-        )}
 
-        {/* Display Days since joined */}
-        <Typography sx={{ mb: 2.5, font: "inherit", textAlign: "center" }}>
-          <strong>Days Since Joined:</strong> {daysSinceJoined}
-        </Typography>
-
-        {/* Display Joined Date */}
-        <Typography sx={{ mb: 2.5, font: "inherit", textAlign: "center" }}>
-          <strong>Date Joined:</strong> {joinedDate}
-        </Typography>
-
-        {/* Display Document Count */}
-        <Typography sx={{ mb: 2.5, font: "inherit", textAlign: "center" }}>
-          <strong>Documents Uploaded So Far:</strong> {documentCount}
-        </Typography>
-
-        {/* Display Today's Date */}
-        <Typography sx={{ mb: 1.5, font: "inherit" }}>
-          <strong>Today's Date:</strong> {today}
-        </Typography>
-
-        {["github", "linkedin", "facebook", "instagram", "twitter"].map(
-          (platform) => (
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                mb: 1,
-                flexWrap: "nowrap",
-              }}
-              key={platform}
-            >
-              {/* Platform Icon */}
-              {platform === "github" && <GitHub sx={{ mr: 1 }} />}
-              {platform === "linkedin" && <LinkedIn sx={{ mr: 1 }} />}
-              {platform === "facebook" && <Facebook sx={{ mr: 1 }} />}
-              {platform === "instagram" && <Instagram sx={{ mr: 1 }} />}
-              {platform === "twitter" && <Twitter sx={{ mr: 1 }} />}{" "}
-              {/* Add Twitter */}
-              {/* Editable TextField or Displayed Link */}
-              {editingField === platform ? (
-                <TextField
-                  name={platform}
-                  value={socialMedia[platform]}
-                  label="Enter Username"
-                  onChange={handleSocialMediaChange} // Existing handler
-                  onKeyPress={(e) => handleKeyPress(e, platform)} // Existing handler
-                  sx={{ font: "inherit", textAlign: "center", flexGrow: 1 }}
-                  inputProps={{
-                    style: {
-                      fontFamily: "Poppins, sans-serif",
-                      color: theme === "dark" ? "white" : "black",
-                    },
-                  }}
-                  InputLabelProps={{
-                    style: {
-                      fontFamily: "Poppins, sans-serif",
-                      color: theme === "dark" ? "white" : "black",
-                    },
-                  }}
-                />
-              ) : (
-                <>
-                  <Typography
-                    sx={{
-                      fontWeight: "bold",
-                      mr: 1,
-                      font: "inherit",
-                      textAlign: "center",
-                    }}
-                  >
-                    {platform.charAt(0).toUpperCase() + platform.slice(1)}:
-                  </Typography>
+          {isEditingEmail && (
+            <Box sx={{ mt: 2 }}>
+              <TextField
+                fullWidth
+                label="New Email"
+                variant="outlined"
+                size="small"
+                value={newEmail}
+                onChange={(e) => setNewEmail(e.target.value)}
+                sx={{ mb: 2 }}
+                inputProps={{
+                  style: {
+                    fontFamily: "Poppins, sans-serif",
+                    color: dark ? "white" : "black",
+                  },
+                }}
+                InputLabelProps={{
+                  style: {
+                    fontFamily: "Poppins, sans-serif",
+                    color: dark ? "#ccc" : "#666",
+                  },
+                }}
+              />
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Box sx={{ position: "relative", flexGrow: 1 }}>
                   <Button
-                    href={formatLink(platform, socialMedia[platform])}
-                    target="_blank"
+                    onClick={handleUpdateEmail}
+                    variant="contained"
+                    fullWidth
+                    disabled={updatingEmail}
                     sx={{
-                      fontWeight: "bold",
                       font: "inherit",
                       textTransform: "none",
-                      wordWrap: "break-word",
+                      fontWeight: 600,
+                      bgcolor: ORANGE,
+                      "&:hover": { bgcolor: "#e65100" },
                     }}
                   >
-                    {getUsername(socialMedia[platform]) || "Not Set"}{" "}
+                    {updatingEmail ? "Updating..." : "Update Email"}
                   </Button>
-                </>
-              )}
-              {/* Edit or Save Icon Button with Loading State */}
-              {editingField === platform ? (
-                loadingPlatform[platform] ? ( // Check if the specific platform is loading
-                  <CircularProgress size={24} sx={{ ml: 1 }} />
-                ) : (
-                  <IconButton onClick={() => handleUpdateSocialMedia(platform)}>
-                    <SaveIcon
-                      sx={{ color: theme === "dark" ? "#fff" : "#000" }}
+                  {updatingEmail && (
+                    <CircularProgress
+                      size={22}
+                      sx={{
+                        color: "white",
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        marginTop: "-11px",
+                        marginLeft: "-11px",
+                      }}
                     />
-                  </IconButton>
-                )
-              ) : (
-                <IconButton onClick={() => setEditingField(platform)}>
-                  <EditIcon
-                    sx={{
-                      color: theme === "dark" ? "#fff" : "#000",
-                      "&:hover": { color: "#f57c00" },
-                    }}
-                  />
-                </IconButton>
+                  )}
+                </Box>
+                <Button
+                  onClick={() => {
+                    setIsEditingEmail(false);
+                    setError("");
+                  }}
+                  startIcon={<CloseIcon />}
+                  sx={{
+                    font: "inherit",
+                    textTransform: "none",
+                    fontWeight: 600,
+                    color: subText,
+                  }}
+                >
+                  Cancel
+                </Button>
+              </Box>
+              {error && (
+                <Typography
+                  color="error"
+                  sx={{ mt: 1.5, font: "inherit", fontSize: "13px" }}
+                >
+                  {error}
+                </Typography>
               )}
             </Box>
-          ),
-        )}
+          )}
+        </Paper>
 
-        {/* Thank you message */}
-        <Typography
-          sx={{ mt: 3, font: "inherit", fontWeight: "bold", fontSize: "18px" }}
-        >
-          Thank you for exploring DocuThinker today! 🚀
-        </Typography>
+        {/* ===== Connected accounts ===== */}
+        <Paper elevation={0} sx={{ ...cardSx, p: { xs: 3, md: 3.5 }, mb: 3 }}>
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 1 }}>
+            <AccountCircleIcon sx={{ color: ORANGE, fontSize: 22 }} />
+            <Typography
+              sx={{
+                font: "inherit",
+                fontWeight: 700,
+                fontSize: "17px",
+                color: heading,
+              }}
+            >
+              Connected accounts
+            </Typography>
+          </Box>
+          <Typography
+            sx={{ font: "inherit", fontSize: "13px", color: subText, mb: 1 }}
+          >
+            Link your social profiles so others can find you.
+          </Typography>
 
-        <div
-          style={{ borderBottom: "1px solid #ccc", marginTop: "16px" }}
-        ></div>
+          {["github", "linkedin", "facebook", "instagram", "twitter"].map(
+            (platform, idx) => {
+              const meta = socialMeta[platform];
+              const uname = getUsername(socialMedia[platform]);
+              const isEditing = editingField === platform;
+              return (
+                <Box key={platform}>
+                  {idx > 0 && (
+                    <Divider
+                      sx={{ borderColor: dark ? "#3a3a3a" : "#f0f0f0" }}
+                    />
+                  )}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 1.5,
+                      py: 1.5,
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "10px",
+                        flexShrink: 0,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        color: meta.color,
+                        bgcolor: dark ? "rgba(255,255,255,0.06)" : "#f4f5f7",
+                      }}
+                    >
+                      {meta.icon}
+                    </Box>
 
-        {/* Logout button */}
-        <Button
-          variant="contained"
-          color="secondary"
-          sx={{ mt: 3, font: "inherit" }}
-          onClick={() => {
-            clearAuth();
-            window.location.reload();
+                    <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          fontWeight: 600,
+                          fontSize: "14px",
+                          color: heading,
+                        }}
+                      >
+                        {meta.label}
+                      </Typography>
+                      {isEditing ? (
+                        <TextField
+                          name={platform}
+                          value={socialMedia[platform] || ""}
+                          label="Enter username"
+                          size="small"
+                          fullWidth
+                          autoFocus
+                          onChange={handleSocialMediaChange}
+                          onKeyPress={(e) => handleKeyPress(e, platform)}
+                          sx={{ mt: 0.5 }}
+                          inputProps={{
+                            style: {
+                              fontFamily: "Poppins, sans-serif",
+                              color: dark ? "white" : "black",
+                            },
+                          }}
+                          InputLabelProps={{
+                            style: {
+                              fontFamily: "Poppins, sans-serif",
+                              color: dark ? "#ccc" : "#666",
+                            },
+                          }}
+                        />
+                      ) : uname ? (
+                        <Box
+                          component="a"
+                          href={formatLink(platform, socialMedia[platform])}
+                          target="_blank"
+                          rel="noreferrer"
+                          sx={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: 0.4,
+                            color: ORANGE,
+                            textDecoration: "none",
+                            fontSize: "13px",
+                            fontWeight: 500,
+                            "&:hover": { textDecoration: "underline" },
+                          }}
+                        >
+                          @{uname}
+                          <OpenInNewIcon sx={{ fontSize: 14 }} />
+                        </Box>
+                      ) : (
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontSize: "13px",
+                            color: subText,
+                          }}
+                        >
+                          Not connected
+                        </Typography>
+                      )}
+                    </Box>
+
+                    {!isEditing && (
+                      <Chip
+                        size="small"
+                        label={uname ? "Connected" : "Not set"}
+                        sx={{
+                          font: "inherit",
+                          fontSize: "11px",
+                          fontWeight: 600,
+                          height: 22,
+                          color: uname
+                            ? dark
+                              ? "#a5d6a7"
+                              : "#2e7d32"
+                            : subText,
+                          bgcolor: uname
+                            ? dark
+                              ? "rgba(46,125,50,0.18)"
+                              : "rgba(46,125,50,0.1)"
+                            : dark
+                              ? "rgba(255,255,255,0.06)"
+                              : "#f0f0f0",
+                        }}
+                      />
+                    )}
+
+                    {isEditing ? (
+                      loadingPlatform[platform] ? (
+                        <CircularProgress size={22} sx={{ color: ORANGE }} />
+                      ) : (
+                        <Tooltip title="Save">
+                          <IconButton
+                            size="small"
+                            onClick={() => handleUpdateSocialMedia(platform)}
+                          >
+                            <SaveIcon sx={{ color: ORANGE }} />
+                          </IconButton>
+                        </Tooltip>
+                      )
+                    ) : (
+                      <Tooltip title={`Edit ${meta.label}`}>
+                        <IconButton
+                          size="small"
+                          onClick={() => setEditingField(platform)}
+                        >
+                          <EditIcon
+                            sx={{
+                              fontSize: 19,
+                              color: subText,
+                              "&:hover": { color: ORANGE },
+                            }}
+                          />
+                        </IconButton>
+                      </Tooltip>
+                    )}
+                  </Box>
+                </Box>
+              );
+            },
+          )}
+        </Paper>
+
+        {/* ===== Footer ===== */}
+        <Paper
+          elevation={0}
+          sx={{
+            ...cardSx,
+            p: { xs: 3, md: 3.5 },
+            textAlign: "center",
           }}
         >
-          Logout
-        </Button>
+          <Typography
+            sx={{
+              font: "inherit",
+              fontWeight: 600,
+              fontSize: "16px",
+              color: heading,
+              mb: 2,
+            }}
+          >
+            Thank you for exploring DocuThinker today! 🚀
+          </Typography>
+          <Button
+            variant="contained"
+            startIcon={<LogoutIcon />}
+            onClick={() => {
+              clearAuth();
+              window.location.reload();
+            }}
+            sx={{
+              font: "inherit",
+              textTransform: "none",
+              fontWeight: 600,
+              bgcolor: ORANGE,
+              borderRadius: "10px",
+              px: 3,
+              "&:hover": { bgcolor: "#e65100" },
+            }}
+          >
+            Logout
+          </Button>
+        </Paper>
       </Box>
     </Box>
   );
