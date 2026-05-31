@@ -13,11 +13,13 @@ Welcome to **DocuThinker**! This is a full-stack application that integrates an 
 - [**📖 Overview**](#-overview)
 - [**🚀 Live Deployments**](#live-deployments)
 - [**✨ Features**](#features)
+- [**🗄️ Storage & Data Model**](#storage-data-model)
 - [**⚙️ Technologies**](#technologies)
 - [**🖼️ User Interface**](#user-interface)
 - [**📂 Complete File Structure**](#complete-file-structure)
 - [**🛠️ Getting Started**](#getting-started)
   - [**Prerequisites**](#prerequisites)
+  - [**Environment Variables**](#environment-variables)
   - [**Frontend Installation**](#frontend-installation)
   - [**Backend Installation**](#backend-installation)
   - [**Running the Mobile App**](#running-the-mobile-app)
@@ -27,6 +29,7 @@ Welcome to **DocuThinker**! This is a full-stack application that integrates an 
   - [**API Testing**](#api-testing)
   - [**Error Handling**](#error-handling)
 - [**🤖 AI/ML Agentic Platform**](#ai-ml-agentic-platform)
+- [**📄 Multi-Format Upload & Extraction**](#multi-format-upload)
 - [**🧩 Beads Task Coordination**](#beads-task-coordination)
 - [**🧰 GraphQL Integration**](#graphql-integration)
 - [**📱 Mobile App**](#mobile-app)
@@ -49,9 +52,9 @@ Welcome to **DocuThinker**! This is a full-stack application that integrates an 
 
 <h2 id="-overview">📖 Overview</h2>
 
-The **DocuThinker** app is designed to provide users with a simple, AI-powered document management tool. Users can upload PDFs or Word documents and receive summaries, key insights, and discussion points. Additionally, users can chat with an AI using the document's content for further clarification.
+The **DocuThinker** app is designed to provide users with a simple, AI-powered document management tool. Users can upload a wide range of file types — PDFs, Word documents, Markdown, HTML, CSV/TSV, JSON, plain text, and dozens of code/config formats — and receive summaries, key insights, and discussion points. Additionally, users can chat with an AI using the document's content for further clarification.
 
-**DocuThinker** is created using the **FERN-Stack** architecture, which stands for **Firebase, Express, React, and Node.js**. The backend is built with Node.js and Express, integrating Firebase for user authentication and MongoDB for data storage. The frontend is built with React and Material-UI, providing a responsive and user-friendly interface.
+**DocuThinker** is built on the **FERN-Stack** architecture — **Firebase, Express, React, and Node.js**. The backend is a Node.js + Express API that uses **Firebase Admin** for authentication and **Cloud Firestore** for metadata, **Supabase Storage** for original files and offloaded document content, **Google Gemini** for all AI features, and **Redis** for caching. The frontend is built with React 18 and Material-UI, providing a responsive and user-friendly interface. Original uploaded files (PDF/DOCX) are streamed **directly from the browser to a private Supabase bucket** using a backend-minted signed upload URL, so large files bypass the serverless request-body limit entirely. See the [Storage & Data Model](#storage-data-model) section below for the full picture.
 
 ```mermaid
 graph LR
@@ -59,18 +62,18 @@ graph LR
 N -->|static calls| A[React Frontend]
 N -->|/api/* proxy| B[Express Backend]
 A -->|REST API calls| N
+A -->|"direct file upload (signed URL)"| SB[Supabase Storage]
 
 B --> C[Firebase Auth]
-B --> D[Firestore]
-B --> E[MongoDB]
+B --> D[Firestore - metadata + subcollections]
+B --> SB
 B --> F[Redis Cache]
-B --> G[AI/ML Services]
+B --> G[Google Gemini AI]
+B --> P[Passkeys / WebAuthn]
 
 A --> H[Material-UI]
 A --> I[React Router]
-
-G --> J[Google Cloud APIs]
-G --> K[LangChain]
+A --> SB
 ```
 
 Feel free to explore the app, upload documents, and interact with the AI! For architecture details, setup instructions, and more, please refer to the sections below, as well as the [ARCHITECTURE.md](ARCHITECTURE.md) file.
@@ -96,23 +99,28 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
 
 **DocuThinker** offers a wide range of features to help users manage and analyze their documents effectively. Here are some of the key features of the app:
 
-- **Document Upload & Summarization**: Upload PDFs or Word documents for AI-generated summaries.
+- **Multi-Format Upload & Summarization**: Upload **PDF, Word (`.docx`), Markdown (`.md`/`.markdown`), HTML (`.html`/`.htm`), CSV/TSV, JSON, plain text (`.txt`/`.log`), and a broad set of code/config files** (`.xml .yaml/.yml .js/.jsx/.mjs/.ts/.tsx .py .java .c/.cpp .h .cs .go .rs .rb .php .sql .sh .css/.scss/.less .ini/.toml/.conf/.env .kt .swift .r .lua .pl`) for AI-generated summaries. Text extraction happens **client-side** in the browser (see [Multi-Format Upload & Extraction](#multi-format-upload)), and the AI always receives clean, plain text. Original files are uploaded **directly from the browser to a private Supabase bucket** via a signed upload URL, so large files bypass the serverless request-body limit.
+- **Animated Upload Experience**: A hero header with supported-format chips, a drag-active dropzone, and a multi-step animated progress flow (**Reading → Storing → Analyzing → Ready**) with a gradient shimmer bar and pulsing step indicators, then a smooth reveal into the results.
+- **Rich Original-Document Viewer**: View the real document alongside its summary, each type rendered in its best form — PDFs in a native `<iframe>` of the signed URL (true pages, zoom, scroll), DOCX as **mammoth** HTML, Markdown via **react-markdown**, HTML sanitized with **DOMPurify**, CSV/TSV as a table, JSON/code as monospace, and plain text as pre-wrapped text. Works for live uploads and re-opened history alike.
+- **Drag-Resizable Result Columns**: The Original | Summary panes on the results view are split by a draggable divider (**double-click to reset**), with a full-screen drag overlay that keeps resizing smooth even over the PDF iframe.
+- **Text-Selection Action Menu**: Select any text in the results view to get an inline menu — **Copy / Summarize / Rewrite / Ask Chat / Search web** — each scoped to your selection. Native text selection is styled orange app-wide.
 - **Key Insights & Discussion Points**: Generate important ideas and topics for discussion from your documents.
-- **AI Chat Integration**: Chat with an AI using your document’s original context.
+- **AI Chat Integration**: Chat with an AI using your document’s original context. The assistant opens with a friendly greeting when the conversation is empty, and the **document title and today's date are passed to the AI as context** across summaries, sentiment, chat, and other operations.
 - **Voice Chat with AI**: Chat with an AI using voice commands for a more interactive experience.
-- **Sentiment Analysis**: Analyze the sentiment of your document text for emotional insights.
+- **Sentiment Analysis**: Analyze the sentiment of your document text for emotional insights, with results cached per-document in `localStorage` so the meter loads instantly on return visits.
 - **Multiple Language Support**: Summarize documents in different languages for global users.
 - **Content Rewriting**: Rewrite or rephrase document text based on a specific style or tone.
 - **Actionable Recommendations**: Get actionable recommendations based on your document content.
 - **Bullet Point Summaries**: Generate bullet point summaries for quick insights and understanding.
 - **Document Categorization**: Categorize documents based on their content for easy organization.
-- **Document Analytics**: View interactive and charts-powered analytics such as word count, reading time, sentiment distribution, and more!
+- **Document Analytics**: An interactive, charts-powered analytics modal with a **Flesch reading-ease** readability gauge, most-frequent-word bars, word-length distribution, structure metrics (characters, lines, average word/sentence length, syllables), and a punctuation breakdown — all with animated counters.
 - **Profile Management**: Update your profile information, social media links, and theme settings.
 - **User Authentication**: Secure registration, login, and password reset functionality.
 - **Passwordless Sign-In (Passkeys / WebAuthn)**: Register multiple passkeys and sign in with your fingerprint, face, or device PIN — no password required. A post-sign-up prompt invites users to enroll, and a dedicated **Passkeys** page lets them add, rename, and delete keys.
-- **Document History**: View all uploaded documents and their details.
+- **Document History & Library Search**: View all uploaded documents and their details. The Documents page offers **instant client-side search** (title / summary), sort (newest / oldest / title A–Z / Z–A), and a type filter (**PDF / Word / Markdown / HTML / CSV / JSON / Text**), with per-document type icons and chips plus a loading spinner while a document opens.
+- **Unlimited Document Library**: Documents are stored one-per-record in a **per-user Firestore subcollection**, removing the old 1 MB-per-user array ceiling — effectively unlimited documents per user.
 - **Mobile App Integration**: React Native mobile app for on-the-go document management.
-- **Dark Mode Support**: Toggle between light and dark themes for better accessibility.
+- **Dark Mode Support**: Toggle between light and dark themes for better accessibility, with polished, dark-mode-aware redesigns across Login / Register / Forgot-password, the Navbar, Profile, Passkeys, the 404, Privacy / Terms, and the Google Drive picker (which now also accepts the new text formats).
 - **API Documentation**: Swagger (OpenAPI) documentation for all API endpoints.
 - **Authentication Middleware**: Secure routes with JWT and Firebase authentication middleware.
 - **Containerization**: Dockerized the app with Docker & K8s for easy deployment and scaling.
@@ -120,6 +128,23 @@ We have deployed the entire app on **Vercel** and **AWS**. You can access the li
 - **Load Balancing & Caching**: NGINX for load balancing and Redis for caching.
 - **Zero Downtime Deployment**: Blue/Green & Canary deployment strategies on AWS.
 - _and many more!_
+
+<h2 id="multi-format-upload">📄 Multi-Format Upload & Extraction</h2>
+
+DocuThinker accepts far more than PDF and Word. **Text extraction runs entirely client-side** in the `UploadModal` component before anything leaves the browser, so the AI always receives clean, plain text while the viewer keeps a rich representation for display.
+
+| Format | Extracted for the AI | Rendered in the viewer |
+| --- | --- | --- |
+| **PDF** (`.pdf`) | Text via **pdf.js** with line/paragraph reconstruction | Native `<iframe>` of the signed Supabase URL |
+| **Word** (`.docx`) | Plain text via **mammoth** (`extractRawText`) | Structured HTML via `mammoth.convertToHtml` |
+| **Markdown** (`.md`, `.markdown`) | Raw Markdown | Rendered with **react-markdown** |
+| **HTML** (`.html`, `.htm`) | Tags stripped to plain text | Raw HTML sanitized with **DOMPurify** |
+| **CSV / TSV** (`.csv`, `.tsv`) | Parsed rows | Parsed into an HTML table |
+| **JSON** (`.json`) | Pretty-printed text | Pretty-printed monospace block |
+| **Code / config** (`.xml .yaml/.yml .js/.jsx/.mjs .ts/.tsx .py .java .c/.cpp .h .cs .go .rs .rb .php .sql .sh .css/.scss/.less .ini/.toml/.conf/.env .kt .swift .r .lua .pl`) | File contents as text | Monospace code block |
+| **Plain text** (`.txt`, `.log`) | File contents as text | Pre-wrapped text |
+
+The same extracted `{ originalText, originalHtml }` pair powers both the AI summary and the [Rich Original-Document Viewer](#features), and is offloaded to Supabase Storage as described below.
 
 <h2 id="technologies">⚙️ Technologies</h2>
 
@@ -137,7 +162,8 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   - **KaTeX**: Fast LaTeX math typesetting.
   - **Marked**: Markdown parser and compiler.
   - **pdfjs-dist**: PDF rendering and viewing in the browser.
-  - **Mammoth**: DOCX-to-HTML document conversion.
+  - **Mammoth**: DOCX-to-HTML document conversion (renders Word docs in the original-document viewer).
+  - **Supabase JS (`@supabase/supabase-js`)**: Direct browser-to-bucket upload of original files via signed upload URL.
   - **React Dropzone**: Drag-and-drop file upload component.
   - **React Helmet**: Document head management for SEO.
   - **Dropbox SDK**: Dropbox file import integration.
@@ -157,26 +183,26 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   - **ESLint**: JavaScript/JSX linting with React plugin.
 - **Backend (API Server)**:
   - **Node.js 18+**: JavaScript runtime for scalable network applications.
-  - **Express 4**: Web application framework for Node.js.
-  - **Firebase Admin SDK 12**: Server-side Firebase services.
-  - **Firebase Authentication**: Secure user authentication.
+  - **Express 4**: Web application framework for Node.js. The JSON body limit is raised to accept large extracted text/HTML, a permissive top-level CORS middleware is applied, and requests/errors are logged liberally.
+  - **Firebase Admin SDK 12**: Server-side Firebase services (Auth + Firestore).
+  - **Firebase Authentication**: Secure user authentication (custom tokens).
+  - **Cloud Firestore**: Document metadata in a per-user `documents` subcollection.
+  - **Supabase Storage (`@supabase/supabase-js`)**: Private bucket for original files and offloaded content JSON; signed upload/download URLs minted server-side with the `service_role` key.
+  - **Google Generative AI SDK (`@google/generative-ai`)**: Google Gemini integration with a dynamic model list plus rotation/fallback across models to absorb 429/503 errors. The document title and today's real date are injected into AI prompts as context, and the summary prompt now produces easy-to-read, model-decided formatting rather than forced bullets/paragraphs.
+  - **SimpleWebAuthn (`@simplewebauthn/server`)**: Passkeys / WebAuthn registration and authentication ceremonies.
   - **JWT (jsonwebtoken)**: Token-based authentication middleware.
-  - **GraphQL / express-graphql / graphql-tools**: Flexible query API for data fetching.
+  - **GraphQL / express-graphql / graphql-tools**: Flexible query API for data fetching (GraphiQL enabled at `/graphql`).
   - **Redis 4**: In-memory data store for caching and session management.
-  - **MongoDB**: NoSQL document database for user data.
-  - **Multer / Busboy / Formidable**: Multi-part file upload handling.
+  - **Formidable / Multer**: Multi-part file upload handling (through-backend fallback path).
   - **Mammoth**: DOCX-to-HTML conversion.
   - **pdf-parse**: PDF text extraction.
   - **Google APIs (googleapis)**: Google Drive, Docs, and Sheets integration.
-  - **Google Generative AI SDK**: Gemini model integration.
-  - **Sentiment (npm)**: Lightweight sentiment analysis.
-  - **RabbitMQ (amqplib)**: Message broker for async task processing.
-  - **Axios**: HTTP client for inter-service communication.
+  - **Axios**: HTTP client for inter-service communication and the Gemini model-list call.
   - **CORS**: Cross-Origin Resource Sharing middleware.
   - **Dotenv**: Environment variable management.
   - **UUID**: Unique identifier generation.
   - **Serve Favicon**: Favicon middleware.
-  - **Swagger JSDoc / Swagger UI Express**: Interactive API documentation.
+  - **Swagger JSDoc / Swagger UI**: Interactive API documentation (`/api-docs`).
   - **Nodemon**: Development auto-reload.
 - **Orchestrator (Agentic Architecture)**:
   - **Anthropic AI SDK 0.39**: Claude model integration for the agent loop.
@@ -222,14 +248,13 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   - **Google Cloud NLP API**: Machine learning models for text analysis.
   - **Google Speech-to-Text API**: Speech recognition for voice chat.
 - **Database & Storage**:
-  - **PostgreSQL**: Primary relational database (RDS Multi-AZ in production, Helm chart in-cluster).
-  - **MongoDB**: NoSQL document store for user data.
-  - **Firestore**: Cloud Firestore for real-time data sync.
+  - **Cloud Firestore**: Primary metadata store — users plus a per-user `documents` subcollection (one record per document).
+  - **Supabase Storage**: Private bucket holding original uploaded files and offloaded `{ originalText, originalHtml }` content JSON; accessed via signed URLs.
   - **Redis**: In-memory cache and session store (ElastiCache in production).
-  - **Neo4j**: Graph database for knowledge graphs.
-  - **ChromaDB**: Vector database for embedding persistence.
-  - **FAISS**: In-memory vector similarity search.
-  - **Mongoose**: MongoDB object modeling for Node.js.
+  - **PostgreSQL**: Relational database available for the in-cluster/infra tier (RDS Multi-AZ in production, Helm chart in-cluster).
+  - **Neo4j**: Graph database for knowledge graphs (AI/ML layer).
+  - **ChromaDB**: Vector database for embedding persistence (AI/ML layer).
+  - **FAISS**: In-memory vector similarity search (AI/ML layer).
   - **Flyway**: Database schema migrations for PostgreSQL.
 - **Mobile App**:
   - **React Native 0.74**: Cross-platform mobile framework.
@@ -374,9 +399,11 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="https://img.shields.io/badge/GraphQL-E10098?style=for-the-badge&logo=graphql&logoColor=white" alt="GraphQL" />
   <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase" />
   <img src="https://img.shields.io/badge/Firebase_Auth-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase Auth" />
+  <img src="https://img.shields.io/badge/Supabase_Storage-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Storage" />
+  <img src="https://img.shields.io/badge/WebAuthn-3423A6?style=for-the-badge&logo=webauthn&logoColor=white" alt="WebAuthn" />
   <img src="https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens&logoColor=white" alt="JWT" />
   <img src="https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ" />
-  <img src="https://img.shields.io/badge/Multer-FF6F00?style=for-the-badge&logo=express&logoColor=white" alt="Multer" />
+  <img src="https://img.shields.io/badge/Formidable-FF6F00?style=for-the-badge&logo=express&logoColor=white" alt="Formidable" />
   <img src="https://img.shields.io/badge/Nodemon-76D04B?style=for-the-badge&logo=nodemon&logoColor=white" alt="Nodemon" />
 
   <!-- 🤖 Orchestrator & AI Agents -->
@@ -406,8 +433,9 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
 
   <!-- 🗄️ Databases & Vector Stores -->
   <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
-  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firestore" />
+  <img src="https://img.shields.io/badge/Supabase_Storage-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase Storage" />
+  <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white" alt="MongoDB" />
   <img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
   <img src="https://img.shields.io/badge/Neo4j-4581C3?style=for-the-badge&logo=neo4j&logoColor=white" alt="Neo4j" />
   <img src="https://img.shields.io/badge/FAISS-0467DF?style=for-the-badge&logo=meta&logoColor=white" alt="FAISS" />
@@ -518,22 +546,10 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="images/upload.png" alt="Document Upload Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Document Upload Page - Dark Mode**
-
-<p align="center">
-  <img src="images/upload-dark.png" alt="Document Upload Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Document Upload Page - Document Uploaded**
 
 <p align="center">
   <img src="images/file-uploaded.png" alt="Document Upload Page - Document Uploaded" width="100%" style="border-radius: 8px">
-</p>
-
-### **Google Drive Document Selection**
-
-<p align="center">
-  <img src="images/drive-upload.png" alt="Google Drive Document Selection" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Home Page**
@@ -554,12 +570,6 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="images/chat.png" alt="Chat Modal" width="100%" style="border-radius: 8px">
 </p>
 
-### **Chat Modal - Dark Mode**
-
-<p align="center">
-  <img src="images/chat-dark.png" alt="Chat Modal - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Document Analytics**
 
 <p align="center">
@@ -572,34 +582,34 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="images/documents.png" alt="Documents Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Documents Page - Dark Mode**
-
-<p align="center">
-  <img src="images/documents-dark.png" alt="Documents Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
-### **Document Page - Search Results**
-
-<p align="center">
-  <img src="images/documents-search.png" alt="Document Page - Search Results" width="100%" style="border-radius: 8px">
-</p>
-
 ### **Profile Page**
 
 <p align="center">
   <img src="images/profile.png" alt="Profile Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Profile Page - Dark Mode**
-
-<p align="center">
-  <img src="images/profile-dark.png" alt="Profile Page - Dark Mode" width="100%" style="border-radius: 8px">
-</p>
-
 ### **How To Use Page**
 
 <p align="center">
   <img src="images/how-to-use.png" alt="How To Use Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Passkeys Management Page**
+
+<p align="center">
+  <img src="images/passkeys.png" alt="Passkeys Management Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Privacy Policy Page**
+
+<p align="center">
+  <img src="images/privacy-policy.png" alt="Privacy Policy Page" width="100%" style="border-radius: 8px">
+</p>
+
+### **Terms of Service Page**
+
+<p align="center">
+  <img src="images/terms.png" alt="Terms of Service Page" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Login Page**
@@ -614,10 +624,14 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="images/register.png" alt="Registration Page" width="100%" style="border-radius: 8px">
 </p>
 
-### **Forgot Password Page**
+### **Reset Password Page**
 
 <p align="center">
-  <img src="images/forgot-password.png" alt="Forgot Password Page" width="100%" style="border-radius: 8px">
+  <img src="images/verify-email.png" alt="Forgot Password Page" width="100%" style="border-radius: 8px">
+</p>
+
+<p align="center">
+  <img src="images/reset-password.png" alt="Forgot Password Page" width="100%" style="border-radius: 8px">
 </p>
 
 ### **Mobile App's View**
@@ -645,29 +659,12 @@ Real signed-in captures from the React Native (Expo SDK 51) build, iPhone 16 Pro
 | <img src="images/mobile-ios-upload.png" width="220" alt="iOS Upload"> | <img src="images/mobile-ios-summary.png" width="220" alt="iOS Summary"> | <img src="images/mobile-ios-chat.png" width="220" alt="iOS Chat"> |
 | <img src="images/mobile-android-upload.png" width="220" alt="Android Upload"> | <img src="images/mobile-android-summary.png" width="220" alt="Android Summary"> | <img src="images/mobile-android-chat.png" width="220" alt="Android Chat"> |
 
-> Summary now also has **Generate key ideas** and **Generate discussion points** actions wired to `POST /generate-key-ideas` + `POST /generate-discussion-points`. All assistant output renders through `react-native-markdown-display` so bold text, bullet lists, fenced code, and links look the same on iOS, Android, and web.
-
 #### Settings
 
 | Account | Appearance | Connections |
 | --- | --- | --- |
 | <img src="images/mobile-ios-account.png" width="220" alt="iOS Account"> | <img src="images/mobile-ios-appearance.png" width="220" alt="iOS Appearance"> | <img src="images/mobile-ios-connections.png" width="220" alt="iOS Connections"> |
 | <img src="images/mobile-android-account.png" width="220" alt="Android Account"> | <img src="images/mobile-android-appearance.png" width="220" alt="Android Appearance"> | <img src="images/mobile-android-connections.png" width="220" alt="Android Connections"> |
-
-| Privacy & security | Help & support |
-| --- | --- |
-| <img src="images/mobile-ios-privacy.png" width="220" alt="iOS Privacy"> | <img src="images/mobile-ios-help.png" width="220" alt="iOS Help"> |
-| <img src="images/mobile-android-privacy.png" width="220" alt="Android Privacy"> | <img src="images/mobile-android-help.png" width="220" alt="Android Help"> |
-
-> Every Profile menu row is fully implemented — no stubs. Account uses `/update-email` + `/update-password`. Appearance persists Theme + Text size and syncs explicit Light/Dark choices to `/update-theme`. Connections round-trip through `/social-media` + `/update-social-media`. Privacy can delete every document via `DELETE /documents/:userId` and shows live session details (token preview + decoded JWT expiry). Help is a real FAQ + `mailto:` contact + repo + version info.
-
-#### Loading states
-
-| iOS | Android |
-| --- | --- |
-| <img src="images/mobile-ios-home-loading.png" width="220" alt="iOS Home loading"> | <img src="images/mobile-android-home-loading.png" width="220" alt="Android Home loading"> |
-
-Home, Library, Profile, Account, Connections, and Privacy all show animated skeleton placeholders during the first fetch so they never read "0 Documents · 0 Days active" before the real numbers land. The Library `Documents / Days active / Docs / week` row replaces the old `∞ Insights` placeholder with a real activity metric derived from the existing `docCount` and `daysActive` data.
 
 <h2 id="complete-file-structure">📂 Complete File Structure</h2>
 
@@ -765,17 +762,30 @@ DocuThinker-AI-App/
 │   │   ├── components/
 │   │   │   ├── ChatModal.js          # Chat modal component
 │   │   │   ├── Spinner.js            # Loading spinner component
-│   │   │   ├── UploadModal.js        # Document upload modal component
+│   │   │   ├── UploadModal.js        # Upload modal (direct Supabase upload via signed URL)
+│   │   │   ├── DropboxFileSelectorModal.js     # Dropbox import modal
+│   │   │   ├── GoogleDriveFileSelectorModal.js  # Google Drive Picker modal
+│   │   │   ├── PasskeyPromptModal.js # Post-sign-up passkey enrollment prompt
 │   │   │   ├── Navbar.js             # Navigation bar component
 │   │   │   ├── Footer.js             # Footer component
+│   │   │   ├── useErrorToast.js      # Shared error-toast hook
 │   │   │   └── GoogleAnalytics.js    # Google Analytics integration component
 │   │   ├── pages/
-│   │   │   ├── Home.js               # Home page where documents are uploaded
+│   │   │   ├── Home.js               # Upload + results + AI tools (resizable viewer, selection menu)
+│   │   │   ├── DocumentsPage.js      # Library: instant search, sort, type filter
+│   │   │   ├── Profile.js            # Profile / account / social-media management
+│   │   │   ├── Passkeys.js           # Add / rename / delete passkeys (WebAuthn)
 │   │   │   ├── LandingPage.js        # Welcome and information page
-│   │   │   ├── Login.js              # Login page
+│   │   │   ├── Login.js              # Login page (password + passkey)
 │   │   │   ├── Register.js           # Registration page
 │   │   │   ├── ForgotPassword.js     # Forgot password page
-│   │   │   └── HowToUse.js           # Page explaining how to use the app
+│   │   │   ├── HowToUse.js           # Page explaining how to use the app
+│   │   │   ├── PrivacyPolicy.js      # Privacy policy page
+│   │   │   ├── TermsOfService.js     # Terms of service page
+│   │   │   └── NotFoundPage.js       # 404 page
+│   │   ├── utils/
+│   │   │   ├── auth.js               # localStorage auth + event emitter
+│   │   │   └── supabaseClient.js     # Browser Supabase client (anon key) for direct uploads
 │   │   ├── App.js                    # Main App component
 │   │   ├── index.js                  # Entry point for the React app
 │   │   ├── App.css                   # Global CSS 1
@@ -862,10 +872,10 @@ Ensure you have the following tools installed:
 
 - **Node.js** (between v14 and v20)
 - **npm** or **yarn**
-- **Firebase Admin SDK** credentials
+- **Firebase Admin SDK** credentials (Auth + Firestore)
+- **Supabase** project with a private storage bucket (for original files + content)
+- **Google Gemini API key** (`GOOGLE_AI_API_KEY`) for all AI features
 - **Redis** for caching
-- **MongoDB** for data storage
-- **RabbitMQ** for handling asynchronous tasks
 - **Docker** for containerization (optional)
 - **Postman** for API testing (optional)
 - **Expo CLI** for running the mobile app
@@ -879,6 +889,36 @@ Ensure you have the following tools installed:
 - **.env** file with necessary API keys (You can contact me to get the `.env` file - but you should obtain your own API keys for production).
 
 Additionally, **basic fullstack development knowledge and AI/ML concepts** are recommended to understand the app's architecture and functionalities.
+
+<h3 id="environment-variables">Environment Variables</h3>
+
+The backend and frontend each read from their own `.env` file (both git-ignored). The most important variables are listed below — see `backend/.env` and `frontend/.env` for the full set.
+
+**Backend (`backend/.env`)**
+
+| Variable | Purpose |
+|----------|---------|
+| `FIREBASE_*` | Firebase Admin service-account credentials (`FIREBASE_PROJECT_ID`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_DATABASE_URL`, …) for Auth + Firestore. |
+| `GOOGLE_AI_API_KEY` | Google Gemini API key (model list, generation, audio). |
+| `AI_INSTRUCTIONS` | Base system-prompt text prepended to every AI request. |
+| `SUPABASE_URL` | Supabase project URL. |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-side Supabase key for signing upload/download URLs and storing content (never exposed to the browser). |
+| `SUPABASE_BUCKET` | Storage bucket name (defaults to `docuthinker`). |
+| `REDIS_*` | Redis connection config for caching. |
+
+**Frontend (`frontend/.env`)**
+
+| Variable | Purpose |
+|----------|---------|
+| `REACT_APP_SUPABASE_URL` | Supabase project URL (browser client). |
+| `REACT_APP_SUPABASE_ANON_KEY` | Public Supabase anon key for direct browser uploads. |
+| `REACT_APP_SUPABASE_BUCKET` | Storage bucket name (must match the backend). |
+| `REACT_APP_GOOGLE_DRIVE_API_KEY` | Google Drive Picker API key. |
+| `REACT_APP_GOOGLE_DRIVE_CLIENT_ID` | Google OAuth client ID for Drive import. |
+| `REACT_APP_API_BASE_URL` | Base URL of the backend API. |
+
+> [!IMPORTANT]
+> Only the **service-role** Supabase key lives on the backend; the browser ever only sees the public **anon** key plus one-time, path-scoped signed upload tokens. Keep `SUPABASE_SERVICE_ROLE_KEY` and `firebase-admin-sdk.json` out of source control.
 
 ### **Frontend Installation**
 
@@ -1020,36 +1060,38 @@ The backend of **DocuThinker** provides several API endpoints for user authentic
 | GET        | `/passkeys/{userId}`                 | List all passkeys registered to a user (public metadata only).                                      |
 | PATCH      | `/passkeys/{userId}/{credentialId}`  | Rename one of the user's passkeys.                                                                  |
 | DELETE     | `/passkeys/{userId}/{credentialId}`  | Delete one of the user's passkeys.                                                                 |
-| POST       | `/upload`                            | Upload a document for summarization. If the user is logged in, the document is saved in Firestore.  |
+| POST       | `/document-upload-url`               | Mint a one-time **signed Supabase upload URL** so the browser can upload the file bytes directly to the private bucket (bypasses the serverless body-size limit). |
+| POST       | `/document-file`                     | Through-backend multipart fallback upload (parsed with **formidable**); stores the file in the Supabase bucket. |
+| POST       | `/upload`                            | Summarize a document and, when `userId` is given, save the record to the user's `documents` subcollection. Body: `{ userId, title, text, html, filePath, fileType }`. |
 | POST       | `/generate-key-ideas`                | Generate key ideas from the document text.                                                          |
 | POST       | `/generate-discussion-points`        | Generate discussion points from the document text.                                                  |
 | POST       | `/chat`                              | Chat with AI using the original document text as context.                                           |
+| POST       | `/process-audio`                     | Transcribe/answer over an uploaded audio file (voice chat) via Gemini.                              |
+| POST       | `/refine-summary`                    | Refine an existing summary using free-form instructions.                                            |
 | POST       | `/forgot-password`                   | Reset a user's password in Firebase Authentication.                                                 |
 | POST       | `/verify-email`                      | Verify if a user's email exists in Firestore.                                                       |
-| GET        | `/documents/{userId}`                | Retrieve all documents associated with the given `userId`.                                          |
+| GET        | `/documents/{userId}`                | Retrieve all documents associated with the given `userId` (subcollection, merged with any legacy array). |
 | GET        | `/documents/{userId}/{docId}`        | Retrieve a specific document by `userId` and `docId`.                                               |
-| GET        | `/document-details/{userId}/{docId}` | Retrieve document details (title, original text, summary) by `userId` and `docId`.                  |
-| DELETE     | `/delete-document/{userId}/{docId}`  | Delete a specific document by `userId` and `docId`.                                                 |
-| DELETE     | `/delete-all-documents/{userId}`     | Delete all documents associated with the given `userId`.                                            |
+| GET        | `/document-details/{userId}/{docId}` | Retrieve document details (title, original text/HTML, summary, signed `fileUrl`) by `userId` and `docId`. |
+| GET        | `/search-documents/{userId}`         | Server-side search across the user's documents.                                                     |
+| DELETE     | `/documents/{userId}/{docId}`        | Delete a specific document and its Supabase objects by `userId` and `docId`.                        |
+| DELETE     | `/documents/{userId}`                | Delete all documents (and their stored objects) for the given `userId`.                             |
 | POST       | `/update-email`                      | Update a user's email in both Firebase Authentication and Firestore.                                |
 | POST       | `/update-password`                   | Update a user's password in Firebase Authentication.                                                |
 | GET        | `/days-since-joined/{userId}`        | Get the number of days since the user associated with `userId` joined the service.                  |
 | GET        | `/document-count/{userId}`           | Retrieve the number of documents associated with the given `userId`.                                |
-| GET        | `/user-email/{userId}`               | Retrieve the email of a user associated with `userId`.                                              |
+| GET        | `/users/{userId}`                    | Retrieve the email of a user associated with `userId`.                                              |
 | POST       | `/update-document-title`             | Update the title of a document in Firestore.                                                        |
 | PUT        | `/update-theme`                      | Update the theme of the app.                                                                        |
 | GET        | `/user-joined-date/{userId}`         | Get date when the user associated with `userId` joined the service.                                 |
 | GET        | `/social-media/{userId}`             | Get the social media links of the user associated with `userId`.                                    |
 | POST       | `/update-social-media`               | Update the social media links of the user associated with `userId`.                                 |
-| POST       | `/update-profile`                    | Update the user's profile information.                                                              |
-| POST       | `/update-document/{userId}/{docId}`  | Update the document details in Firestore.                                                           |
-| POST       | `/update-document-summary`           | Update the summary of a document in Firestore.                                                      |
-| POST       | `/sentiment-analysis`                | Analyzes the sentiment of the provided document text                                                |
-| POST       | `/bullet-summary`                    | Generates a summary of the document text in bullet points                                           |
-| POST       | `/summary-in-language`               | Generates a summary in the specified language                                                       |
-| POST       | `/content-rewriting`                 | Rewrites or rephrases the provided document text based on a style                                   |
-| POST       | `/actionable-recommendations`        | Generates actionable recommendations based on the document text                                     |
-| GET        | `/graphql`                           | GraphQL endpoint for querying data from the database                                                |
+| POST       | `/sentiment-analysis`                | Analyzes the sentiment of the provided document text.                                               |
+| POST       | `/bullet-summary`                    | Generates a summary of the document text in bullet points.                                          |
+| POST       | `/summary-in-language`               | Generates a summary in the specified language.                                                      |
+| POST       | `/content-rewriting`                 | Rewrites or rephrases the provided document text based on a style.                                  |
+| POST       | `/actionable-recommendations`        | Generates actionable recommendations based on the document text.                                    |
+| GET        | `/graphql`                           | GraphQL endpoint (GraphiQL enabled) for querying and mutating data.                                 |
 
 More API endpoints will be added in the future to enhance the functionality of the app. Feel free to explore the existing endpoints and test them using **Postman** or **Insomnia**.
 
@@ -1058,8 +1100,8 @@ More API endpoints will be added in the future to enhance the functionality of t
 
 ### API Documentation
 
-- **Swagger Documentation**: You can access the Swagger documentation for all API endpoints by running the backend server and navigating to `http://localhost:5000/api-docs`.
-- **Redoc Documentation**: You can access the Redoc documentation for all API endpoints by running the backend server and navigating to `http://localhost:5000/api-docs/redoc`.
+- **Swagger Documentation**: Run the backend and navigate to `http://localhost:3000/api-docs` (Swagger UI loaded from a CDN). Visiting the root `/` redirects there. The raw spec is served at `http://localhost:3000/swagger.json`.
+- **GraphiQL**: The GraphQL playground is available at `http://localhost:3000/graphql`.
 
 For example, our API endpoints documentation looks like this:
 
@@ -1070,7 +1112,7 @@ For example, our API endpoints documentation looks like this:
 Additionally, we also offer API file generation using **OpenAPI**. You can generate API files using the **OpenAPI** specification. Here is how:
 
 ```bash
-npx openapi-generator-cli generate -i http://localhost:5000/api-docs -g typescript-fetch -o ./api
+npx openapi-generator-cli generate -i http://localhost:3000/swagger.json -g typescript-fetch -o ./api
 ```
 
 This will generate TypeScript files for the API endpoints in the `api` directory. Feel free to replace or modify the command as needed.
@@ -1078,22 +1120,21 @@ This will generate TypeScript files for the API endpoints in the `api` directory
 ### **API Architecture**
 
 - We use **Node.js** and **Express** to build the backend server for **DocuThinker**.
-- The backend API is structured using **Express** and **Firebase Admin SDK** for user authentication and data storage.
+- The backend API is structured using **Express** with **Firebase Admin SDK** (Auth + Firestore) for identity and metadata, **Supabase Storage** for files and offloaded content, and **Google Gemini** for AI.
 - We use the MVC (Model-View-Controller) pattern to separate concerns and improve code organization.
-  - **Models**: Schema definitions for interacting with the database.
-  - **Controllers**: Handle the business logic and interact with the models.
-  - **Views**: Format the output and responses for the API endpoints.
-  - **Services**: Interact with the database and AI/ML services for document analysis and summarization.
+  - **Models**: Firestore access for users, the per-user `documents` subcollection, passkeys, and challenges.
+  - **Controllers**: Handle the business logic and interact with the models and services (`controllers/` + `passkeyController.js`).
+  - **Views**: Format success and error responses for the API endpoints.
+  - **Services**: Interact with Supabase Storage (signed URLs, content offload), Google Gemini (model rotation/fallback), and Firebase for document analysis and summarization.
   - **Middlewares**: Secure routes with Firebase authentication and JWT middleware.
 - The API endpoints are designed to be RESTful and follow best practices for error handling and response formatting.
-- The **Microservices Architecture** is also used to handle asynchronous tasks and improve scalability.
-- The API routes are secured using Firebase authentication middleware to ensure that only authenticated users can access the endpoints.
-- The API controllers handle the business logic for each route, interacting with the data models and formatting the responses.
+- AI calls inject the **document title** and **today's real date** into prompts as context, and **rotate across Gemini models** with automatic fallback so transient 429/503 errors don't fail the request.
+- The API controllers handle the business logic for each route, interacting with the data models/services and formatting the responses.
 
 ### **API Testing**
 
-- You can test the API endpoints using **Postman** or **Insomnia**. Simply make a POST request to the desired endpoint with the required parameters.
-- For example, you can test the `/upload` endpoint by sending a POST request with the document file as a form-data parameter.
+- You can test the API endpoints using **Postman** or **Insomnia**. Simply make a request to the desired endpoint with the required parameters.
+- The web client parses PDF/DOCX **in the browser** and uploads the original bytes **directly to Supabase** (via a signed URL from `/document-upload-url`), then calls `/upload` with the extracted text. So `/upload` itself takes JSON, not a multipart file.
 - Feel free to test all the API endpoints and explore the functionalities of the app.
 
 #### Example Request to Register a User:
@@ -1107,13 +1148,23 @@ curl --location --request POST 'http://localhost:3000/register' \
 }'
 ```
 
-#### Example Request to Upload a Document:
+#### Example Request to Summarize & Save a Document:
 
 ```bash
 curl --location --request POST 'http://localhost:3000/upload' \
---header 'Authorization: Bearer <your-token>' \
---form 'File=@"/path/to/your/file.pdf"'
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "userId": "<firebase-uid>",
+    "title": "My Report.pdf",
+    "text": "<extracted plain text>",
+    "html": "<optional display HTML>",
+    "filePath": "<path returned alongside the signed upload URL>",
+    "fileType": "application/pdf"
+}'
 ```
+
+> [!TIP]
+> To get `filePath`, first call `POST /document-upload-url` with `{ userId, fileName }`, upload the bytes to the returned `signedUrl`, then pass the returned `path` as `filePath` above. Alternatively, send the raw file to `POST /document-file` (multipart) to upload through the backend.
 
 ### **Error Handling**
 
@@ -1252,6 +1303,53 @@ The orchestrator (`orchestrator/`) is a standalone Node.js service providing:
 > [!TIP]
 > Visit the [`orchestrator/README.md`](orchestrator/README.md) for full API request/response examples and the [`ai_ml/README.md`](ai_ml/README.md) for the Python AI/ML layer.
 
+<h2 id="storage-data-model">🗄️ Storage & Data Model</h2>
+
+DocuThinker splits each document across three stores so it scales cleanly and never bumps Firestore's per-document size limits. **Firebase Firestore** holds tiny metadata records, **Supabase Storage** (a private bucket) holds the original file bytes and the extracted text/HTML, and **Firebase Auth** handles identity. Nothing heavy ever lives in Firestore.
+
+### How an upload flows
+
+```mermaid
+sequenceDiagram
+    participant B as Browser (React)
+    participant API as Express Backend
+    participant SB as Supabase Storage (private bucket)
+    participant FS as Firestore
+    participant AI as Google Gemini
+
+    B->>API: POST /document-upload-url { userId, fileName }
+    API->>SB: createSignedUploadUrl(path)
+    API-->>B: { path, token, signedUrl }
+    B->>SB: PUT file bytes (direct, bypasses ~4.5MB limit)
+    B->>API: POST /upload { userId, title, text, html, filePath, fileType }
+    API->>AI: summarize(text)  (title + today's date injected as context)
+    API->>SB: store content JSON { originalText, originalHtml } → contentPath
+    API->>FS: write users/{uid}/documents/{docId} (metadata only)
+    API-->>B: { summary, fileUrl, ... }
+```
+
+- **Original files → Supabase Storage.** PDFs/DOCX are uploaded **directly from the browser** to a private bucket (default name `docuthinker`) using a backend-minted **signed upload URL** from `POST /document-upload-url`. This bypasses Vercel's ~4.5 MB serverless request-body limit. A through-backend multipart fallback (`POST /document-file`, parsed with **formidable**) is also available.
+- **Extracted text + display HTML → Supabase Storage.** The plain text and rendered HTML are offloaded as a single JSON "content object" (`{ originalText, originalHtml }`). Firestore stores only a tiny `contentPath` pointer to it.
+- **Metadata → Firestore subcollection.** Each document is one Firestore document under `users/{uid}/documents/{docId}` — removing the old 1 MB-per-user `documents` array ceiling (effectively unlimited documents per user). Each record holds:
+
+  ```jsonc
+  {
+    "id":          "auto-generated-doc-id",
+    "title":       "My Report.pdf",
+    "summary":     "AI-generated summary text…",
+    "filePath":    "uid/1700000000-abc-My_Report.pdf", // path in Supabase bucket
+    "fileType":    "application/pdf",
+    "contentPath": "uid/content/<docId>.json",          // points at the content object
+    "createdAt":   "<server timestamp>"
+  }
+  ```
+
+- **On view → short-lived signed download URL.** When a document is opened, the backend mints a 1-hour signed download URL (`fileUrl`) for the original file. The viewer renders PDFs in a native `<iframe>`, DOCX via `mammoth.convertToHtml`, Markdown via **react-markdown**, HTML sanitized with **DOMPurify**, CSV/TSV as a table, JSON/code as monospace, and plain text as pre-wrapped text (see [Multi-Format Upload & Extraction](#multi-format-upload)).
+- **Service-role key stays server-side.** The Supabase `service_role` key is used only by the backend. The browser receives a one-time, path-scoped upload token (and, for the frontend SDK, only the public `anon` key).
+
+> [!NOTE]
+> Reads merge the new per-user `documents` subcollection with any legacy inline `documents` array, so documents created before the migration still appear. Deletes clean up both the Firestore record and the associated Supabase objects (`filePath` + `contentPath`).
+
 <h2 id="beads-task-coordination">🧩 Beads Task Coordination</h2>
 
 DocuThinker AI agents (and humans) use a **Beads** sub-architecture to coordinate work across multiple AI agents and humans operating on the same codebase. A *bead* is a self-contained, dependency-aware task unit that any agent can pick up, execute, and complete — enabling safe parallel development without merge conflicts.
@@ -1378,10 +1476,34 @@ Our application supports a fully-featured **GraphQL API** that allows clients to
 
 ### Key Features of the GraphQL API
 
-- Retrieve user details and associated documents.
-- Query specific documents using their IDs.
-- Perform mutations to create users, update document titles, and delete documents.
-- Flexible query structure allows you to fetch only the data you need.
+- Retrieve user details and associated documents (now backed by the per-user `documents` subcollection).
+- Query specific documents using their IDs; heavy fields (`fileUrl`, `originalText`, `originalHtml`) are resolved on demand from Supabase only when requested.
+- Perform mutations to register/login users, summarize and manage documents, run AI helpers, and update profile/account settings.
+- Flexible query structure lets you fetch only the data you need.
+
+### Available Queries & Mutations
+
+| Type | Operation | Description |
+|------|-----------|-------------|
+| Query | `getUser(id)` | User profile plus their documents. |
+| Query | `getUserEmail(userId)` | Email for a user. |
+| Query | `getDocument(userId, docId)` | A single document (resolve `fileUrl` / `originalText` / `originalHtml` on demand). |
+| Query | `listDocuments(userId)` | All of a user's documents. |
+| Query | `searchDocuments(userId, searchTerm)` | Search results (docId, title, snippet). |
+| Query | `documentCount(userId)` | Number of documents. |
+| Query | `daysSinceJoined(userId)` | Days since the account was created. |
+| Query | `userJoinedDate(userId)` | The account's join date. |
+| Query | `getSocialMedia(userId)` | Social-media links. |
+| Query | `analyzeSentiment(documentText)` | Sentiment score + description for arbitrary text. |
+| Mutation | `register(email, password)` | Create a user; returns `{ userId, customToken }`. |
+| Mutation | `login(email, password)` | Authenticate; returns `{ userId, customToken }`. |
+| Mutation | `summarizeDocument(userId, title, text, html, filePath, fileType)` | Summarize and (with `userId`) save to the library. |
+| Mutation | `deleteDocument(userId, docId)` / `deleteAllDocuments(userId)` | Delete one / all documents. |
+| Mutation | `updateDocumentTitle(userId, docId, title)` | Rename a document. |
+| Mutation | `updateEmail` / `updateTheme` / `updateSocialMedia` | Profile & account updates. |
+| Mutation | `generateKeyIdeas` / `generateDiscussionPoints` / `generateBulletSummary` | AI generation helpers (no storage). |
+| Mutation | `summaryInLanguage` / `actionableRecommendations` / `rewriteContent` / `refineSummary` | More AI helpers. |
+| Mutation | `chat(sessionId, message, originalText)` | Conversational chat over a document. |
 
 ### Getting Started
 
@@ -1440,15 +1562,15 @@ query GetDocument {
 }
 ```
 
-#### 3. Create a New User
+#### 3. Register a New User
 
-Create a user with an email and password:
+Create a user with an email and password (returns a Firebase custom token):
 
 ```graphql
-mutation CreateUser {
-  createUser(email: "example@domain.com", password: "password123") {
-    id
-    email
+mutation Register {
+  register(email: "example@domain.com", password: "password123") {
+    userId
+    customToken
   }
 }
 ```
@@ -1459,7 +1581,7 @@ Change the title of a specific document:
 
 ```graphql
 mutation UpdateDocumentTitle {
-  updateDocumentTitle(userId: "USER_ID", docId: "DOCUMENT_ID", title: ["Updated Title.pdf"]) {
+  updateDocumentTitle(userId: "USER_ID", docId: "DOCUMENT_ID", title: "Updated Title.pdf") {
     id
     title
   }

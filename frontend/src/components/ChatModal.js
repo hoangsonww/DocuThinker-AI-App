@@ -331,11 +331,18 @@ const ChatModal = ({
     if (!message || !originalText || !sessionId) return;
     if (loading) return;
 
+    // Prepend the document title as context for the AI (chat sends the doc text
+    // as the conversation seed; the stored originalText itself stays clean).
+    const docTitle = localStorage.getItem("documentTitle");
+    const contextText = docTitle
+      ? `Title: "${docTitle}"\n\n${originalText}`
+      : originalText;
+
     try {
       setLoading(true);
       const res = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/chat",
-        { message, originalText, sessionId },
+        { message, originalText: contextText, sessionId },
       );
       setLoading(false);
       const aiResponse = res.data.response;
@@ -446,6 +453,16 @@ const ChatModal = ({
               bgcolor: theme === "dark" ? "#2a2a2a" : "white",
             }}
           >
+            {chatHistory.length === 0 && (
+              <Box sx={{ textAlign: "left", marginBottom: 1, font: "inherit" }}>
+                <AiMessage
+                  text={
+                    "Hi there! 👋 I've read through your document. Ask me anything about it — a summary, an explanation, the key points, or whatever you'd like help with today."
+                  }
+                  theme={theme}
+                />
+              </Box>
+            )}
             {chatHistory.map((chat, index) => (
               <Box
                 key={index}

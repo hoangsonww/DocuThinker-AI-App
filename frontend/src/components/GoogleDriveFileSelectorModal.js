@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from "react";
 import {
   Box,
-  Button,
   Modal,
   Typography,
   TextField,
   CircularProgress,
   IconButton,
+  InputAdornment,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import CloudOutlinedIcon from "@mui/icons-material/CloudOutlined";
+import InsertDriveFileOutlinedIcon from "@mui/icons-material/InsertDriveFileOutlined";
+import SearchIcon from "@mui/icons-material/Search";
 import axios from "axios";
+
+const ORANGE = "#f57c00";
 
 const GoogleDriveFileSelectorModal = ({
   open,
@@ -33,12 +38,16 @@ const GoogleDriveFileSelectorModal = ({
         q: query ? `name contains '${query}'` : "",
       });
 
-      const filteredFiles = response.result.files.filter(
-        (file) =>
-          file.mimeType === "application/pdf" ||
-          file.mimeType ===
-            "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      );
+      const filteredFiles = response.result.files.filter((file) => {
+        const m = file.mimeType || "";
+        return (
+          m === "application/pdf" ||
+          m ===
+            "application/vnd.openxmlformats-officedocument.wordprocessingml.document" ||
+          m === "application/json" ||
+          m.startsWith("text/")
+        );
+      });
 
       setDriveFiles(filteredFiles);
     } catch (error) {
@@ -88,133 +97,242 @@ const GoogleDriveFileSelectorModal = ({
     listFiles(query);
   };
 
+  const dark = theme === "dark";
+
   return (
     <Modal open={open} onClose={handleClose}>
       <Box
         sx={{
-          position: "relative",
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          width: { xs: "92%", sm: "460px" },
+          maxHeight: "88vh",
           display: "flex",
           flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          padding: { xs: 2, sm: 3, md: 4 },
-          bgcolor: theme === "dark" ? "#1e1e1e" : "white",
-          color: theme === "dark" ? "white" : "black",
-          borderRadius: "12px",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          width: { xs: "90%", sm: "70%", md: "50%", lg: "400px" },
-          maxWidth: "500px",
-          maxHeight: "90vh",
-          margin: "0 auto",
-          marginTop: { xs: "20%", sm: "10%" },
-          textAlign: "center",
-          overflowY: "auto",
+          bgcolor: dark ? "#1e1e1e" : "#fff",
+          color: dark ? "white" : "black",
+          borderRadius: "20px",
+          overflow: "hidden",
+          boxShadow: "0 30px 80px rgba(0,0,0,0.45)",
+          border: dark ? "1px solid #2e2e2e" : "1px solid #eee",
+          fontFamily: "Poppins, sans-serif",
+          outline: "none",
         }}
       >
-        <IconButton
-          onClick={handleClose}
+        <Box
           sx={{
-            position: "absolute",
-            top: 8,
-            right: 8,
-            color: theme === "dark" ? "white" : "black",
-          }}
-        >
-          <CloseIcon />
-        </IconButton>
-
-        <Typography
-          variant="h6"
-          sx={{
-            marginTop: 2,
-            marginBottom: 2,
-            font: "inherit",
-            fontSize: "1.4rem",
-            fontWeight: "bold",
-            color: theme === "dark" ? "white" : "black",
-          }}
-        >
-          Select a File from Google Drive
-        </Typography>
-
-        <TextField
-          label="Search Your Google Drive"
-          value={searchTerm}
-          onChange={handleSearchChange}
-          fullWidth
-          sx={{ margin: "20px 0", fontFamily: "Poppins, sans-serif" }}
-          inputProps={{
-            style: {
-              fontFamily: "Poppins, sans-serif",
-              color: theme === "dark" ? "white" : "black",
-            },
-          }}
-          InputLabelProps={{
-            style: {
-              fontFamily: "Poppins, sans-serif",
-              color: theme === "dark" ? "white" : "#000",
-            },
+            height: 6,
+            flexShrink: 0,
+            background: "linear-gradient(90deg,#ff8a00,#f57c00,#ffb74d)",
           }}
         />
-
-        {loading ? (
+        <Box
+          sx={{
+            p: { xs: 2.5, sm: 3 },
+            flex: 1,
+            minHeight: 0,
+            display: "flex",
+            flexDirection: "column",
+          }}
+        >
+          {/* Header */}
           <Box
             sx={{
               display: "flex",
-              justifyContent: "center",
               alignItems: "center",
-              width: "100%",
-              height: "100%",
-              minHeight: "150px",
+              justifyContent: "space-between",
+              mb: 2,
             }}
           >
-            <CircularProgress
-              sx={{
-                color: theme === "dark" ? "white" : "#f57c00",
-              }}
-            />
+            <Box sx={{ display: "flex", alignItems: "center", gap: 1.5 }}>
+              <Box
+                sx={{
+                  width: 42,
+                  height: 42,
+                  borderRadius: "12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  color: "#fff",
+                  background: "linear-gradient(135deg,#ff8a00,#f57c00)",
+                }}
+              >
+                <CloudOutlinedIcon />
+              </Box>
+              <Box>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    fontWeight: 700,
+                    fontSize: "18px",
+                    color: dark ? "#fff" : "#1a1a1a",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  Import from Google Drive
+                </Typography>
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    fontSize: "12px",
+                    color: dark ? "#aaa" : "#888",
+                  }}
+                >
+                  Pick a PDF, Word, Markdown, or text file.
+                </Typography>
+              </Box>
+            </Box>
+            <IconButton
+              onClick={handleClose}
+              sx={{ color: dark ? "#aaa" : "#777" }}
+            >
+              <CloseIcon />
+            </IconButton>
           </Box>
-        ) : (
-          <Box sx={{ maxHeight: "300px", overflowY: "auto", width: "100%" }}>
-            {driveFiles.length > 0 ? (
-              driveFiles.map((file) => (
-                <Box key={file.id} sx={{ mb: 2 }}>
-                  <Button
-                    variant="outlined"
-                    fullWidth
-                    onClick={() => handleFileSelection(file.id)}
-                    disabled={selectedFileId === file.id}
+
+          {/* Search */}
+          <TextField
+            value={searchTerm}
+            onChange={handleSearchChange}
+            placeholder="Search your Drive…"
+            size="small"
+            fullWidth
+            sx={{
+              mb: 2,
+              "& .MuiOutlinedInput-root": {
+                borderRadius: "12px",
+                bgcolor: dark ? "#262626" : "#fafafa",
+                "& fieldset": { borderColor: dark ? "#444" : "#e3e3e3" },
+                "&:hover fieldset": { borderColor: ORANGE },
+                "&.Mui-focused fieldset": { borderColor: ORANGE },
+              },
+              "& input": {
+                fontFamily: "Poppins, sans-serif",
+                color: dark ? "#fff" : "#1a1a1a",
+              },
+            }}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: dark ? "#888" : "#999" }} />
+                </InputAdornment>
+              ),
+            }}
+          />
+
+          {/* File list */}
+          {loading ? (
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                minHeight: "180px",
+              }}
+            >
+              <CircularProgress sx={{ color: ORANGE }} />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                flex: 1,
+                minHeight: 0,
+                overflowY: "auto",
+                display: "flex",
+                flexDirection: "column",
+                gap: 1,
+                maxHeight: "50vh",
+              }}
+            >
+              {driveFiles.length > 0 ? (
+                driveFiles.map((file) => {
+                  const opening = selectedFileId === file.id;
+                  return (
+                    <Box
+                      key={file.id}
+                      onClick={() =>
+                        !selectedFileId && handleFileSelection(file.id)
+                      }
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 1.5,
+                        px: 1.5,
+                        py: 1.25,
+                        borderRadius: "12px",
+                        border: dark ? "1px solid #333" : "1px solid #ececec",
+                        cursor: selectedFileId ? "default" : "pointer",
+                        opacity: selectedFileId && !opening ? 0.5 : 1,
+                        transition: "all 0.15s ease",
+                        "&:hover": selectedFileId
+                          ? {}
+                          : {
+                              borderColor: ORANGE,
+                              bgcolor: dark
+                                ? "rgba(245,124,0,0.1)"
+                                : "rgba(245,124,0,0.06)",
+                            },
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 34,
+                          height: 34,
+                          borderRadius: "9px",
+                          flexShrink: 0,
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: ORANGE,
+                          bgcolor: dark
+                            ? "rgba(245,124,0,0.16)"
+                            : "rgba(245,124,0,0.1)",
+                        }}
+                      >
+                        <InsertDriveFileOutlinedIcon sx={{ fontSize: 19 }} />
+                      </Box>
+                      <Typography
+                        sx={{
+                          flex: 1,
+                          font: "inherit",
+                          fontSize: "14px",
+                          color: dark ? "#eee" : "#333",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
+                        }}
+                      >
+                        {file.name}
+                      </Typography>
+                      {opening && (
+                        <CircularProgress size={18} sx={{ color: ORANGE }} />
+                      )}
+                    </Box>
+                  );
+                })
+              ) : (
+                <Box sx={{ textAlign: "center", py: 5 }}>
+                  <CloudOutlinedIcon
+                    sx={{ fontSize: 40, color: dark ? "#555" : "#ccc", mb: 1 }}
+                  />
+                  <Typography
                     sx={{
-                      justifyContent: "left",
                       font: "inherit",
-                      textAlign: "left",
-                      color: theme === "dark" ? "white" : "black",
-                      border: "none",
-                      boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-                      "&:hover": {
-                        backgroundColor: theme === "dark" ? "#333" : "#f57c00",
-                        color: "white",
-                      },
+                      fontSize: "14px",
+                      color: dark ? "#aaa" : "#888",
                     }}
                   >
-                    {selectedFileId === file.id ? (
-                      <CircularProgress
-                        size={24}
-                        sx={{
-                          color: theme === "dark" ? "white" : "black",
-                        }}
-                      />
-                    ) : (
-                      file.name
-                    )}
-                  </Button>
+                    {isSearchPerformed
+                      ? "No matching files found."
+                      : "No supported files in your Drive."}
+                  </Typography>
                 </Box>
-              ))
-            ) : isSearchPerformed ? (
-              <Typography sx={{ font: "inherit" }}>No files found</Typography>
-            ) : null}
-          </Box>
-        )}
+              )}
+            </Box>
+          )}
+        </Box>
       </Box>
     </Modal>
   );

@@ -531,7 +531,7 @@ const LandingPage = () => {
             flexDirection: "column",
             justifyContent: "center",
             py: { xs: 6, md: 0 },
-            pb: { xs: 6, md: 10 },
+            pb: { xs: 10, md: 0 },
           }}
         >
           <Grid
@@ -835,14 +835,12 @@ const LandingPage = () => {
           </Grid>
           <Box
             sx={{
-              width: "100%",
               display: "flex",
               justifyContent: "center",
-              mt: { xs: 4, md: 0 },
-              position: { xs: "static", md: "absolute" },
-              left: { md: "50%" },
-              bottom: { md: 24 },
-              transform: { md: "translateX(-50%)" },
+              position: "absolute",
+              left: "50%",
+              bottom: { xs: 16, md: 24 },
+              transform: "translateX(-50%)",
             }}
           >
             <Button

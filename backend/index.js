@@ -42,6 +42,8 @@ const {
   searchDocuments,
   processAudioFile,
   refineSummary,
+  uploadDocumentFile,
+  getDocumentUploadUrl,
 } = require("./controllers/controllers");
 
 const {
@@ -55,7 +57,47 @@ const {
 } = require("./controllers/passkeyController");
 
 const app = express();
-app.use(express.json());
+
+// Permissive CORS, set BEFORE any body parsing or routing so the headers are on
+// EVERY response — including preflight (OPTIONS) and error/crash paths. Reflects
+// the requested headers so no custom header is ever rejected.
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header(
+    "Access-Control-Allow-Methods",
+    "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+  );
+  res.header(
+    "Access-Control-Allow-Headers",
+    req.headers["access-control-request-headers"] || "*",
+  );
+  res.header("Access-Control-Expose-Headers", "*");
+  res.header("Access-Control-Max-Age", "86400");
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
+// The /upload body carries the extracted text + display HTML, which easily
+// exceeds body-parser's tiny 100 KB default for real documents. Raise it (the
+// original file itself goes straight to Supabase, not through here).
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ extended: true, limit: "25mb" }));
+
+// Request/response logger — one line in, one line out (with status + duration),
+// so every call is traceable in the Vercel logs.
+app.use((req, res, next) => {
+  const start = Date.now();
+  console.log(`[REQ] ${req.method} ${req.originalUrl}`);
+  res.on("finish", () => {
+    const ms = Date.now() - start;
+    const line = `[RES] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${ms}ms)`;
+    if (res.statusCode >= 500) console.error(line);
+    else console.log(line);
+  });
+  next();
+});
 
 // CORS configuration
 const corsOptions = {
@@ -154,6 +196,8 @@ app.use((req, res, next) => {
 app.post("/register", registerUser);
 app.post("/login", loginUser);
 app.post("/upload", uploadDocument);
+app.post("/document-upload-url", getDocumentUploadUrl);
+app.post("/document-file", uploadDocumentFile);
 app.post("/generate-key-ideas", generateKeyIdeas);
 app.post("/generate-discussion-points", generateDiscussionPoints);
 app.post("/chat", chatWithAI);
@@ -210,6 +254,28 @@ app.use((err, req, res, next) => {
     res.status(401).json({ error: "Unauthorized request" });
   }
   next();
+});
+
+// Catch-all error handler: anything thrown in a route that wasn't handled lands
+// here and gets logged with a full stack instead of a silent 500.
+app.use((err, req, res, next) => {
+  console.error(
+    `[UNHANDLED] ${req.method} ${req.originalUrl}:`,
+    err && err.stack ? err.stack : err,
+  );
+  if (res.headersSent) return next(err);
+  res.status(500).json({
+    error: "Internal server error",
+    details: (err && err.message) || "Unknown error",
+  });
+});
+
+// Last-resort process-level loggers so crashes are never silent.
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[uncaughtException]", err && err.stack ? err.stack : err);
 });
 
 // Start the server

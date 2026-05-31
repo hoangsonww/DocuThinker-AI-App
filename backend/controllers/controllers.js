@@ -15,11 +15,56 @@ const {
   rewriteContent,
   processAudio,
   refineSummary,
+  storeDocumentFile,
+  getDocumentFileUrl,
+  createDocumentUploadUrl,
+  storeDocumentContent,
+  getDocumentContent,
+  deleteStorageObjects,
 } = require("../services/services");
 const { sendErrorResponse, sendSuccessResponse } = require("../views/views");
 const { IncomingForm } = require("formidable");
 const { v4: uuidv4 } = require("uuid");
 const firebaseAdmin = require("firebase-admin");
+
+// --- Document storage model ---------------------------------------------------
+// Each uploaded document is its own Firestore doc at users/{uid}/documents/{docId}
+// (heavy text/HTML/files live in Supabase). One small doc per upload means there
+// is no per-user 1 MB array ceiling — the permanent fix for the bloat issue.
+//
+// Reads merge the subcollection with any legacy inline `documents` array that
+// hasn't been migrated yet, so nothing is ever lost mid-migration.
+
+const toMillis = (ts) => {
+  if (!ts) return 0;
+  if (typeof ts.toMillis === "function") return ts.toMillis();
+  if (typeof ts._seconds === "number") return ts._seconds * 1000;
+  return 0;
+};
+
+// Returns the user's documents oldest-first (matches the historical append
+// order the frontend relies on). Subcollection wins on id collisions.
+const readUserDocuments = async (userRef, userData) => {
+  const legacy = Array.isArray(userData && userData.documents)
+    ? userData.documents
+    : [];
+  const snap = await userRef.collection("documents").get();
+  const sub = snap.docs.map((d) => d.data());
+  sub.sort((a, b) => toMillis(a.createdAt) - toMillis(b.createdAt));
+  const subIds = new Set(sub.map((d) => d.id));
+  const legacyOnly = legacy.filter((d) => d && d.id && !subIds.has(d.id));
+  return [...legacyOnly, ...sub];
+};
+
+// Find a single document by id (subcollection first, then legacy array).
+const findUserDocument = async (userRef, userData, docId) => {
+  const subDoc = await userRef.collection("documents").doc(docId).get();
+  if (subDoc.exists) return subDoc.data();
+  const legacy = Array.isArray(userData && userData.documents)
+    ? userData.documents
+    : [];
+  return legacy.find((d) => d && d.id === docId) || null;
+};
 
 /**
  * @swagger
@@ -153,8 +198,15 @@ exports.loginUser = async (req, res) => {
  */
 exports.uploadDocument = async (req, res) => {
   try {
-    // Expecting JSON payload with title and text properties
-    const { userId, title, text } = req.body;
+    // Expecting JSON payload with title and text properties. `html` is an
+    // optional display-only rendering (preserves headings/lists/tables) used
+    // by the viewer; the AI/summary still works off the plaintext `text`.
+    const { userId, title, text, html, filePath, fileType } = req.body;
+    console.log(
+      `[/upload] start: title="${title}" userId=${userId ? "yes" : "no"} ` +
+        `fileType=${fileType || "-"} filePath=${filePath ? "yes" : "no"} ` +
+        `textLen=${text ? text.length : 0} htmlLen=${html ? html.length : 0}`,
+    );
     if (!text || !title) {
       return sendErrorResponse(
         res,
@@ -163,8 +215,13 @@ exports.uploadDocument = async (req, res) => {
       );
     }
 
-    // Generate summary based on the provided text
-    const result = await generateSummary(text);
+    // Generate summary based on the provided text (title passed as AI context)
+    const result = await generateSummary(text, title);
+    console.log(
+      `[/upload] summary generated (${
+        result.summary ? result.summary.length : 0
+      } chars)`,
+    );
 
     // If a userId is provided, update the Firestore user document
     if (userId) {
@@ -178,24 +235,78 @@ exports.uploadDocument = async (req, res) => {
       // Generate a unique ID for the document
       const docId = firestore.collection("users").doc().id;
 
-      // Update Firestore with the new document data
-      await userRef.update({
-        documents: firebaseAdmin.firestore.FieldValue.arrayUnion({
-          id: docId,
-          title: title,
+      // Offload the large text/HTML to storage so the Firestore document stays
+      // small (Firestore caps each document at 1 MB; storing full text + HTML
+      // inline overflowed it for large files). Only a tiny path is kept inline.
+      let contentPath = "";
+      try {
+        contentPath = await storeDocumentContent(actualUserId, docId, {
           originalText: result.originalText,
-          summary: result.summary,
-        }),
-      });
+          originalHtml: typeof html === "string" ? html : "",
+        });
+        console.log(`[/upload] content stored at ${contentPath}`);
+      } catch (e) {
+        console.error(
+          `[/upload] storeDocumentContent FAILED for docId=${docId}:`,
+          e && e.message,
+          e && e.stack,
+        );
+        contentPath = "";
+      }
+
+      const docRecord = {
+        id: docId,
+        title: title,
+        filePath: typeof filePath === "string" ? filePath : "",
+        fileType: typeof fileType === "string" ? fileType : "",
+        contentPath,
+        summary: result.summary,
+      };
+      // Fallback: if content offload failed, keep the text inline ONLY when it's
+      // small enough — never large enough to blow Firestore's 1 MB doc limit.
+      if (!contentPath) {
+        const inlineText = result.originalText || "";
+        const inlineHtml = typeof html === "string" ? html : "";
+        const inlineBytes = inlineText.length + inlineHtml.length;
+        if (inlineBytes < 400000) {
+          docRecord.originalText = inlineText;
+          docRecord.originalHtml = inlineHtml;
+          console.warn(
+            `[/upload] content offload failed; inlining ${inlineBytes} bytes for docId=${docId}.`,
+          );
+        } else {
+          console.warn(
+            `[/upload] content offload failed and inline too large (${inlineBytes} bytes) for docId=${docId}; saving lean record (viewer falls back to the stored file).`,
+          );
+        }
+      }
+
+      // Write to the per-user documents subcollection (one Firestore doc each →
+      // no 1 MB array ceiling). createdAt preserves chronological order.
+      await userRef
+        .collection("documents")
+        .doc(docId)
+        .set({
+          ...docRecord,
+          createdAt: firebaseAdmin.firestore.FieldValue.serverTimestamp(),
+        });
+      console.log(`[/upload] document written to subcollection docId=${docId}`);
     }
+
+    // Signed URL so the client can render the original file right away.
+    const fileUrl = filePath ? await getDocumentFileUrl(filePath) : "";
 
     // Send success response with the summary and the original text
     sendSuccessResponse(res, 200, "Document summarized", {
       summary: result.summary,
       originalText: result.originalText,
+      originalHtml: typeof html === "string" ? html : "",
+      fileType: typeof fileType === "string" ? fileType : "",
+      fileUrl,
     });
   } catch (error) {
-    sendErrorResponse(res, 500, "Failed to summarize document", error.message);
+    // Pass the Error object so views logs name/message/code/stack/responseData.
+    sendErrorResponse(res, 500, "Failed to summarize document", error);
   }
 };
 
@@ -260,6 +371,73 @@ exports.processAudioFile = async (req, res) => {
       });
     } catch (error) {
       sendErrorResponse(res, 500, "Failed to process audio", error.message);
+    }
+  });
+};
+
+/**
+ * @swagger
+ * /document-file:
+ *   post:
+ *     summary: Store an original uploaded document file
+ *     description: Uploads the raw PDF/DOCX to private object storage and returns
+ *       its storage path so the viewer can render the real document later.
+ *     tags:
+ *       - Documents
+ *     responses:
+ *       200:
+ *         description: File stored
+ *       400:
+ *         description: No file uploaded
+ *       500:
+ *         description: Failed to store file
+ */
+/**
+ * @swagger
+ * /document-upload-url:
+ *   post:
+ *     summary: Mint a signed upload URL for direct-to-storage file uploads
+ *     description: Returns a one-time signed upload token so the browser can
+ *       upload the original file straight to the private bucket, bypassing the
+ *       serverless body-size limit. service_role stays server-side.
+ *     tags:
+ *       - Documents
+ *     responses:
+ *       200:
+ *         description: Signed upload URL created
+ *       500:
+ *         description: Failed to create upload URL
+ */
+exports.getDocumentUploadUrl = async (req, res) => {
+  const { userId, fileName } = req.body;
+  try {
+    const result = await createDocumentUploadUrl(userId, fileName);
+    // { path, token, signedUrl }
+    sendSuccessResponse(res, 200, "Upload URL created", result);
+  } catch (error) {
+    sendErrorResponse(res, 500, "Failed to create upload URL", error.message);
+  }
+};
+
+exports.uploadDocumentFile = async (req, res) => {
+  const form = new IncomingForm();
+  await form.parse(req, async (err, fields, files) => {
+    if (err) {
+      return sendErrorResponse(res, 500, "Error parsing the file", err);
+    }
+    const fileField = files.file || files.File;
+    if (!fileField) {
+      return sendErrorResponse(res, 400, "No file uploaded");
+    }
+    const userId = Array.isArray(fields.userId)
+      ? fields.userId[0]
+      : fields.userId;
+    try {
+      const result = await storeDocumentFile(userId, fileField[0]);
+      // { filePath, fileType }
+      sendSuccessResponse(res, 200, "File stored", result);
+    } catch (error) {
+      sendErrorResponse(res, 500, "Failed to store file", error.message);
     }
   });
 };
@@ -506,16 +684,16 @@ exports.getAllDocuments = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    const userData = userDoc.data();
-    const documents = userData.documents || [];
+    const documents = await readUserDocuments(userRef, userDoc.data());
     sendSuccessResponse(res, 200, "Documents retrieved", documents);
   } catch (error) {
-    sendErrorResponse(res, 500, "Failed to retrieve documents", error.message);
+    sendErrorResponse(res, 500, "Failed to retrieve documents", error);
   }
 };
 
@@ -552,21 +730,20 @@ exports.getDocumentById = async (req, res) => {
   const { userId, docId } = req.params;
 
   try {
-    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    const userData = userDoc.data();
-    const document = userData.documents.find((doc) => doc.id === docId);
-
+    const document = await findUserDocument(userRef, userDoc.data(), docId);
     if (!document) {
       return sendErrorResponse(res, 404, "Document not found");
     }
 
     sendSuccessResponse(res, 200, "Document retrieved", document);
   } catch (error) {
-    sendErrorResponse(res, 500, "Failed to retrieve document", error.message);
+    sendErrorResponse(res, 500, "Failed to retrieve document", error);
   }
 };
 
@@ -603,22 +780,45 @@ exports.getDocumentDetails = async (req, res) => {
   const { userId, docId } = req.params;
 
   try {
-    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    const userData = userDoc.data();
-    const document = userData.documents.find((doc) => doc.id === docId);
-
+    const document = await findUserDocument(userRef, userDoc.data(), docId);
     if (!document) {
       return sendErrorResponse(res, 404, "Document not found");
     }
 
-    const { title, originalText, summary } = document;
-    sendSuccessResponse(res, 200, "Document details retrieved", {
+    const {
       title,
       originalText,
+      originalHtml,
+      filePath,
+      fileType,
+      summary,
+      contentPath,
+    } = document;
+
+    // New docs keep the text/HTML in storage; old docs have it inline.
+    let text = originalText || "";
+    let html = originalHtml || "";
+    if (contentPath) {
+      const content = await getDocumentContent(contentPath);
+      if (content) {
+        text = content.originalText || text;
+        html = content.originalHtml || html;
+      }
+    }
+
+    const fileUrl = filePath ? await getDocumentFileUrl(filePath) : "";
+    sendSuccessResponse(res, 200, "Document details retrieved", {
+      title,
+      originalText: text,
+      originalHtml: html,
+      fileType: fileType || "",
+      fileUrl,
       summary,
     });
   } catch (error) {
@@ -681,13 +881,13 @@ exports.searchDocuments = async (req, res) => {
   const { searchTerm } = req.query;
 
   try {
-    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    const userData = userDoc.data();
-    const documents = userData.documents || [];
+    const documents = await readUserDocuments(userRef, userDoc.data());
 
     // Filter documents that match the search term in the title or content
     const matchingDocuments = documents.filter((doc) => {
@@ -754,23 +954,35 @@ exports.deleteDocument = async (req, res) => {
   const { userId, docId } = req.params;
 
   try {
-    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, "User not found");
     }
 
     const userData = userDoc.data();
-    const updatedDocuments = userData.documents.filter(
-      (doc) => doc.id !== docId,
-    );
+    // Find the doc (sub or legacy) so we can clean up its storage objects.
+    const doc = await findUserDocument(userRef, userData, docId);
+    if (doc) {
+      await deleteStorageObjects([doc.filePath, doc.contentPath]);
+    }
 
-    await firestore.collection("users").doc(userId).update({
-      documents: updatedDocuments,
-    });
+    // Remove from the subcollection.
+    const subRef = userRef.collection("documents").doc(docId);
+    const subDoc = await subRef.get();
+    if (subDoc.exists) await subRef.delete();
+
+    // Remove from the legacy array if it's still there.
+    const legacy = Array.isArray(userData.documents) ? userData.documents : [];
+    if (legacy.some((d) => d && d.id === docId)) {
+      await userRef.update({
+        documents: legacy.filter((d) => d && d.id !== docId),
+      });
+    }
 
     sendSuccessResponse(res, 200, "Document deleted successfully");
   } catch (error) {
-    sendErrorResponse(res, 500, "Failed to delete document", error.message);
+    sendErrorResponse(res, 500, "Failed to delete document", error);
   }
 };
 
@@ -799,13 +1011,40 @@ exports.deleteAllDocuments = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    await firestore.collection("users").doc(userId).update({
-      documents: [],
-    });
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
+
+    if (userDoc.exists) {
+      // Clean up all storage objects (best-effort).
+      const all = await readUserDocuments(userRef, userDoc.data());
+      const paths = [];
+      all.forEach((d) => {
+        if (d.filePath) paths.push(d.filePath);
+        if (d.contentPath) paths.push(d.contentPath);
+      });
+      await deleteStorageObjects(paths);
+
+      // Delete every subcollection doc in batches (Firestore caps at 500/batch).
+      const subSnap = await userRef.collection("documents").get();
+      let batch = firestore.batch();
+      let count = 0;
+      for (const d of subSnap.docs) {
+        batch.delete(d.ref);
+        count++;
+        if (count % 450 === 0) {
+          await batch.commit();
+          batch = firestore.batch();
+        }
+      }
+      if (count % 450 !== 0) await batch.commit();
+
+      // Clear the legacy array too.
+      await userRef.update({ documents: [] });
+    }
 
     sendSuccessResponse(res, 200, "All documents deleted successfully");
   } catch (error) {
-    sendErrorResponse(res, 500, "Failed to delete documents", error.message);
+    sendErrorResponse(res, 500, "Failed to delete documents", error);
   }
 };
 
@@ -983,13 +1222,14 @@ exports.getDocumentCount = async (req, res) => {
   const { userId } = req.params;
 
   try {
-    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    const userData = userDoc.data();
-    const documentCount = userData.documents.length;
+    const documents = await readUserDocuments(userRef, userDoc.data());
+    const documentCount = documents.length;
 
     sendSuccessResponse(res, 200, "Document count retrieved", {
       documentCount,
@@ -1085,36 +1325,34 @@ exports.updateDocumentTitle = async (req, res) => {
   const { userId, docId, newTitle } = req.body;
 
   try {
-    const userDoc = await firestore.collection("users").doc(userId).get();
+    const userRef = firestore.collection("users").doc(userId);
+    const userDoc = await userRef.get();
     if (!userDoc.exists) {
       return sendErrorResponse(res, 404, "User not found");
     }
 
-    const userData = userDoc.data();
-    const documentIndex = userData.documents.findIndex(
-      (doc) => doc.id === docId,
-    );
+    const subRef = userRef.collection("documents").doc(docId);
+    const subDoc = await subRef.get();
 
-    if (documentIndex === -1) {
-      return sendErrorResponse(res, 404, "Document not found");
+    if (subDoc.exists) {
+      await subRef.update({ title: newTitle });
+    } else {
+      // Legacy: still in the inline array.
+      const userData = userDoc.data();
+      const documents = Array.isArray(userData.documents)
+        ? userData.documents
+        : [];
+      const idx = documents.findIndex((doc) => doc && doc.id === docId);
+      if (idx === -1) {
+        return sendErrorResponse(res, 404, "Document not found");
+      }
+      documents[idx].title = newTitle;
+      await userRef.update({ documents });
     }
-
-    // Update the title of the specific document
-    userData.documents[documentIndex].title = newTitle;
-
-    // Save the updated user document back to Firestore
-    await firestore.collection("users").doc(userId).update({
-      documents: userData.documents,
-    });
 
     sendSuccessResponse(res, 200, "Document title updated successfully");
   } catch (error) {
-    sendErrorResponse(
-      res,
-      500,
-      "Failed to update document title",
-      error.message,
-    );
+    sendErrorResponse(res, 500, "Failed to update document title", error);
   }
 };
 
