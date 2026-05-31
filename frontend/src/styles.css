@@ -19,19 +19,12 @@ button:hover {
   background-color: #ff1a1a;
 }
 
-input,
-textarea {
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  transition: border-color 0.3s ease;
-}
-
-input:focus,
-textarea:focus {
-  border-color: #ff4d4d;
-}
+/*
+ * NOTE: do NOT style raw `input`/`textarea` globally here. MUI renders its own
+ * native <input> inside every TextField, so a global border/border-radius/
+ * box-shadow/padding produced a duplicated, elevated, brighter inner box inside
+ * every MUI field app-wide. MUI owns input styling via its sx/classes.
+ */
 
 h2,
 h4,

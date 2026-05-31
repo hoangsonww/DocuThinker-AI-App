@@ -33,12 +33,6 @@ import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 import { isAuthenticated, clearAuth, onAuthChange } from "../utils/auth";
 
-const activeStyle = {
-  borderBottom: "3px solid #f57c00",
-  borderRadius: "12px 12px 0 0",
-  paddingBottom: "4px",
-};
-
 const Navbar = ({ theme, onThemeToggle }) => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,6 +40,33 @@ const Navbar = ({ theme, onThemeToggle }) => {
   const navigate = useNavigate();
   const isLargeScreen = useMediaQuery("(min-width:1111px)");
   const accountMenuOpen = Boolean(accountAnchor);
+
+  // Shared nav-link styling: soft orange pill on hover (no enlarge), orange
+  // highlight when active.
+  const navButtonSx = {
+    color: theme === "dark" ? "#e8e8e8" : "#333",
+    mx: 0.5,
+    px: 1.5,
+    py: 0.8,
+    borderRadius: "10px",
+    font: "inherit",
+    fontWeight: 500,
+    textTransform: "none",
+    display: "flex",
+    alignItems: "center",
+    transition: "background-color 0.2s ease, color 0.2s ease",
+    "&:hover": {
+      bgcolor:
+        theme === "dark" ? "rgba(245,124,0,0.16)" : "rgba(245,124,0,0.1)",
+      color: "#f57c00",
+    },
+  };
+  const navActiveStyle = {
+    backgroundColor:
+      theme === "dark" ? "rgba(245,124,0,0.22)" : "rgba(245,124,0,0.14)",
+    color: "#f57c00",
+    borderRadius: "10px",
+  };
 
   useEffect(() => {
     const sync = () => setIsLoggedIn(isAuthenticated());
@@ -82,80 +103,32 @@ const Navbar = ({ theme, onThemeToggle }) => {
       <Button
         component={NavLink}
         to="/home"
-        style={({ isActive }) => (isActive ? activeStyle : undefined)}
-        sx={{
-          color: theme === "dark" ? "white" : "black",
-          marginRight: 2,
-          font: "inherit",
-          textTransform: "none",
-          display: "flex",
-          alignItems: "center",
-          transition: "transform 0.2s ease",
-          "&:hover": {
-            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-            transform: { xs: "none", md: "scale(1.04)" },
-          },
-        }}
+        style={({ isActive }) => (isActive ? navActiveStyle : undefined)}
+        sx={navButtonSx}
       >
         <HomeIcon sx={{ marginRight: 1 }} /> Home
       </Button>
       <Button
         component={NavLink}
         to="/how-to-use"
-        style={({ isActive }) => (isActive ? activeStyle : undefined)}
-        sx={{
-          color: theme === "dark" ? "white" : "black",
-          marginRight: 2,
-          font: "inherit",
-          textTransform: "none",
-          display: "flex",
-          alignItems: "center",
-          transition: "transform 0.2s ease",
-          "&:hover": {
-            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-            transform: { xs: "none", md: "scale(1.04)" },
-          },
-        }}
+        style={({ isActive }) => (isActive ? navActiveStyle : undefined)}
+        sx={navButtonSx}
       >
         <HelpOutlineIcon sx={{ marginRight: 1 }} /> How to Use
       </Button>
       <Button
         component={NavLink}
         to="/documents"
-        style={({ isActive }) => (isActive ? activeStyle : undefined)}
-        sx={{
-          color: theme === "dark" ? "white" : "black",
-          marginRight: 2,
-          font: "inherit",
-          textTransform: "none",
-          display: "flex",
-          alignItems: "center",
-          transition: "transform 0.2s ease",
-          "&:hover": {
-            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-            transform: { xs: "none", md: "scale(1.04)" },
-          },
-        }}
+        style={({ isActive }) => (isActive ? navActiveStyle : undefined)}
+        sx={navButtonSx}
       >
         <DescriptionIcon sx={{ marginRight: 1 }} /> Documents
       </Button>
       <Button
         component={NavLink}
         to="/profile"
-        style={({ isActive }) => (isActive ? activeStyle : undefined)}
-        sx={{
-          color: theme === "dark" ? "white" : "black",
-          marginRight: 2,
-          font: "inherit",
-          textTransform: "none",
-          display: "flex",
-          alignItems: "center",
-          transition: "transform 0.2s ease",
-          "&:hover": {
-            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-            transform: { xs: "none", md: "scale(1.04)" },
-          },
-        }}
+        style={({ isActive }) => (isActive ? navActiveStyle : undefined)}
+        sx={navButtonSx}
       >
         <PersonIcon sx={{ marginRight: 1 }} /> Profile
       </Button>
@@ -174,19 +147,7 @@ const Navbar = ({ theme, onThemeToggle }) => {
                 }}
               />
             }
-            sx={{
-              color: theme === "dark" ? "white" : "black",
-              marginRight: 2,
-              font: "inherit",
-              textTransform: "none",
-              display: "flex",
-              alignItems: "center",
-              transition: "transform 0.2s ease",
-              "&:hover": {
-                bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-                transform: { xs: "none", md: "scale(1.04)" },
-              },
-            }}
+            sx={navButtonSx}
           >
             <AccountCircleIcon sx={{ marginRight: 1 }} /> Account
           </Button>
@@ -244,54 +205,35 @@ const Navbar = ({ theme, onThemeToggle }) => {
         <Button
           component={NavLink}
           to="/login"
-          style={({ isActive }) => (isActive ? activeStyle : undefined)}
-          sx={{
-            color: theme === "dark" ? "white" : "black",
-            marginRight: 2,
-            font: "inherit",
-            textTransform: "none",
-            display: "flex",
-            alignItems: "center",
-            transition: "transform 0.2s ease",
-            "&:hover": {
-              bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-              transform: { xs: "none", md: "scale(1.04)" },
-            },
-          }}
+          style={({ isActive }) => (isActive ? navActiveStyle : undefined)}
+          sx={navButtonSx}
         >
           <LoginIcon sx={{ marginRight: 1 }} /> Login
         </Button>
       )}
 
-      <Button
-        component={NavLink}
-        to="/register"
-        style={({ isActive }) => (isActive ? activeStyle : undefined)}
-        sx={{
-          color: theme === "dark" ? "white" : "black",
-          font: "inherit",
-          textTransform: "none",
-          display: "flex",
-          alignItems: "center",
-          transition: "transform 0.2s ease",
-          "&:hover": {
-            bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-            transform: { xs: "none", md: "scale(1.04)" },
-          },
-        }}
-      >
-        <AppRegistrationIcon sx={{ marginRight: 1 }} /> Register
-      </Button>
+      {!isLoggedIn && (
+        <Button
+          component={NavLink}
+          to="/register"
+          style={({ isActive }) => (isActive ? navActiveStyle : undefined)}
+          sx={navButtonSx}
+        >
+          <AppRegistrationIcon sx={{ marginRight: 1 }} /> Register
+        </Button>
+      )}
     </>
   );
 
   return (
     <AppBar
       position="static"
+      elevation={0}
       sx={{
-        bgcolor: theme === "dark" ? "#333" : "white",
+        bgcolor: theme === "dark" ? "#1f1f1f" : "white",
         zIndex: 1000,
         padding: 1,
+        borderBottom: theme === "dark" ? "1px solid #333" : "1px solid #eee",
         transition: "background-color 0.3s ease, color 0.3s ease",
       }}
     >
@@ -320,10 +262,14 @@ const Navbar = ({ theme, onThemeToggle }) => {
           onClick={onThemeToggle}
           sx={{
             marginLeft: 2,
-            color: theme === "dark" ? "white" : "black",
+            color: theme === "dark" ? "#e8e8e8" : "#333",
+            transition: "background-color 0.2s ease, color 0.2s ease",
             "&:hover": {
-              transform: "scale(1.1)",
-              transition: "transform 0.2s ease",
+              color: "#f57c00",
+              bgcolor:
+                theme === "dark"
+                  ? "rgba(245,124,0,0.16)"
+                  : "rgba(245,124,0,0.1)",
             },
           }}
         >
@@ -519,29 +465,31 @@ const Navbar = ({ theme, onThemeToggle }) => {
               </ListItem>
             )}
 
-            <ListItem
-              button
-              component={NavLink}
-              to="/register"
-              sx={{
-                color: theme === "dark" ? "white" : "black",
-                "&:hover": {
-                  color: theme === "dark" ? "white" : "black",
-                  bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
-                },
-                borderRadius: "8px",
-              }}
-            >
-              <ListItemIcon
+            {!isLoggedIn && (
+              <ListItem
+                button
+                component={NavLink}
+                to="/register"
                 sx={{
-                  minWidth: "40px",
                   color: theme === "dark" ? "white" : "black",
+                  "&:hover": {
+                    color: theme === "dark" ? "white" : "black",
+                    bgcolor: theme === "dark" ? "#444" : "#f5f5f5",
+                  },
+                  borderRadius: "8px",
                 }}
               >
-                <AppRegistrationIcon />
-              </ListItemIcon>
-              <ListItemText disableTypography primary="Register" />
-            </ListItem>
+                <ListItemIcon
+                  sx={{
+                    minWidth: "40px",
+                    color: theme === "dark" ? "white" : "black",
+                  }}
+                >
+                  <AppRegistrationIcon />
+                </ListItemIcon>
+                <ListItemText disableTypography primary="Register" />
+              </ListItem>
+            )}
 
             <ListItem
               button

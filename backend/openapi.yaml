@@ -69,7 +69,7 @@ paths:
           description: Unauthorized
   /upload:
     post:
-      summary: Upload a document
+      summary: Upload and summarize a document
       tags:
         - Document
       operationId: uploadDocument
@@ -82,16 +82,137 @@ paths:
               properties:
                 userId:
                   type: string
-                documentContent:
+                  description: Optional user ID to save the document to Firestore
+                title:
                   type: string
+                  description: Document title
+                text:
+                  type: string
+                  description: Document plaintext content (required)
+                html:
+                  type: string
+                  description: Optional display-ready HTML (preserves formatting)
+                filePath:
+                  type: string
+                  description: Path to the original file in storage
+                fileType:
+                  type: string
+                  description: File type (e.g., "pdf", "docx")
+              required:
+                - title
+                - text
+      responses:
+        200:
+          description: Document summarized successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  summary:
+                    type: string
+                  originalText:
+                    type: string
+                  originalHtml:
+                    type: string
+                  fileType:
+                    type: string
+                  fileUrl:
+                    type: string
+                    description: Signed short-lived URL to the stored file
+        400:
+          description: Missing title or text
+        404:
+          description: User not found (if userId provided)
+        500:
+          description: Failed to summarize document
+  /document-upload-url:
+    post:
+      summary: Mint a signed upload URL for direct file uploads
+      tags:
+        - Document
+      operationId: getDocumentUploadUrl
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: string
+                  description: User ID
+                fileName:
+                  type: string
+                  description: Original file name (e.g., "document.pdf")
               required:
                 - userId
-                - documentContent
+                - fileName
       responses:
-        201:
-          description: Document uploaded successfully
+        200:
+          description: Signed upload URL created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  path:
+                    type: string
+                    description: Storage path for the file
+                  token:
+                    type: string
+                    description: Upload token
+                  signedUrl:
+                    type: string
+                    description: One-time signed URL for direct browser upload
+        500:
+          description: Failed to create upload URL
+  /document-file:
+    post:
+      summary: Store an uploaded document file
+      tags:
+        - Document
+      operationId: uploadDocumentFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: The document file (PDF, DOCX, etc.)
+                userId:
+                  type: string
+                  description: Optional user ID
+              required:
+                - file
+      responses:
+        200:
+          description: File stored successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  filePath:
+                    type: string
+                    description: Storage path of the file
+                  fileType:
+                    type: string
+                    description: Detected file type (e.g., "pdf")
         400:
-          description: Invalid input
+          description: No file uploaded
+        500:
+          description: Failed to store file
   /generate-key-ideas:
     post:
       summary: Generate key ideas from a document
@@ -283,7 +404,7 @@ paths:
           description: Document not found
   /document-details/{userId}/{docId}:
     get:
-      summary: Retrieve document details
+      summary: Retrieve full document details
       tags:
         - Document
       operationId: getDocumentDetails
@@ -301,6 +422,27 @@ paths:
       responses:
         200:
           description: Document details retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  title:
+                    type: string
+                  originalText:
+                    type: string
+                  originalHtml:
+                    type: string
+                    description: Display-ready HTML version of the document
+                  fileType:
+                    type: string
+                  fileUrl:
+                    type: string
+                    description: Signed short-lived URL to the stored file
+                  summary:
+                    type: string
         404:
           description: Document not found
   /update-email:
@@ -643,11 +785,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: query
+        - name: searchTerm
           in: query
           required: true
           schema:
             type: string
+          description: Search term to find in document titles or content
       responses:
         200:
           description: Search results retrieved successfully
@@ -704,6 +847,46 @@ paths:
           description: Summary refined successfully
         400:
           description: Invalid input
+  /graphql:
+    post:
+      summary: GraphQL API endpoint
+      tags:
+        - API
+      operationId: graphqlQuery
+      description: >
+        Execute GraphQL queries and mutations. GraphiQL explorer available at
+        the same endpoint for introspection and testing.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                query:
+                  type: string
+                  description: GraphQL query string
+                variables:
+                  type: object
+                  description: Query variables
+              required:
+                - query
+      responses:
+        200:
+          description: GraphQL response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                  errors:
+                    type: array
+                    items:
+                      type: object
+        400:
+          description: Invalid GraphQL query
   /passkey/register/options:
     post:
       summary: Begin passkey registration
@@ -894,8 +1077,72 @@ components:
           type: string
         userId:
           type: string
-        content:
+        title:
           type: string
+        summary:
+          type: string
+        contentPath:
+          type: string
+          description: Path to the large text/HTML content in storage
+        filePath:
+          type: string
+          description: Path to the original uploaded file
+        fileType:
+          type: string
+          description: File type (e.g., pdf, docx)
+        createdAt:
+          type: string
+          format: date-time
+    DocumentSummary:
+      type: object
+      properties:
+        summary:
+          type: string
+        originalText:
+          type: string
+        originalHtml:
+          type: string
+        fileType:
+          type: string
+        fileUrl:
+          type: string
+    Sentiment:
+      type: object
+      properties:
+        sentiment:
+          type: string
+          enum:
+            - positive
+            - negative
+            - neutral
+        score:
+          type: number
+    SocialMedia:
+      type: object
+      description: Social media profile links
+      additionalProperties:
+        type: string
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        summary:
+          type: string
+    UploadUrl:
+      type: object
+      properties:
+        path:
+          type: string
+          description: Storage path for the file
+        token:
+          type: string
+          description: Upload token
+        signedUrl:
+          type: string
+          description: One-time signed URL for direct browser upload
     Error:
       type: object
       properties:
@@ -903,6 +1150,8 @@ components:
           type: string
         code:
           type: integer
+        details:
+          type: string
     Passkey:
       type: object
       description: A registered WebAuthn passkey (public metadata only; the public key is never returned).

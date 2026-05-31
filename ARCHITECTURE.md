@@ -6,7 +6,9 @@
 - [System Architecture](#system-architecture)
 - [Production DevOps Platform](#production-devops-platform)
 - [Frontend Architecture](#frontend-architecture)
+- [Multi-Format Ingestion & Rendering](#multi-format-ingestion--rendering)
 - [Backend Architecture](#backend-architecture)
+- [Document Storage & Data Model](#document-storage--data-model)
 - [Agentic Orchestration Layer](#agentic-orchestration-layer)
 - [Beads Task Coordination](#beads-task-coordination)
 - [AI/ML Pipeline](#aiml-pipeline)
@@ -30,8 +32,11 @@ DocuThinker is an **enterprise-grade**, full-stack AI-powered document analysis 
 
 ### Core Features
 
-- **Document Upload & Processing**: Multi-format document support (PDF, DOCX, TXT)
-- **AI-Powered Summarization**: Advanced summarization using Google Cloud NLP and LangChain
+- **Document Upload & Processing**: Broad multi-format support — **PDF** (pdf.js, with paragraph reconstruction), **Word/DOCX** (mammoth), **Markdown**, **HTML**, **CSV/TSV**, **JSON**, and a wide range of **plain-text / code / config** files. The browser extracts a clean plaintext (for the AI) **and** a display variant (HTML / Markdown / monospace) entirely **client-side**, then uploads the original file **directly to Supabase Storage** via a backend-minted signed URL (see [Multi-Format Ingestion & Rendering](#multi-format-ingestion--rendering))
+- **Format-Aware Viewer**: The result screen renders each document the way it should look — native **PDF in an `<iframe>`** of a signed Supabase URL, **DOCX/HTML/CSV** as sanitized HTML, **Markdown** via `react-markdown`, **JSON/code** as monospace `<pre>`, and everything else as `pre-wrap` text
+- **Interactive Result View**: A **drag-resizable** Original | Summary split, a **text-selection action menu** (Copy / Summarize / Rewrite / Ask Chat / Search the web) that operates only on the highlighted text, and a **multi-step animated upload progress** (Reading → Storing → Analyzing → Ready) with a smooth reveal into results
+- **Scalable Per-Document Storage**: Each uploaded document is its own Firestore record in a `users/{uid}/documents/{docId}` **subcollection**, with heavy text/HTML/file payloads offloaded to **Supabase Storage**. This is the permanent fix for the previous inline-array design that hit Firestore's 1 MB-per-document ceiling (see [Document Storage & Data Model](#document-storage--data-model))
+- **AI-Powered Summarization**: Resilient summarization using **Google Gemini** (`@google/generative-ai`) with dynamic model discovery, rotation, and multi-model fallback (the production summary path). The document **title** and **today's date** are injected into every system prompt, and the summary prompt asks for easy-to-read, model-decided formatting (light Markdown). A separate Python **LangGraph + CrewAI** pipeline powers deep multi-agent analysis
 - **Intelligent Chat**: Context-aware conversational AI for document Q&A
 - **Multi-Language Support**: Document processing and summarization in multiple languages
 - **Real-time Analytics**: User behavior tracking and document analytics
@@ -114,7 +119,8 @@ graph TB
 
     subgraph "Data Layer"
         U[(Firebase Auth)]
-        V[(Firestore)]
+        V[(Firestore<br/>users + documents subcollection)]
+        SB[(Supabase Storage<br/>private 'docuthinker' bucket<br/>original files + content JSON)]
         W[(MongoDB Atlas)]
         X[(Redis Cache)]
     end
@@ -168,7 +174,9 @@ graph TB
 
     Q --> U
     R --> V
+    R --> SB
     R --> W
+    L -.->|direct file upload<br/>signed URL| SB
     S --> AH
     S --> AI
     S --> AJ
@@ -275,7 +283,10 @@ graph TB
 
 ## Frontend Architecture
 
-The frontend is built with **React 18** and follows a component-based architecture with modern React patterns.
+The frontend is built with **React 18** + **Material-UI** (CRACO build, Poppins font) and follows a component-based architecture with modern React patterns. Two characteristics are worth calling out up front because they drive the data flow:
+
+- **Client-side multi-format extraction + direct-to-Supabase uploads.** The upload modal (`components/UploadModal.js`) extracts a clean plaintext **and** a display variant in the browser for **PDF, DOCX, Markdown, HTML, CSV/TSV, JSON, and text/code** files (`extractDocument`), then uploads the **original file bytes straight to Supabase Storage** using `@supabase/supabase-js` (anon key) against a backend-minted signed-upload token. This bypasses Vercel's ~4.5 MB serverless body limit; only the small extracted text + paths are POSTed to the backend. A four-step animated progress (**Reading → Storing → Analyzing → Ready**) tracks the real upload stages. See [Multi-Format Ingestion & Rendering](#multi-format-ingestion--rendering).
+- **Rich, interactive result view.** The summary screen (`pages/Home.js`) renders **drag-resizable** Original | Summary columns (with a full-screen drag overlay so the PDF iframe can't swallow the drag), a custom **text-selection action menu** (Copy / Summarize / Rewrite / Ask Chat / Search web on just the highlighted text), a **localStorage-cached** per-document sentiment meter, and the full AI toolset (key ideas, discussion points, bullet/translated summaries, rewrite, recommendations, chat). The format-aware viewer shows native PDFs in an `<iframe>` of the signed URL, DOCX/HTML/CSV/JSON/code as sanitized HTML, Markdown via `react-markdown`, and everything else as pre-wrap text. See [Result View & In-Document Interactions](#result-view--in-document-interactions).
 
 ```mermaid
 graph TB
@@ -309,9 +320,16 @@ graph TB
         end
 
         subgraph "Services"
-            P[API Service]
-            Q[Auth Service]
-            R[Storage Service]
+            P[Axios API Client<br/>REST + GraphQL]
+            Q[Auth Service<br/>utils/auth.js]
+            R[Supabase Client<br/>utils/supabaseClient.js<br/>direct file upload]
+        end
+
+        subgraph "Document Flow"
+            UM[UploadModal<br/>pdf.js + mammoth extract]
+            RV[Result View<br/>resizable cols + viewer]
+            SEL[Text-Selection Menu]
+            SM[Sentiment Meter<br/>client-cached]
         end
 
         subgraph "Utilities"
@@ -335,9 +353,14 @@ graph TB
     H --> I
     I --> J
     P --> Q
-    P --> R
+    L --> UM
+    UM --> R
+    UM --> P
+    UM --> RV
+    RV --> SEL
+    RV --> SM
+    SM --> P
     K --> P
-    L --> P
     M --> P
     N --> P
     O --> P
@@ -345,9 +368,90 @@ graph TB
 
 ---
 
+## Multi-Format Ingestion & Rendering
+
+DocuThinker extracts and renders **many** document formats entirely in the browser. All of the parsing happens client-side in `frontend/src/components/UploadModal.js` (`extractDocument`), and the viewer in `frontend/src/pages/Home.js` picks a render path from the resulting `fileType`. The guiding principle is a clean separation between **what the AI sees** and **what the user sees**:
+
+- The **AI always receives clean plaintext** (`text`) — no markup, no table tags, no JSON noise — so summaries and chat stay coherent regardless of source format.
+- The **viewer receives a format-appropriate display variant** (`html`, raw Markdown, or monospace) so the original document still *looks* like itself.
+- The **original file** is uploaded straight to Supabase, and a small **content object** `{ originalText, originalHtml }` is stored alongside it; Firestore keeps only `filePath` / `contentPath` references (see [Document Storage & Data Model](#document-storage--data-model)).
+
+### `extractDocument` — one extractor, many formats
+
+`extractDocument(file)` returns `{ text, html, fileType }` (or `null` for unsupported files). Each branch produces a clean plaintext for the AI plus the right display payload:
+
+| Source format | `text` (for the AI) | `html` / display | Render path in the viewer | `fileType` |
+|---------------|---------------------|------------------|---------------------------|------------|
+| **PDF** | Reconstructed plaintext — line/paragraph breaks inferred from each glyph's vertical position + `hasEOL` (no longer one space-joined blob) | Paragraph-ized HTML (`textToHtml`) as a fallback | Native `<iframe>` of a signed Supabase URL | `application/pdf` |
+| **DOCX** | `mammoth.extractRawText` (raw text) | `mammoth.convertToHtml` (headings, bold, lists, tables) | Sanitized HTML | `…wordprocessingml.document` |
+| **HTML** | `stripHtml` (tags removed) | Original HTML as-is | Sanitized HTML | `text/html` |
+| **CSV / TSV** | Raw delimited text | `delimitedToHtmlTable` (first row → `<thead>`, quoted-field aware) | Sanitized HTML table | `text/csv` · `text/tab-separated-values` |
+| **JSON** | Raw text | Pretty-printed (`JSON.stringify(…, null, 2)`) inside `<pre>` | Sanitized HTML (`<pre>`) | `application/json` |
+| **Code / config** (`.js`, `.py`, `.go`, `.yaml`, `.sql`, …) | Raw text | Escaped source inside `<pre>` | Sanitized HTML (`<pre>`) | `text/plain` |
+| **Markdown** | Raw Markdown | *(empty — rendered live)* | `react-markdown` (GFM + math) | `text/markdown` |
+| **Plain text** | Raw text | *(empty)* | `pre-wrap` text | `text/plain` |
+
+> **Note on the viewer branch order** (`Home.js`). The choice is **not** a flat `switch` on `fileType` — it is an ordered fallthrough that always degrades gracefully:
+> 1. `fileType` contains `"pdf"` **and** a signed `fileUrl` exists → render the original PDF in a native `<iframe src={fileUrl}>`.
+> 2. Else if `originalHtml` is non-empty → render `DOMPurify.sanitize(originalHtml)` (this is the DOCX/HTML/CSV/JSON/code path).
+> 3. Else if `fileType` contains `"markdown"` → render `originalText` through `react-markdown`.
+> 4. Else → render `originalText` with `white-space: pre-wrap`.
+>
+> Because branch 2 keys off **HTML presence** rather than the MIME type, a record always renders richly when HTML is available — which is exactly what makes the storage fallbacks (missing `filePath`, or a small inline payload) degrade to a clean view instead of failing.
+
+### Ingestion data flow
+
+```mermaid
+flowchart TB
+    FILE([Dropped / picked file])
+
+    FILE --> EXTRACT["extractDocument(file)<br/>UploadModal.js"]
+
+    subgraph Extract["Client-side extraction (browser)"]
+        direction TB
+        PDF["PDF → pdf.js<br/>paragraph reconstruction"]
+        DOCX["DOCX → mammoth<br/>rawText + HTML"]
+        HTMLB["HTML → strip tags + keep HTML"]
+        CSV["CSV/TSV → HTML table"]
+        JSONB["JSON → pretty <pre>"]
+        CODE["code/config → escaped <pre>"]
+        MD["Markdown → raw"]
+        TXT["text → raw"]
+    end
+
+    EXTRACT --> Extract
+    Extract --> RET["{ text, html, fileType }"]
+
+    RET -->|"text (clean plaintext)"| AI["Google Gemini<br/>summary / chat"]
+    RET -->|original file bytes| SB["Supabase bucket<br/>filePath"]
+    RET -->|"{ originalText, originalHtml }"| CJSON["Supabase content object<br/>contentPath"]
+
+    RET -->|"html / text + fileType"| VIEW{"Viewer branch<br/>(Home.js)"}
+    VIEW -->|"pdf + fileUrl"| V1["&lt;iframe&gt; signed URL"]
+    VIEW -->|originalHtml| V2["DOMPurify sanitized HTML<br/>(DOCX/HTML/CSV/JSON/code)"]
+    VIEW -->|markdown| V3["react-markdown"]
+    VIEW -->|else| V4["pre-wrap text"]
+
+    style AI fill:#4285F4,stroke:#333,color:#fff
+    style SB fill:#3ECF8E,stroke:#333,color:#000
+    style CJSON fill:#3ECF8E,stroke:#333,color:#000
+    style VIEW fill:#FFB74D,stroke:#333,color:#000
+```
+
+The `dropzone` `accept` map and the `CODE_EXTS` set in `UploadModal.js` are the single source of truth for which extensions are accepted; the supported-format chips shown in the modal (`PDF`, `Word`, `Markdown`, `HTML`, `CSV`, `JSON`, `Code`) summarize them for the user.
+
+---
+
 ## Backend Architecture
 
-The backend follows the **MVC (Model-View-Controller)** pattern with additional service layers for business logic.
+The backend follows the **MVC (Model-View-Controller)** pattern with additional service layers for business logic. It runs as **Express on Node 18** (deployed as **Vercel serverless functions**; `app.listen` is gated to non-production for local dev). Cross-cutting concerns wired in `index.js`, in order:
+
+- **Permissive top-level CORS** — a hand-rolled middleware registered **before** body parsing or routing, so the CORS headers land on **every** response, including preflight `OPTIONS` (answered with `204`) and **error/crash paths**. It reflects the requested `Access-Control-Request-Headers` so no custom header is ever rejected. (A `cors()` middleware is also applied for completeness.)
+- **Raised JSON/urlencoded body limit** — `express.json({ limit: "25mb" })` (and the matching `urlencoded` limit), up from body-parser's ~100 KB default. The `/upload` body now carries the extracted **text + display HTML** for large documents; the **original file itself bypasses the backend entirely** (it goes straight to Supabase), so this limit only needs to cover the extracted payload.
+- **Structured request/response logging** — a paired `[REQ] METHOD url` on entry and `[RES] METHOD url -> status (Nms)` on `finish`, so every call is traceable in Vercel logs (5xx logged at `error` level).
+- **Layered error handling** — a global error handler, an `UnauthorizedError` handler, and a catch-all `[UNHANDLED]` handler that logs a full stack (skipping if headers are already sent) instead of a silent 500.
+- **Process-level crash loggers** — `unhandledRejection` and `uncaughtException` listeners so crashes are never silent.
+- **Surfaces** — REST routes, **GraphQL at `/graphql`** (GraphiQL enabled), **Swagger UI at `/api-docs`** (served from CDN, JSON at `/swagger.json`), and the **Passkey/WebAuthn** routes.
 
 ```mermaid
 graph TB
@@ -355,11 +459,12 @@ graph TB
         A[Express Server]
 
         subgraph "Middleware Layer"
-            B[CORS Middleware]
+            B[Permissive CORS<br/>top-level, before routing]
+            BJ[JSON/urlencoded<br/>25mb body limit]
             C[Auth Middleware - JWT]
             D[Firebase Auth Middleware]
-            E[Error Handler]
-            F[Request Logger]
+            E[Error Handlers<br/>global + Unauthorized + UNHANDLED]
+            F[Req/Res Logger]
         end
 
         subgraph "Routes Layer"
@@ -379,31 +484,32 @@ graph TB
         subgraph "Service Layer"
             O[User Service]
             P[Document Service]
-            Q[AI/ML Service]
-            R[Storage Service]
+            Q[Gemini AI Service<br/>discovery + rotation + fallback]
+            R[Supabase Storage Service<br/>files + content JSON + signed URLs]
         end
 
         subgraph "Model Layer"
             S[User Model]
-            T[Document Model]
-            U[Analytics Model]
+            T[Document Model<br/>subcollection record]
+            U[Passkey Model]
         end
 
         subgraph "Integration Layer"
-            V[Firebase Admin SDK]
-            W[Google Cloud APIs]
-            X[LangChain]
+            V[Firebase Admin SDK<br/>Auth + Firestore]
+            W["@google/generative-ai<br/>(Gemini)"]
+            SBX["@supabase/supabase-js<br/>(service_role)"]
             Y[Redis Client]
         end
     end
 
     A --> B
+    B --> BJ
     A --> C
     A --> D
     A --> E
     A --> F
 
-    B --> G
+    BJ --> G
     C --> H
     D --> I
 
@@ -419,14 +525,23 @@ graph TB
 
     O --> S
     P --> T
-    Q --> U
 
     O --> V
     P --> V
+    P --> R
+    R --> SBX
     Q --> W
-    Q --> X
     P --> Y
 ```
+
+> **Note on the production AI path.** The Express backend summarizes with **Google Gemini** via `@google/generative-ai` (see `services/services.js`). On each call it:
+> 1. **Discovers** available models from `GET https://generativelanguage.googleapis.com/v1/models`, keeping only models whose name contains `gemini`, **excludes** `embedding` and `pro` variants, and that advertise the `generateContent` method.
+> 2. **Caches** the discovered list for **5 minutes** (`GEMINI_MODEL_CACHE_TTL_MS`); if discovery fails it reuses the last good list or falls back to `gemini-2.5-flash` (`DEFAULT_GEMINI_MODEL_FALLBACK`).
+> 3. **Rotates** the starting model (round-robin via `geminiModelRotationIndex`) and **falls back across every model in order** — a `429`/`503`/blank error on one model transparently retries the next, and only after exhausting all of them does it surface a descriptive error (raw Gemini errors are often blank, which previously produced opaque 500s).
+>
+> **Prompt context injection.** Today's real date (`currentDateContext()`, formatted as a full `weekday, Month D, YYYY`) is prepended to **every** system instruction across all Gemini tasks (summary, chat, key ideas, discussion points, sentiment, bullet/translated summary, rewrite, recommendations, refine) for recency-aware reasoning. The document **title** is additionally fed to `generateSummary` as extra context (`Title: "…"` prefixed to the text), while the *stored* `originalText` is kept clean (no title prefix) so the viewer and chat stay intact. The summary prompt itself now asks for an **easy-to-read, model-decided layout** — short paragraphs with the occasional heading or short list only where it genuinely improves clarity, emitted as light Markdown — rather than a fixed structure.
+>
+> The heavier multi-agent **LangChain / LangGraph / CrewAI** stack lives in the separate Python [AI/ML Pipeline](#aiml-pipeline) service, not in this Express layer.
 
 ### MVC Pattern Implementation
 
@@ -481,28 +596,28 @@ classDiagram
         +String id
         +String email
         +Date createdAt
-        +Array documents
         +Object socialMedia
         +String theme
+        +Array documents_legacy
     }
 
     class Document {
         +String id
-        +String userId
         +String title
-        +String originalText
         +String summary
-        +Array keyIdeas
-        +Array discussionPoints
-        +Date uploadedAt
+        +String filePath
+        +String contentPath
+        +String fileType
+        +Timestamp createdAt
     }
 
-    class Analytics {
-        +String userId
-        +Number totalDocuments
-        +Number totalSummaries
-        +Object usageStats
-        +Date lastAccess
+    class ContentObject {
+        +String originalText
+        +String originalHtml
+    }
+
+    class OriginalFile {
+        +Bytes file
     }
 
     class Passkey {
@@ -518,10 +633,20 @@ classDiagram
         +Date lastUsedAt
     }
 
-    User "1" --> "*" Document : has
-    User "1" --> "1" Analytics : has
-    User "1" --> "*" Passkey : has
+    User "1" --> "*" Document : documents subcollection
+    Document "1" --> "1" ContentObject : contentPath in Supabase
+    Document "1" --> "0..1" OriginalFile : filePath in Supabase
+    User "1" --> "*" Passkey : passkeys collection
 ```
+
+Field locations and notes:
+
+- **`User`** lives at `users/{uid}` in Firestore. `documents_legacy` is the old inline `documents` array — empty after migration, still read for safe transitions.
+- **`Document`** lives at `users/{uid}/documents/{docId}` (the subcollection). It is intentionally **tiny** — title, summary, `fileType`, and two storage *paths* (`filePath`, `contentPath`) plus a `createdAt` server timestamp.
+- **`ContentObject`** (`{ originalText, originalHtml }`) lives in Supabase at `contentPath`; **`OriginalFile`** (the PDF/DOCX bytes) lives in Supabase at `filePath`. These never touch Firestore.
+- **`Passkey`** lives at `passkeys/{credentialId}` (one per credential, linked by `userId`).
+
+`originalText` / `originalHtml` only appear *inline* on `Document` for legacy records or as a small (<400 KB) fallback when the content offload fails. See [Document Storage & Data Model](#document-storage--data-model) for the full rationale and flow.
 
 #### Passkey (WebAuthn) Authentication
 
@@ -556,6 +681,235 @@ sequenceDiagram
 The Relying Party ID / expected origin default to the request `Origin` and can be pinned via
 `WEBAUTHN_RP_ID` / `WEBAUTHN_ORIGINS` / `WEBAUTHN_RP_NAME`. Because verification returns the same
 `{ customToken, userId }` as `/login`, passkeys reuse the existing client session model verbatim.
+
+---
+
+## Document Storage & Data Model
+
+This is the most important change to the data layer, so it gets its own section. DocuThinker now uses a **Firestore subcollection + Supabase Storage offload** model for documents. Firestore holds only tiny references; the heavy payloads (original files and extracted text/HTML) live in a private Supabase bucket.
+
+### Why it changed
+
+The original design stored **all** of a user's documents inline as a single `documents` **array on the user document** (`users/{uid}.documents`). Every uploaded document — including its full `originalText` and `originalHtml` — was appended to that one array. Firestore enforces a hard **1 MB-per-document limit**, so as a user accumulated documents (or uploaded a single large one), the user document overflowed and **every subsequent upload failed**, even tiny ones.
+
+The fix has two parts:
+
+1. **Per-document subcollection.** Each uploaded document becomes its own Firestore document at `users/{uid}/documents/{docId}`. Because every document is now its own record, the per-user storage is **effectively unlimited** — there is no shared array to overflow.
+2. **Storage offload.** The large fields never touch Firestore. The extracted text + display HTML are written to a Supabase **content object**, and the original PDF/DOCX is written to the bucket. Firestore keeps only the small `filePath` and `contentPath` references.
+
+### What lives where
+
+```mermaid
+graph TB
+    subgraph Firestore["Firestore (small records only)"]
+        UDOC["users/{uid}<br/>email · theme · socialMedia · createdAt<br/>documents: [] (legacy, empty post-migration)"]
+        SUB["users/{uid}/documents/{docId}<br/>{ id, title, summary,<br/>filePath, contentPath,<br/>fileType, createdAt }"]
+        PK["passkeys/{credentialId}"]
+        UDOC -->|subcollection| SUB
+    end
+
+    subgraph Supabase["Supabase Storage — private bucket 'docuthinker'"]
+        FILE["{uid}/{ts}-{rand}-{name}<br/>original PDF / DOCX bytes"]
+        CONTENT["{uid}/content/{docId}.json<br/>{ originalText, originalHtml }"]
+    end
+
+    SUB -. "filePath" .-> FILE
+    SUB -. "contentPath" .-> CONTENT
+
+    style SUB fill:#FFB74D,stroke:#333,color:#000
+    style FILE fill:#3ECF8E,stroke:#333,color:#000
+    style CONTENT fill:#3ECF8E,stroke:#333,color:#000
+```
+
+| Field | Stored in | Notes |
+|-------|-----------|-------|
+| `id` | Firestore subcollection doc | Same value as the Firestore doc id |
+| `title` | Firestore subcollection doc | Small string |
+| `summary` | Firestore subcollection doc | Gemini-generated summary |
+| `filePath` | Firestore subcollection doc | Supabase path to the original file (or `""`) |
+| `contentPath` | Firestore subcollection doc | Supabase path to the content JSON (or `""`) |
+| `fileType` | Firestore subcollection doc | MIME type, drives the viewer |
+| `createdAt` | Firestore subcollection doc | `serverTimestamp()`, preserves chronological order |
+| `originalText` / `originalHtml` | **Supabase content object** | The heavy payloads; only inline on legacy records or as a small (<400 KB) fallback when offload fails |
+| original PDF/DOCX bytes | **Supabase bucket** | Private; served only via short-lived signed URLs |
+
+The Supabase bucket (`SUPABASE_BUCKET`, default `docuthinker`) is **private**. The backend uses the **`service_role`** key (never exposed to the browser) to mint signed URLs; the frontend only ever holds the **anon** key, which cannot read the bucket on its own.
+
+### Supabase service helpers
+
+All storage access is funneled through a small set of helpers in `backend/services/services.js`:
+
+| Helper | Purpose |
+|--------|---------|
+| `createDocumentUploadUrl(userId, fileName)` | Mint a one-time **signed upload** token (`createSignedUploadUrl`) so the browser can upload file bytes directly to the bucket, bypassing the serverless body limit |
+| `storeDocumentFile(userId, file)` | **Fallback** path — stream a (small) file through the backend (formidable) into the bucket; returns `{ filePath, fileType }` |
+| `storeDocumentContent(userId, docId, content)` | Write the `{ originalText, originalHtml }` JSON content object; returns its `contentPath` |
+| `getDocumentContent(contentPath)` | Download + parse the content JSON (returns `null` on miss so the viewer degrades gracefully) |
+| `getDocumentFileUrl(filePath, expiresIn=3600)` | Mint a short-lived (1 h) **signed download URL** for the viewer (`""` on failure) |
+| `deleteStorageObjects(paths)` | Best-effort cleanup of file + content objects on document delete |
+
+### Upload data flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant FE as Frontend (UploadModal)
+    participant SB as Supabase Storage (private)
+    participant BE as Backend (Express /upload)
+    participant AI as Google Gemini
+    participant FS as Firestore
+
+    User->>FE: Pick file + title<br/>(PDF / DOCX / MD / HTML / CSV / JSON / code / text)
+    Note over FE: Step 1 — Reading
+    FE->>FE: extractDocument(file)<br/>→ { text (clean), html (display), fileType }
+    Note over FE: Step 2 — Storing
+    FE->>BE: POST /document-upload-url { userId, fileName }
+    BE->>SB: createSignedUploadUrl(path)  [service_role]
+    BE-->>FE: { path, token, signedUrl }
+    FE->>SB: uploadToSignedUrl(path, token, file)  [anon, direct]
+    Note over FE,SB: Original bytes go straight to Supabase —<br/>bypasses Vercel's ~4.5 MB body limit
+    Note over FE: Step 3 — Analyzing
+    FE->>BE: POST /upload { userId, title, text, html, filePath, fileType }
+    BE->>AI: generateSummary(text, title)<br/>[date + title injected · discovery + rotation + fallback]
+    AI-->>BE: summary
+    BE->>SB: storeDocumentContent(uid, docId, { originalText, originalHtml })
+    SB-->>BE: contentPath
+    BE->>FS: set users/{uid}/documents/{docId}<br/>{ id,title,summary,filePath,contentPath,fileType,createdAt }
+    BE->>SB: getDocumentFileUrl(filePath)  → signed view URL
+    BE-->>FE: { summary, originalText, originalHtml, fileType, fileUrl }
+    Note over FE: Step 4 — Ready (brief beat, then reveal)
+    FE->>User: Render drag-resizable Original | Summary result view
+```
+
+The four `Note over FE` markers map one-to-one to the **Reading → Storing → Analyzing → Ready** progress steps shown in the upload modal (see [Result View & In-Document Interactions](#result-view--in-document-interactions)).
+
+**Fallback path.** If the browser-side Supabase client is unavailable (e.g. the frontend Supabase envs are unset), `uploadOriginalFile` POSTs the file to `POST /document-file`, which streams it through the backend (formidable) into the bucket via `storeDocumentFile`. If even that fails, the upload still succeeds — the document is saved without a `filePath` and the viewer falls back to the stored HTML/text.
+
+**Content-offload fallback.** If `storeDocumentContent` fails, the backend keeps the text/HTML **inline on the Firestore record only when it is small** (`< 400 KB`), guaranteeing the record can never approach the 1 MB ceiling. Above that threshold it saves a lean record and the viewer relies on the stored original file.
+
+### View data flow
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant FE as Frontend (Home / viewer)
+    participant BE as Backend (GET /document-details/:userId/:docId)
+    participant FS as Firestore
+    participant SB as Supabase Storage
+
+    User->>FE: Open a document from history
+    FE->>BE: GET /document-details/{userId}/{docId}
+    BE->>FS: read users/{uid}/documents/{docId}<br/>(falls back to legacy inline array)
+    FS-->>BE: { title, summary, filePath, contentPath, fileType }
+    alt contentPath present
+        BE->>SB: getDocumentContent(contentPath)
+        SB-->>BE: { originalText, originalHtml }
+    else legacy inline
+        BE->>BE: use inline originalText / originalHtml
+    end
+    BE->>SB: getDocumentFileUrl(filePath, 1h)
+    SB-->>BE: signed fileUrl
+    BE-->>FE: { title, summary, originalText, originalHtml, fileType, fileUrl }
+    alt fileType is PDF and fileUrl present
+        FE->>User: Render native PDF in an iframe of fileUrl
+    else DOCX / has HTML
+        FE->>User: Render sanitized mammoth HTML (DOMPurify)
+    else
+        FE->>User: Render pre-wrap plain text
+    end
+```
+
+> **Exact viewer branch logic** (`frontend/src/pages/Home.js`). The viewer is an **ordered fallthrough**, not a flat `switch` on `fileType`:
+> 1. If `fileType` contains `"pdf"` **and** a signed `fileUrl` is present → render the original PDF inside a native `<iframe src={fileUrl}>`.
+> 2. Otherwise, if `originalHtml` is non-empty → render `DOMPurify.sanitize(originalHtml)` (the DOCX/HTML/CSV/JSON/code path — the extractor already produced HTML — and also any PDF whose signed URL is unavailable but whose text was preserved).
+> 3. Otherwise, if `fileType` contains `"markdown"` → render `originalText` through `react-markdown` (GFM + math).
+> 4. Otherwise → render `originalText` with `white-space: pre-wrap`.
+>
+> The second branch keys off **HTML presence**, not strictly the MIME type, so a record with HTML always renders richly even when its original file is missing. This is what makes the storage fallbacks (no `filePath`, or an inline `< 400 KB` payload) degrade gracefully instead of failing. See [Multi-Format Ingestion & Rendering](#multi-format-ingestion--rendering) for how each `fileType` is produced.
+
+### Delete & storage lifecycle
+
+Deletes are **storage-aware**: before a Firestore record is removed, its Supabase objects are cleaned up so the bucket never accumulates orphans. `deleteDocument` (`DELETE /documents/:userId/:docId`) and `deleteAllDocuments` (`DELETE /documents/:userId`) both:
+
+1. Resolve the record(s) via `findUserDocument` / `readUserDocuments` (covering subcollection **and** legacy array).
+2. Call `deleteStorageObjects([filePath, contentPath, …])` — best-effort, so a storage hiccup never blocks the delete.
+3. Remove the subcollection doc(s) (`deleteAllDocuments` batches at 450/commit, under Firestore's 500-write batch cap), then clear any matching legacy-array entries.
+
+```mermaid
+sequenceDiagram
+    autonumber
+    actor User
+    participant FE as Frontend (Documents page)
+    participant BE as Backend (DELETE /documents/:userId/:docId)
+    participant FS as Firestore
+    participant SB as Supabase Storage
+
+    User->>FE: Delete a document
+    FE->>BE: DELETE /documents/{userId}/{docId}
+    BE->>FS: findUserDocument (subcollection, then legacy)
+    FS-->>BE: { filePath, contentPath }
+    BE->>SB: deleteStorageObjects([filePath, contentPath])  (best-effort)
+    BE->>FS: delete users/{uid}/documents/{docId}
+    BE->>FS: prune docId from legacy array (if present)
+    BE-->>FE: 200 Document deleted
+```
+
+### Environment configuration
+
+The storage + AI layer is driven entirely by environment variables. The **service-role** Supabase key and the Google AI key live **only** on the backend; the browser receives just the anon-key triad.
+
+| Variable | Side | Purpose |
+|----------|------|---------|
+| `SUPABASE_URL` | Backend | Supabase project URL for the storage client |
+| `SUPABASE_SERVICE_ROLE_KEY` | Backend | Privileged key used to mint signed upload/download URLs and read/write the private bucket. **Never** shipped to the browser |
+| `SUPABASE_BUCKET` | Backend | Bucket name (default `docuthinker`) |
+| `REACT_APP_SUPABASE_URL` | Frontend | Same project URL for the browser client |
+| `REACT_APP_SUPABASE_ANON_KEY` | Frontend | Anon key — cannot read the private bucket on its own; only authorizes uploads against a backend-minted signed-upload token |
+| `REACT_APP_SUPABASE_BUCKET` | Frontend | Bucket name (default `docuthinker`) |
+| `GOOGLE_AI_API_KEY` | Backend | Google Generative Language API key used by Gemini discovery + summarization |
+| `AI_INSTRUCTIONS` | Backend | Base system-prompt text prepended to every AI task |
+| `FIREBASE_*` | Backend | Firebase Admin service-account credentials (Auth + Firestore) |
+
+If the frontend Supabase envs are **absent**, `supabase` is `null` and `uploadOriginalFile` automatically falls back to the through-backend `POST /document-file` path — no code change required.
+
+### Safe reads & migrations
+
+Every document read merges the subcollection with any **legacy inline `documents` array** (deduplicating by `id`, subcollection wins), so nothing is ever lost mid-migration:
+
+- `readUserDocuments(userRef, userData)` — lists docs oldest-first across both sources.
+- `findUserDocument(userRef, userData, docId)` — looks in the subcollection first, then the legacy array.
+
+Three **idempotent, re-runnable** migration scripts live in `backend/scripts/`:
+
+| Script | What it does | Safety |
+|--------|--------------|--------|
+| `migrate-content-to-storage.js` | Offloads inline `originalText`/`originalHtml` from existing array entries into Supabase content objects, replacing them with a `contentPath` | Content is written to storage **before** the inline blobs are dropped |
+| `migrate-array-to-subcollection.js` | Copies each user's inline `documents` array into the `users/{uid}/documents` subcollection, then clears the array | Documents are **copied first**; the array is cleared only if every copy succeeded |
+| `backfill-original-html.js` | Backfills `originalHtml` (paragraph-ized from stored text) and ensures `filePath`/`fileType` exist on pre-existing text-only docs | Non-destructive; original files for legacy docs were never stored, so they render as clean text/HTML |
+
+### GraphQL parity
+
+The GraphQL API (`/graphql`, built with `express-graphql` + `@graphql-tools`, GraphiQL enabled) is backed by the **same subcollection**. The `Document` type exposes `fileUrl`, `originalText`, and `originalHtml` as **on-demand field resolvers** (`backend/graphql/resolvers.js`) — they are resolved lazily from Supabase (signed URL + content object) only when a query requests them, so `listDocuments` / `getDocument` queries stay cheap. The `summarizeDocument` mutation mirrors `POST /upload`, writing to the subcollection and offloading content identically.
+
+### Document REST surface (quick reference)
+
+The REST endpoints that touch the document store, and how each interacts with the subcollection + Supabase model:
+
+| Method | Endpoint | Role in the storage model |
+|--------|----------|---------------------------|
+| `POST` | `/document-upload-url` | Mint a one-time **signed upload** token (`createDocumentUploadUrl`) for direct-to-Supabase upload |
+| `POST` | `/document-file` | **Fallback** — stream a file through the backend (formidable) into the bucket (`storeDocumentFile`) |
+| `POST` | `/upload` | Summarize (Gemini), offload content to Supabase, write the small record to the subcollection; returns a signed `fileUrl` |
+| `GET` | `/documents/:userId` | List a user's documents (subcollection + legacy, oldest-first) |
+| `GET` | `/documents/:userId/:docId` | Fetch one document record (subcollection first, then legacy) |
+| `GET` | `/document-details/:userId/:docId` | Full view payload — record + content object + short-lived signed `fileUrl` |
+| `GET` | `/search-documents/:userId` | Server-side title/content search across the merged set |
+| `GET` | `/document-count/:userId` | Count across the merged set |
+| `POST` | `/update-document-title` | Rename (subcollection first, then legacy array) |
+| `DELETE` | `/documents/:userId/:docId` | Delete one — cleans up Supabase objects, then removes the record |
+| `DELETE` | `/documents/:userId` | Delete all — batched subcollection deletes + storage cleanup |
 
 ---
 
@@ -1429,31 +1783,38 @@ DOCUTHINKER_CHROMA_COLLECTION=docuthinker
 
 ### Integration with Backend
 
-The AI/ML pipeline integrates with the Express backend through:
+It's worth being precise about the **two AI surfaces**:
 
-1. **Direct Python API Calls**: Backend calls Python functions via child processes
-2. **REST API**: Backend communicates with FastAPI server
-3. **Shared Database**: Results stored in PostgreSQL/Firestore
-4. **Message Queue**: Async processing via RabbitMQ
+- **Express backend (production summary path):** uses **Google Gemini** directly via `@google/generative-ai` for the live `/upload`, `/chat`, sentiment, bullet/translated summaries, rewrite, key ideas, discussion points, and recommendations. It does **not** depend on the Python service to serve a request. This is the path the web/mobile clients hit today.
+- **Python AI/ML service (deep analysis):** the LangGraph + CrewAI multi-agent RAG platform described above, consumed via its own REST/CLI/MCP interfaces and the orchestrator, for richer multi-provider analysis, semantic search, and knowledge-graph features.
+
+The (optional) integration paths between the Express backend, the orchestrator, and the Python AI/ML service:
+
+1. **Orchestrator bridge**: the Node orchestrator (port 4000) calls the Python FastAPI service over HTTP with a circuit breaker
+2. **REST API**: Backend / orchestrator communicate with the FastAPI server (`/analyze`)
+3. **Shared Database**: deep-analysis results can be persisted to Neo4j / ChromaDB (and app records to Firestore + Supabase)
+4. **Message Queue**: optional async processing via RabbitMQ
 5. **Caching Layer**: Redis caches AI/ML results
 
 ```mermaid
 graph LR
-    EXPRESS[Express Backend] --> PYTHON[Python AI/ML API]
-    EXPRESS --> FASTAPI[FastAPI Server]
+    EXPRESS[Express Backend<br/>Vercel serverless] -->|primary AI| GEMINI_BE[Google Gemini<br/>@google/generative-ai]
+    EXPRESS --> FIRESTORE[(Firestore<br/>documents subcollection)]
+    EXPRESS --> SUPA[(Supabase Storage)]
     EXPRESS --> REDIS[Redis Cache]
-    EXPRESS --> POSTGRES[(PostgreSQL)]
+    EXPRESS -.->|deep analysis| ORCH[Orchestrator :4000]
 
-    PYTHON --> OPENAI[OpenAI]
-    PYTHON --> ANTHROPIC[Anthropic]
-    PYTHON --> GEMINI[Google AI]
-
+    ORCH -->|HTTP + circuit breaker| FASTAPI[Python FastAPI :8000]
+    FASTAPI --> OPENAI[OpenAI]
+    FASTAPI --> ANTHROPIC[Anthropic]
+    FASTAPI --> GEMINI[Google AI]
     FASTAPI --> NEO4J[(Neo4j)]
     FASTAPI --> CHROMA[(ChromaDB)]
 
     style EXPRESS fill:#68A063,stroke:#333,stroke-width:2px,color:#fff
-    style PYTHON fill:#3776AB,stroke:#333,stroke-width:2px,color:#fff
+    style ORCH fill:#F4B400,stroke:#333,stroke-width:2px,color:#000
     style FASTAPI fill:#009688,stroke:#333,stroke-width:2px,color:#fff
+    style GEMINI_BE fill:#4285F4,stroke:#333,stroke-width:2px,color:#fff
 ```
 
 ### Monitoring & Observability
@@ -1480,16 +1841,20 @@ AI/ML pipeline metrics tracked by Prometheus:
 
 ## Database Architecture
 
-DocuThinker uses a **hybrid database approach** with Flyway migrations for version control.
+DocuThinker uses a **hybrid database approach**. The **live document store** for the app is **Firestore (per-user `documents` subcollection) + Supabase Storage (object payloads)** — described in detail in [Document Storage & Data Model](#document-storage--data-model). The relational/PostgreSQL + MongoDB + Flyway components below are part of the broader enterprise platform (analytics, audit, relational reporting) and version-controlled with Flyway.
 
 ```mermaid
 graph TB
     subgraph "Database Layer"
         A[Application Layer]
 
+        subgraph "Live Document Store"
+            C[(Firestore<br/>users + documents subcollection<br/>small records only)]
+            SB[(Supabase Storage<br/>private 'docuthinker' bucket<br/>files + content JSON)]
+        end
+
         subgraph "Primary Databases"
             B[(PostgreSQL RDS<br/>Multi-AZ)]
-            C[(Firestore<br/>Real-time Sync)]
             D[(MongoDB Atlas<br/>Document Store)]
         end
 
@@ -1512,10 +1877,13 @@ graph TB
         end
     end
 
-    A --> B
     A --> C
+    A --> SB
+    A --> B
     A --> D
     A --> E
+
+    C -.->|filePath / contentPath| SB
 
     E --> F
     E --> G
@@ -1525,8 +1893,12 @@ graph TB
     H --> J
 
     B -.->|Backup| K
+    SB -.->|Backup| K
     K --> L
     K --> M
+
+    style C fill:#FFB74D,stroke:#333,color:#000
+    style SB fill:#3ECF8E,stroke:#333,color:#000
 ```
 
 ### PostgreSQL Schema with Flyway Migrations
@@ -2324,29 +2696,35 @@ mindmap
       React 18
       Material-UI
       TailwindCSS
+      CRACO / Poppins
       React Router
       Axios
       Context API
       React Markdown / KaTeX
-      pdfjs-dist
+      pdfjs-dist client extract
+      mammoth DOCX to HTML
+      DOMPurify HTML sanitize
+      Supabase JS anon direct upload
+      SimpleWebAuthn browser passkeys
       React Dropzone
       Dropbox SDK
       Google API / OAuth
       Vercel Analytics
       Babel / Craco / Webpack
     Backend
-      Node.js 18+
+      Node.js 18 on Vercel serverless
       Express
-      Firebase Admin SDK
-      Firebase Auth
-      GraphQL / graphql-tools
+      Firebase Admin SDK Auth and Firestore
+      Supabase JS service_role storage
+      GraphQL express-graphql graphql-tools
+      Google Generative AI Gemini
+      SimpleWebAuthn server passkeys
       JWT / jsonwebtoken
       Redis
       RabbitMQ
-      Multer / Busboy
-      Mammoth / pdf-parse
+      formidable / multer
+      mammoth / pdf-parse
       Google APIs / googleapis
-      Google Generative AI SDK
       Swagger / OpenAPI
     Orchestrator
       Anthropic AI SDK
@@ -2385,9 +2763,10 @@ mindmap
       Google Cloud NLP
       Google Speech-to-Text
     Database
+      Firestore (documents subcollection)
+      Supabase Storage (private bucket)
       PostgreSQL / RDS
       MongoDB Atlas
-      Firestore
       Redis / ElastiCache
       Neo4j Graph DB
       ChromaDB Vectors
@@ -2445,6 +2824,9 @@ mindmap
       CircleCI
       Jenkins
     Cloud Services
+      Vercel (serverless backend + frontend)
+      Supabase Storage (private bucket)
+      Firebase (Auth + Firestore)
       AWS EKS
       AWS RDS
       AWS S3
@@ -2544,7 +2926,10 @@ graph TB
 
 ## Deployment Architecture
 
-Multi-environment with GitOps and progressive delivery.
+DocuThinker ships in **two deployment shapes**:
+
+1. **Production app (live today): Vercel serverless.** The Express backend runs as Vercel serverless functions (`backend/vercel.json`) and the React frontend is served as a static Vercel build. State is fully managed: **Firestore** (records), **Supabase Storage** (file/content objects), and **Redis** (cache). The ~4.5 MB serverless request-body limit is exactly why uploads go **directly to Supabase** via signed URLs rather than through the function — see [Document Storage & Data Model](#document-storage--data-model). `docker-compose up --build` brings up the full multi-service stack (frontend, backend, orchestrator, Python AI/ML) for local development.
+2. **Enterprise platform (Kubernetes/EKS): GitOps + progressive delivery.** The diagram below describes the cloud-native path (Helm + ArgoCD + Flagger on EKS) used for the full DevOps platform.
 
 ```mermaid
 graph TB
@@ -2717,24 +3102,23 @@ flowchart TB
 
     subgraph Web["Web client"]
         WPick["FileReader / dropzone"]
-        WPdf["pdfjs-dist"]
-        WDocx["mammoth"]
-        WTxt["FileReader"]
-        WPost["POST /upload<br/>JSON userId + title + text"]
-        WPick --> WPdf --> WPost
-        WPick --> WDocx --> WPost
-        WPick --> WTxt --> WPost
+        WPdf["pdfjs-dist (text + HTML)"]
+        WDocx["mammoth (text + HTML)"]
+        WSign["POST /document-upload-url<br/>→ direct upload to Supabase"]
+        WPost["POST /upload<br/>JSON userId + title + text + html<br/>+ filePath + fileType"]
+        WPick --> WPdf --> WSign --> WPost
+        WPick --> WDocx --> WSign --> WPost
     end
 
     Post --> Backend["Express /upload"]
     WPost --> Backend
-    Backend --> Summary["generateSummary + Firestore write"]
+    Backend --> Summary["generateSummary (Gemini)<br/>+ storeDocumentContent (Supabase)<br/>+ subcollection write (Firestore)"]
 ```
 
-Net effect: both clients converge on the same `POST /upload` shape (`{userId, title, text}`) and the same `/documents/:userId` read surface — the only difference is which file types each client can parse before sending plain text.
+Net effect: both clients converge on the same `POST /upload` endpoint and the same `/documents/:userId` read surface. The differences: the **web client** also extracts display HTML, uploads the **original file directly to Supabase** (via a signed URL) and sends `html` + `filePath` + `fileType`, so its viewer can render native PDFs/DOCX; the **mobile client** sends plain text only (`{userId, title, text}`) because RN PDF/DOCX parsers would require an Expo prebuild and would still hit Vercel's multipart limit.
 
 ---
 
-**Last Updated**: January 2025
-**Version**: 2.0.0 - Enterprise DevOps Edition
+**Last Updated**: May 2026
+**Version**: 2.1.1 - Subcollection + Supabase Storage Edition (verified against backend/ & frontend/src/)
 **Author**: [Son Nguyen](https://github.com/hoangsonww)

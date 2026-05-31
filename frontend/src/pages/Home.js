@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import {
   Box,
   Typography,
@@ -15,9 +15,12 @@ import {
   DialogTitle,
   Modal,
   Fade,
+  Paper,
 } from "@mui/material";
+import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import MuiLink from "@mui/material/Link";
 import ReactMarkdown from "react-markdown";
+import DOMPurify from "dompurify";
 import remarkGfm from "remark-gfm";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
@@ -38,6 +41,8 @@ import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import TranslateIcon from "@mui/icons-material/Translate";
 import TuneIcon from "@mui/icons-material/Tune";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import ContentCopyIcon from "@mui/icons-material/ContentCopy";
+import SearchIcon from "@mui/icons-material/Search";
 import MicRecorder from "mic-recorder-to-mp3";
 
 const Home = ({ theme }) => {
@@ -48,6 +53,10 @@ const Home = ({ theme }) => {
   const rewriteRef = useRef(null);
   const [summary, setSummary] = useState("");
   const [originalText, setOriginalText] = useState("");
+  const [originalHtml, setOriginalHtml] = useState("");
+  const [documentTitle, setDocumentTitle] = useState("");
+  const [fileUrl, setFileUrl] = useState("");
+  const [fileType, setFileType] = useState("");
   const [keyIdeas, setKeyIdeas] = useState("");
   const [discussionPoints, setDiscussionPoints] = useState("");
   const [loadingKeyIdeas, setLoadingKeyIdeas] = useState(false);
@@ -60,8 +69,10 @@ const Home = ({ theme }) => {
   // eslint-disable-next-line no-unused-vars
   const [documentFile, setDocumentFile] = useState(null);
   const [sentiment, setSentiment] = useState({ score: 0, description: "" });
-  const [hasFetchedSentiment, setHasFetchedSentiment] = useState(false);
   const [loadingSentiment, setLoadingSentiment] = useState(false);
+  // Remembers which document text we already analyzed, so revisiting a cached
+  // document (or switching between history docs) doesn't re-run analysis.
+  const sentimentTextRef = useRef(null);
   const location = useLocation();
   const [bulletSummary, setBulletSummary] = useState("");
   const [loadingBulletSummary, setLoadingBulletSummary] = useState(false);
@@ -144,7 +155,98 @@ const Home = ({ theme }) => {
   // Text highlight feature states
   const [selectedText, setSelectedText] = useState("");
   const [highlightMenuOpen, setHighlightMenuOpen] = useState(false);
-  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0 });
+  const [menuPosition, setMenuPosition] = useState({ x: 0, y: 0, bottom: 0 });
+  const [copySnackOpen, setCopySnackOpen] = useState(false);
+  const highlightMenuRef = useRef(null);
+  const selectionRangeRef = useRef(null);
+
+  // Resizable split between the Original Document and Summary columns (desktop).
+  const splitContainerRef = useRef(null);
+  const draggingSplitRef = useRef(false);
+  const [leftWidth, setLeftWidth] = useState(32); // percent
+  const [draggingSplit, setDraggingSplit] = useState(false);
+
+  // Keep the selection menu fully inside the viewport: clamp left/top after
+  // measuring the rendered menu, and flip below the selection if there's no
+  // room above. Runs before paint so there's no visible jump.
+  useLayoutEffect(() => {
+    if (!highlightMenuOpen) return;
+    const el = highlightMenuRef.current;
+    if (!el) return;
+    const margin = 8;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    let left = menuPosition.x - w / 2;
+    left = Math.max(margin, Math.min(left, vw - w - margin));
+
+    let top = menuPosition.y - h - 10; // prefer above the selection
+    if (top < margin) {
+      top = menuPosition.bottom + 10; // not enough room -> below
+    }
+    top = Math.max(margin, Math.min(top, vh - h - margin));
+
+    el.style.left = `${left}px`;
+    el.style.top = `${top}px`;
+
+    // The re-render that opened the menu can collapse the native highlight;
+    // restore it (the overlay above is the primary visual, this is a bonus).
+    // (synchronously, before paint) so the selection stays visible.
+    const sel = window.getSelection();
+    if (sel && selectionRangeRef.current && sel.isCollapsed) {
+      try {
+        sel.removeAllRanges();
+        sel.addRange(selectionRangeRef.current);
+      } catch (e) {
+        /* nodes changed — ignore */
+      }
+    }
+  }, [highlightMenuOpen, menuPosition]);
+
+  // Drag-to-resize the two document columns.
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!draggingSplitRef.current || !splitContainerRef.current) return;
+      const rect = splitContainerRef.current.getBoundingClientRect();
+      const pad = 32; // root Box padding: 4 => 32px each side
+      const inner = rect.width - pad * 2;
+      if (inner <= 0) return;
+      let pct = ((e.clientX - rect.left - pad) / inner) * 100;
+      pct = Math.max(20, Math.min(80, pct));
+      setLeftWidth(pct);
+    };
+    const onUp = () => {
+      if (draggingSplitRef.current) {
+        draggingSplitRef.current = false;
+        setDraggingSplit(false);
+        document.body.style.cursor = "";
+        document.body.style.userSelect = "";
+      }
+    };
+    window.addEventListener("mousemove", onMove);
+    window.addEventListener("mouseup", onUp);
+    return () => {
+      window.removeEventListener("mousemove", onMove);
+      window.removeEventListener("mouseup", onUp);
+    };
+  }, []);
+
+  // Dismiss the menu on scroll/resize so the fixed-position menu can't drift
+  // away from the text it marks.
+  useEffect(() => {
+    if (!highlightMenuOpen) return;
+    const close = () => {
+      setHighlightMenuOpen(false);
+    };
+    window.addEventListener("scroll", close, true);
+    window.addEventListener("resize", close);
+    return () => {
+      window.removeEventListener("scroll", close, true);
+      window.removeEventListener("resize", close);
+    };
+  }, [highlightMenuOpen]);
   const [chatModalOpen, setChatModalOpen] = useState(false);
   const [chatInitialMessage, setChatInitialMessage] = useState("");
 
@@ -206,6 +308,12 @@ const Home = ({ theme }) => {
       });
   };
 
+  // Prepend the document title as context so the AI has a stronger signal for
+  // summaries, sentiment, key ideas, etc. Only used on payloads that are NOT
+  // persisted (so the stored originalText / viewer stay clean).
+  const withTitle = (text) =>
+    documentTitle ? `Title: "${documentTitle}"\n\n${text}` : text;
+
   const handleRefineSummary = async () => {
     setLoadingRefinement(true);
     try {
@@ -213,7 +321,9 @@ const Home = ({ theme }) => {
         "https://docuthinker-app-backend-api.vercel.app/refine-summary",
         {
           summary,
-          refinementInstructions,
+          refinementInstructions: documentTitle
+            ? `Document title: "${documentTitle}". ${refinementInstructions}`
+            : refinementInstructions,
         },
       );
       setRefinedSummary(response.data.refinedSummary);
@@ -235,7 +345,7 @@ const Home = ({ theme }) => {
 
     // Adding context to FormData if the `summary` variable is defined
     if (summary) {
-      formData.append("context", summary);
+      formData.append("context", withTitle(summary));
     }
 
     try {
@@ -268,7 +378,7 @@ const Home = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/actionable-recommendations",
         {
-          documentText: originalText,
+          documentText: withTitle(originalText),
         },
       );
 
@@ -294,7 +404,7 @@ const Home = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/content-rewriting",
         {
-          documentText: textToRewrite,
+          documentText: withTitle(textToRewrite),
           style: desiredStyle,
         },
       );
@@ -314,17 +424,29 @@ const Home = ({ theme }) => {
 
   // Handle text selection for highlight feature
   const handleTextSelection = () => {
+    // Only offer the selection menu on the results view (a document is loaded,
+    // live or from history). No summary => not on results => do nothing.
+    if (!summary) {
+      setHighlightMenuOpen(false);
+      return;
+    }
+
     const selection = window.getSelection();
     const text = selection.toString().trim();
 
     if (text.length > 0) {
       setSelectedText(text);
       const range = selection.getRangeAt(0);
+      // Remember the exact range so we can re-apply it if a re-render clears it.
+      selectionRangeRef.current = range.cloneRange();
       const rect = range.getBoundingClientRect();
 
+      // Viewport coordinates (menu is position: fixed). The layout effect
+      // clamps these so the menu never spills off any edge.
       setMenuPosition({
         x: rect.left + rect.width / 2,
-        y: rect.top + window.scrollY - 10,
+        y: rect.top,
+        bottom: rect.bottom,
       });
       setHighlightMenuOpen(true);
     } else {
@@ -373,6 +495,37 @@ const Home = ({ theme }) => {
     setHighlightMenuOpen(false);
     setChatInitialMessage(selectedText);
     setChatModalOpen(true);
+  };
+
+  // Copy the selected text to the clipboard.
+  const handleCopySelected = async () => {
+    setHighlightMenuOpen(false);
+    try {
+      await navigator.clipboard.writeText(selectedText);
+    } catch (e) {
+      // Fallback for older browsers / insecure contexts.
+      const ta = document.createElement("textarea");
+      ta.value = selectedText;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand("copy");
+      } catch (err) {
+        /* ignore */
+      }
+      document.body.removeChild(ta);
+    }
+    setCopySnackOpen(true);
+  };
+
+  // Open a web search for the selected text in a new tab.
+  const handleSearchWeb = () => {
+    setHighlightMenuOpen(false);
+    window.open(
+      `https://www.google.com/search?q=${encodeURIComponent(selectedText)}`,
+      "_blank",
+      "noopener,noreferrer",
+    );
   };
 
   // Calculate document analytics
@@ -624,7 +777,7 @@ const Home = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/summary-in-language",
         {
-          documentText: originalText,
+          documentText: withTitle(originalText),
           language,
         },
       );
@@ -639,6 +792,17 @@ const Home = ({ theme }) => {
       setLoadingLanguageSummary(false);
       setLoadingLanguage(false);
     }
+  };
+
+  // Content-addressed cache key: same document text -> same key (cache hit),
+  // different text -> different key (recompute). Keeps accuracy correct while
+  // avoiding a fresh AI call on every revisit.
+  const sentimentCacheKey = (text) => {
+    let h = 5381;
+    for (let i = 0; i < text.length; i++) {
+      h = ((h << 5) + h + text.charCodeAt(i)) | 0;
+    }
+    return `sentiment:${(h >>> 0).toString(36)}:${text.length}`;
   };
 
   const fetchSentiment = async (text) => {
@@ -657,18 +821,22 @@ const Home = ({ theme }) => {
         typeof response.data.sentimentScore === "number" &&
         response.data.description
       ) {
-        setSentiment({
+        const result = {
           score: response.data.sentimentScore,
           description: response.data.description,
-        });
-        setHasFetchedSentiment(true);
+        };
+        setSentiment(result);
+        try {
+          localStorage.setItem(sentimentCacheKey(text), JSON.stringify(result));
+        } catch (e) {
+          /* localStorage unavailable/full — caching is best-effort */
+        }
       } else {
         console.error("Unexpected response format:", response.data);
       }
     } catch (error) {
       showErrorToast(error.message + ". Please try again.");
       console.error("Failed to fetch sentiment:", error);
-      showErrorToast(error.message + ". Please try again.");
     } finally {
       setLoadingSentiment(false);
     }
@@ -676,21 +844,43 @@ const Home = ({ theme }) => {
 
   useEffect(() => {
     if (location.state) {
-      const { summary, originalText } = location.state;
+      const { summary, originalText, originalHtml, title, fileUrl, fileType } =
+        location.state;
       setSummary(summary);
       setOriginalText(originalText);
+      setOriginalHtml(originalHtml || "");
+      setDocumentTitle(title || "");
+      setFileUrl(fileUrl || "");
+      setFileType(fileType || "");
+      if (title) localStorage.setItem("documentTitle", title);
     }
   }, [location.state]);
 
   useEffect(() => {
-    if (originalText && !hasFetchedSentiment) {
-      setLoadingSentiment(true);
-      fetchSentiment(originalText).then(() => {
-        setLoadingSentiment(false);
-      });
+    if (!originalText) return;
+    // Title is included as context (and in the cache key), so renaming a doc
+    // correctly recomputes rather than serving a stale score.
+    const input = withTitle(originalText);
+    // Only act when the analyzed input actually changes (guards re-renders and
+    // history-doc switches from showing a stale or re-fetched score).
+    if (sentimentTextRef.current === input) return;
+    sentimentTextRef.current = input;
+
+    const cached = localStorage.getItem(sentimentCacheKey(input));
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (parsed && typeof parsed.score === "number") {
+          setSentiment(parsed);
+          return; // cache hit — skip the AI call
+        }
+      } catch (e) {
+        /* corrupt entry — fall through and recompute */
+      }
     }
+    fetchSentiment(input);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [originalText, hasFetchedSentiment]);
+  }, [originalText, documentTitle]);
 
   const formatAsMarkdown = (text) => {
     const paragraphs = text.split(/\n\s*\n/);
@@ -703,7 +893,7 @@ const Home = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/generate-key-ideas",
         {
-          documentText: originalText,
+          documentText: withTitle(originalText),
         },
       );
       const formattedKeyIdeas = formatAsMarkdown(response.data.keyIdeas);
@@ -723,7 +913,7 @@ const Home = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/generate-discussion-points",
         {
-          documentText: originalText,
+          documentText: withTitle(originalText),
         },
       );
       const formattedDiscussionPoints = formatAsMarkdown(
@@ -745,7 +935,7 @@ const Home = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/bullet-summary",
         {
-          documentText: originalText,
+          documentText: withTitle(originalText),
         },
       );
       const formattedBulletSummary = formatAsMarkdown(response.data.summary);
@@ -771,22 +961,101 @@ const Home = ({ theme }) => {
     setOpenConfirmDialog(false);
   };
 
+  // Only signed-in users can upload / summarize documents.
+  const userId = localStorage.getItem("userId");
+  if (!userId) {
+    const dark = theme === "dark";
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          px: 2,
+          backgroundColor: dark ? "#1e1e1e" : "#f5f5f5",
+          fontFamily: "Poppins, sans-serif",
+        }}
+      >
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 4, md: 5 },
+            textAlign: "center",
+            maxWidth: "440px",
+            borderRadius: "18px",
+            bgcolor: dark ? "#2a2a2a" : "#ffffff",
+            border: dark ? "1px solid #3a3a3a" : "1px solid #ececec",
+            boxShadow: dark
+              ? "0 2px 12px rgba(0,0,0,0.35)"
+              : "0 2px 14px rgba(0,0,0,0.06)",
+          }}
+        >
+          <AccountCircleIcon sx={{ fontSize: 56, color: "#f57c00", mb: 1 }} />
+          <Typography
+            sx={{
+              font: "inherit",
+              fontWeight: 700,
+              fontSize: "20px",
+              color: dark ? "#fff" : "#1a1a1a",
+              mb: 1,
+            }}
+          >
+            You're not signed in
+          </Typography>
+          <Typography
+            sx={{
+              font: "inherit",
+              fontSize: "14px",
+              color: dark ? "#b5b5b5" : "#666",
+            }}
+          >
+            Please{" "}
+            <a href="/login" style={{ color: "#f57c00", fontWeight: 600 }}>
+              log in
+            </a>{" "}
+            to upload and summarize documents.
+          </Typography>
+        </Paper>
+      </Box>
+    );
+  }
+
   return (
     <Box
+      ref={splitContainerRef}
       sx={{
         display: "flex",
         flexDirection: { xs: "column", md: "row" },
         padding: 4,
-        gap: 2,
+        gap: { xs: 2, md: 0 },
         alignItems: "flex-start",
         transition: "background-color 0.3s ease, color 0.3s ease",
       }}
       onMouseUp={handleTextSelection}
     >
+      {/* While dragging the splitter, this transparent overlay sits on top of
+          everything (including the PDF iframe, which would otherwise swallow
+          mouse events and break the drag) and forces the resize cursor. */}
+      {draggingSplit && (
+        <Box
+          sx={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 2000,
+            cursor: "col-resize",
+          }}
+        />
+      )}
+
       {!summary && (
         <UploadModal
           setSummary={setSummary}
           setOriginalText={setOriginalText}
+          setOriginalHtml={setOriginalHtml}
+          setDocumentTitle={setDocumentTitle}
+          setFileUrl={setFileUrl}
+          setFileType={setFileType}
           theme={theme}
           setDocumentFile={setDocumentFile}
         />
@@ -795,7 +1064,9 @@ const Home = ({ theme }) => {
         <>
           <Box
             sx={{
-              width: { xs: "100%", md: "30%" },
+              width: { xs: "100%", md: `${leftWidth}%` },
+              flexShrink: 0,
+              minWidth: 0,
               marginBottom: { xs: 2, md: 0 },
               transition: "background-color 0.3s ease, color 0.3s ease",
             }}
@@ -812,29 +1083,204 @@ const Home = ({ theme }) => {
             >
               Original Document
             </Typography>
-            <Box
-              sx={{
-                border: "1px solid #f57c00",
-                padding: 2,
-                borderRadius: "12px",
-                wordBreak: "break-word",
-                overflowWrap: "break-word",
-                overflowY: "auto",
-              }}
-            >
-              <Typography
+            {fileType && fileType.includes("pdf") && fileUrl ? (
+              <Box
+                component="iframe"
+                title="Original Document"
+                src={fileUrl}
                 sx={{
-                  font: "inherit",
-                  color: theme === "dark" ? "white" : "black",
+                  width: "100%",
+                  height: { xs: "60vh", md: "78vh" },
+                  border: "1px solid #f57c00",
+                  borderRadius: "12px",
+                  bgcolor: "#fff",
+                  display: "block",
+                }}
+              />
+            ) : (
+              <Box
+                sx={{
+                  border: "1px solid #f57c00",
+                  padding: 2,
+                  borderRadius: "12px",
+                  wordBreak: "break-word",
+                  overflowWrap: "break-word",
+                  overflowY: "auto",
+                  maxHeight: { xs: "50vh", md: "75vh" },
+                  fontFamily: "Poppins, sans-serif",
+                  fontSize: "14px",
+                  lineHeight: 1.7,
+                  color: theme === "dark" ? "#e8e8e8" : "#1a1a1a",
+                  "& h1, & h2, & h3, & h4, & h5, & h6": {
+                    color: theme === "dark" ? "#ffffff" : "#111",
+                  },
+                  "& h1": { fontSize: "22px", fontWeight: 700, mt: 2, mb: 1 },
+                  "& h2": { fontSize: "19px", fontWeight: 700, mt: 2, mb: 1 },
+                  "& h3": {
+                    fontSize: "17px",
+                    fontWeight: 600,
+                    mt: 1.5,
+                    mb: 0.75,
+                  },
+                  "& h4, & h5, & h6": { fontWeight: 600, mt: 1.5, mb: 0.5 },
+                  "& p": { my: 1 },
+                  "& ul, & ol": { pl: 3, my: 1 },
+                  "& li": { mb: 0.5 },
+                  "& a": { color: "#f57c00", textDecoration: "underline" },
+                  "& strong, & b": { fontWeight: 700 },
+                  "& em, & i": { fontStyle: "italic" },
+                  "& img": {
+                    maxWidth: "100%",
+                    height: "auto",
+                    borderRadius: "8px",
+                  },
+                  "& blockquote": {
+                    borderLeft: "3px solid #f57c00",
+                    pl: 2,
+                    ml: 0,
+                    my: 1,
+                    color: theme === "dark" ? "#bbb" : "#555",
+                  },
+                  "& table": {
+                    borderCollapse: "collapse",
+                    width: "100%",
+                    my: 1.5,
+                    fontSize: "13px",
+                  },
+                  "& th, & td": {
+                    border:
+                      theme === "dark" ? "1px solid #555" : "1px solid #ddd",
+                    p: "6px 10px",
+                    textAlign: "left",
+                  },
+                  "& th": {
+                    bgcolor: theme === "dark" ? "#3a3a3a" : "#faf0e6",
+                    fontWeight: 700,
+                  },
+                  "& hr": {
+                    border: "none",
+                    borderTop:
+                      theme === "dark" ? "1px solid #444" : "1px solid #eee",
+                    my: 1.5,
+                  },
+                  "& pre": {
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+                    fontSize: "12.5px",
+                    lineHeight: 1.6,
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    bgcolor: theme === "dark" ? "#1b1b1b" : "#f6f8fa",
+                    border:
+                      theme === "dark" ? "1px solid #333" : "1px solid #eaecef",
+                    borderRadius: "8px",
+                    p: 1.5,
+                    my: 1,
+                    overflowX: "auto",
+                  },
+                  "& code": {
+                    fontFamily:
+                      "ui-monospace, SFMono-Regular, Menlo, Consolas, monospace",
+                    fontSize: "0.92em",
+                  },
+                  "& pre code": { fontSize: "inherit" },
                 }}
               >
-                {originalText}
-              </Typography>
-            </Box>
+                {originalHtml ? (
+                  <Box
+                    sx={{ "& > :first-of-type": { mt: 0 } }}
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(originalHtml, {
+                        USE_PROFILES: { html: true },
+                      }),
+                    }}
+                  />
+                ) : fileType && fileType.includes("markdown") ? (
+                  <Box sx={{ "& > :first-of-type": { mt: 0 } }}>
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkMath]}
+                      rehypePlugins={[rehypeKatex]}
+                    >
+                      {originalText}
+                    </ReactMarkdown>
+                  </Box>
+                ) : (
+                  <Typography
+                    component="div"
+                    sx={{
+                      font: "inherit",
+                      whiteSpace: "pre-wrap",
+                      color: theme === "dark" ? "white" : "black",
+                    }}
+                  >
+                    {originalText}
+                  </Typography>
+                )}
+              </Box>
+            )}
           </Box>
+
+          {/* Draggable divider (desktop only) */}
+          <Box
+            onMouseDown={(e) => {
+              e.preventDefault();
+              draggingSplitRef.current = true;
+              setDraggingSplit(true);
+              document.body.style.cursor = "col-resize";
+              document.body.style.userSelect = "none";
+            }}
+            onDoubleClick={() => setLeftWidth(32)}
+            title="Drag to resize · double-click to reset"
+            sx={{
+              display: { xs: "none", md: "flex" },
+              alignSelf: "stretch",
+              position: "relative",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "18px",
+              flexShrink: 0,
+              cursor: "col-resize",
+              zIndex: 2,
+              "&:hover .dt-line": { backgroundColor: "rgba(230,81,0,0.5)" },
+              "&:hover .dt-grip": { backgroundColor: "#e65100" },
+            }}
+          >
+            {/* full-height guide line so the handle is never hidden */}
+            <Box
+              className="dt-line"
+              sx={{
+                position: "absolute",
+                top: 0,
+                bottom: 0,
+                left: "50%",
+                transform: "translateX(-50%)",
+                width: "2px",
+                backgroundColor: draggingSplit
+                  ? "rgba(230,81,0,0.5)"
+                  : "rgba(245,124,0,0.35)",
+                transition: "background-color 0.2s ease",
+              }}
+            />
+            {/* long grip pill in the middle */}
+            <Box
+              className="dt-grip"
+              sx={{
+                position: "relative",
+                zIndex: 1,
+                width: "6px",
+                height: "min(220px, 55vh)",
+                borderRadius: "4px",
+                backgroundColor: draggingSplit ? "#e65100" : "#f57c00",
+                transition: "background-color 0.2s ease",
+              }}
+            />
+          </Box>
+
           <Box
             sx={{
-              width: { xs: "100%", md: "70%" },
+              width: { xs: "100%" },
+              flexGrow: { md: 1 },
+              minWidth: 0,
             }}
           >
             <Typography
@@ -3676,81 +4122,153 @@ const Home = ({ theme }) => {
       {ErrorToastComponent}
 
       {/* Text Highlight Menu */}
-      {highlightMenuOpen && (
-        <Box
-          sx={{
-            position: "absolute",
-            top: menuPosition.y,
-            left: menuPosition.x,
-            transform: "translateX(-50%)",
-            backgroundColor: theme === "dark" ? "#333" : "#fff",
-            border: `2px solid ${theme === "dark" ? "#555" : "#f57c00"}`,
-            borderRadius: "8px",
-            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
-            zIndex: 1000,
-            display: "flex",
-            flexDirection: "column",
-            gap: 1,
-            p: 1,
-            minWidth: "200px",
-          }}
-        >
-          <Button
-            onClick={handleSummarizeSelected}
-            sx={{
-              color: theme === "dark" ? "#fff" : "#000",
-              font: "inherit",
-              textTransform: "none",
-              justifyContent: "flex-start",
-              "&:hover": {
-                backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
-              },
-            }}
-          >
-            Summarize This
-          </Button>
-          <Button
-            onClick={handleChatWithSelected}
-            sx={{
-              color: theme === "dark" ? "#fff" : "#000",
-              font: "inherit",
-              textTransform: "none",
-              justifyContent: "flex-start",
-              "&:hover": {
-                backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
-              },
-            }}
-          >
-            Ask Chat
-          </Button>
-          <Button
-            onClick={handleRewriteSelected}
-            sx={{
-              color: theme === "dark" ? "#fff" : "#000",
-              font: "inherit",
-              textTransform: "none",
-              justifyContent: "flex-start",
-              "&:hover": {
-                backgroundColor: theme === "dark" ? "#444" : "#f5f5f5",
-              },
-            }}
-          >
-            Rewrite
-          </Button>
-          <IconButton
-            size="small"
-            onClick={() => setHighlightMenuOpen(false)}
-            sx={{
-              position: "absolute",
-              top: 2,
-              right: 2,
-              color: theme === "dark" ? "#fff" : "#000",
-            }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Box>
-      )}
+      {highlightMenuOpen &&
+        (() => {
+          const dark = theme === "dark";
+          const menuItems = [
+            {
+              label: "Copy",
+              icon: <ContentCopyIcon fontSize="small" />,
+              onClick: handleCopySelected,
+            },
+            {
+              label: "Summarize",
+              icon: <AutoAwesomeIcon fontSize="small" />,
+              onClick: handleSummarizeSelected,
+            },
+            {
+              label: "Rewrite",
+              icon: <EditOutlinedIcon fontSize="small" />,
+              onClick: handleRewriteSelected,
+            },
+            {
+              label: "Ask Chat",
+              icon: <ForumOutlinedIcon fontSize="small" />,
+              onClick: handleChatWithSelected,
+            },
+            {
+              label: "Search web",
+              icon: <SearchIcon fontSize="small" />,
+              onClick: handleSearchWeb,
+            },
+          ];
+          const words = selectedText.trim()
+            ? selectedText.trim().split(/\s+/).length
+            : 0;
+          return (
+            <Box
+              ref={highlightMenuRef}
+              // Keep the user's text selection alive while they interact with
+              // the menu: preventing the default mousedown stops the browser
+              // from collapsing the selection, and stopping mouseup keeps the
+              // page-level handler from closing the menu before onClick fires.
+              onMouseDown={(e) => e.preventDefault()}
+              onMouseUp={(e) => e.stopPropagation()}
+              sx={{
+                position: "fixed",
+                top: menuPosition.y,
+                left: menuPosition.x,
+                backgroundColor: dark ? "#2a2a2a" : "#fff",
+                border: dark ? "1px solid #3a3a3a" : "1px solid #ececec",
+                borderRadius: "12px",
+                boxShadow: dark
+                  ? "0 8px 28px rgba(0,0,0,0.5)"
+                  : "0 8px 28px rgba(0,0,0,0.18)",
+                zIndex: 1300,
+                p: 0.75,
+                width: "210px",
+                maxWidth: "calc(100vw - 16px)",
+                fontFamily: "Poppins, sans-serif",
+                animation: "dtPop 0.12s ease-out",
+                "@keyframes dtPop": {
+                  from: { opacity: 0, transform: "scale(0.96)" },
+                  to: { opacity: 1, transform: "scale(1)" },
+                },
+              }}
+            >
+              {/* Header: selection meta + close */}
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  px: 1,
+                  py: 0.5,
+                }}
+              >
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    fontSize: "11px",
+                    fontWeight: 600,
+                    color: dark ? "#999" : "#888",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.5px",
+                  }}
+                >
+                  {words} word{words === 1 ? "" : "s"} selected
+                </Typography>
+                <IconButton
+                  size="small"
+                  onClick={() => setHighlightMenuOpen(false)}
+                  sx={{ p: 0.25, color: dark ? "#aaa" : "#888" }}
+                >
+                  <CloseIcon sx={{ fontSize: 16 }} />
+                </IconButton>
+              </Box>
+              <Box
+                sx={{
+                  height: "1px",
+                  bgcolor: dark ? "#3a3a3a" : "#eee",
+                  mb: 0.5,
+                }}
+              />
+              {menuItems.map((item) => (
+                <Button
+                  key={item.label}
+                  onClick={item.onClick}
+                  startIcon={item.icon}
+                  fullWidth
+                  sx={{
+                    color: dark ? "#eee" : "#222",
+                    font: "inherit",
+                    fontSize: "14px",
+                    textTransform: "none",
+                    justifyContent: "flex-start",
+                    gap: 0.5,
+                    px: 1,
+                    py: 0.75,
+                    borderRadius: "8px",
+                    "& .MuiButton-startIcon": { color: "#f57c00" },
+                    "&:hover": {
+                      backgroundColor: dark
+                        ? "rgba(245,124,0,0.14)"
+                        : "rgba(245,124,0,0.1)",
+                    },
+                  }}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </Box>
+          );
+        })()}
+
+      <Snackbar
+        open={copySnackOpen}
+        autoHideDuration={2000}
+        onClose={() => setCopySnackOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+        message="Copied to clipboard"
+        ContentProps={{
+          sx: {
+            fontFamily: "Poppins, sans-serif",
+            bgcolor: "#323232",
+            color: "#fff",
+            fontWeight: 500,
+          },
+        }}
+      />
 
       {/* Chat Modal */}
       {chatModalOpen && (
@@ -3763,941 +4281,610 @@ const Home = ({ theme }) => {
       )}
 
       {/* Analytics Modal */}
-      {showAnalyticsModal && analytics && (
-        <Modal
-          open={showAnalyticsModal}
-          onClose={() => setShowAnalyticsModal(false)}
-        >
-          <Box
-            sx={{
-              position: "absolute",
-              top: "50%",
-              left: "50%",
-              transform: "translate(-50%, -50%)",
-              width: { xs: "95%", sm: "90%", md: "85%", lg: "80%" },
-              maxHeight: "95vh",
-              bgcolor: theme === "dark" ? "#1e1e1e" : "#fff",
-              boxShadow: 24,
-              p: { xs: 2, md: 4 },
-              borderRadius: "12px",
-              overflow: "auto",
-            }}
-          >
-            <Box
+      {showAnalyticsModal &&
+        analytics &&
+        (() => {
+          const dk = theme === "dark";
+          const cardBg = dk ? "#242424" : "#fafafa";
+          const panelBorder = dk ? "1px solid #333" : "1px solid #eee";
+          const sub = dk ? "#aaa" : "#777";
+          const head = dk ? "#fff" : "#1a1a1a";
+          const flesch = parseFloat(analytics.fleschScore);
+          const fleschLabel =
+            flesch >= 90
+              ? "Very easy"
+              : flesch >= 70
+                ? "Easy"
+                : flesch >= 60
+                  ? "Standard"
+                  : flesch >= 50
+                    ? "Fairly hard"
+                    : flesch >= 30
+                      ? "Difficult"
+                      : "Very difficult";
+          const fleschPct = Math.max(0, Math.min(100, flesch));
+          const overview = [
+            { label: "Words", value: analytics.wordCount },
+            { label: "Sentences", value: analytics.sentenceCount },
+            { label: "Paragraphs", value: analytics.paragraphCount },
+            { label: "Unique words", value: analytics.uniqueWordCount },
+            { label: "Reading", value: analytics.readingTime, unit: "min" },
+            { label: "Speaking", value: analytics.speakingTime, unit: "min" },
+          ];
+          const wl = analytics.wordLengthDistribution;
+          const wlTotal = wl.short + wl.medium + wl.long + wl.veryLong || 1;
+          const wlRows = [
+            { label: "Short (1–4)", v: wl.short },
+            { label: "Medium (5–7)", v: wl.medium },
+            { label: "Long (8–10)", v: wl.long },
+            { label: "Very long (11+)", v: wl.veryLong },
+          ];
+          const structure = [
+            { label: "Characters", value: analytics.characterCount },
+            { label: "No spaces", value: analytics.characterCountNoSpaces },
+            { label: "Lines", value: analytics.lineCount },
+            { label: "Avg word len", value: analytics.avgWordLength },
+            { label: "Words / sent.", value: analytics.avgWordsPerSentence },
+            { label: "Syll. / word", value: analytics.avgSyllablesPerWord },
+            {
+              label: "Longest sent.",
+              value: analytics.longestSentence,
+              unit: "w",
+            },
+            {
+              label: "Shortest sent.",
+              value: analytics.shortestSentence,
+              unit: "w",
+            },
+          ];
+          const punct = [
+            { label: "Periods", v: analytics.punctuationCounts.periods },
+            { label: "Commas", v: analytics.punctuationCounts.commas },
+            { label: "Questions", v: analytics.punctuationCounts.questions },
+            { label: "Exclaim.", v: analytics.punctuationCounts.exclamations },
+            { label: "Quotes", v: analytics.punctuationCounts.quotes },
+            { label: "Semicolons", v: analytics.punctuationCounts.semicolons },
+          ];
+          const maxWord =
+            (analytics.topWords[0] && analytics.topWords[0].count) || 1;
+          const SectionTitle = ({ children }) => (
+            <Typography
               sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 3,
+                font: "inherit",
+                fontWeight: 700,
+                fontSize: "15px",
+                color: head,
+                mt: 3,
+                mb: 1.5,
               }}
             >
-              <Typography
-                variant="h5"
-                sx={{
-                  font: "inherit",
-                  fontWeight: "bold",
-                  color: theme === "dark" ? "#fff" : "#000",
-                }}
-              >
-                Document Analytics
-              </Typography>
-              <IconButton
-                onClick={() => setShowAnalyticsModal(false)}
-                sx={{ color: theme === "dark" ? "#fff" : "#000" }}
-              >
-                <CloseIcon />
-              </IconButton>
-            </Box>
+              {children}
+            </Typography>
+          );
 
-            {/* Stats Grid */}
-            <Box
-              sx={{
-                display: "grid",
-                gridTemplateColumns: {
-                  xs: "1fr",
-                  sm: "1fr 1fr",
-                  md: "repeat(3, 1fr)",
-                },
-                gap: 2,
-                mb: 3,
-              }}
+          return (
+            <Modal
+              open={showAnalyticsModal}
+              onClose={() => setShowAnalyticsModal(false)}
             >
               <Box
                 sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.wordCount} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Words
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.sentenceCount} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Sentences
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.paragraphCount} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Paragraphs
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.characterCount} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Characters
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.readingTime} /> min
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Reading Time
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber
-                    value={analytics.avgWordLength}
-                    isDecimal={true}
-                  />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Avg Word Length
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber
-                    value={analytics.avgWordsPerSentence}
-                    isDecimal={true}
-                  />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Avg Words/Sentence
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.characterCountNoSpaces} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Characters (no spaces)
-                </Typography>
-              </Box>
-
-              {/* More stats */}
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.uniqueWordCount} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Unique Words
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.lineCount} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Lines
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.speakingTime} /> min
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Speaking Time
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber
-                    value={analytics.lexicalDiversity}
-                    isDecimal={true}
-                  />
-                  %
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Lexical Diversity
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber
-                    value={analytics.fleschScore}
-                    isDecimal={true}
-                  />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Readability Score
-                </Typography>
-              </Box>
-
-              <Box
-                sx={{
-                  p: 3,
-                  bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                  borderRadius: "12px",
-                  border: `3px solid #f57c00`,
-                  textAlign: "center",
-                }}
-              >
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: "#f57c00",
-                    fontWeight: "bold",
-                    fontSize: { xs: "2rem", md: "2.5rem" },
-                    lineHeight: 1.2,
-                  }}
-                >
-                  <AnimatedNumber value={analytics.totalSyllables} />
-                </Typography>
-                <Typography
-                  sx={{
-                    font: "inherit",
-                    color: theme === "dark" ? "#ddd" : "#666",
-                    fontSize: "1.1rem",
-                    mt: 1,
-                  }}
-                >
-                  Total Syllables
-                </Typography>
-              </Box>
-            </Box>
-
-            {/* Word Length Distribution Chart */}
-            <Box sx={{ mt: 4 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  font: "inherit",
-                  fontWeight: "bold",
-                  color: theme === "dark" ? "#fff" : "#000",
-                  mb: 2,
-                  fontSize: "1.5rem",
-                }}
-              >
-                Word Length Distribution
-              </Typography>
-              <Box
-                sx={{
-                  display: "grid",
-                  gridTemplateColumns: { xs: "1fr", sm: "repeat(4, 1fr)" },
-                  gap: 2,
-                }}
-              >
-                <Box
-                  sx={{
-                    p: 2,
-                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                    borderRadius: "8px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: "150px",
-                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
-                      borderRadius: "4px",
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: "60%",
-                        height: `${(analytics.wordLengthDistribution.short / analytics.wordCount) * 100 * 1.5}%`,
-                        bgcolor: "#f57c00",
-                        borderRadius: "4px 4px 0 0",
-                      }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#fff" : "#000",
-                      fontWeight: "bold",
-                      fontSize: "1.5rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    {analytics.wordLengthDistribution.short}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#ddd" : "#666",
-                      fontSize: "0.9rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    Short (≤4)
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                    borderRadius: "8px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: "150px",
-                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
-                      borderRadius: "4px",
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: "60%",
-                        height: `${(analytics.wordLengthDistribution.medium / analytics.wordCount) * 100 * 1.5}%`,
-                        bgcolor: "#ff9800",
-                        borderRadius: "4px 4px 0 0",
-                      }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#fff" : "#000",
-                      fontWeight: "bold",
-                      fontSize: "1.5rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    {analytics.wordLengthDistribution.medium}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#ddd" : "#666",
-                      fontSize: "0.9rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    Medium (5-7)
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                    borderRadius: "8px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: "150px",
-                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
-                      borderRadius: "4px",
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: "60%",
-                        height: `${(analytics.wordLengthDistribution.long / analytics.wordCount) * 100 * 1.5}%`,
-                        bgcolor: "#fb8c00",
-                        borderRadius: "4px 4px 0 0",
-                      }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#fff" : "#000",
-                      fontWeight: "bold",
-                      fontSize: "1.5rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    {analytics.wordLengthDistribution.long}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#ddd" : "#666",
-                      fontSize: "0.9rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    Long (8-10)
-                  </Typography>
-                </Box>
-
-                <Box
-                  sx={{
-                    p: 2,
-                    bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                    borderRadius: "8px",
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                  }}
-                >
-                  <Box
-                    sx={{
-                      width: "100%",
-                      height: "150px",
-                      bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
-                      borderRadius: "4px",
-                      position: "relative",
-                      display: "flex",
-                      alignItems: "flex-end",
-                      justifyContent: "center",
-                      mb: 1,
-                    }}
-                  >
-                    <Box
-                      sx={{
-                        width: "60%",
-                        height: `${(analytics.wordLengthDistribution.veryLong / analytics.wordCount) * 100 * 1.5}%`,
-                        bgcolor: "#e65100",
-                        borderRadius: "4px 4px 0 0",
-                      }}
-                    />
-                  </Box>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#fff" : "#000",
-                      fontWeight: "bold",
-                      fontSize: "1.5rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    {analytics.wordLengthDistribution.veryLong}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      color: theme === "dark" ? "#ddd" : "#666",
-                      fontSize: "0.9rem",
-                      fontFamily: "Poppins, sans-serif",
-                    }}
-                  >
-                    Very Long ({">"}10)
-                  </Typography>
-                </Box>
-              </Box>
-            </Box>
-
-            {/* Punctuation Chart */}
-            <Box sx={{ mt: 4 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  font: "inherit",
-                  fontWeight: "bold",
-                  color: theme === "dark" ? "#fff" : "#000",
-                  mb: 2,
-                  fontSize: "1.5rem",
-                }}
-              >
-                Punctuation Usage
-              </Typography>
-              <Box
-                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: { xs: "94%", sm: "90%", md: "830px" },
+                  maxHeight: "92vh",
                   display: "flex",
                   flexDirection: "column",
-                  gap: 2,
+                  bgcolor: dk ? "#1a1a1a" : "#fff",
+                  borderRadius: "20px",
+                  overflow: "hidden",
+                  boxShadow: "0 30px 80px rgba(0,0,0,0.45)",
+                  fontFamily: "Poppins, sans-serif",
+                  outline: "none",
+                  border: dk ? "1px solid #2e2e2e" : "1px solid #eee",
                 }}
               >
-                {Object.entries(analytics.punctuationCounts).map(
-                  ([key, value]) => (
-                    <Box
-                      key={key}
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 2,
-                        p: 2,
-                        bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                        borderRadius: "8px",
-                      }}
-                    >
-                      <Typography
-                        sx={{
-                          font: "inherit",
-                          color: theme === "dark" ? "#fff" : "#000",
-                          fontWeight: "bold",
-                          minWidth: "120px",
-                          textTransform: "capitalize",
-                        }}
-                      >
-                        {key}
-                      </Typography>
-                      <Box
-                        sx={{
-                          flex: 1,
-                          height: "32px",
-                          bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
-                          borderRadius: "4px",
-                          overflow: "hidden",
-                          position: "relative",
-                        }}
-                      >
-                        <Box
-                          sx={{
-                            position: "absolute",
-                            left: 0,
-                            top: 0,
-                            height: "100%",
-                            width: `${(value / Math.max(...Object.values(analytics.punctuationCounts))) * 100}%`,
-                            bgcolor: "#f57c00",
-                            transition: "width 0.3s ease",
-                          }}
-                        />
-                      </Box>
-                      <Typography
-                        sx={{
-                          font: "inherit",
-                          color: "#f57c00",
-                          fontWeight: "bold",
-                          minWidth: "60px",
-                          textAlign: "right",
-                          fontSize: "1.3rem",
-                        }}
-                      >
-                        {value}
-                      </Typography>
-                    </Box>
-                  ),
-                )}
-              </Box>
-            </Box>
-
-            {/* Top Words Section */}
-            <Box sx={{ mt: 4 }}>
-              <Typography
-                variant="h6"
-                sx={{
-                  font: "inherit",
-                  fontWeight: "bold",
-                  color: theme === "dark" ? "#fff" : "#000",
-                  mb: 2,
-                  fontSize: "1.5rem",
-                }}
-              >
-                Most Common Words (Top 15)
-              </Typography>
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 1,
-                }}
-              >
-                {analytics.topWords.map((item, index) => (
+                <Box
+                  sx={{
+                    height: 6,
+                    flexShrink: 0,
+                    background:
+                      "linear-gradient(90deg,#ff8a00,#f57c00,#ffb74d)",
+                  }}
+                />
+                <Box
+                  sx={{
+                    p: { xs: 2.5, md: 3.5 },
+                    pb: { xs: 4, md: 5 },
+                    flex: 1,
+                    minHeight: 0,
+                    overflowY: "auto",
+                  }}
+                >
+                  {/* Header */}
                   <Box
-                    key={index}
                     sx={{
                       display: "flex",
                       alignItems: "center",
-                      gap: 2,
-                      p: 1.5,
-                      bgcolor: theme === "dark" ? "#2a2a2a" : "#f5f5f5",
-                      borderRadius: "8px",
+                      justifyContent: "space-between",
+                      mb: 1,
                     }}
                   >
-                    <Typography
-                      sx={{
-                        font: "inherit",
-                        color: theme === "dark" ? "#fff" : "#000",
-                        fontWeight: "bold",
-                        minWidth: "30px",
-                      }}
+                    <Box
+                      sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
                     >
-                      {index + 1}.
-                    </Typography>
-                    <Typography
-                      sx={{
-                        font: "inherit",
-                        color: theme === "dark" ? "#fff" : "#000",
-                        flex: 1,
-                        textTransform: "capitalize",
-                      }}
+                      <Box
+                        sx={{
+                          width: 42,
+                          height: 42,
+                          borderRadius: "12px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          color: "#fff",
+                          background: "linear-gradient(135deg,#ff8a00,#f57c00)",
+                        }}
+                      >
+                        <InsightsOutlinedIcon />
+                      </Box>
+                      <Box>
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontWeight: 700,
+                            fontSize: "20px",
+                            color: head,
+                            lineHeight: 1.1,
+                          }}
+                        >
+                          Document Analytics
+                        </Typography>
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontSize: "12.5px",
+                            color: sub,
+                          }}
+                        >
+                          A deep look at your document's structure and
+                          readability.
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <IconButton
+                      onClick={() => setShowAnalyticsModal(false)}
+                      sx={{ color: sub }}
                     >
-                      {item.word}
-                    </Typography>
+                      <CloseIcon />
+                    </IconButton>
+                  </Box>
+
+                  {/* Overview cards */}
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: {
+                        xs: "1fr 1fr",
+                        sm: "repeat(3,1fr)",
+                        md: "repeat(6,1fr)",
+                      },
+                      gap: 1.5,
+                      mt: 2,
+                    }}
+                  >
+                    {overview.map((s) => (
+                      <Box
+                        key={s.label}
+                        sx={{
+                          p: 1.75,
+                          bgcolor: cardBg,
+                          border: panelBorder,
+                          borderRadius: "14px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontWeight: 700,
+                            fontSize: { xs: "20px", md: "24px" },
+                            color: "#f57c00",
+                            lineHeight: 1.1,
+                          }}
+                        >
+                          <AnimatedNumber value={s.value} />
+                          {s.unit && (
+                            <Typography
+                              component="span"
+                              sx={{
+                                font: "inherit",
+                                fontSize: "12px",
+                                color: "#f57c00",
+                                ml: 0.5,
+                              }}
+                            >
+                              {s.unit}
+                            </Typography>
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontSize: "11.5px",
+                            color: sub,
+                            mt: 0.5,
+                          }}
+                        >
+                          {s.label}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+
+                  {/* Readability */}
+                  <SectionTitle>Readability</SectionTitle>
+                  <Box
+                    sx={{
+                      p: 2,
+                      bgcolor: cardBg,
+                      border: panelBorder,
+                      borderRadius: "14px",
+                    }}
+                  >
                     <Box
                       sx={{
-                        flex: 3,
-                        height: "24px",
-                        bgcolor: theme === "dark" ? "#333" : "#e0e0e0",
-                        borderRadius: "4px",
-                        overflow: "hidden",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mb: 1,
+                      }}
+                    >
+                      <Typography
+                        sx={{ font: "inherit", fontSize: "13px", color: sub }}
+                      >
+                        Flesch reading ease
+                      </Typography>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          fontSize: "13px",
+                          fontWeight: 700,
+                          color: head,
+                        }}
+                      >
+                        {analytics.fleschScore} · {fleschLabel}
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
                         position: "relative",
+                        height: 10,
+                        borderRadius: 999,
+                        background:
+                          "linear-gradient(90deg,#d32f2f,#f57c00,#fbc02d,#7cb342,#388e3c)",
                       }}
                     >
                       <Box
                         sx={{
                           position: "absolute",
-                          left: 0,
-                          top: 0,
-                          height: "100%",
-                          width: `${(item.count / analytics.topWords[0].count) * 100}%`,
-                          bgcolor: "#f57c00",
-                          transition: "width 0.3s ease",
+                          top: "50%",
+                          left: `${fleschPct}%`,
+                          transform: "translate(-50%, -50%)",
+                          width: 16,
+                          height: 16,
+                          borderRadius: "50%",
+                          bgcolor: "#fff",
+                          border: "3px solid #f57c00",
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
                         }}
                       />
                     </Box>
-                    <Typography
+                    <Box
                       sx={{
-                        font: "inherit",
-                        color: "#f57c00",
-                        fontWeight: "bold",
-                        minWidth: "40px",
-                        textAlign: "right",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        mt: 0.5,
                       }}
                     >
-                      {item.count}
-                    </Typography>
+                      <Typography
+                        sx={{ font: "inherit", fontSize: "10px", color: sub }}
+                      >
+                        Harder
+                      </Typography>
+                      <Typography
+                        sx={{ font: "inherit", fontSize: "10px", color: sub }}
+                      >
+                        Easier
+                      </Typography>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: "grid",
+                        gridTemplateColumns: {
+                          xs: "1fr 1fr",
+                          sm: "repeat(3,1fr)",
+                        },
+                        gap: 1.5,
+                        mt: 2,
+                      }}
+                    >
+                      {[
+                        {
+                          l: "Lexical diversity",
+                          v: analytics.lexicalDiversity + "%",
+                        },
+                        {
+                          l: "Complex words",
+                          v: analytics.complexityPercentage + "%",
+                        },
+                        {
+                          l: "Avg syllables",
+                          v: analytics.avgSyllablesPerWord,
+                        },
+                      ].map((m) => (
+                        <Box key={m.l} sx={{ textAlign: "center" }}>
+                          <Typography
+                            sx={{
+                              font: "inherit",
+                              fontWeight: 700,
+                              fontSize: "18px",
+                              color: head,
+                            }}
+                          >
+                            {m.v}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              font: "inherit",
+                              fontSize: "11px",
+                              color: sub,
+                            }}
+                          >
+                            {m.l}
+                          </Typography>
+                        </Box>
+                      ))}
+                    </Box>
                   </Box>
-                ))}
+
+                  {/* Top words + word length */}
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+                      gap: 2,
+                    }}
+                  >
+                    <Box>
+                      <SectionTitle>Most frequent words</SectionTitle>
+                      <Box
+                        sx={{
+                          p: 2,
+                          bgcolor: cardBg,
+                          border: panelBorder,
+                          borderRadius: "14px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1,
+                        }}
+                      >
+                        {analytics.topWords.slice(0, 8).map((w) => (
+                          <Box
+                            key={w.word}
+                            sx={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 1,
+                            }}
+                          >
+                            <Typography
+                              sx={{
+                                font: "inherit",
+                                fontSize: "12px",
+                                color: head,
+                                width: 90,
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              {w.word}
+                            </Typography>
+                            <Box
+                              sx={{
+                                flex: 1,
+                                height: 8,
+                                borderRadius: 999,
+                                bgcolor: dk ? "#333" : "#eee",
+                                overflow: "hidden",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  height: "100%",
+                                  width: `${(w.count / maxWord) * 100}%`,
+                                  background:
+                                    "linear-gradient(90deg,#ff8a00,#f57c00)",
+                                  borderRadius: 999,
+                                }}
+                              />
+                            </Box>
+                            <Typography
+                              sx={{
+                                font: "inherit",
+                                fontSize: "12px",
+                                color: sub,
+                                width: 28,
+                                textAlign: "right",
+                              }}
+                            >
+                              {w.count}
+                            </Typography>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                    <Box>
+                      <SectionTitle>Word length</SectionTitle>
+                      <Box
+                        sx={{
+                          p: 2,
+                          bgcolor: cardBg,
+                          border: panelBorder,
+                          borderRadius: "14px",
+                          display: "flex",
+                          flexDirection: "column",
+                          gap: 1.25,
+                        }}
+                      >
+                        {wlRows.map((r) => (
+                          <Box key={r.label}>
+                            <Box
+                              sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                mb: 0.25,
+                              }}
+                            >
+                              <Typography
+                                sx={{
+                                  font: "inherit",
+                                  fontSize: "12px",
+                                  color: head,
+                                }}
+                              >
+                                {r.label}
+                              </Typography>
+                              <Typography
+                                sx={{
+                                  font: "inherit",
+                                  fontSize: "12px",
+                                  color: sub,
+                                }}
+                              >
+                                {Math.round((r.v / wlTotal) * 100)}%
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                height: 8,
+                                borderRadius: 999,
+                                bgcolor: dk ? "#333" : "#eee",
+                                overflow: "hidden",
+                              }}
+                            >
+                              <Box
+                                sx={{
+                                  height: "100%",
+                                  width: `${(r.v / wlTotal) * 100}%`,
+                                  background:
+                                    "linear-gradient(90deg,#ffb74d,#f57c00)",
+                                  borderRadius: 999,
+                                }}
+                              />
+                            </Box>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  </Box>
+
+                  {/* Structure */}
+                  <SectionTitle>Structure &amp; detail</SectionTitle>
+                  <Box
+                    sx={{
+                      display: "grid",
+                      gridTemplateColumns: {
+                        xs: "1fr 1fr",
+                        sm: "repeat(4,1fr)",
+                      },
+                      gap: 1.5,
+                    }}
+                  >
+                    {structure.map((s) => (
+                      <Box
+                        key={s.label}
+                        sx={{
+                          p: 1.5,
+                          bgcolor: cardBg,
+                          border: panelBorder,
+                          borderRadius: "12px",
+                          textAlign: "center",
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontWeight: 700,
+                            fontSize: "16px",
+                            color: head,
+                          }}
+                        >
+                          {s.value}
+                          {s.unit && (
+                            <Typography
+                              component="span"
+                              sx={{ fontSize: "11px", color: sub, ml: 0.3 }}
+                            >
+                              {s.unit}
+                            </Typography>
+                          )}
+                        </Typography>
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontSize: "11px",
+                            color: sub,
+                            mt: 0.25,
+                          }}
+                        >
+                          {s.label}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+
+                  {/* Punctuation */}
+                  <SectionTitle>Punctuation</SectionTitle>
+                  <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                    {punct.map((p) => (
+                      <Box
+                        key={p.label}
+                        sx={{
+                          px: 1.5,
+                          py: 0.75,
+                          borderRadius: "10px",
+                          bgcolor: cardBg,
+                          border: panelBorder,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.75,
+                        }}
+                      >
+                        <Typography
+                          sx={{
+                            font: "inherit",
+                            fontSize: "13px",
+                            fontWeight: 700,
+                            color: "#f57c00",
+                          }}
+                        >
+                          {p.v}
+                        </Typography>
+                        <Typography
+                          sx={{ font: "inherit", fontSize: "12px", color: sub }}
+                        >
+                          {p.label}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                </Box>
               </Box>
-            </Box>
-          </Box>
-        </Modal>
-      )}
+            </Modal>
+          );
+        })()}
     </Box>
   );
 };

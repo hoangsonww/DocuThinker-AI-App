@@ -84,7 +84,11 @@ const Profile = ({ theme }) => {
   const [updatingSocialMedia, setUpdatingSocialMedia] = useState(false);
   const [error, setError] = useState("");
   const userId = localStorage.getItem("userId");
-  const [randomAvatar, setRandomAvatar] = useState("");
+  // Pick the avatar once, synchronously on first render (lazy initializer) so
+  // there is no empty-src window / StrictMode re-pick that leaves it blank.
+  const [randomAvatar, setRandomAvatar] = useState(
+    () => avatarImages[Math.floor(Math.random() * avatarImages.length)],
+  );
   const today = new Date().toLocaleDateString();
   // eslint-disable-next-line no-unused-vars
   const [loadingSocialMedia, setLoadingSocialMedia] = useState(true);
@@ -112,12 +116,13 @@ const Profile = ({ theme }) => {
       ? "0 2px 12px rgba(0,0,0,0.35)"
       : "0 2px 14px rgba(0,0,0,0.06)",
   };
+  const tooltipSlotProps = {
+    tooltip: {
+      sx: { fontFamily: "Poppins, sans-serif", fontSize: "12px" },
+    },
+  };
 
   useEffect(() => {
-    setRandomAvatar(
-      avatarImages[Math.floor(Math.random() * avatarImages.length)],
-    );
-
     if (userId) {
       const fetchData = async () => {
         try {
@@ -217,16 +222,17 @@ const Profile = ({ theme }) => {
     setError("");
 
     try {
-      // Ensure only usernames are sent to the backend
-      const socialMediaToSend = {
-        ...socialMedia,
-      };
-
+      // Always send every platform as a string (never undefined) so Firestore
+      // doesn't reject the update for an unset field like twitter.
       await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/update-social-media",
         {
           userId,
-          ...socialMediaToSend, // Spread the updated social media object
+          github: socialMedia.github || "",
+          linkedin: socialMedia.linkedin || "",
+          facebook: socialMedia.facebook || "",
+          instagram: socialMedia.instagram || "",
+          twitter: socialMedia.twitter || "",
         },
       );
 
@@ -387,7 +393,11 @@ const Profile = ({ theme }) => {
             sx={{
               px: { xs: 3, md: 4 },
               pb: 3,
-              mt: { xs: "-52px", sm: "-60px" },
+              // Smaller negative offset = avatar overlaps the banner less and the
+              // whole avatar+text block sits lower, giving real breathing room
+              // above the "Welcome" line (a margin-top on the text alone can't,
+              // since it's bottom-aligned to the avatar).
+              mt: { xs: "-50px", sm: "-50px" },
               display: "flex",
               flexDirection: { xs: "column", sm: "row" },
               alignItems: { xs: "center", sm: "flex-end" },
@@ -398,14 +408,34 @@ const Profile = ({ theme }) => {
             <Avatar
               src={randomAvatar}
               alt="User Avatar"
+              imgProps={{
+                loading: "eager",
+                onError: () => {
+                  // If the picked image fails, fall back to a known-good one
+                  // (and ultimately to the letter below) instead of a blank.
+                  if (randomAvatar !== "/OIP.jpg") setRandomAvatar("/OIP.jpg");
+                },
+              }}
               sx={{
                 width: { xs: 104, sm: 120 },
                 height: { xs: 104, sm: 120 },
                 border: `4px solid ${cardBg}`,
                 boxShadow: "0 6px 18px rgba(0,0,0,0.22)",
+                bgcolor: ORANGE,
+                fontWeight: 700,
+                fontSize: { xs: "40px", sm: "46px" },
               }}
-            />
-            <Box sx={{ flexGrow: 1, minWidth: 0, pb: { sm: 0.5 } }}>
+            >
+              {username ? username.charAt(0).toUpperCase() : "?"}
+            </Avatar>
+            <Box
+              sx={{
+                flexGrow: 1,
+                minWidth: 0,
+                pt: { xs: 1.5, sm: 2 },
+                pb: { sm: 0.5 },
+              }}
+            >
               <Typography
                 sx={{
                   font: "inherit",
@@ -694,7 +724,7 @@ const Profile = ({ theme }) => {
                   <Box
                     sx={{
                       display: "flex",
-                      alignItems: "center",
+                      alignItems: isEditing ? "flex-end" : "center",
                       gap: 1.5,
                       py: 1.5,
                     }}
@@ -736,7 +766,7 @@ const Profile = ({ theme }) => {
                           autoFocus
                           onChange={handleSocialMediaChange}
                           onKeyPress={(e) => handleKeyPress(e, platform)}
-                          sx={{ mt: 0.5 }}
+                          sx={{ mt: 1.5 }}
                           inputProps={{
                             style: {
                               fontFamily: "Poppins, sans-serif",
@@ -812,7 +842,7 @@ const Profile = ({ theme }) => {
                       loadingPlatform[platform] ? (
                         <CircularProgress size={22} sx={{ color: ORANGE }} />
                       ) : (
-                        <Tooltip title="Save">
+                        <Tooltip title="Save" slotProps={tooltipSlotProps}>
                           <IconButton
                             size="small"
                             onClick={() => handleUpdateSocialMedia(platform)}
@@ -822,7 +852,10 @@ const Profile = ({ theme }) => {
                         </Tooltip>
                       )
                     ) : (
-                      <Tooltip title={`Edit ${meta.label}`}>
+                      <Tooltip
+                        title={`Edit ${meta.label}`}
+                        slotProps={tooltipSlotProps}
+                      >
                         <IconButton
                           size="small"
                           onClick={() => setEditingField(platform)}

@@ -13,6 +13,9 @@
 /.next/
 /out/
 
+# cache
+/.cache
+
 # production
 /build
 
@@ -44,3 +47,6 @@ next-env.d.ts
 
 # Hide sensitive database configuration files
 ./.idea/dataSources.xml
+
+# playwright MCP
+/frontend/.playwright-mcp

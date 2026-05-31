@@ -5,6 +5,7 @@ const mammoth = require("mammoth");
 const axios = require("axios");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const multer = require("multer");
+const { createClient } = require("@supabase/supabase-js");
 const {
   GoogleAIFileManager,
   FileState,
@@ -44,6 +45,141 @@ firebaseAdmin.initializeApp({
 
 // Firestore for storing user documents
 const firestore = firebaseAdmin.firestore();
+
+// --- Supabase Storage (private bucket for original uploaded files) ---
+// Isolated from any Postgres tables in the same project; we only touch the
+// dedicated bucket. service_role key stays server-side.
+const SUPABASE_BUCKET = process.env.SUPABASE_BUCKET || "docuthinker";
+let supabaseClient = null;
+const getSupabase = () => {
+  if (supabaseClient) return supabaseClient;
+  const url = process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) {
+    throw new Error(
+      "Supabase storage not configured (SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY).",
+    );
+  }
+  supabaseClient = createClient(url, key, { auth: { persistSession: false } });
+  return supabaseClient;
+};
+
+/**
+ * Store an uploaded file (parsed by formidable) in the private bucket.
+ * @returns {Promise<{filePath: string, fileType: string}>}
+ */
+exports.storeDocumentFile = async (userId, file) => {
+  const supabase = getSupabase();
+  const buffer = fs.readFileSync(file.filepath);
+  const safeName = (file.originalFilename || "document")
+    .replace(/[^\w.\-]+/g, "_")
+    .slice(-80);
+  const path = `${userId || "anonymous"}/${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}-${safeName}`;
+  const { error } = await supabase.storage
+    .from(SUPABASE_BUCKET)
+    .upload(path, buffer, {
+      contentType: file.mimetype || "application/octet-stream",
+      upsert: false,
+    });
+  if (error) throw error;
+  return { filePath: path, fileType: file.mimetype || "" };
+};
+
+/**
+ * Mint a signed UPLOAD url so the browser can upload the file bytes directly to
+ * the private bucket (bypasses the serverless request-body size limit). The
+ * service_role key never leaves the backend; the client only gets a one-time
+ * token scoped to this exact path.
+ * @returns {Promise<{path: string, token: string, signedUrl: string}>}
+ */
+exports.createDocumentUploadUrl = async (userId, fileName) => {
+  const supabase = getSupabase();
+  const safeName = String(fileName || "document")
+    .replace(/[^\w.\-]+/g, "_")
+    .slice(-80);
+  const path = `${userId || "anonymous"}/${Date.now()}-${Math.random()
+    .toString(36)
+    .slice(2)}-${safeName}`;
+  const { data, error } = await supabase.storage
+    .from(SUPABASE_BUCKET)
+    .createSignedUploadUrl(path);
+  if (error) throw error;
+  return { path, token: data.token, signedUrl: data.signedUrl };
+};
+
+/**
+ * Store a document's extracted text + display HTML as a JSON object in storage,
+ * so Firestore only holds a tiny path (avoids the 1 MB per-document limit).
+ * @returns {Promise<string>} storage path
+ */
+exports.storeDocumentContent = async (userId, docId, content) => {
+  const supabase = getSupabase();
+  const path = `${userId || "anonymous"}/content/${docId}.json`;
+  const body = Buffer.from(JSON.stringify(content || {}), "utf8");
+  const { error } = await supabase.storage
+    .from(SUPABASE_BUCKET)
+    .upload(path, body, { contentType: "application/json", upsert: true });
+  if (error) throw error;
+  return path;
+};
+
+/**
+ * Fetch the stored content JSON ({ originalText, originalHtml }) or null.
+ */
+exports.getDocumentContent = async (contentPath) => {
+  if (!contentPath) return null;
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase.storage
+      .from(SUPABASE_BUCKET)
+      .download(contentPath);
+    if (error || !data) return null;
+    const txt =
+      typeof data.text === "function"
+        ? await data.text()
+        : Buffer.from(await data.arrayBuffer()).toString("utf8");
+    return JSON.parse(txt);
+  } catch (e) {
+    return null;
+  }
+};
+
+/**
+ * Remove stored objects (file + content JSON) from the bucket. Best-effort:
+ * logs and swallows errors so a delete never fails on storage cleanup.
+ */
+exports.deleteStorageObjects = async (paths) => {
+  const clean = (paths || []).filter(
+    (p) => typeof p === "string" && p.length > 0,
+  );
+  if (clean.length === 0) return;
+  try {
+    const supabase = getSupabase();
+    await supabase.storage.from(SUPABASE_BUCKET).remove(clean);
+  } catch (e) {
+    console.error("[storage] remove failed:", e && e.message);
+  }
+};
+
+/**
+ * Create a short-lived signed URL to view/download a stored file.
+ * Returns "" if there is no path or signing fails (viewer falls back gracefully).
+ */
+exports.getDocumentFileUrl = async (filePath, expiresIn = 3600) => {
+  if (!filePath) return "";
+  try {
+    const supabase = getSupabase();
+    const { data, error } = await supabase.storage
+      .from(SUPABASE_BUCKET)
+      .createSignedUrl(filePath, expiresIn);
+    if (error || !data) return "";
+    return data.signedUrl;
+  } catch (e) {
+    return "";
+  }
+};
 
 const GEMINI_MODEL_CACHE_TTL_MS = 5 * 60 * 1000;
 const DEFAULT_GEMINI_MODEL_FALLBACK = "gemini-2.5-flash";
@@ -171,12 +307,37 @@ const withGeminiModelFallback = async (label, handler) => {
       lastError = error;
       const errorMessage =
         error instanceof Error ? error.message : String(error);
-      console.warn(`[Gemini] ${label} failed on ${modelName}: ${errorMessage}`);
+      console.warn(
+        `[Gemini] ${label} failed on ${modelName}: ${errorMessage}`,
+        error && error.stack ? `\n${error.stack}` : "",
+      );
     }
   }
 
-  throw lastError;
+  // All models failed — surface a meaningful message (raw Gemini errors are
+  // often blank, which is why the client saw a 500 with no detail).
+  const lastMsg =
+    lastError instanceof Error ? lastError.message : String(lastError);
+  console.error(`[Gemini] ${label} exhausted all ${models.length} model(s).`, {
+    lastMessage: lastMsg,
+    stack: lastError && lastError.stack,
+  });
+  throw new Error(
+    `Gemini failed for "${label}" after trying ${models.length} model(s): ${
+      lastMsg || "unknown error (likely rate limit or quota)"
+    }`,
+  );
 };
+
+// Gives the model today's real date so it can reason about recency, deadlines,
+// "current" events in the document, etc.
+const currentDateContext = () =>
+  `Today's date is ${new Date().toLocaleDateString("en-US", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  })}.`;
 
 const runGeminiChat = async ({
   label,
@@ -189,7 +350,7 @@ const runGeminiChat = async ({
     const genAI = new GoogleGenerativeAI(getGoogleAiApiKey());
     const modelOptions = { model: modelName };
     if (systemInstruction) {
-      modelOptions.systemInstruction = systemInstruction;
+      modelOptions.systemInstruction = `${currentDateContext()} ${systemInstruction}`;
     }
 
     const model = genAI.getGenerativeModel(modelOptions);
@@ -207,10 +368,11 @@ const runGeminiContent = async ({
 }) => {
   return withGeminiModelFallback(label, async (modelName) => {
     const genAI = new GoogleGenerativeAI(getGoogleAiApiKey());
-    const model = genAI.getGenerativeModel({
-      model: modelName,
-      ...modelOptions,
-    });
+    const finalModelOptions = { model: modelName, ...modelOptions };
+    if (finalModelOptions.systemInstruction) {
+      finalModelOptions.systemInstruction = `${currentDateContext()} ${finalModelOptions.systemInstruction}`;
+    }
+    const model = genAI.getGenerativeModel(finalModelOptions);
     const result = await model.generateContent(prompt);
     return extractGeminiResponseText(result, errorMessage);
   });
@@ -243,14 +405,19 @@ exports.loginUser = async (email) => {
  * @param {string} text - The text content of the document.
  * @returns {Promise<{summary: string, originalText: string}>} - Generated summary and original text.
  */
-exports.generateSummary = async (text) => {
+exports.generateSummary = async (text, title) => {
   if (!text) throw new Error("No text provided");
+
+  // Feed the title to the AI as extra context, but keep the returned/stored
+  // originalText clean (no title prefix) so the viewer and chat stay intact.
+  const aiText =
+    title && typeof title === "string" ? `Title: "${title}"\n\n${text}` : text;
 
   const summaryText = await runGeminiChat({
     label: "generateSummary",
-    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document text in paragraphs (not bullet points).`,
-    history: [{ role: "user", parts: [{ text }] }],
-    message: text,
+    systemInstruction: `${process.env.AI_INSTRUCTIONS}. Your task now is to: Summarize the provided document so it is easy to read and skim. Write in clear, plain language with a natural, well-spaced structure — favor short paragraphs, and use a brief heading or a short bulleted list ONLY where it genuinely improves clarity (do not make it bullet-heavy or dense). You decide the best layout for this particular document; prioritize readability and breathing room over cramming. You may use light Markdown (short headings, occasional bold, occasional lists) since the output is rendered as Markdown.`,
+    history: [{ role: "user", parts: [{ text: aiText }] }],
+    message: aiText,
     errorMessage: "Failed to generate a summary from the AI",
   });
 

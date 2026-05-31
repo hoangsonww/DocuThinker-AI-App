@@ -475,7 +475,7 @@ const Passkeys = ({ theme }) => {
                   </Box>
 
                   <Box sx={{ display: "flex", gap: 0.5, flexShrink: 0 }}>
-                    <Tooltip title="Rename">
+                    <Tooltip title="Rename" slotProps={tooltipSlotProps}>
                       <IconButton
                         onClick={() => {
                           setRenameTarget(pk);
@@ -489,7 +489,7 @@ const Passkeys = ({ theme }) => {
                         <EditIcon fontSize="small" />
                       </IconButton>
                     </Tooltip>
-                    <Tooltip title="Remove">
+                    <Tooltip title="Remove" slotProps={tooltipSlotProps}>
                       <IconButton
                         onClick={() => setDeleteTarget(pk)}
                         sx={{
@@ -548,6 +548,9 @@ const Passkeys = ({ theme }) => {
               font: "inherit",
               textTransform: "none",
               color: dark ? "#bbb" : "#666",
+              "&:hover": {
+                bgcolor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+              },
             }}
           >
             Cancel
@@ -605,6 +608,9 @@ const Passkeys = ({ theme }) => {
               font: "inherit",
               textTransform: "none",
               color: dark ? "#bbb" : "#666",
+              "&:hover": {
+                bgcolor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+              },
             }}
           >
             Cancel
@@ -667,6 +673,9 @@ const Passkeys = ({ theme }) => {
               font: "inherit",
               textTransform: "none",
               color: dark ? "#bbb" : "#666",
+              "&:hover": {
+                bgcolor: dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.04)",
+              },
             }}
           >
             Cancel
@@ -703,7 +712,10 @@ const Passkeys = ({ theme }) => {
         <Alert
           severity={snack.severity}
           onClose={() => setSnack((s) => ({ ...s, open: false }))}
-          sx={{ font: "inherit", width: "100%" }}
+          sx={{
+            fontFamily: "Poppins, sans-serif",
+            width: "100%",
+          }}
         >
           {snack.message}
         </Alert>

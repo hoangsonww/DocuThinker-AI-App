@@ -13,3 +13,45 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
+
+/*
+ * MUI outlined text fields: keep the floating label and the notch (the
+ * <legend> that cuts the gap in the outline) in the SAME font. When the
+ * visible label is Poppins but the legend is left as the default font, the
+ * legend reserves a narrower gap than the wider Poppins label needs, so the
+ * label overflows and collides with the outline border. Forcing both to
+ * Poppins makes the measured widths match and the gap line up everywhere.
+ */
+.MuiInputLabel-root,
+.MuiOutlinedInput-notchedOutline legend,
+.MuiOutlinedInput-notchedOutline legend span {
+  font-family: "Poppins", sans-serif !important;
+}
+
+/*
+ * MUI tooltips render in a portal at <body>, outside the Poppins-rooted app
+ * tree, so they fall back to MUI's default font (Arial/Roboto). Force Poppins
+ * app-wide here so every <Tooltip> matches, regardless of per-component props.
+ * (Native HTML `title=""` tooltips are drawn by the browser and can't be
+ * styled — only MUI <Tooltip> components are affected.)
+ */
+.MuiTooltip-tooltip {
+  font-family: "Poppins", sans-serif !important;
+}
+
+/* On-brand text selection (orange) — native selection is the single source of
+ * truth for highlighting, so it always stays aligned with what the user drags. */
+::selection {
+  background: rgba(245, 124, 0, 0.3);
+}
+::-moz-selection {
+  background: rgba(245, 124, 0, 0.3);
+}
+
+/* Disabled/loading contained buttons (the orange CTAs) otherwise grey their
+ * text to a near-black that's invisible in dark mode. Keep the text white on a
+ * dimmed orange so the button still reads as disabled but stays legible. */
+.MuiButton-contained.Mui-disabled {
+  color: #fff !important;
+  background-color: rgba(245, 124, 0, 0.55) !important;
+}

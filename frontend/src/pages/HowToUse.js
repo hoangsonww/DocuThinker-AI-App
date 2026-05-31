@@ -1,592 +1,386 @@
 import React from "react";
-import { Box, Typography, List, ListItem, ListItemText } from "@mui/material";
+import { Box, Typography, Paper, Chip } from "@mui/material";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import UploadFileIcon from "@mui/icons-material/UploadFile";
+import ArticleIcon from "@mui/icons-material/Article";
+import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
+import ForumIcon from "@mui/icons-material/Forum";
+import ChatIcon from "@mui/icons-material/Chat";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import TranslateIcon from "@mui/icons-material/Translate";
+import InsightsIcon from "@mui/icons-material/Insights";
+import RecommendIcon from "@mui/icons-material/Recommend";
+import AutoFixHighIcon from "@mui/icons-material/AutoFixHigh";
+import HighlightAltIcon from "@mui/icons-material/HighlightAlt";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import SearchIcon from "@mui/icons-material/Search";
+import RecordVoiceOverIcon from "@mui/icons-material/RecordVoiceOver";
+import ManageAccountsIcon from "@mui/icons-material/ManageAccounts";
+import FingerprintIcon from "@mui/icons-material/Fingerprint";
+
+const ORANGE = "#f57c00";
+
+const STEPS = [
+  {
+    icon: UploadFileIcon,
+    title: "Upload a document",
+    body: "Drag & drop onto the upload box on the home page, pick a file from your device, or import from Google Drive. Supported: PDF, Word (.docx), Markdown, HTML, CSV/TSV, JSON, plain text, and code/config files — each is rendered in its best form (real PDF pages, formatted Word/Markdown, HTML, tables for CSV, monospace for code, or clean text).",
+  },
+  {
+    icon: ArticleIcon,
+    title: "View the original + summary",
+    body: "After processing you'll see the original document rendered on the left (real PDF pages, formatted Word/Markdown, or clean text) and a concise AI summary on the right.",
+  },
+  {
+    icon: HighlightAltIcon,
+    title: "Highlight text for quick actions",
+    body: "On the results view, select any text to pop a menu: Copy, Summarize, Rewrite, Ask Chat, or Search the web — all scoped to exactly what you highlighted.",
+  },
+  {
+    icon: TipsAndUpdatesIcon,
+    title: "Generate key ideas",
+    body: "Click 'Generate Key Ideas' to let the AI extract the most important points from the document.",
+  },
+  {
+    icon: ForumIcon,
+    title: "Generate discussion points",
+    body: "Create discussion points for group discussions, debates, or deeper analysis of the document.",
+  },
+  {
+    icon: ChatIcon,
+    title: "Chat with the AI",
+    body: "Ask specific questions and get answers grounded in your document's context — the AI also knows the document's title and today's date.",
+  },
+  {
+    icon: FormatListBulletedIcon,
+    title: "Bullet-point summary",
+    body: "Get a concise bulleted summary — handy for quick notes or study guides.",
+  },
+  {
+    icon: TranslateIcon,
+    title: "Change the summary language",
+    body: "Translate the summary into another language to share with multilingual readers.",
+  },
+  {
+    icon: InsightsIcon,
+    title: "Sentiment analysis",
+    body: "See whether the document reads positive, negative, or neutral. Results are cached per document so revisiting won't re-run the analysis.",
+  },
+  {
+    icon: RecommendIcon,
+    title: "Actionable recommendations",
+    body: "Get suggested next steps, improvements, or decisions based on the document content.",
+  },
+  {
+    icon: AutoFixHighIcon,
+    title: "Rewrite content",
+    body: "Specify a tone or style and the AI rewrites the text — or highlight a passage and rewrite just that part.",
+  },
+  {
+    icon: RecordVoiceOverIcon,
+    title: "Voice chat",
+    body: "Talk to the AI: upload a document, hit 'Voice Chat', and ask questions or discuss the content by voice.",
+  },
+  {
+    icon: SearchIcon,
+    title: "Search your documents",
+    body: "On the Documents page, search by title or summary and sort/filter (newest, oldest, A–Z, by file type) to find anything fast.",
+  },
+  {
+    icon: ManageAccountsIcon,
+    title: "Manage documents & profile",
+    body: "View, re-open, rename, or delete saved documents, and update your email, social links, and avatar from the Profile page.",
+  },
+  {
+    icon: PersonAddIcon,
+    title: "Create an account to save work",
+    body: "Register and sign in to store your analyzed documents, re-open them anytime with the original file, and get a higher upload limit.",
+  },
+  {
+    icon: FingerprintIcon,
+    title: "Sign in with passkeys",
+    body: "Skip passwords — add a passkey and sign in with your fingerprint, face, or device PIN from the Passkeys page.",
+  },
+];
+
+const FORMATS = [
+  "PDF",
+  "Word (.docx)",
+  "Markdown (.md)",
+  "HTML (.html)",
+  "CSV / TSV",
+  "JSON",
+  "Plain text (.txt)",
+  "Code & config files",
+];
 
 const HowToUse = ({ theme }) => {
+  const dark = theme === "dark";
+  const pageBg = dark ? "#1e1e1e" : "#f5f5f5";
+  const cardBg = dark ? "#2a2a2a" : "#ffffff";
+  const heading = dark ? "#ffffff" : "#1a1a1a";
+  const subText = dark ? "#b5b5b5" : "#555";
+  const cardBorder = dark ? "1px solid #3a3a3a" : "1px solid #ececec";
+
   return (
     <Box
       sx={{
-        padding: 4,
-        maxWidth: "800px",
-        margin: "2rem auto",
-        borderRadius: "12px",
-        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-        backgroundColor: theme === "dark" ? "#1e1e1e" : "#fff",
+        minHeight: "100vh",
+        backgroundColor: pageBg,
+        py: { xs: 4, md: 6 },
+        px: 2,
+        fontFamily: "Poppins, sans-serif",
         transition: "background-color 0.3s ease",
       }}
     >
-      {/* Page Title */}
-      <Typography
-        variant="h4"
-        gutterBottom
-        sx={{
-          font: "inherit",
-          fontWeight: "bold",
-          color: "#f57c00",
-          textAlign: "center",
-          fontSize: "2rem",
-          transition: "background-color 0.3s ease",
-        }}
-      >
-        How to Use DocuThinker
-      </Typography>
+      <Box sx={{ maxWidth: "920px", mx: "auto" }}>
+        {/* Hero */}
+        <Box sx={{ textAlign: "center", mb: 4 }}>
+          <Box
+            sx={{
+              width: 64,
+              height: 64,
+              borderRadius: "18px",
+              mx: "auto",
+              mb: 2,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: ORANGE,
+              bgcolor: dark ? "rgba(245,124,0,0.16)" : "rgba(245,124,0,0.1)",
+            }}
+          >
+            <MenuBookIcon sx={{ fontSize: 34 }} />
+          </Box>
+          <Typography
+            sx={{
+              font: "inherit",
+              fontWeight: 700,
+              fontSize: { xs: "28px", md: "34px" },
+              color: ORANGE,
+              lineHeight: 1.15,
+            }}
+          >
+            How to Use DocuThinker
+          </Typography>
+          <Typography
+            sx={{
+              font: "inherit",
+              fontSize: "15px",
+              color: subText,
+              mt: 1.5,
+              maxWidth: "620px",
+              mx: "auto",
+              lineHeight: 1.7,
+            }}
+          >
+            Your AI-powered document workspace — upload a PDF, Word, Markdown,
+            or text file and summarize it, extract key ideas, chat with it,
+            translate it, and more. Here's everything you can do.
+          </Typography>
+        </Box>
 
-      {/* Introduction */}
-      <Typography
-        variant="body1"
-        sx={{
-          font: "inherit",
-          marginBottom: 3,
-          fontSize: "1.1rem",
-          color: theme === "dark" ? "white" : "#333",
-          lineHeight: "1.6",
-        }}
-      >
-        Welcome to <strong>DocuThinker</strong>, your AI-powered document
-        summarization tool. Follow the steps below to upload documents and make
-        the most out of our key features like summarization, generating key
-        ideas, and discussion points from your uploaded documents.
-      </Typography>
+        {/* Sign-in note */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: 1.5,
+            p: 2,
+            mb: 4,
+            borderRadius: "14px",
+            bgcolor: dark ? "rgba(245,124,0,0.12)" : "rgba(245,124,0,0.08)",
+            border: `1px solid ${dark ? "rgba(245,124,0,0.35)" : "rgba(245,124,0,0.3)"}`,
+          }}
+        >
+          <LockOutlinedIcon sx={{ color: ORANGE, mt: 0.25 }} />
+          <Typography
+            sx={{
+              font: "inherit",
+              fontSize: "14px",
+              color: heading,
+              lineHeight: 1.7,
+            }}
+          >
+            <strong>You must be signed in</strong> to upload, summarize, and
+            save documents. Create a free account on the{" "}
+            <a href="/register" style={{ color: ORANGE, fontWeight: 600 }}>
+              Register
+            </a>{" "}
+            page or{" "}
+            <a href="/login" style={{ color: ORANGE, fontWeight: 600 }}>
+              log in
+            </a>{" "}
+            to get started — your documents are then saved to your account.
+          </Typography>
+        </Box>
 
-      {/* Step-by-step Instructions */}
-      <Typography
-        variant="h5"
-        sx={{
-          font: "inherit",
-          fontWeight: "bold",
-          fontSize: "22px",
-          color: "#f57c00",
-          marginBottom: 2,
-        }}
-      >
-        Steps to Get Started
-      </Typography>
+        {/* Steps grid */}
+        <Box
+          sx={{
+            display: "grid",
+            gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" },
+            gap: 2,
+            mb: 5,
+          }}
+        >
+          {STEPS.map((step, i) => {
+            const StepIcon = step.icon;
+            return (
+              <Paper
+                key={step.title}
+                elevation={0}
+                sx={{
+                  p: 2.5,
+                  borderRadius: "16px",
+                  bgcolor: cardBg,
+                  border: cardBorder,
+                  display: "flex",
+                  gap: 1.75,
+                  transition: "border-color 0.2s ease, transform 0.2s ease",
+                  "&:hover": {
+                    borderColor: ORANGE,
+                    transform: "translateY(-2px)",
+                  },
+                }}
+              >
+                <Box
+                  sx={{
+                    position: "relative",
+                    width: 46,
+                    height: 46,
+                    flexShrink: 0,
+                    borderRadius: "12px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: ORANGE,
+                    bgcolor: dark
+                      ? "rgba(245,124,0,0.16)"
+                      : "rgba(245,124,0,0.1)",
+                  }}
+                >
+                  <StepIcon />
+                  <Box
+                    sx={{
+                      position: "absolute",
+                      top: -6,
+                      left: -6,
+                      width: 20,
+                      height: 20,
+                      borderRadius: "50%",
+                      bgcolor: ORANGE,
+                      color: "#fff",
+                      fontSize: "11px",
+                      fontWeight: 700,
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      border: `2px solid ${cardBg}`,
+                    }}
+                  >
+                    {i + 1}
+                  </Box>
+                </Box>
+                <Box sx={{ minWidth: 0 }}>
+                  <Typography
+                    sx={{
+                      font: "inherit",
+                      fontWeight: 600,
+                      fontSize: "15px",
+                      color: heading,
+                      mb: 0.5,
+                    }}
+                  >
+                    {step.title}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      font: "inherit",
+                      fontSize: "13.5px",
+                      color: subText,
+                      lineHeight: 1.65,
+                    }}
+                  >
+                    {step.body}
+                  </Typography>
+                </Box>
+              </Paper>
+            );
+          })}
+        </Box>
 
-      <List sx={{ listStyleType: "none", paddingLeft: 0 }}>
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
+        {/* Supported formats */}
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 2.5, md: 3 },
+            borderRadius: "16px",
+            bgcolor: cardBg,
+            border: cardBorder,
+            mb: 4,
+          }}
+        >
+          <Typography
+            sx={{
+              font: "inherit",
+              fontWeight: 700,
+              fontSize: "17px",
+              color: heading,
+              mb: 1.5,
+            }}
+          >
+            Supported document formats
+          </Typography>
+          <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+            {FORMATS.map((f) => (
+              <Chip
+                key={f}
+                label={f}
                 sx={{
                   fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
+                  fontWeight: 600,
+                  fontSize: "13px",
+                  color: ORANGE,
+                  bgcolor: dark
+                    ? "rgba(245,124,0,0.16)"
+                    : "rgba(245,124,0,0.1)",
                 }}
-              >
-                1. Upload a Document
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Click the upload box on the home page to drag and drop your
-                document or select one from your device. Alternatively, you can
-                use Google Drive to import your document. We support PDF and
-                DOCX (Word) files.
-              </Typography>
-            }
-          />
-        </ListItem>
+              />
+            ))}
+          </Box>
+          <Typography
+            sx={{
+              font: "inherit",
+              fontSize: "13.5px",
+              color: subText,
+              mt: 1.5,
+              lineHeight: 1.65,
+            }}
+          >
+            Make sure your document is one of these formats before uploading to
+            guarantee smooth processing.
+          </Typography>
+        </Paper>
 
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                2. View the Document Summary
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Once uploaded, the app will automatically summarize your
-                document. You'll see the full original document text on the left
-                and a concise summary on the right.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                3. Generate Key Ideas
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                After reviewing the summary, click the 'Generate Key Ideas'
-                button to let the AI extract the most important ideas from the
-                document.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                4. Generate Discussion Points
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                You can also generate discussion points that can be used for
-                group discussions, debates, or further analysis of the document.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                5. Chat with our AI
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Use the 'Chat with AI' feature to ask specific questions or get
-                more information based on the document. Our AI models, trained
-                by DocuThinker, will use the document context to provide
-                tailored answers.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                6. Generate Bullet-Point Summary
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Click the 'Generate Bullet-Point Summary' button to get a
-                concise list of bullet points summarizing the document. This
-                feature is useful for creating quick notes or study guides.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                7. Customize the Summary Language
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Use the 'Change Language' feature to translate the summary into
-                a different language. This feature is helpful for multilingual
-                users or when you need to share the summary with others who
-                speak a different language.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                8. Sentiment Analysis
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Use the 'Sentiment Analysis' feature to analyze the overall
-                sentiment of the document. The AI will provide insights on
-                whether the document has a positive, negative, or neutral tone.
-                This feature is useful for understanding the emotional context
-                of the text.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                9. Actionable Recommendations
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Get actionable recommendations based on the document content.
-                The AI will suggest next steps, improvements, or actions to take
-                based on the information in the document. Use this feature to
-                enhance your decision-making process or guide your next steps.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                10. Rewrite Content Automatically
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Simply specify the tone or style you want, and the AI will
-                rewrite the content of the document accordingly. This feature is
-                useful for creating variations of the text, adjusting the
-                writing style, or generating content for different audiences.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                11. Create an Account to Save Uploaded Documents
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                You can also create an account to save your uploaded documents
-                and access them later. This feature allows you to view,
-                download, or delete your documents as needed and gives you a
-                higher upload limit. Visit the <strong>Register</strong> page to
-                create an account and then log in to access your saved
-                documents.
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                12. Document Search for Easy Retrieval
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Use the document search feature to quickly find and retrieve
-                specific documents. You can search by title, content, or date
-                uploaded to locate the document you need. This feature is
-                helpful for organizing and managing your uploaded documents
-                (only available for registered and signed in users).
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                13. Voice Chat with AI
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Use the voice chat feature to interact with the AI using your
-                voice. Simply upload a document, then click the 'Voice Chat'
-                button to start a conversation with the AI. You can ask
-                questions, seek clarifications, or discuss the document content
-                using voice commands. Or ask anything you have in mind!
-              </Typography>
-            }
-          />
-        </ListItem>
-
-        <ListItem>
-          <ListItemText
-            disableTypography
-            primary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontWeight: "bold",
-                  fontSize: "1.1rem",
-                  color: theme === "dark" ? "white" : "black",
-                }}
-              >
-                14. Manage Your Uploaded Documents and Profile
-              </Typography>
-            }
-            secondary={
-              <Typography
-                sx={{
-                  fontFamily: "Poppins, sans-serif",
-                  fontSize: "1rem",
-                  color: theme === "dark" ? "white" : "#333",
-                }}
-              >
-                Visit the 'Documents' page to manage your uploaded documents,
-                including viewing, downloading, or deleting them. You can also
-                update your profile information, update your email, change your
-                social accounts, and more by visiting the 'Profile' page. (Only
-                available for registered and signed in users).
-              </Typography>
-            }
-          />
-        </ListItem>
-      </List>
-
-      {/* Extra Info */}
-      <Typography
-        variant="h5"
-        sx={{
-          font: "inherit",
-          fontWeight: "bold",
-          color: "#f57c00",
-          marginTop: 4,
-          marginBottom: 2,
-          fontSize: "22px",
-        }}
-      >
-        Supported Document Formats
-      </Typography>
-      <Typography
-        variant="body1"
-        sx={{
-          marginBottom: 3,
-          font: "inherit",
-          fontSize: "1.1rem",
-          color: theme === "dark" ? "white" : "#333",
-          lineHeight: "1.6",
-        }}
-      >
-        DocuThinker currently supports:
-        <ul style={{ paddingLeft: "20px", marginTop: "8px", font: "inherit" }}>
-          <li>PDF files</li>
-          <li>DOCX (Word) files</li>
-          <li>DOC (Word 97-2003) files</li>
-        </ul>
-        Ensure your document is in one of these formats before uploading to
-        guarantee smooth processing.
-      </Typography>
-
-      {/* Final Note */}
-      <Typography
-        variant="body1"
-        sx={{
-          font: "inherit",
-          fontSize: "1.1rem",
-          color: theme === "dark" ? "white" : "#333",
-          lineHeight: "1.6",
-        }}
-      >
-        DocuThinker helps you save time by summarizing long documents,
-        extracting key ideas, and preparing discussion points for further
-        exploration. Make sure to utilize the AI chat feature to dive deeper
-        into any aspect of your document!
-      </Typography>
-
-      <div
-        style={{
-          borderBottom: "1px solid #ccc",
-          width: "100%",
-          marginBottom: "1rem",
-          marginTop: "1rem",
-        }}
-      ></div>
-
-      {/* Thank you message */}
-      <Typography
-        sx={{
-          mt: 3,
-          font: "inherit",
-          fontWeight: "bold",
-          fontSize: "18px",
-          color: theme === "dark" ? "white" : "black",
-        }}
-      >
-        Made with ❤️ by{" "}
-        <a style={{ color: "#f57c00" }} href="https://sonnguyenhoang.com">
-          Son Nguyen
-        </a>{" "}
-        in 2024. Thank you for visiting DocuThinker! 🚀
-      </Typography>
+        {/* Footer */}
+        <Typography
+          sx={{
+            font: "inherit",
+            textAlign: "center",
+            fontWeight: 600,
+            fontSize: "15px",
+            color: heading,
+          }}
+        >
+          Made with ❤️ by{" "}
+          <a style={{ color: ORANGE }} href="https://sonnguyenhoang.com">
+            Son Nguyen
+          </a>
+          . Thank you for using DocuThinker! 🚀
+        </Typography>
+      </Box>
     </Box>
   );
 };

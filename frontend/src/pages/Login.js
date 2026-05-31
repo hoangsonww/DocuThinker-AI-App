@@ -6,19 +6,27 @@ import {
   Typography,
   CircularProgress,
   Alert,
-  Link,
   IconButton,
   InputAdornment,
-  Divider,
+  Paper,
 } from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import {
+  Visibility,
+  VisibilityOff,
+  EmailOutlined,
+  LockOutlined,
+  LockOpenOutlined,
+} from "@mui/icons-material";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { setAuth } from "../utils/auth";
 import { authenticateWithPasskey, isPasskeySupported } from "../utils/passkeys";
 
+const ORANGE = "#f57c00";
+
 const Login = ({ theme }) => {
+  const dark = theme === "dark";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -36,15 +44,9 @@ const Login = ({ theme }) => {
       const response = await axios.post(
         "https://docuthinker-app-backend-api.vercel.app/login",
         { email, password },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
-        },
+        { headers: { "Content-Type": "application/json" } },
       );
-
       setLoading(false);
-
       const { customToken, userId } = response.data;
       setAuth(customToken, userId);
       navigate("/home");
@@ -74,8 +76,24 @@ const Login = ({ theme }) => {
     }
   };
 
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword((prev) => !prev);
+  const fieldSx = {
+    mb: 2,
+    "& .MuiOutlinedInput-root": {
+      borderRadius: "12px",
+      bgcolor: dark ? "#262626" : "#fafafa",
+      "& fieldset": { borderColor: dark ? "#444" : "#e3e3e3" },
+      "&:hover fieldset": { borderColor: ORANGE },
+      "&.Mui-focused fieldset": { borderColor: ORANGE },
+    },
+    "& input": {
+      fontFamily: "Poppins, sans-serif",
+      color: dark ? "#fff" : "#1a1a1a",
+    },
+    "& label": {
+      fontFamily: "Poppins, sans-serif",
+      color: dark ? "#aaa" : "#777",
+    },
+    "& label.Mui-focused": { color: ORANGE },
   };
 
   return (
@@ -84,240 +102,269 @@ const Login = ({ theme }) => {
         minHeight: "100vh",
         display: "flex",
         justifyContent: "center",
-        alignItems: "flex-start",
-        paddingTop: "3rem",
-        backgroundColor: theme === "dark" ? "#1e1e1e" : "#f5f5f5",
+        alignItems: "center",
+        px: 2,
+        py: 5,
+        backgroundColor: dark ? "#1e1e1e" : "#f5f5f5",
+        fontFamily: "Poppins, sans-serif",
         transition: "background-color 0.3s ease",
       }}
     >
-      <Box
+      <Paper
+        elevation={0}
         sx={{
-          maxWidth: "400px",
           width: "100%",
-          padding: "2rem",
-          borderRadius: "12px",
-          boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
-          backgroundColor: theme === "dark" ? "#333" : "white",
-          color: theme === "dark" ? "white" : "black",
-          transition: "background-color 0.3s ease, color 0.3s ease",
+          maxWidth: "430px",
+          borderRadius: "22px",
+          overflow: "hidden",
+          bgcolor: dark ? "#222" : "#fff",
+          border: dark ? "1px solid #333" : "1px solid #ececec",
+          boxShadow: dark
+            ? "0 20px 60px rgba(0,0,0,0.45)"
+            : "0 20px 60px rgba(0,0,0,0.1)",
         }}
       >
-        <Typography
-          variant="h4"
+        <Box
           sx={{
-            marginBottom: "1.5rem",
-            textAlign: "center",
-            color: "#f57c00",
-            font: "inherit",
-            fontWeight: 600,
-            fontSize: "30px",
+            height: 6,
+            background: "linear-gradient(90deg,#ff8a00,#f57c00,#ffb74d)",
           }}
-        >
-          Login
-        </Typography>
-
-        {/* Error Alert */}
-        {error && (
-          <Alert
-            severity="error"
-            sx={{
-              marginBottom: "1.5rem",
-              font: "inherit",
-              textAlign: "center",
-            }}
-          >
-            {error}
-          </Alert>
-        )}
-
-        {/* Form */}
-        <form onSubmit={handleLogin}>
-          {/* Email Input */}
-          <TextField
-            label="Email"
-            type="email"
-            fullWidth
-            required
-            sx={{
-              marginBottom: "1.5rem",
-              backgroundColor: theme === "dark" ? "#555" : "#fff",
-              color: theme === "dark" ? "white" : "black",
-              borderRadius: "8px",
-              font: "inherit",
-            }}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            inputProps={{
-              style: {
-                fontFamily: "Poppins, sans-serif",
-                color: theme === "dark" ? "white" : "black",
-              },
-            }}
-            InputLabelProps={{
-              style: {
-                fontFamily: "Poppins, sans-serif",
-                color: theme === "dark" ? "white" : "black",
-              },
-            }}
-          />
-
-          {/* Password Input */}
-          <TextField
-            label="Password"
-            type={showPassword ? "text" : "password"}
-            fullWidth
-            required
-            sx={{
-              marginBottom: "1.5rem",
-              backgroundColor: theme === "dark" ? "#555" : "#fff",
-              borderRadius: "8px",
-              font: "inherit",
-            }}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    aria-label="toggle password visibility"
-                    onClick={handleTogglePasswordVisibility}
-                    edge="end"
-                    sx={{ color: theme === "dark" ? "white" : "#333" }}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-              style: {
-                fontFamily: "Poppins, sans-serif",
-                color: theme === "dark" ? "white" : "black",
-              },
-            }}
-            InputLabelProps={{
-              style: {
-                fontFamily: "Poppins, sans-serif",
-                color: theme === "dark" ? "white" : "black",
-              },
-            }}
-          />
-
-          {/* Login Button */}
-          <Button
-            type="submit"
-            variant="contained"
-            fullWidth
-            sx={{
-              backgroundColor: "#f57c00",
-              color: "white",
-              font: "inherit",
-              padding: "0.75rem",
-              "&:hover": {
-                backgroundColor: "#e68900",
-              },
-            }}
-            disabled={loading}
-          >
-            {loading ? (
-              <CircularProgress size={24} sx={{ color: "white" }} />
-            ) : (
-              "Login"
-            )}
-          </Button>
-        </form>
-
-        {/* Passkey sign-in */}
-        {passkeySupported && (
-          <>
-            <Divider
+        />
+        <Box sx={{ p: { xs: 3, sm: 4.5 } }}>
+          {/* Hero */}
+          <Box sx={{ textAlign: "center", mb: 3 }}>
+            <Box
               sx={{
-                my: "1.5rem",
+                width: 58,
+                height: 58,
+                borderRadius: "16px",
+                mx: "auto",
+                mb: 1.5,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#fff",
+                background: "linear-gradient(135deg,#ff8a00,#f57c00)",
+                boxShadow: "0 10px 22px rgba(245,124,0,0.4)",
+              }}
+            >
+              <LockOpenOutlined sx={{ fontSize: 28 }} />
+            </Box>
+            <Typography
+              sx={{
+                font: "inherit",
+                fontWeight: 700,
+                fontSize: "26px",
+                color: dark ? "#fff" : "#1a1a1a",
+              }}
+            >
+              Welcome back
+            </Typography>
+            <Typography
+              sx={{
                 font: "inherit",
                 fontSize: "13px",
-                color: theme === "dark" ? "#aaa" : "#999",
-                "&::before, &::after": {
-                  borderColor: theme === "dark" ? "#555" : "#ddd",
-                },
+                color: dark ? "#aaa" : "#777",
+                mt: 0.5,
               }}
             >
-              or
-            </Divider>
+              Sign in to access your documents and summaries.
+            </Typography>
+          </Box>
+
+          {error && (
+            <Alert
+              severity="error"
+              sx={{ mb: 2.5, font: "inherit", borderRadius: "10px" }}
+            >
+              {error}
+            </Alert>
+          )}
+
+          <form onSubmit={handleLogin}>
+            <TextField
+              label="Email"
+              type="email"
+              fullWidth
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              sx={fieldSx}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <EmailOutlined
+                      sx={{ color: dark ? "#888" : "#999", fontSize: 20 }}
+                    />
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <TextField
+              label="Password"
+              type={showPassword ? "text" : "password"}
+              fullWidth
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              sx={{ ...fieldSx, mb: 2.5 }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <LockOutlined
+                      sx={{ color: dark ? "#888" : "#999", fontSize: 20 }}
+                    />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={() => setShowPassword((p) => !p)}
+                      edge="end"
+                      sx={{ color: dark ? "#aaa" : "#777" }}
+                    >
+                      {showPassword ? <VisibilityOff /> : <Visibility />}
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
 
             <Button
-              type="button"
+              type="submit"
+              variant="contained"
               fullWidth
-              variant="outlined"
-              onClick={handlePasskeyLogin}
-              disabled={passkeyLoading || loading}
-              startIcon={!passkeyLoading ? <FingerprintIcon /> : null}
+              disabled={loading}
               sx={{
-                borderColor: "#f57c00",
-                color: "#f57c00",
+                bgcolor: ORANGE,
+                color: "white",
                 font: "inherit",
                 fontWeight: 600,
+                fontSize: "15px",
                 textTransform: "none",
-                padding: "0.7rem",
-                borderRadius: "8px",
-                "&:hover": {
-                  borderColor: "#e65100",
-                  bgcolor: "rgba(245,124,0,0.08)",
-                },
+                borderRadius: "12px",
+                py: 1.25,
+                boxShadow: "0 8px 20px rgba(245,124,0,0.32)",
+                "&:hover": { bgcolor: "#e65100" },
               }}
             >
-              {passkeyLoading ? (
-                <CircularProgress size={22} sx={{ color: "#f57c00" }} />
+              {loading ? (
+                <CircularProgress size={24} sx={{ color: "white" }} />
               ) : (
-                "Sign in with a passkey"
+                "Sign In"
               )}
             </Button>
-          </>
-        )}
+          </form>
 
-        {/* Forgot Password Link */}
-        <Box
-          sx={{ marginTop: "1.5rem", textAlign: "center", color: "#f57c00" }}
-        >
-          <Link
-            component="button"
-            variant="body2"
-            sx={{
-              color: "#f57c00",
-              cursor: "pointer",
-              textDecoration: "none",
-              font: "inherit",
-              "&:hover": {
-                textDecoration: "underline",
-                backgroundColor: "transparent",
-              },
-            }}
-            onClick={() => navigate("/forgot-password")}
-          >
-            Forgot Password?
-          </Link>
-        </Box>
+          {passkeySupported && (
+            <>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                  my: 2.5,
+                }}
+              >
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: "1px",
+                    bgcolor: dark ? "#333" : "#eee",
+                  }}
+                />
+                <Typography
+                  sx={{
+                    font: "inherit",
+                    fontSize: "12px",
+                    color: dark ? "#888" : "#aaa",
+                  }}
+                >
+                  or
+                </Typography>
+                <Box
+                  sx={{
+                    flex: 1,
+                    height: "1px",
+                    bgcolor: dark ? "#333" : "#eee",
+                  }}
+                />
+              </Box>
 
-        {/* Register Link */}
-        <Box
-          sx={{ marginTop: "1.5rem", textAlign: "center", color: "#f57c00" }}
-        >
-          <Link
-            component="button"
-            variant="body2"
+              <Button
+                type="button"
+                fullWidth
+                variant="outlined"
+                onClick={handlePasskeyLogin}
+                disabled={passkeyLoading || loading}
+                startIcon={!passkeyLoading ? <FingerprintIcon /> : null}
+                sx={{
+                  borderColor: ORANGE,
+                  color: ORANGE,
+                  font: "inherit",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  py: 1.1,
+                  borderRadius: "12px",
+                  "&:hover": {
+                    borderColor: "#e65100",
+                    bgcolor: "rgba(245,124,0,0.08)",
+                  },
+                }}
+              >
+                {passkeyLoading ? (
+                  <CircularProgress size={22} sx={{ color: ORANGE }} />
+                ) : (
+                  "Sign in with a passkey"
+                )}
+              </Button>
+            </>
+          )}
+
+          <Box
             sx={{
-              color: "#f57c00",
-              cursor: "pointer",
-              textDecoration: "none",
-              font: "inherit",
-              "&:hover": {
-                textDecoration: "underline",
-                backgroundColor: "transparent",
-              },
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mt: 3,
+              flexWrap: "wrap",
+              gap: 1,
             }}
-            onClick={() => navigate("/register")}
           >
-            Don't have an account? Register
-          </Link>
+            <Box
+              component="span"
+              onClick={() => navigate("/forgot-password")}
+              sx={{
+                font: "inherit",
+                fontSize: "13px",
+                fontWeight: 600,
+                color: ORANGE,
+                cursor: "pointer",
+                textDecoration: "underline",
+                textUnderlineOffset: "3px",
+                "&:hover": { color: "#e65100" },
+              }}
+            >
+              Forgot password?
+            </Box>
+            <Box
+              component="span"
+              onClick={() => navigate("/register")}
+              sx={{
+                font: "inherit",
+                fontSize: "13px",
+                color: ORANGE,
+                fontWeight: 600,
+                cursor: "pointer",
+                "&:hover": { textDecoration: "underline" },
+              }}
+            >
+              Create an account
+            </Box>
+          </Box>
         </Box>
-      </Box>
+      </Paper>
     </Box>
   );
 };
