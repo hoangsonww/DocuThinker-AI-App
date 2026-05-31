@@ -6,64 +6,78 @@ const DOCUTHINKER_URL = "https://docuthinker.vercel.app/home";
 const COMMAND_ID = "docuthinkerViewer.openPanel";
 const VIEW_ID = "docuthinkerViewer.home";
 function activate(context) {
-    const openPanel = () => {
-        const config = vscode.workspace.getConfiguration("docuthinkerViewer");
-        const panelTitle = config.get("panelTitle", "DocuThinker Viewer");
-        const viewColumnNum = config.get("viewColumn", 1);
-        const retainContext = config.get("retainContext", true);
-        const enableScripts = config.get("enableScripts", true);
-        const iframeWidth = config.get("iframeWidth", "100%");
-        const iframeHeight = config.get("iframeHeight", "100%");
-        let column;
-        switch (viewColumnNum) {
-            case 1:
-                column = vscode.ViewColumn.One;
-                break;
-            case 2:
-                column = vscode.ViewColumn.Two;
-                break;
-            case 3:
-                column = vscode.ViewColumn.Three;
-                break;
-            default:
-                column = vscode.ViewColumn.Active;
-        }
-        const panel = vscode.window.createWebviewPanel("docuthinkerViewer", panelTitle, column, {
-            enableScripts,
-            retainContextWhenHidden: retainContext,
-        });
-        panel.webview.html = getAppWebviewContent(iframeWidth, iframeHeight);
-    };
-    const provider = new DocuThinkerViewProvider(openPanel);
-    context.subscriptions.push(vscode.window.registerWebviewViewProvider(VIEW_ID, provider, {
-        webviewOptions: { retainContextWhenHidden: true },
-    }));
-    context.subscriptions.push(vscode.commands.registerCommand(COMMAND_ID, openPanel));
-    if (vscode.workspace
-        .getConfiguration("docuthinkerViewer")
-        .get("openOnStartup", false)) {
-        openPanel();
+  const openPanel = () => {
+    const config = vscode.workspace.getConfiguration("docuthinkerViewer");
+    const panelTitle = config.get("panelTitle", "DocuThinker Viewer");
+    const viewColumnNum = config.get("viewColumn", 1);
+    const retainContext = config.get("retainContext", true);
+    const enableScripts = config.get("enableScripts", true);
+    const iframeWidth = config.get("iframeWidth", "100%");
+    const iframeHeight = config.get("iframeHeight", "100%");
+    let column;
+    switch (viewColumnNum) {
+      case 1:
+        column = vscode.ViewColumn.One;
+        break;
+      case 2:
+        column = vscode.ViewColumn.Two;
+        break;
+      case 3:
+        column = vscode.ViewColumn.Three;
+        break;
+      default:
+        column = vscode.ViewColumn.Active;
     }
+    const panel = vscode.window.createWebviewPanel(
+      "docuthinkerViewer",
+      panelTitle,
+      column,
+      {
+        enableScripts,
+        retainContextWhenHidden: retainContext,
+      },
+    );
+    panel.webview.html = getAppWebviewContent(iframeWidth, iframeHeight);
+  };
+  const provider = new DocuThinkerViewProvider(openPanel);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider(VIEW_ID, provider, {
+      webviewOptions: { retainContextWhenHidden: true },
+    }),
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand(COMMAND_ID, openPanel),
+  );
+  if (
+    vscode.workspace
+      .getConfiguration("docuthinkerViewer")
+      .get("openOnStartup", false)
+  ) {
+    openPanel();
+  }
 }
 exports.activate = activate;
-function deactivate() { }
+function deactivate() {}
 exports.deactivate = deactivate;
 class DocuThinkerViewProvider {
-    constructor(openPanel) {
-        this.openPanel = openPanel;
-    }
-    resolveWebviewView(webviewView) {
-        webviewView.webview.options = { enableScripts: true };
-        webviewView.webview.html = getSidebarContent();
-        webviewView.webview.onDidReceiveMessage((message) => {
-            if ((message === null || message === void 0 ? void 0 : message.command) === "openDocuThinker") {
-                this.openPanel();
-            }
-        });
-    }
+  constructor(openPanel) {
+    this.openPanel = openPanel;
+  }
+  resolveWebviewView(webviewView) {
+    webviewView.webview.options = { enableScripts: true };
+    webviewView.webview.html = getSidebarContent();
+    webviewView.webview.onDidReceiveMessage((message) => {
+      if (
+        (message === null || message === void 0 ? void 0 : message.command) ===
+        "openDocuThinker"
+      ) {
+        this.openPanel();
+      }
+    });
+  }
 }
 function getAppWebviewContent(width, height) {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -90,7 +104,7 @@ function getAppWebviewContent(width, height) {
 </html>`;
 }
 function getSidebarContent() {
-    return `<!DOCTYPE html>
+  return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
