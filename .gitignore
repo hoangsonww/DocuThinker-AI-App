@@ -50,3 +50,6 @@ next-env.d.ts
 
 # playwright MCP
 /frontend/.playwright-mcp
+
+# backend cov
+/backend/coverage

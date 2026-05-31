@@ -1,14 +1,22 @@
 const { uploadDocument } = require("../controllers/controllers");
-const { firestore, generateSummary } = require("../services/services");
-const firebaseAdmin = require("firebase-admin");
+const {
+  firestore,
+  generateSummary,
+  storeDocumentContent,
+  getDocumentFileUrl,
+} = require("../services/services");
 const { sendSuccessResponse, sendErrorResponse } = require("../views/views");
 
 jest.mock("../services/services", () => ({
   firestore: { collection: jest.fn() },
   generateSummary: jest.fn(),
+  storeDocumentContent: jest.fn(),
+  getDocumentFileUrl: jest.fn(),
 }));
 jest.mock("firebase-admin", () => ({
-  firestore: { FieldValue: { arrayUnion: (x) => x } },
+  firestore: {
+    FieldValue: { serverTimestamp: () => "TS", arrayUnion: (x) => x },
+  },
 }));
 jest.mock("../views/views", () => ({
   sendSuccessResponse: jest.fn(),
@@ -16,16 +24,26 @@ jest.mock("../views/views", () => ({
 }));
 
 describe("uploadDocument", () => {
-  let req, res, fakeUserRef, fakeDocSnapshot;
+  let req, res, fakeUserRef, fakeDocSetRef, fakeDocsCollection;
 
   beforeEach(() => {
     sendSuccessResponse.mockClear();
     sendErrorResponse.mockClear();
+    generateSummary.mockReset();
+    storeDocumentContent.mockReset();
+    getDocumentFileUrl.mockReset();
+
+    // The per-document ref the controller writes the record to.
+    fakeDocSetRef = { set: jest.fn().mockResolvedValue() };
+    // userRef.collection("documents").doc(docId) -> fakeDocSetRef
+    fakeDocsCollection = { doc: jest.fn(() => fakeDocSetRef) };
     fakeUserRef = {
+      id: "DOC123",
       get: jest.fn(),
-      update: jest.fn(),
+      collection: jest.fn(() => fakeDocsCollection),
     };
-    fakeDocSnapshot = { exists: true };
+    // firestore.collection("users").doc(...) -> fakeUserRef (also used arg-less
+    // to mint a docId via .id).
     firestore.collection.mockReturnValue({
       doc: jest.fn(() => fakeUserRef),
     });
@@ -42,7 +60,7 @@ describe("uploadDocument", () => {
     );
   });
 
-  it("succeeds and updates Firestore when userId provided", async () => {
+  it("succeeds and writes to the documents subcollection when userId provided", async () => {
     req = {
       body: {
         userId: ["UID1"],
@@ -55,21 +73,30 @@ describe("uploadDocument", () => {
       originalText: "long text",
       summary: "short",
     });
+    storeDocumentContent.mockResolvedValue("users/UID1/DOC123.json");
+    getDocumentFileUrl.mockResolvedValue("");
     fakeUserRef.get.mockResolvedValue({ exists: true });
-    fakeUserRef.update.mockResolvedValue();
 
     await uploadDocument(req, res);
 
-    expect(generateSummary).toHaveBeenCalledWith("long text");
+    // Title is passed to the model as context alongside the text.
+    expect(generateSummary).toHaveBeenCalledWith("long text", "T");
     expect(fakeUserRef.get).toHaveBeenCalled();
-    expect(fakeUserRef.update).toHaveBeenCalledWith({
-      documents: expect.any(Object),
-    });
+    // Record is written to the per-user documents subcollection (not update()).
+    expect(fakeUserRef.collection).toHaveBeenCalledWith("documents");
+    expect(fakeDocSetRef.set).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: "T",
+        summary: "short",
+        contentPath: "users/UID1/DOC123.json",
+        createdAt: "TS",
+      }),
+    );
     expect(sendSuccessResponse).toHaveBeenCalledWith(
       res,
       200,
       "Document summarized",
-      { summary: "short", originalText: "long text" },
+      expect.objectContaining({ summary: "short", originalText: "long text" }),
     );
   });
 
