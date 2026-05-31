@@ -2,69 +2,80 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
 const vscode = require("vscode");
+const DOCUTHINKER_URL = "https://docuthinker.vercel.app/home";
+const COMMAND_ID = "docuthinkerViewer.openPanel";
+const VIEW_ID = "docuthinkerViewer.home";
 function activate(context) {
-  const commandId = "docuthinkerViewer.openPanel";
-  const openPanel = () => {
-    const config = vscode.workspace.getConfiguration("docuthinkerViewer");
-    const panelTitle = config.get("panelTitle", "DocuThinker Viewer");
-    const viewColumnNum = config.get("viewColumn", 1);
-    const retainContext = config.get("retainContext", true);
-    const enableScripts = config.get("enableScripts", true);
-    const iframeWidth = config.get("iframeWidth", "100%");
-    const iframeHeight = config.get("iframeHeight", "100%");
-    let column;
-    switch (viewColumnNum) {
-      case 1:
-        column = vscode.ViewColumn.One;
-        break;
-      case 2:
-        column = vscode.ViewColumn.Two;
-        break;
-      case 3:
-        column = vscode.ViewColumn.Three;
-        break;
-      default:
-        column = vscode.ViewColumn.Active;
+    const openPanel = () => {
+        const config = vscode.workspace.getConfiguration("docuthinkerViewer");
+        const panelTitle = config.get("panelTitle", "DocuThinker Viewer");
+        const viewColumnNum = config.get("viewColumn", 1);
+        const retainContext = config.get("retainContext", true);
+        const enableScripts = config.get("enableScripts", true);
+        const iframeWidth = config.get("iframeWidth", "100%");
+        const iframeHeight = config.get("iframeHeight", "100%");
+        let column;
+        switch (viewColumnNum) {
+            case 1:
+                column = vscode.ViewColumn.One;
+                break;
+            case 2:
+                column = vscode.ViewColumn.Two;
+                break;
+            case 3:
+                column = vscode.ViewColumn.Three;
+                break;
+            default:
+                column = vscode.ViewColumn.Active;
+        }
+        const panel = vscode.window.createWebviewPanel("docuthinkerViewer", panelTitle, column, {
+            enableScripts,
+            retainContextWhenHidden: retainContext,
+        });
+        panel.webview.html = getAppWebviewContent(iframeWidth, iframeHeight);
+    };
+    const provider = new DocuThinkerViewProvider(openPanel);
+    context.subscriptions.push(vscode.window.registerWebviewViewProvider(VIEW_ID, provider, {
+        webviewOptions: { retainContextWhenHidden: true },
+    }));
+    context.subscriptions.push(vscode.commands.registerCommand(COMMAND_ID, openPanel));
+    if (vscode.workspace
+        .getConfiguration("docuthinkerViewer")
+        .get("openOnStartup", false)) {
+        openPanel();
     }
-    const panel = vscode.window.createWebviewPanel(
-      "docuthinkerViewer",
-      panelTitle,
-      column,
-      {
-        enableScripts,
-        retainContextWhenHidden: retainContext,
-      },
-    );
-    panel.webview.html = getWebviewContent(iframeWidth, iframeHeight);
-  };
-  context.subscriptions.push(
-    vscode.commands.registerCommand(commandId, openPanel),
-  );
-  if (
-    vscode.workspace
-      .getConfiguration("docuthinkerViewer")
-      .get("openOnStartup", false)
-  ) {
-    openPanel();
-  }
 }
 exports.activate = activate;
-function deactivate() {}
+function deactivate() { }
 exports.deactivate = deactivate;
-function getWebviewContent(width, height) {
-  const url = "https://docuthinker.vercel.app/home";
-  return `<!DOCTYPE html>
+class DocuThinkerViewProvider {
+    constructor(openPanel) {
+        this.openPanel = openPanel;
+    }
+    resolveWebviewView(webviewView) {
+        webviewView.webview.options = { enableScripts: true };
+        webviewView.webview.html = getSidebarContent();
+        webviewView.webview.onDidReceiveMessage((message) => {
+            if ((message === null || message === void 0 ? void 0 : message.command) === "openDocuThinker") {
+                this.openPanel();
+            }
+        });
+    }
+}
+function getAppWebviewContent(width, height) {
+    return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; frame-src ${url}; style-src 'unsafe-inline';">
+        content="default-src 'none'; frame-src ${DOCUTHINKER_URL}; style-src 'unsafe-inline';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>DocuThinker Viewer</title>
   <style>
     html, body {
       margin: 0; padding: 0;
       width: 100%; height: 100%; overflow: hidden;
+      background: #ffffff;
     }
     iframe {
       border: none;
@@ -74,7 +85,77 @@ function getWebviewContent(width, height) {
   </style>
 </head>
 <body>
-  <iframe src="${url}"></iframe>
+  <iframe title="DocuThinker" src="${DOCUTHINKER_URL}"></iframe>
+</body>
+</html>`;
+}
+function getSidebarContent() {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline';">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DocuThinker</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 18px 14px;
+      color: var(--vscode-foreground);
+      background: var(--vscode-sideBar-background);
+      font-family: var(--vscode-font-family);
+      font-size: var(--vscode-font-size);
+    }
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    h2 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--vscode-sideBarTitle-foreground);
+    }
+    p {
+      margin: 0;
+      line-height: 1.45;
+      color: var(--vscode-descriptionForeground);
+    }
+    button {
+      width: 100%;
+      border: 0;
+      border-radius: 4px;
+      padding: 9px 10px;
+      color: var(--vscode-button-foreground);
+      background: var(--vscode-button-background);
+      font: inherit;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    button:hover {
+      background: var(--vscode-button-hoverBackground);
+    }
+    .meta {
+      padding-top: 2px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h2>DocuThinker Viewer</h2>
+    <p>Analyze documents with summaries, bullet points, sentiment, analytics, chat, rewrite, translation, and voice responses.</p>
+    <button id="open" type="button">Open DocuThinker Workspace</button>
+    <p class="meta">The workspace opens in an editor panel so uploads and results have enough room.</p>
+  </main>
+  <script>
+    const vscode = acquireVsCodeApi();
+    document.getElementById("open").addEventListener("click", () => {
+      vscode.postMessage({ command: "openDocuThinker" });
+    });
+  </script>
 </body>
 </html>`;
 }

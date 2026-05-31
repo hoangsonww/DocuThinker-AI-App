@@ -155,30 +155,49 @@ const LandingPage = () => {
   const sectionSpacing = { xs: 6, md: 10 };
 
   const metrics = [
-    { label: "Supported files", value: "PDF / DOCX" },
-    { label: "Import option", value: "Google Drive" },
-    { label: "Summary modes", value: "Standard + bullet" },
+    { label: "Files", value: "PDF, Word, text" },
+    { label: "Data", value: "CSV, JSON, code" },
+    { label: "Workspace", value: "Summary + chat" },
     { label: "Analysis tools", value: "Sentiment + stats" },
   ];
 
   const heroHighlights = [
-    "PDF / DOCX upload",
+    "PDF + Word upload",
+    "Markdown + HTML",
+    "CSV / TSV tables",
+    "JSON + code files",
     "Google Drive import",
-    "AI summary",
-    "Bullet summary",
+    "Plain text + logs",
+    "AI summaries",
+    "Bullet points",
     "Sentiment analysis",
     "Document analytics",
-    "Chat with selected text",
-    "Voice chat (audio)",
+    "Document chat",
+    "Voice responses",
     "Rewrite content",
     "Translate summary",
+  ];
+
+  const heroWorkspaceItems = [
+    {
+      title: "Import",
+      icon: <CloudUpload />,
+    },
+    {
+      title: "Understand",
+      icon: <Insights />,
+    },
+    {
+      title: "Act",
+      icon: <Bolt />,
+    },
   ];
 
   const spotlights = [
     {
       title: "Instant summaries",
       description:
-        "Generate a clean summary and a bullet-point summary from any PDF or DOCX.",
+        "Generate a clean summary and a bullet-point summary from supported documents, tables, and text files.",
       points: [
         "Standard summary",
         "Bullet-point summary",
@@ -228,8 +247,9 @@ const LandingPage = () => {
 
   const features = [
     {
-      title: "Upload PDF / DOCX",
-      description: "Upload from your device or pick a file from Google Drive.",
+      title: "Upload more than PDFs",
+      description:
+        "Upload PDF, Word, Markdown, HTML, CSV/TSV, JSON, text, logs, and code/config files.",
       icon: <CloudUpload />,
     },
     {
@@ -279,7 +299,7 @@ const LandingPage = () => {
     {
       title: "Upload",
       description:
-        "Upload PDF/DOCX from your device or import from Google Drive.",
+        "Upload documents, tables, text, or code from your device, or import supported files from Google Drive.",
       icon: <CloudUpload />,
     },
     {
@@ -370,7 +390,8 @@ const LandingPage = () => {
   const faqs = [
     {
       title: "What file types are supported?",
-      description: "PDF and DOCX files are supported for document uploads.",
+      description:
+        "Uploads support PDF, Word (.docx), Markdown, HTML, CSV/TSV, JSON, plain text, logs, XML/YAML, and common code/config files.",
     },
     {
       title: "Can I import from Google Drive?",
@@ -399,10 +420,18 @@ const LandingPage = () => {
 
   const integrations = [
     "PDF",
-    "DOCX",
-    "Google Drive import",
+    "Word (.docx)",
+    "Markdown",
+    "HTML",
+    "CSV / TSV",
+    "JSON",
+    "Plain text",
+    "Logs",
+    "XML / YAML",
+    "Code files",
+    "Google Drive",
     "Audio upload",
-    "Audio recording",
+    "Voice recording",
   ];
 
   useEffect(() => {
@@ -553,7 +582,7 @@ const LandingPage = () => {
                 className="reveal"
               >
                 <Chip
-                  label="DocuThinker AI Platform"
+                  label="AI document workspace"
                   sx={{
                     mb: 2,
                     fontWeight: 600,
@@ -574,7 +603,7 @@ const LandingPage = () => {
                     textAlign: "center",
                   }}
                 >
-                  Turn dense documents into clear, actionable decisions.
+                  Understand more file types in one AI workspace.
                 </Typography>
                 <Typography
                   variant="h6"
@@ -587,9 +616,9 @@ const LandingPage = () => {
                     textAlign: "center",
                   }}
                 >
-                  DocuThinker turns your documents into summaries, bullet
-                  points, analytics, and chat or voice responses you can use
-                  right away.
+                  Upload PDFs, Word docs, Markdown, HTML, CSV/TSV, JSON, text,
+                  logs, and code files, then summarize, analyze, chat, rewrite,
+                  translate, or use voice responses without leaving the page.
                 </Typography>
                 <Stack
                   direction={{ xs: "column", sm: "row" }}
@@ -665,7 +694,8 @@ const LandingPage = () => {
             <Grid item xs={12} md={6}>
               <Box
                 sx={{
-                  backgroundColor: palette.surface,
+                  background:
+                    "linear-gradient(145deg, #ffffff 0%, #fff7ee 54%, #ffffff 100%)",
                   borderRadius: 4,
                   p: { xs: 2, sm: 3 },
                   boxShadow: palette.shadow,
@@ -701,14 +731,59 @@ const LandingPage = () => {
                     variant="subtitle1"
                     sx={{
                       font: "inherit",
-                      fontWeight: 600,
-                      color: palette.textSecondary,
+                      fontWeight: 700,
+                      color: palette.textPrimary,
                       wordBreak: "break-word",
                       overflowWrap: "anywhere",
                     }}
                   >
-                    Live insight workspace
+                    AI workspace
                   </Typography>
+                  <Grid container spacing={1.5}>
+                    {heroWorkspaceItems.map((item) => (
+                      <Grid item xs={12} sm={4} key={item.title}>
+                        <Box
+                          sx={{
+                            height: "100%",
+                            p: 1.5,
+                            borderRadius: 2,
+                            backgroundColor: palette.surface,
+                            border: `1px solid ${palette.border}`,
+                            boxShadow: "0 8px 18px rgba(20, 12, 4, 0.06)",
+                          }}
+                        >
+                          <Stack
+                            direction={{ xs: "row", sm: "column" }}
+                            spacing={1}
+                            alignItems={{ xs: "center", sm: "flex-start" }}
+                          >
+                            <Avatar
+                              sx={{
+                                width: 34,
+                                height: 34,
+                                bgcolor: palette.accentSoft,
+                                color: palette.accent,
+                              }}
+                            >
+                              {React.cloneElement(item.icon, {
+                                fontSize: "small",
+                              })}
+                            </Avatar>
+                            <Typography
+                              variant="subtitle2"
+                              sx={{
+                                font: "inherit",
+                                fontWeight: 700,
+                                color: palette.textPrimary,
+                              }}
+                            >
+                              {item.title}
+                            </Typography>
+                          </Stack>
+                        </Box>
+                      </Grid>
+                    ))}
+                  </Grid>
                   <Box
                     sx={{
                       p: 2,
@@ -728,7 +803,7 @@ const LandingPage = () => {
                         overflowWrap: "anywhere",
                       }}
                     >
-                      Summary workspace
+                      One connected view
                     </Typography>
                     <Typography
                       variant="body2"
@@ -740,8 +815,8 @@ const LandingPage = () => {
                         overflowWrap: "anywhere",
                       }}
                     >
-                      Standard summary, bullet points, sentiment, and analytics
-                      in one view.
+                      Summaries, bullets, analytics, chat, rewrite, translation,
+                      and voice stay with the same document.
                     </Typography>
                     <Divider sx={{ borderColor: palette.border }} />
                     <Grid container spacing={2} sx={{ mt: 1 }}>
@@ -777,21 +852,41 @@ const LandingPage = () => {
                       >
                         <Box
                           sx={{
-                            p: 2,
+                            height: "100%",
+                            p: { xs: 2.25, sm: 2.5 },
                             borderRadius: 2,
-                            backgroundColor: palette.surface,
-                            border: `1px solid ${palette.border}`,
+                            background:
+                              "linear-gradient(180deg, #ffffff 0%, #fffaf4 100%)",
+                            border: `1px solid ${palette.accentSoft}`,
+                            boxShadow: "0 14px 30px rgba(20, 12, 4, 0.08)",
                             minWidth: 0,
+                            transition:
+                              "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
+                            "&:hover": {
+                              transform: "translateY(-3px)",
+                              borderColor: "rgba(245, 124, 0, 0.35)",
+                              boxShadow: "0 18px 36px rgba(20, 12, 4, 0.12)",
+                            },
                           }}
                         >
                           <Stack
-                            direction={{ xs: "column", sm: "row" }}
-                            spacing={2}
-                            alignItems={{ xs: "flex-start", sm: "center" }}
-                            sx={{ minWidth: 0 }}
+                            spacing={1.5}
+                            alignItems="center"
+                            textAlign="center"
+                            sx={{ minWidth: 0, height: "100%" }}
                           >
                             <Avatar
-                              sx={{ bgcolor: palette.accent, color: "white" }}
+                              sx={{
+                                width: 52,
+                                height: 52,
+                                bgcolor: palette.accent,
+                                color: "white",
+                                boxShadow:
+                                  "0 10px 22px rgba(245, 124, 0, 0.28)",
+                                "& .MuiSvgIcon-root": {
+                                  fontSize: "1.65rem",
+                                },
+                              }}
                             >
                               <Icon />
                             </Avatar>
@@ -800,28 +895,32 @@ const LandingPage = () => {
                                 variant="subtitle2"
                                 sx={{
                                   font: "inherit",
-                                  fontWeight: 600,
+                                  fontWeight: 700,
                                   color: palette.textPrimary,
+                                  fontSize: "1rem",
+                                  lineHeight: 1.25,
+                                  mb: 0.65,
                                   wordBreak: "break-word",
                                   overflowWrap: "anywhere",
                                 }}
                               >
                                 {index === 0
-                                  ? "Read-only Google Drive"
-                                  : "Saved for signed-in users"}
+                                  ? "Drive import"
+                                  : "Signed-in access"}
                               </Typography>
                               <Typography
                                 variant="body2"
                                 sx={{
                                   font: "inherit",
                                   color: palette.textSecondary,
+                                  lineHeight: 1.55,
                                   wordBreak: "break-word",
                                   overflowWrap: "anywhere",
                                 }}
                               >
                                 {index === 0
-                                  ? "Connect Drive to pick files with read-only access."
-                                  : "Documents may be stored for later access when signed in."}
+                                  ? "Read-only file picker."
+                                  : "Save documents for later."}
                               </Typography>
                             </Box>
                           </Stack>
@@ -1376,7 +1475,7 @@ const LandingPage = () => {
                             "Hard to refine or rewrite quickly",
                           ]
                         : [
-                            "Upload PDF/DOCX or import from Google Drive",
+                            "Upload documents, tables, text, or code files",
                             "Generate summary + bullet summary",
                             "Run sentiment analysis and document analytics",
                             "Chat, refine, rewrite, or use voice responses",
@@ -1433,8 +1532,9 @@ const LandingPage = () => {
             sx={{ ...sectionSubtitleSx, mb: 3, maxWidth: "720px", mx: "auto" }}
             className="reveal"
           >
-            Upload PDF/DOCX files or use Google Drive. Voice chat supports audio
-            upload or recording.
+            Upload documents, structured data, text, logs, and code/config
+            files. Google Drive supports PDF, Word, JSON, and text-based files;
+            voice chat supports audio upload or recording.
           </Typography>
           <Box
             sx={{
