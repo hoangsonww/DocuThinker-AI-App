@@ -35,6 +35,19 @@ const getStoredTheme = () => {
   return localStorage.getItem("theme") === "dark" ? "dark" : "light";
 };
 
+// Reset scroll to the top on every route change so a new page never starts
+// scrolled down to wherever the previous page was (the browser otherwise keeps
+// the prior scroll offset on client-side navigation).
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 // Custom hook to track page views
 function useTrackPageView() {
   const location = useLocation();
@@ -76,6 +89,7 @@ function App() {
   return (
     <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
       <Router>
+        <ScrollToTop />
         <Analytics />
         <GoogleAnalytics />
         <TrackPageView />
