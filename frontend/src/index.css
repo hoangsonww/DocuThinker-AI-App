@@ -1,4 +1,5 @@
 @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&display=swap");
 
 body {
   margin: 0;
@@ -54,4 +55,39 @@ code {
 .MuiButton-contained.Mui-disabled {
   color: #fff !important;
   background-color: rgba(245, 124, 0, 0.55) !important;
+}
+
+/* ---- App-wide page transitions ----
+ * Incoming pages rise up into view and fade in; outgoing pages descend and
+ * fade out. Orchestrated from App.js (AppLayout) so enter/exit stay in sync
+ * with route changes. Honored only when motion is allowed (the JS bypasses
+ * these classes entirely under prefers-reduced-motion). */
+.page-transition {
+  will-change: transform, opacity;
+}
+.page-transition.is-enter {
+  animation: pageEnter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.page-transition.is-exit {
+  animation: pageExit 0.55s cubic-bezier(0.55, 0, 0.68, 0.19) both;
+}
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0);
+  }
 }
