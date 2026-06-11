@@ -1964,8 +1964,9 @@ const LandingPage = () => {
                       mt: 1.5,
                       mb: 0.25,
                     },
-                    // Override the app-wide `button:hover` red with a subtle tint.
-                    "&:hover": { backgroundColor: palette.surfaceAlt },
+                    // No hover effect — neutralize the app-wide `button:hover`
+                    // red by keeping the background unchanged on hover.
+                    "&:hover": { backgroundColor: "transparent" },
                   }}
                 >
                   <Typography
