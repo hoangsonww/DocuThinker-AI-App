@@ -53,3 +53,6 @@ next-env.d.ts
 
 # backend cov
 /backend/coverage
+
+# playwright MCP (root)
+/.playwright-mcp
