@@ -155,6 +155,9 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   - **Material-UI (MUI) 6**: React component library for UI development.
   - **Tailwind CSS**: Utility-first CSS framework for rapid styling.
   - **Emotion**: CSS-in-JS styling engine (used by MUI).
+  - **Three.js**: WebGL 3D engine powering the landing page's procedural scene.
+  - **React Three Fiber (`@react-three/fiber`)**: React renderer for Three.js — declarative scene graph for the landing hero.
+  - **Drei (`@react-three/drei`)**: R3F helpers (`Float`, `RoundedBox`, `MeshDistortMaterial`, `Environment`, `Lightformer`, `Sparkles`) used to build the scene without binary assets.
   - **Axios**: Promise-based HTTP client for API requests.
   - **React Router DOM 6**: Declarative client-side routing.
   - **Context API**: Built-in React state management.
@@ -373,6 +376,8 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="https://img.shields.io/badge/Material--UI_6-0081CB?style=for-the-badge&logo=mui&logoColor=white" alt="Material UI" />
   <img src="https://img.shields.io/badge/TailwindCSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Emotion-DB7093?style=for-the-badge&logo=emotion&logoColor=white" alt="Emotion" />
+  <img src="https://img.shields.io/badge/Three.js-000000?style=for-the-badge&logo=threedotjs&logoColor=white" alt="Three.js" />
+  <img src="https://img.shields.io/badge/React_Three_Fiber-20232A?style=for-the-badge&logo=reactos&logoColor=61DAFB" alt="React Three Fiber" />
   <img src="https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white" alt="React Router" />
   <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white" alt="Axios" />
   <img src="https://img.shields.io/badge/Webpack-8DD6F9?style=for-the-badge&logo=webpack&logoColor=white" alt="Webpack" />
@@ -539,6 +544,8 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
 <p align="center">
   <img src="images/landing.png" alt="Landing Page" width="100%" style="border-radius: 8px">
 </p>
+
+The landing page is an interactive **3D experience** built with **Three.js** via **React Three Fiber** and **Drei**. A single full-page WebGL canvas sits behind the page and its camera dollies through the procedural scene as you scroll. It also degrades gracefully — honoring `prefers-reduced-motion` and falling back to a pure-CSS backdrop where WebGL isn't available.
 
 ### **Document Upload Page**
 
