@@ -545,15 +545,7 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="images/landing.png" alt="Landing Page" width="100%" style="border-radius: 8px">
 </p>
 
-The landing page is a fully interactive **3D experience** built with **Three.js** via **React Three Fiber** and **Drei**. A single full-page WebGL canvas sits behind the entire page (pinned with `position: sticky`) and its camera **dollies down through the scene as you scroll** — descending a vertical column of frosted-glass "document" panels that orbit a glowing AI core, framed at both the hero (top) and the closing CTA (bottom). The scene is **100% procedural**: every shape comes from primitive geometry, lighting is rendered into an in-memory cube via `<Lightformer>` panels (no `.hdr` files), and the particle field uses `<Sparkles>` — so there are **no binary 3D assets** to ship.
-
-It is also built to degrade gracefully:
-
-- **`prefers-reduced-motion`** freezes all animation and switches the render loop to on-demand.
-- **No WebGL / weak GPU** falls back to a pure-CSS warm-glow backdrop, and low-power devices (few cores / little memory) render a lighter scene (fewer panels, no shadows/antialias, lower DPR).
-- Scroll progress is tracked in a ref and read inside the render loop, so scrolling **never triggers React re-renders**.
-
-See [`frontend/src/components/three/HeroExperience.js`](frontend/src/components/three/HeroExperience.js) for the scene and [`frontend/src/pages/LandingPage.js`](frontend/src/pages/LandingPage.js) for how it is composed into the page.
+The landing page is an interactive **3D experience** built with **Three.js** via **React Three Fiber** and **Drei**. A single full-page WebGL canvas sits behind the page and its camera dollies through the procedural scene as you scroll. It also degrades gracefully — honoring `prefers-reduced-motion` and falling back to a pure-CSS backdrop where WebGL isn't available.
 
 ### **Document Upload Page**
 
