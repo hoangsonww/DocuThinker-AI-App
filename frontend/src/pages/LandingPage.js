@@ -324,7 +324,8 @@ const LandingPage = () => {
     },
     {
       title: "Refine or rewrite",
-      description: "Refine the summary or rewrite selected text in a new style.",
+      description:
+        "Refine the summary or rewrite selected text in a new style.",
       icon: <Tune />,
     },
     {
@@ -374,7 +375,8 @@ const LandingPage = () => {
     },
     {
       title: "Refine",
-      description: "Refine the summary or rewrite selected text in a new style.",
+      description:
+        "Refine the summary or rewrite selected text in a new style.",
       icon: <Bolt />,
     },
   ];
@@ -421,7 +423,8 @@ const LandingPage = () => {
     },
     {
       title: "Refine and rewrite",
-      description: "Refine the summary or rewrite selected text to a new style.",
+      description:
+        "Refine the summary or rewrite selected text to a new style.",
       icon: <Tune />,
     },
   ];
@@ -660,746 +663,759 @@ const LandingPage = () => {
           }}
         >
           {/* Center scrim so the headline reads over the glowing core */}
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            pointerEvents: "none",
-            background:
-              "radial-gradient(ellipse 130% 95% at 50% 44%, rgba(10,6,3,0.66) 0%, rgba(10,6,3,0.30) 38%, rgba(10,6,3,0) 72%)",
-          }}
-        />
-
-        {/* Slim brand bar (the global navbar is hidden on the landing route) */}
-        <Box sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 3 }}>
-          <Container
-            maxWidth="lg"
-            sx={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              py: { xs: 2.25, md: 3.25 },
-              px: { xs: 2, sm: 3 },
-            }}
-          >
-            <Stack direction="row" spacing={1.25} alignItems="center">
-              <Box
-                sx={{
-                  width: 32,
-                  height: 32,
-                  borderRadius: "9px",
-                  background: `linear-gradient(135deg, ${palette.accent}, #ffb066)`,
-                  boxShadow: "0 6px 18px rgba(245,124,0,0.5)",
-                  display: "grid",
-                  placeItems: "center",
-                  color: "#fff",
-                  "& .MuiSvgIcon-root": { fontSize: "1.15rem" },
-                }}
-                aria-hidden="true"
-              >
-                <AutoStories />
-              </Box>
-              <Typography
-                sx={{
-                  fontFamily: displayFont,
-                  fontWeight: 600,
-                  fontSize: "1.25rem",
-                  color: palette.heroText,
-                  letterSpacing: "-0.01em",
-                }}
-              >
-                DocuThinker
-              </Typography>
-            </Stack>
-            <Stack direction="row" spacing={1.5} alignItems="center">
-              <Button
-                component={Link}
-                to="/login"
-                sx={{
-                  display: { xs: "none", sm: "inline-flex" },
-                  font: "inherit",
-                  fontWeight: 500,
-                  color: palette.heroMuted,
-                  textTransform: "none",
-                  "&:hover": {
-                    color: palette.heroText,
-                    backgroundColor: "rgba(255,255,255,0.04)",
-                  },
-                }}
-              >
-                Log in
-              </Button>
-              <Button
-                component={Link}
-                to="/register"
-                variant="contained"
-                sx={{
-                  backgroundColor: palette.accent,
-                  font: "inherit",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  borderRadius: "999px",
-                  px: 2.5,
-                  boxShadow: "0 8px 22px rgba(245,124,0,0.4)",
-                  "&:hover": { backgroundColor: palette.accentDark },
-                }}
-              >
-                Get Started
-              </Button>
-            </Stack>
-          </Container>
-        </Box>
-
-        {/* Hero content */}
-        <Container
-          maxWidth="lg"
-          sx={{
-            position: "relative",
-            zIndex: 2,
-            px: { xs: 2, sm: 3 },
-            py: { xs: 12, md: 6 },
-            textAlign: "center",
-          }}
-        >
-          <Box
-            sx={{
-              maxWidth: 920,
-              mx: "auto",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              animation: reduceMotion ? "none" : `${slideUp} 0.9s ease-out both`,
-            }}
-          >
-            <Chip
-              label="AI document workspace"
-              icon={<AutoAwesome sx={{ fontSize: "1rem !important" }} />}
-              sx={{
-                mb: 3,
-                fontWeight: 600,
-                font: "inherit",
-                color: "#ffd9a8",
-                backgroundColor: palette.heroGlass,
-                border: `1px solid ${palette.heroGlassBorder}`,
-                backdropFilter: "blur(8px)",
-                "& .MuiChip-icon": { color: "#ffb066" },
-              }}
-            />
-            <Typography
-              component="h1"
-              sx={{
-                fontFamily: displayFont,
-                fontWeight: 600,
-                fontSize: { xs: "2.6rem", sm: "3.6rem", md: "5rem" },
-                lineHeight: 1.1,
-                letterSpacing: "-0.02em",
-                color: palette.heroText,
-                mb: 2.5,
-                px: { xs: 1, sm: 0 },
-                pb: "0.12em",
-                textShadow: "0 2px 30px rgba(0,0,0,0.45)",
-              }}
-            >
-              Every document,
-              <br />
-              instantly{" "}
-              <Box
-                component="span"
-                sx={{
-                  display: "inline-block",
-                  pr: "0.14em",
-                  background:
-                    "linear-gradient(90deg, #ff8a1e 0%, #ffd27f 45%, #ff6a00 90%)",
-                  backgroundSize: "200% auto",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  color: "transparent",
-                  animation: reduceMotion
-                    ? "none"
-                    : `${textShimmer} 6s linear infinite`,
-                  fontStyle: "italic",
-                }}
-              >
-                understood
-              </Box>
-              .
-            </Typography>
-            <Typography
-              sx={{
-                font: "inherit",
-                color: palette.heroMuted,
-                maxWidth: 640,
-                fontSize: { xs: "1.05rem", md: "1.2rem" },
-                lineHeight: 1.6,
-                mb: 4,
-              }}
-            >
-              Upload PDFs, Word, Markdown, CSV, JSON, code, and more — then
-              summarize, analyze, chat, rewrite, translate, and reply by voice,
-              all in one intelligent workspace.
-            </Typography>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              sx={{
-                mb: 4,
-                width: { xs: "100%", sm: "auto" },
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <Button
-                component={Link}
-                to="/register"
-                variant="contained"
-                size="large"
-                endIcon={<Bolt />}
-                sx={{
-                  backgroundColor: palette.accent,
-                  font: "inherit",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: "1.05rem",
-                  px: 4,
-                  py: 1.3,
-                  borderRadius: "999px",
-                  boxShadow: "0 12px 34px rgba(245,124,0,0.45)",
-                  transition: "transform 0.25s ease, box-shadow 0.25s ease",
-                  "&:hover": {
-                    backgroundColor: palette.accentDark,
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 18px 44px rgba(245,124,0,0.55)",
-                  },
-                }}
-              >
-                Start for free
-              </Button>
-              <Button
-                component={Link}
-                to="/how-to-use"
-                variant="outlined"
-                size="large"
-                startIcon={<PlayCircleOutline />}
-                sx={{
-                  borderColor: palette.heroGlassBorder,
-                  color: palette.heroText,
-                  font: "inherit",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: "1.05rem",
-                  px: 4,
-                  py: 1.3,
-                  borderRadius: "999px",
-                  backgroundColor: "rgba(255,255,255,0.03)",
-                  backdropFilter: "blur(6px)",
-                  "&:hover": {
-                    borderColor: "#ffb066",
-                    backgroundColor: "rgba(255,138,26,0.1)",
-                  },
-                }}
-              >
-                Take the tour
-              </Button>
-              {/* Text button that scrolls to the content below — replaces the
-                  old floating arrow that collided with the stats card. */}
-              <Button
-                onClick={scrollToClarity}
-                variant="text"
-                size="large"
-                startIcon={<ArrowDownward />}
-                aria-label="Scroll to learn more"
-                sx={{
-                  color: palette.heroMuted,
-                  font: "inherit",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: "1.05rem",
-                  px: 2.5,
-                  py: 1.3,
-                  borderRadius: "999px",
-                  "& .MuiButton-startIcon": {
-                    animation: reduceMotion
-                      ? "none"
-                      : `${bounceHint} 2.2s ease-in-out infinite`,
-                  },
-                  "&:hover": {
-                    color: palette.heroText,
-                    backgroundColor: "rgba(255,255,255,0.05)",
-                  },
-                }}
-              >
-                Scroll to explore
-              </Button>
-            </Stack>
-
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 1,
-                justifyContent: "center",
-                maxWidth: 720,
-              }}
-            >
-              {heroHighlights.map((label) => (
-                <Chip
-                  key={label}
-                  label={label}
-                  size="small"
-                  sx={{
-                    font: "inherit",
-                    color: palette.heroMuted,
-                    backgroundColor: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.09)",
-                    backdropFilter: "blur(6px)",
-                    "&:hover": {
-                      color: palette.heroText,
-                      borderColor: palette.heroGlassBorder,
-                    },
-                  }}
-                />
-              ))}
-            </Box>
-          </Box>
-        </Container>
-
-      </Box>
-
-      <Container
-        maxWidth="lg"
-        sx={{ position: "relative", zIndex: 2, px: { xs: 2, sm: 3 } }}
-      >
-        {/* Floating stats band. On desktop it overlaps up into the hero for a
-            "floating" feel; on mobile that overlap collided with the hero's
-            scroll-cue arrow, so it sits clear below the hero instead. */}
-        <Box
-          ref={clarityRef}
-          sx={{
-            mt: { xs: 5, md: -9 },
-            position: "relative",
-            zIndex: 3,
-            borderRadius: "24px",
-            backgroundColor: palette.surface,
-            border: `1px solid ${palette.border}`,
-            boxShadow: palette.shadow,
-            p: { xs: 3, md: 4 },
-          }}
-          className="reveal"
-        >
-          <Grid container spacing={2}>
-            {stats.map((stat, i) => (
-              <Grid item xs={6} md={3} key={stat.label}>
-                <Box
-                  sx={{
-                    textAlign: "center",
-                    py: { xs: 1, md: 0.5 },
-                    borderLeft: {
-                      md:
-                        i === 0
-                          ? "none"
-                          : `1px solid ${palette.border}`,
-                    },
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      fontFamily: displayFont,
-                      fontWeight: 600,
-                      fontSize: { xs: "2rem", md: "2.6rem" },
-                      lineHeight: 1,
-                      background: `linear-gradient(135deg, ${palette.accent}, #ffab5e)`,
-                      WebkitBackgroundClip: "text",
-                      backgroundClip: "text",
-                      WebkitTextFillColor: "transparent",
-                      color: "transparent",
-                    }}
-                  >
-                    {stat.value}
-                  </Typography>
-                  <Typography
-                    sx={{
-                      font: "inherit",
-                      mt: 0.75,
-                      fontSize: { xs: "0.78rem", md: "0.9rem" },
-                      color: palette.textMuted,
-                    }}
-                  >
-                    {stat.label}
-                  </Typography>
-                </Box>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* Pillars */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Eyebrow label="Why DocuThinker" />
-          <Typography
-            sx={{ ...sectionTitleSx, textAlign: "center", mb: 2 }}
-            className="reveal"
-          >
-            Professional clarity, at any scale
-          </Typography>
-          <Typography
-            sx={{
-              ...sectionSubtitleSx,
-              textAlign: "center",
-              maxWidth: "680px",
-              mx: "auto",
-              mb: { xs: 5, md: 7 },
-            }}
-            className="reveal"
-          >
-            Grounded in the features available today — summaries, bullet points,
-            analytics, and chat, all in one place.
-          </Typography>
-          <Grid container spacing={3}>
-            {pillars.map((pillar, i) => (
-              <Grid item xs={12} md={4} key={pillar.title}>
-                <Card sx={lightCardSx} className="reveal">
-                  <CardContent sx={{ p: { xs: 3, md: 3.5 }, position: "relative" }}>
-                    <Typography
-                      sx={{
-                        position: "absolute",
-                        top: 18,
-                        right: 24,
-                        fontFamily: displayFont,
-                        fontWeight: 600,
-                        fontSize: "2.4rem",
-                        color: palette.accentSoft,
-                        lineHeight: 1,
-                      }}
-                    >
-                      0{i + 1}
-                    </Typography>
-                    <IconTile large>{pillar.icon}</IconTile>
-                    <Typography
-                      sx={{
-                        font: "inherit",
-                        fontWeight: 600,
-                        fontSize: "1.2rem",
-                        mt: 2.5,
-                        mb: 1,
-                        color: palette.textPrimary,
-                      }}
-                    >
-                      {pillar.title}
-                    </Typography>
-                    <Typography
-                      sx={{ font: "inherit", color: palette.textSecondary }}
-                    >
-                      {pillar.description}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* Spotlight (dark mid-page moment) */}
-        <Box
-          sx={{
-            mt: sectionSpacing,
-            p: { xs: 3, md: 6 },
-            borderRadius: "28px",
-            backgroundColor: "#0f0a05",
-            border: `1px solid ${palette.border}`,
-            position: "relative",
-            overflow: "hidden",
-            boxShadow: palette.shadow,
-          }}
-          className="reveal"
-        >
           <Box
             sx={{
               position: "absolute",
               inset: 0,
-              background:
-                "radial-gradient(circle at 20% 20%, rgba(245,124,0,0.30), transparent 45%), radial-gradient(circle at 90% 80%, rgba(111,155,255,0.18), transparent 45%)",
+              zIndex: 1,
               pointerEvents: "none",
+              background:
+                "radial-gradient(ellipse 130% 95% at 50% 44%, rgba(10,6,3,0.66) 0%, rgba(10,6,3,0.30) 38%, rgba(10,6,3,0) 72%)",
             }}
           />
-          <Grid
-            container
-            spacing={{ xs: 4, md: 6 }}
-            alignItems="center"
-            sx={{ position: "relative", zIndex: 1 }}
+
+          {/* Slim brand bar (the global navbar is hidden on the landing route) */}
+          <Box
+            sx={{ position: "absolute", top: 0, left: 0, right: 0, zIndex: 3 }}
           >
-            <Grid item xs={12} md={6}>
-              <Eyebrow label="Capability spotlight" light align="left" />
-              <Typography
+            <Container
+              maxWidth="lg"
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                py: { xs: 2.25, md: 3.25 },
+                px: { xs: 2, sm: 3 },
+              }}
+            >
+              <Stack direction="row" spacing={1.25} alignItems="center">
+                <Box
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: "9px",
+                    background: `linear-gradient(135deg, ${palette.accent}, #ffb066)`,
+                    boxShadow: "0 6px 18px rgba(245,124,0,0.5)",
+                    display: "grid",
+                    placeItems: "center",
+                    color: "#fff",
+                    "& .MuiSvgIcon-root": { fontSize: "1.15rem" },
+                  }}
+                  aria-hidden="true"
+                >
+                  <AutoStories />
+                </Box>
+                <Typography
+                  sx={{
+                    fontFamily: displayFont,
+                    fontWeight: 600,
+                    fontSize: "1.25rem",
+                    color: palette.heroText,
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  DocuThinker
+                </Typography>
+              </Stack>
+              <Stack direction="row" spacing={1.5} alignItems="center">
+                <Button
+                  component={Link}
+                  to="/login"
+                  sx={{
+                    display: { xs: "none", sm: "inline-flex" },
+                    font: "inherit",
+                    fontWeight: 500,
+                    color: palette.heroMuted,
+                    textTransform: "none",
+                    "&:hover": {
+                      color: palette.heroText,
+                      backgroundColor: "rgba(255,255,255,0.04)",
+                    },
+                  }}
+                >
+                  Log in
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  sx={{
+                    backgroundColor: palette.accent,
+                    font: "inherit",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    borderRadius: "999px",
+                    px: 2.5,
+                    boxShadow: "0 8px 22px rgba(245,124,0,0.4)",
+                    "&:hover": { backgroundColor: palette.accentDark },
+                  }}
+                >
+                  Get Started
+                </Button>
+              </Stack>
+            </Container>
+          </Box>
+
+          {/* Hero content */}
+          <Container
+            maxWidth="lg"
+            sx={{
+              position: "relative",
+              zIndex: 2,
+              px: { xs: 2, sm: 3 },
+              py: { xs: 12, md: 6 },
+              textAlign: "center",
+            }}
+          >
+            <Box
+              sx={{
+                maxWidth: 920,
+                mx: "auto",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                animation: reduceMotion
+                  ? "none"
+                  : `${slideUp} 0.9s ease-out both`,
+              }}
+            >
+              <Chip
+                label="AI document workspace"
+                icon={<AutoAwesome sx={{ fontSize: "1rem !important" }} />}
                 sx={{
-                  ...sectionTitleSx,
-                  color: palette.heroText,
-                  mb: 2,
+                  mb: 3,
+                  fontWeight: 600,
+                  font: "inherit",
+                  color: "#ffd9a8",
+                  backgroundColor: palette.heroGlass,
+                  border: `1px solid ${palette.heroGlassBorder}`,
+                  backdropFilter: "blur(8px)",
+                  "& .MuiChip-icon": { color: "#ffb066" },
                 }}
-                className="reveal"
+              />
+              <Typography
+                component="h1"
+                sx={{
+                  fontFamily: displayFont,
+                  fontWeight: 600,
+                  fontSize: { xs: "2.6rem", sm: "3.6rem", md: "5rem" },
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.02em",
+                  color: palette.heroText,
+                  mb: 2.5,
+                  px: { xs: 1, sm: 0 },
+                  pb: "0.12em",
+                  textShadow: "0 2px 30px rgba(0,0,0,0.45)",
+                }}
               >
-                Clarity for complex documents
+                Every document,
+                <br />
+                instantly{" "}
+                <Box
+                  component="span"
+                  sx={{
+                    display: "inline-block",
+                    pr: "0.14em",
+                    background:
+                      "linear-gradient(90deg, #ff8a1e 0%, #ffd27f 45%, #ff6a00 90%)",
+                    backgroundSize: "200% auto",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    color: "transparent",
+                    animation: reduceMotion
+                      ? "none"
+                      : `${textShimmer} 6s linear infinite`,
+                    fontStyle: "italic",
+                  }}
+                >
+                  understood
+                </Box>
+                .
               </Typography>
               <Typography
                 sx={{
                   font: "inherit",
                   color: palette.heroMuted,
-                  fontSize: { xs: "1rem", md: "1.1rem" },
-                  mb: 3,
+                  maxWidth: 640,
+                  fontSize: { xs: "1.05rem", md: "1.2rem" },
+                  lineHeight: 1.6,
+                  mb: 4,
                 }}
-                className="reveal"
               >
-                Step through what DocuThinker does the moment a file lands.
+                Upload PDFs, Word, Markdown, CSV, JSON, code, and more — then
+                summarize, analyze, chat, rewrite, translate, and reply by
+                voice, all in one intelligent workspace.
               </Typography>
-              <Box
-                key={spotlightIndex}
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
                 sx={{
-                  animation: reduceMotion ? "none" : `${fadeSwap} 0.6s ease-out`,
+                  mb: 4,
+                  width: { xs: "100%", sm: "auto" },
+                  justifyContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <Stack
-                  direction="row"
-                  spacing={2}
-                  alignItems="center"
-                  sx={{ mb: 2 }}
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  size="large"
+                  endIcon={<Bolt />}
+                  sx={{
+                    backgroundColor: palette.accent,
+                    font: "inherit",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: "1.05rem",
+                    px: 4,
+                    py: 1.3,
+                    borderRadius: "999px",
+                    boxShadow: "0 12px 34px rgba(245,124,0,0.45)",
+                    transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                    "&:hover": {
+                      backgroundColor: palette.accentDark,
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 18px 44px rgba(245,124,0,0.55)",
+                    },
+                  }}
                 >
-                  <IconTile light large>
-                    {spotlights[spotlightIndex].icon}
-                  </IconTile>
-                  <Typography
-                    sx={{
-                      fontFamily: displayFont,
-                      fontWeight: 600,
-                      fontSize: "1.5rem",
+                  Start for free
+                </Button>
+                <Button
+                  component={Link}
+                  to="/how-to-use"
+                  variant="outlined"
+                  size="large"
+                  startIcon={<PlayCircleOutline />}
+                  sx={{
+                    borderColor: palette.heroGlassBorder,
+                    color: palette.heroText,
+                    font: "inherit",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: "1.05rem",
+                    px: 4,
+                    py: 1.3,
+                    borderRadius: "999px",
+                    backgroundColor: "rgba(255,255,255,0.03)",
+                    backdropFilter: "blur(6px)",
+                    "&:hover": {
+                      borderColor: "#ffb066",
+                      backgroundColor: "rgba(255,138,26,0.1)",
+                    },
+                  }}
+                >
+                  Take the tour
+                </Button>
+                {/* Text button that scrolls to the content below — replaces the
+                  old floating arrow that collided with the stats card. */}
+                <Button
+                  onClick={scrollToClarity}
+                  variant="text"
+                  size="large"
+                  startIcon={<ArrowDownward />}
+                  aria-label="Scroll to learn more"
+                  sx={{
+                    color: palette.heroMuted,
+                    font: "inherit",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: "1.05rem",
+                    px: 2.5,
+                    py: 1.3,
+                    borderRadius: "999px",
+                    "& .MuiButton-startIcon": {
+                      animation: reduceMotion
+                        ? "none"
+                        : `${bounceHint} 2.2s ease-in-out infinite`,
+                    },
+                    "&:hover": {
                       color: palette.heroText,
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                    },
+                  }}
+                >
+                  Scroll to explore
+                </Button>
+              </Stack>
+
+              <Box
+                sx={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: 1,
+                  justifyContent: "center",
+                  maxWidth: 720,
+                }}
+              >
+                {heroHighlights.map((label) => (
+                  <Chip
+                    key={label}
+                    label={label}
+                    size="small"
+                    sx={{
+                      font: "inherit",
+                      color: palette.heroMuted,
+                      backgroundColor: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.09)",
+                      backdropFilter: "blur(6px)",
+                      "&:hover": {
+                        color: palette.heroText,
+                        borderColor: palette.heroGlassBorder,
+                      },
+                    }}
+                  />
+                ))}
+              </Box>
+            </Box>
+          </Container>
+        </Box>
+
+        <Container
+          maxWidth="lg"
+          sx={{ position: "relative", zIndex: 2, px: { xs: 2, sm: 3 } }}
+        >
+          {/* Floating stats band. On desktop it overlaps up into the hero for a
+            "floating" feel; on mobile that overlap collided with the hero's
+            scroll-cue arrow, so it sits clear below the hero instead. */}
+          <Box
+            ref={clarityRef}
+            sx={{
+              mt: { xs: 5, md: -9 },
+              position: "relative",
+              zIndex: 3,
+              borderRadius: "24px",
+              backgroundColor: palette.surface,
+              border: `1px solid ${palette.border}`,
+              boxShadow: palette.shadow,
+              p: { xs: 3, md: 4 },
+            }}
+            className="reveal"
+          >
+            <Grid container spacing={2}>
+              {stats.map((stat, i) => (
+                <Grid item xs={6} md={3} key={stat.label}>
+                  <Box
+                    sx={{
+                      textAlign: "center",
+                      py: { xs: 1, md: 0.5 },
+                      borderLeft: {
+                        md: i === 0 ? "none" : `1px solid ${palette.border}`,
+                      },
                     }}
                   >
-                    {spotlights[spotlightIndex].title}
-                  </Typography>
-                </Stack>
+                    <Typography
+                      sx={{
+                        fontFamily: displayFont,
+                        fontWeight: 600,
+                        fontSize: { xs: "2rem", md: "2.6rem" },
+                        lineHeight: 1,
+                        background: `linear-gradient(135deg, ${palette.accent}, #ffab5e)`,
+                        WebkitBackgroundClip: "text",
+                        backgroundClip: "text",
+                        WebkitTextFillColor: "transparent",
+                        color: "transparent",
+                      }}
+                    >
+                      {stat.value}
+                    </Typography>
+                    <Typography
+                      sx={{
+                        font: "inherit",
+                        mt: 0.75,
+                        fontSize: { xs: "0.78rem", md: "0.9rem" },
+                        color: palette.textMuted,
+                      }}
+                    >
+                      {stat.label}
+                    </Typography>
+                  </Box>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          {/* Pillars */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Eyebrow label="Why DocuThinker" />
+            <Typography
+              sx={{ ...sectionTitleSx, textAlign: "center", mb: 2 }}
+              className="reveal"
+            >
+              Professional clarity, at any scale
+            </Typography>
+            <Typography
+              sx={{
+                ...sectionSubtitleSx,
+                textAlign: "center",
+                maxWidth: "680px",
+                mx: "auto",
+                mb: { xs: 5, md: 7 },
+              }}
+              className="reveal"
+            >
+              Grounded in the features available today — summaries, bullet
+              points, analytics, and chat, all in one place.
+            </Typography>
+            <Grid container spacing={3}>
+              {pillars.map((pillar, i) => (
+                <Grid item xs={12} md={4} key={pillar.title}>
+                  <Card sx={lightCardSx} className="reveal">
+                    <CardContent
+                      sx={{ p: { xs: 3, md: 3.5 }, position: "relative" }}
+                    >
+                      <Typography
+                        sx={{
+                          position: "absolute",
+                          top: 18,
+                          right: 24,
+                          fontFamily: displayFont,
+                          fontWeight: 600,
+                          fontSize: "2.4rem",
+                          color: palette.accentSoft,
+                          lineHeight: 1,
+                        }}
+                      >
+                        0{i + 1}
+                      </Typography>
+                      <IconTile large>{pillar.icon}</IconTile>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          fontWeight: 600,
+                          fontSize: "1.2rem",
+                          mt: 2.5,
+                          mb: 1,
+                          color: palette.textPrimary,
+                        }}
+                      >
+                        {pillar.title}
+                      </Typography>
+                      <Typography
+                        sx={{ font: "inherit", color: palette.textSecondary }}
+                      >
+                        {pillar.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          {/* Spotlight (dark mid-page moment) */}
+          <Box
+            sx={{
+              mt: sectionSpacing,
+              p: { xs: 3, md: 6 },
+              borderRadius: "28px",
+              backgroundColor: "#0f0a05",
+              border: `1px solid ${palette.border}`,
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: palette.shadow,
+            }}
+            className="reveal"
+          >
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "radial-gradient(circle at 20% 20%, rgba(245,124,0,0.30), transparent 45%), radial-gradient(circle at 90% 80%, rgba(111,155,255,0.18), transparent 45%)",
+                pointerEvents: "none",
+              }}
+            />
+            <Grid
+              container
+              spacing={{ xs: 4, md: 6 }}
+              alignItems="center"
+              sx={{ position: "relative", zIndex: 1 }}
+            >
+              <Grid item xs={12} md={6}>
+                <Eyebrow label="Capability spotlight" light align="left" />
+                <Typography
+                  sx={{
+                    ...sectionTitleSx,
+                    color: palette.heroText,
+                    mb: 2,
+                  }}
+                  className="reveal"
+                >
+                  Clarity for complex documents
+                </Typography>
                 <Typography
                   sx={{
                     font: "inherit",
                     color: palette.heroMuted,
-                    fontSize: "1.05rem",
-                    mb: 2.5,
+                    fontSize: { xs: "1rem", md: "1.1rem" },
+                    mb: 3,
+                  }}
+                  className="reveal"
+                >
+                  Step through what DocuThinker does the moment a file lands.
+                </Typography>
+                <Box
+                  key={spotlightIndex}
+                  sx={{
+                    animation: reduceMotion
+                      ? "none"
+                      : `${fadeSwap} 0.6s ease-out`,
                   }}
                 >
-                  {spotlights[spotlightIndex].description}
-                </Typography>
-                <Stack spacing={1.25}>
-                  {spotlights[spotlightIndex].points.map((point) => (
-                    <Stack
-                      key={point}
-                      direction="row"
-                      spacing={1.5}
-                      alignItems="center"
+                  <Stack
+                    direction="row"
+                    spacing={2}
+                    alignItems="center"
+                    sx={{ mb: 2 }}
+                  >
+                    <IconTile light large>
+                      {spotlights[spotlightIndex].icon}
+                    </IconTile>
+                    <Typography
+                      sx={{
+                        fontFamily: displayFont,
+                        fontWeight: 600,
+                        fontSize: "1.5rem",
+                        color: palette.heroText,
+                      }}
                     >
-                      <CheckCircle fontSize="small" sx={{ color: "#ffb066" }} />
-                      <Typography
-                        sx={{ font: "inherit", color: palette.heroText }}
+                      {spotlights[spotlightIndex].title}
+                    </Typography>
+                  </Stack>
+                  <Typography
+                    sx={{
+                      font: "inherit",
+                      color: palette.heroMuted,
+                      fontSize: "1.05rem",
+                      mb: 2.5,
+                    }}
+                  >
+                    {spotlights[spotlightIndex].description}
+                  </Typography>
+                  <Stack spacing={1.25}>
+                    {spotlights[spotlightIndex].points.map((point) => (
+                      <Stack
+                        key={point}
+                        direction="row"
+                        spacing={1.5}
+                        alignItems="center"
                       >
-                        {point}
-                      </Typography>
-                    </Stack>
+                        <CheckCircle
+                          fontSize="small"
+                          sx={{ color: "#ffb066" }}
+                        />
+                        <Typography
+                          sx={{ font: "inherit", color: palette.heroText }}
+                        >
+                          {point}
+                        </Typography>
+                      </Stack>
+                    ))}
+                  </Stack>
+                </Box>
+                <Stack direction="row" spacing={1.5} sx={{ mt: 4 }}>
+                  {spotlights.map((_, i) => (
+                    <Box
+                      key={i}
+                      onClick={() => setSpotlightIndex(i)}
+                      role="button"
+                      aria-label={`Show spotlight ${i + 1}`}
+                      sx={{
+                        cursor: "pointer",
+                        height: 6,
+                        borderRadius: 3,
+                        width: i === spotlightIndex ? 30 : 14,
+                        backgroundColor:
+                          i === spotlightIndex
+                            ? palette.accent
+                            : "rgba(255,255,255,0.25)",
+                        transition: "all 0.4s ease",
+                      }}
+                    />
                   ))}
                 </Stack>
-              </Box>
-              <Stack direction="row" spacing={1.5} sx={{ mt: 4 }}>
-                {spotlights.map((_, i) => (
-                  <Box
-                    key={i}
-                    onClick={() => setSpotlightIndex(i)}
-                    role="button"
-                    aria-label={`Show spotlight ${i + 1}`}
-                    sx={{
-                      cursor: "pointer",
-                      height: 6,
-                      borderRadius: 3,
-                      width: i === spotlightIndex ? 30 : 14,
-                      backgroundColor:
-                        i === spotlightIndex
-                          ? palette.accent
-                          : "rgba(255,255,255,0.25)",
-                      transition: "all 0.4s ease",
-                    }}
-                  />
-                ))}
-              </Stack>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Stack spacing={2}>
+                  {features.slice(0, 3).map((feature) => (
+                    <Box
+                      key={feature.title}
+                      className="reveal"
+                      sx={{
+                        borderRadius: "18px",
+                        p: { xs: 2.25, md: 2.75 },
+                        backgroundColor: "rgba(255,255,255,0.05)",
+                        border: "1px solid rgba(255,255,255,0.09)",
+                        backdropFilter: "blur(8px)",
+                        transition: reduceMotion
+                          ? "none"
+                          : "transform 0.35s ease, border-color 0.35s ease",
+                        "&:hover": {
+                          transform: "translateX(6px)",
+                          borderColor: palette.heroGlassBorder,
+                        },
+                      }}
+                    >
+                      <Stack direction="row" spacing={2} alignItems="center">
+                        <IconTile light>{feature.icon}</IconTile>
+                        <Box>
+                          <Typography
+                            sx={{
+                              font: "inherit",
+                              fontWeight: 600,
+                              color: palette.heroText,
+                            }}
+                          >
+                            {feature.title}
+                          </Typography>
+                          <Typography
+                            sx={{
+                              font: "inherit",
+                              fontSize: "0.9rem",
+                              color: palette.heroMuted,
+                            }}
+                          >
+                            {feature.description}
+                          </Typography>
+                        </Box>
+                      </Stack>
+                    </Box>
+                  ))}
+                </Stack>
+              </Grid>
             </Grid>
-            <Grid item xs={12} md={6}>
-              <Stack spacing={2}>
-                {features.slice(0, 3).map((feature) => (
-                  <Box
+          </Box>
+
+          {/* Features — bento grid */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Eyebrow label="Features" />
+            <Typography
+              sx={{ ...sectionTitleSx, textAlign: "center", mb: 2 }}
+              className="reveal"
+            >
+              Everything you need to move faster
+            </Typography>
+            <Typography
+              sx={{
+                ...sectionSubtitleSx,
+                textAlign: "center",
+                maxWidth: "680px",
+                mx: "auto",
+                mb: { xs: 5, md: 7 },
+              }}
+              className="reveal"
+            >
+              Built for clarity, accessibility, and shared understanding across
+              teams.
+            </Typography>
+            <Box
+              sx={{
+                display: "grid",
+                gap: { xs: 2, md: 3 },
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "repeat(2, 1fr)",
+                  md: "repeat(3, 1fr)",
+                },
+                gridAutoFlow: "dense",
+              }}
+            >
+              {features.map((feature, i) => {
+                const featured = i === 0;
+                return (
+                  <Card
                     key={feature.title}
                     className="reveal"
                     sx={{
-                      borderRadius: "18px",
-                      p: { xs: 2.25, md: 2.75 },
-                      backgroundColor: "rgba(255,255,255,0.05)",
-                      border: "1px solid rgba(255,255,255,0.09)",
-                      backdropFilter: "blur(8px)",
-                      transition: reduceMotion
-                        ? "none"
-                        : "transform 0.35s ease, border-color 0.35s ease",
+                      ...lightCardSx,
+                      gridColumn: featured ? { md: "span 2" } : "auto",
+                      gridRow: featured ? { md: "span 2" } : "auto",
+                      background: featured
+                        ? `linear-gradient(150deg, ${palette.accent}, #ff9d3f)`
+                        : palette.surface,
+                      color: featured ? "#fff" : palette.textPrimary,
+                      border: featured ? "none" : `1px solid ${palette.border}`,
                       "&:hover": {
-                        transform: "translateX(6px)",
-                        borderColor: palette.heroGlassBorder,
+                        transform: "translateY(-6px)",
+                        boxShadow: palette.shadowSoft,
+                        borderColor: featured
+                          ? "transparent"
+                          : "rgba(245, 124, 0, 0.4)",
                       },
                     }}
                   >
-                    <Stack direction="row" spacing={2} alignItems="center">
-                      <IconTile light>{feature.icon}</IconTile>
-                      <Box>
-                        <Typography
-                          sx={{
-                            font: "inherit",
-                            fontWeight: 600,
-                            color: palette.heroText,
-                          }}
-                        >
-                          {feature.title}
-                        </Typography>
-                        <Typography
-                          sx={{
-                            font: "inherit",
-                            fontSize: "0.9rem",
-                            color: palette.heroMuted,
-                          }}
-                        >
-                          {feature.description}
-                        </Typography>
-                      </Box>
-                    </Stack>
-                  </Box>
-                ))}
-              </Stack>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* Features — bento grid */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Eyebrow label="Features" />
-          <Typography
-            sx={{ ...sectionTitleSx, textAlign: "center", mb: 2 }}
-            className="reveal"
-          >
-            Everything you need to move faster
-          </Typography>
-          <Typography
-            sx={{
-              ...sectionSubtitleSx,
-              textAlign: "center",
-              maxWidth: "680px",
-              mx: "auto",
-              mb: { xs: 5, md: 7 },
-            }}
-            className="reveal"
-          >
-            Built for clarity, accessibility, and shared understanding across
-            teams.
-          </Typography>
-          <Box
-            sx={{
-              display: "grid",
-              gap: { xs: 2, md: 3 },
-              gridTemplateColumns: {
-                xs: "1fr",
-                sm: "repeat(2, 1fr)",
-                md: "repeat(3, 1fr)",
-              },
-              gridAutoFlow: "dense",
-            }}
-          >
-            {features.map((feature, i) => {
-              const featured = i === 0;
-              return (
-                <Card
-                  key={feature.title}
-                  className="reveal"
-                  sx={{
-                    ...lightCardSx,
-                    gridColumn: featured ? { md: "span 2" } : "auto",
-                    gridRow: featured ? { md: "span 2" } : "auto",
-                    background: featured
-                      ? `linear-gradient(150deg, ${palette.accent}, #ff9d3f)`
-                      : palette.surface,
-                    color: featured ? "#fff" : palette.textPrimary,
-                    border: featured ? "none" : `1px solid ${palette.border}`,
-                    "&:hover": {
-                      transform: "translateY(-6px)",
-                      boxShadow: palette.shadowSoft,
-                      borderColor: featured
-                        ? "transparent"
-                        : "rgba(245, 124, 0, 0.4)",
-                    },
-                  }}
-                >
-                  <CardContent
-                    sx={{
-                      p: { xs: 3, md: featured ? 4 : 3 },
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                    }}
-                  >
-                    {featured ? (
-                      <Box
-                        sx={{
-                          width: 58,
-                          height: 58,
-                          borderRadius: "16px",
-                          display: "grid",
-                          placeItems: "center",
-                          backgroundColor: "rgba(255,255,255,0.2)",
-                          color: "#fff",
-                          "& .MuiSvgIcon-root": { fontSize: "1.7rem" },
-                        }}
-                      >
-                        {feature.icon}
-                      </Box>
-                    ) : (
-                      <IconTile>{feature.icon}</IconTile>
-                    )}
-                    <Typography
+                    <CardContent
                       sx={{
-                        font: "inherit",
-                        fontWeight: 600,
-                        fontSize: featured
-                          ? { xs: "1.4rem", md: "1.7rem" }
-                          : "1.1rem",
-                        mt: featured ? 3 : 2,
-                        mb: 1,
-                        color: featured ? "#fff" : palette.textPrimary,
+                        p: { xs: 3, md: featured ? 4 : 3 },
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
                       }}
                     >
-                      {feature.title}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        font: "inherit",
-                        color: featured
-                          ? "rgba(255,255,255,0.9)"
-                          : palette.textSecondary,
-                        fontSize: featured ? "1.02rem" : "0.92rem",
-                      }}
-                    >
-                      {feature.description}
-                    </Typography>
-                    {featured && (
-                      <Box
+                      {featured ? (
+                        <Box
+                          sx={{
+                            width: 58,
+                            height: 58,
+                            borderRadius: "16px",
+                            display: "grid",
+                            placeItems: "center",
+                            backgroundColor: "rgba(255,255,255,0.2)",
+                            color: "#fff",
+                            "& .MuiSvgIcon-root": { fontSize: "1.7rem" },
+                          }}
+                        >
+                          {feature.icon}
+                        </Box>
+                      ) : (
+                        <IconTile>{feature.icon}</IconTile>
+                      )}
+                      <Typography
                         sx={{
-                          mt: "auto",
-                          pt: 3,
-                          display: "flex",
-                          flexWrap: "wrap",
-                          gap: 1,
+                          font: "inherit",
+                          fontWeight: 600,
+                          fontSize: featured
+                            ? { xs: "1.4rem", md: "1.7rem" }
+                            : "1.1rem",
+                          mt: featured ? 3 : 2,
+                          mb: 1,
+                          color: featured ? "#fff" : palette.textPrimary,
                         }}
                       >
-                        {["PDF", "Word", "CSV", "JSON", "Markdown", "Code"].map(
-                          (t) => (
+                        {feature.title}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          color: featured
+                            ? "rgba(255,255,255,0.9)"
+                            : palette.textSecondary,
+                          fontSize: featured ? "1.02rem" : "0.92rem",
+                        }}
+                      >
+                        {feature.description}
+                      </Typography>
+                      {featured && (
+                        <Box
+                          sx={{
+                            mt: "auto",
+                            pt: 3,
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: 1,
+                          }}
+                        >
+                          {[
+                            "PDF",
+                            "Word",
+                            "CSV",
+                            "JSON",
+                            "Markdown",
+                            "Code",
+                          ].map((t) => (
                             <Chip
                               key={t}
                               label={t}
@@ -1411,247 +1427,519 @@ const LandingPage = () => {
                                 border: "1px solid rgba(255,255,255,0.25)",
                               }}
                             />
-                          ),
-                        )}
-                      </Box>
-                    )}
-                  </CardContent>
-                </Card>
-              );
-            })}
+                          ))}
+                        </Box>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </Box>
           </Box>
-        </Box>
 
-        {/* Workflow — connected stepper */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Eyebrow label="How it works" />
-          <Typography
-            sx={{ ...sectionTitleSx, textAlign: "center", mb: 2 }}
-            className="reveal"
-          >
-            A workflow that mirrors the app
-          </Typography>
-          <Typography
-            sx={{
-              ...sectionSubtitleSx,
-              textAlign: "center",
-              maxWidth: "680px",
-              mx: "auto",
-              mb: { xs: 5, md: 7 },
-            }}
-            className="reveal"
-          >
-            Upload, summarize, analyze, and refine — all in the same workspace.
-          </Typography>
-          <Box sx={{ position: "relative" }}>
-            {/* connecting line on desktop */}
-            <Box
+          {/* Workflow — connected stepper */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Eyebrow label="How it works" />
+            <Typography
+              sx={{ ...sectionTitleSx, textAlign: "center", mb: 2 }}
+              className="reveal"
+            >
+              A workflow that mirrors the app
+            </Typography>
+            <Typography
               sx={{
-                display: { xs: "none", md: "block" },
-                position: "absolute",
-                top: 33,
-                left: "12%",
-                right: "12%",
-                height: "2px",
-                background: `linear-gradient(90deg, transparent, ${palette.accentSoft}, ${palette.accentSoft}, transparent)`,
-                zIndex: 0,
+                ...sectionSubtitleSx,
+                textAlign: "center",
+                maxWidth: "680px",
+                mx: "auto",
+                mb: { xs: 5, md: 7 },
               }}
-            />
-            <Grid container spacing={{ xs: 3, md: 3 }}>
-              {workflow.map((step, index) => (
-                <Grid item xs={12} sm={6} md={3} key={step.title}>
-                  <Box
-                    className="reveal"
-                    sx={{ position: "relative", zIndex: 1, textAlign: "center" }}
-                  >
+              className="reveal"
+            >
+              Upload, summarize, analyze, and refine — all in the same
+              workspace.
+            </Typography>
+            <Box sx={{ position: "relative" }}>
+              {/* connecting line on desktop */}
+              <Box
+                sx={{
+                  display: { xs: "none", md: "block" },
+                  position: "absolute",
+                  top: 33,
+                  left: "12%",
+                  right: "12%",
+                  height: "2px",
+                  background: `linear-gradient(90deg, transparent, ${palette.accentSoft}, ${palette.accentSoft}, transparent)`,
+                  zIndex: 0,
+                }}
+              />
+              <Grid container spacing={{ xs: 3, md: 3 }}>
+                {workflow.map((step, index) => (
+                  <Grid item xs={12} sm={6} md={3} key={step.title}>
                     <Box
+                      className="reveal"
                       sx={{
-                        width: 66,
-                        height: 66,
-                        mx: "auto",
-                        mb: 2.5,
-                        borderRadius: "20px",
-                        display: "grid",
-                        placeItems: "center",
-                        color: "#fff",
-                        background: `linear-gradient(135deg, ${palette.accent}, #ff9d3f)`,
-                        boxShadow: "0 12px 26px rgba(245,124,0,0.35)",
                         position: "relative",
-                        "& .MuiSvgIcon-root": { fontSize: "1.7rem" },
+                        zIndex: 1,
+                        textAlign: "center",
                       }}
                     >
-                      {step.icon}
                       <Box
                         sx={{
-                          position: "absolute",
-                          top: -8,
-                          right: -8,
-                          width: 26,
-                          height: 26,
-                          borderRadius: "50%",
-                          backgroundColor: palette.surface,
-                          border: `1px solid ${palette.border}`,
-                          color: palette.accent,
-                          fontSize: "0.8rem",
-                          fontWeight: 700,
+                          width: 66,
+                          height: 66,
+                          mx: "auto",
+                          mb: 2.5,
+                          borderRadius: "20px",
                           display: "grid",
                           placeItems: "center",
+                          color: "#fff",
+                          background: `linear-gradient(135deg, ${palette.accent}, #ff9d3f)`,
+                          boxShadow: "0 12px 26px rgba(245,124,0,0.35)",
+                          position: "relative",
+                          "& .MuiSvgIcon-root": { fontSize: "1.7rem" },
                         }}
                       >
-                        {index + 1}
+                        {step.icon}
+                        <Box
+                          sx={{
+                            position: "absolute",
+                            top: -8,
+                            right: -8,
+                            width: 26,
+                            height: 26,
+                            borderRadius: "50%",
+                            backgroundColor: palette.surface,
+                            border: `1px solid ${palette.border}`,
+                            color: palette.accent,
+                            fontSize: "0.8rem",
+                            fontWeight: 700,
+                            display: "grid",
+                            placeItems: "center",
+                          }}
+                        >
+                          {index + 1}
+                        </Box>
                       </Box>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          fontWeight: 600,
+                          fontSize: "1.15rem",
+                          mb: 1,
+                          color: palette.textPrimary,
+                        }}
+                      >
+                        {step.title}
+                      </Typography>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          color: palette.textSecondary,
+                          fontSize: "0.92rem",
+                          maxWidth: 260,
+                          mx: "auto",
+                        }}
+                      >
+                        {step.description}
+                      </Typography>
                     </Box>
-                    <Typography
-                      sx={{
-                        font: "inherit",
-                        fontWeight: 600,
-                        fontSize: "1.15rem",
-                        mb: 1,
-                        color: palette.textPrimary,
-                      }}
-                    >
-                      {step.title}
-                    </Typography>
-                    <Typography
-                      sx={{
-                        font: "inherit",
-                        color: palette.textSecondary,
-                        fontSize: "0.92rem",
-                        maxWidth: 260,
-                        mx: "auto",
-                      }}
-                    >
-                      {step.description}
-                    </Typography>
-                  </Box>
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          </Box>
+
+          {/* Outcomes */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Eyebrow label="Outputs" />
+            <Typography
+              sx={{
+                ...sectionTitleSx,
+                textAlign: "center",
+                mb: { xs: 5, md: 7 },
+              }}
+              className="reveal"
+            >
+              What you get back
+            </Typography>
+            <Grid container spacing={3}>
+              {outcomes.map((item) => (
+                <Grid item xs={12} sm={6} md={3} key={item.title}>
+                  <Card sx={lightCardSx} className="reveal">
+                    <CardContent sx={{ p: { xs: 3, md: 3.5 } }}>
+                      <IconTile>{item.icon}</IconTile>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          fontWeight: 600,
+                          fontSize: "1.1rem",
+                          mt: 2,
+                          mb: 1,
+                          color: palette.textPrimary,
+                        }}
+                      >
+                        {item.title}
+                      </Typography>
+                      <Typography
+                        sx={{ font: "inherit", color: palette.textSecondary }}
+                      >
+                        {item.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
                 </Grid>
               ))}
             </Grid>
           </Box>
-        </Box>
 
-        {/* Outcomes */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Eyebrow label="Outputs" />
-          <Typography
-            sx={{ ...sectionTitleSx, textAlign: "center", mb: { xs: 5, md: 7 } }}
-            className="reveal"
-          >
-            What you get back
-          </Typography>
-          <Grid container spacing={3}>
-            {outcomes.map((item) => (
-              <Grid item xs={12} sm={6} md={3} key={item.title}>
-                <Card sx={lightCardSx} className="reveal">
-                  <CardContent sx={{ p: { xs: 3, md: 3.5 } }}>
-                    <IconTile>{item.icon}</IconTile>
-                    <Typography
+          {/* Comparison */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Eyebrow label="The difference" />
+            <Typography
+              sx={{
+                ...sectionTitleSx,
+                textAlign: "center",
+                mb: { xs: 5, md: 7 },
+              }}
+              className="reveal"
+            >
+              Manual vs DocuThinker
+            </Typography>
+            <Grid container spacing={3}>
+              {["Manual workflow", "DocuThinker workflow"].map(
+                (title, index) => (
+                  <Grid item xs={12} md={6} key={title}>
+                    <Card
+                      sx={{
+                        height: "100%",
+                        borderRadius: "22px",
+                        border:
+                          index === 0 ? `1px solid ${palette.border}` : "none",
+                        background:
+                          index === 0
+                            ? palette.surface
+                            : `linear-gradient(150deg, ${palette.accent}, #ff9d3f)`,
+                        color: index === 0 ? palette.textPrimary : "white",
+                        boxShadow: index === 0 ? "none" : palette.shadowSoft,
+                        "&:hover": {
+                          transform: "translateY(-6px)",
+                          borderColor:
+                            index === 0 ? "rgba(245,124,0,0.4)" : "transparent",
+                        },
+                      }}
+                      className="reveal"
+                    >
+                      <CardContent sx={{ p: { xs: 3, md: 4 } }}>
+                        <Typography
+                          sx={{
+                            fontFamily: displayFont,
+                            fontWeight: 600,
+                            fontSize: "1.5rem",
+                            mb: 2.5,
+                            color: index === 0 ? palette.textPrimary : "white",
+                          }}
+                        >
+                          {title}
+                        </Typography>
+                        <Stack spacing={1.75}>
+                          {(index === 0
+                            ? [
+                                "Manual reading and highlighting",
+                                "Copying notes across tools",
+                                "No built-in sentiment or analytics",
+                                "Hard to refine or rewrite quickly",
+                              ]
+                            : [
+                                "Upload documents, tables, text, or code files",
+                                "Generate summary + bullet summary",
+                                "Run sentiment analysis and document analytics",
+                                "Chat, refine, rewrite, or use voice responses",
+                              ]
+                          ).map((item) => (
+                            <Stack
+                              key={item}
+                              direction="row"
+                              spacing={1.5}
+                              alignItems="center"
+                            >
+                              {index === 0 ? (
+                                <RemoveCircleOutline
+                                  fontSize="small"
+                                  sx={{ color: palette.textMuted }}
+                                />
+                              ) : (
+                                <CheckCircle
+                                  fontSize="small"
+                                  sx={{ color: "white" }}
+                                />
+                              )}
+                              <Typography
+                                sx={{
+                                  font: "inherit",
+                                  color:
+                                    index === 0
+                                      ? palette.textSecondary
+                                      : "white",
+                                }}
+                              >
+                                {item}
+                              </Typography>
+                            </Stack>
+                          ))}
+                        </Stack>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                ),
+              )}
+            </Grid>
+          </Box>
+
+          {/* Supported inputs — marquee */}
+          <Box sx={{ mt: sectionSpacing, textAlign: "center" }}>
+            <Eyebrow label="Supported inputs" />
+            <Typography sx={{ ...sectionTitleSx, mb: 2 }} className="reveal">
+              Bring almost anything
+            </Typography>
+            <Typography
+              sx={{
+                ...sectionSubtitleSx,
+                mb: { xs: 4, md: 6 },
+                maxWidth: "680px",
+                mx: "auto",
+              }}
+              className="reveal"
+            >
+              Documents, structured data, text, logs, and code. Google Drive
+              supports PDF, Word, JSON, and text-based files; voice chat
+              supports audio upload or recording.
+            </Typography>
+            <Box
+              sx={{
+                position: "relative",
+                overflow: "hidden",
+                py: 1,
+                "&::before, &::after": {
+                  content: '""',
+                  position: "absolute",
+                  top: 0,
+                  bottom: 0,
+                  width: { xs: 40, md: 120 },
+                  zIndex: 2,
+                  pointerEvents: "none",
+                },
+                "&::before": {
+                  left: 0,
+                  background: `linear-gradient(to right, ${palette.background}, transparent)`,
+                },
+                "&::after": {
+                  right: 0,
+                  background: `linear-gradient(to left, ${palette.background}, transparent)`,
+                },
+              }}
+            >
+              {[0, 1].map((row) => (
+                <Box
+                  key={row}
+                  sx={{
+                    display: "flex",
+                    width: "max-content",
+                    gap: 1.5,
+                    mb: row === 0 ? 1.5 : 0,
+                    animation: reduceMotion
+                      ? "none"
+                      : `${row === 0 ? marquee : marqueeReverse} ${
+                          row === 0 ? 38 : 46
+                        }s linear infinite`,
+                    flexWrap: reduceMotion ? "wrap" : "nowrap",
+                    justifyContent: reduceMotion ? "center" : "flex-start",
+                    "&:hover": { animationPlayState: "paused" },
+                  }}
+                >
+                  {(reduceMotion
+                    ? integrations
+                    : [...integrations, ...integrations]
+                  ).map((label, idx) => (
+                    <Chip
+                      key={`${row}-${label}-${idx}`}
+                      label={label}
                       sx={{
                         font: "inherit",
-                        fontWeight: 600,
-                        fontSize: "1.1rem",
-                        mt: 2,
-                        mb: 1,
-                        color: palette.textPrimary,
+                        fontSize: "0.95rem",
+                        py: 2.25,
+                        px: 0.5,
+                        borderRadius: "999px",
+                        backgroundColor: palette.surface,
+                        border: `1px solid ${palette.border}`,
+                        color: palette.textSecondary,
+                        "& .MuiChip-label": { px: 2 },
                       }}
-                    >
-                      {item.title}
-                    </Typography>
-                    <Typography
-                      sx={{ font: "inherit", color: palette.textSecondary }}
-                    >
-                      {item.description}
-                    </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
+                    />
+                  ))}
+                </Box>
+              ))}
+            </Box>
+          </Box>
 
-        {/* Comparison */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Eyebrow label="The difference" />
-          <Typography
-            sx={{ ...sectionTitleSx, textAlign: "center", mb: { xs: 5, md: 7 } }}
-            className="reveal"
-          >
-            Manual vs DocuThinker
-          </Typography>
-          <Grid container spacing={3}>
-            {["Manual workflow", "DocuThinker workflow"].map((title, index) => (
-              <Grid item xs={12} md={6} key={title}>
-                <Card
+          {/* Use cases */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Eyebrow label="Use cases" />
+            <Typography
+              sx={{
+                ...sectionTitleSx,
+                textAlign: "center",
+                mb: { xs: 5, md: 7 },
+              }}
+              className="reveal"
+            >
+              What you can do right now
+            </Typography>
+            <Grid container spacing={3}>
+              {useCases.map((useCase) => (
+                <Grid item xs={12} sm={6} md={3} key={useCase.title}>
+                  <Card sx={lightCardSx} className="reveal">
+                    <CardContent sx={{ p: { xs: 3, md: 3.5 } }}>
+                      <IconTile>{useCase.icon}</IconTile>
+                      <Typography
+                        sx={{
+                          font: "inherit",
+                          fontWeight: 600,
+                          fontSize: "1.1rem",
+                          mt: 2,
+                          mb: 1,
+                          color: palette.textPrimary,
+                        }}
+                      >
+                        {useCase.title}
+                      </Typography>
+                      <Typography
+                        sx={{ font: "inherit", color: palette.textSecondary }}
+                      >
+                        {useCase.description}
+                      </Typography>
+                    </CardContent>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
+          </Box>
+
+          {/* Inside the workspace + privacy */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
+              <Grid item xs={12} md={6}>
+                <Eyebrow label="Inside the workspace" align="left" />
+                <Typography
+                  sx={{ ...sectionTitleSx, mb: 2 }}
+                  className="reveal"
+                >
+                  Made for real work
+                </Typography>
+                <Typography
+                  sx={{ ...sectionSubtitleSx, mb: 3 }}
+                  className="reveal"
+                >
+                  Everything below reflects features available in the app today.
+                </Typography>
+                <Box
+                  key={testimonialIndex}
                   sx={{
-                    height: "100%",
-                    borderRadius: "22px",
-                    border:
-                      index === 0
-                        ? `1px solid ${palette.border}`
-                        : "none",
-                    background:
-                      index === 0
-                        ? palette.surface
-                        : `linear-gradient(150deg, ${palette.accent}, #ff9d3f)`,
-                    color: index === 0 ? palette.textPrimary : "white",
-                    boxShadow: index === 0 ? "none" : palette.shadowSoft,
-                    "&:hover": {
-                      transform: "translateY(-6px)",
-                      borderColor:
-                        index === 0 ? "rgba(245,124,0,0.4)" : "transparent",
-                    },
+                    p: 3,
+                    borderRadius: "18px",
+                    backgroundColor: palette.surfaceAlt,
+                    border: `1px solid ${palette.border}`,
+                    animation: reduceMotion
+                      ? "none"
+                      : `${fadeSwap} 0.6s ease-out`,
                   }}
+                >
+                  <Typography
+                    sx={{
+                      fontFamily: displayFont,
+                      fontWeight: 600,
+                      fontSize: "1.3rem",
+                      mb: 1,
+                      color: palette.textPrimary,
+                    }}
+                  >
+                    {testimonials[testimonialIndex].title}
+                  </Typography>
+                  <Typography
+                    sx={{ font: "inherit", color: palette.textSecondary }}
+                  >
+                    {testimonials[testimonialIndex].description}
+                  </Typography>
+                </Box>
+                <Stack direction="row" spacing={1} sx={{ mt: 3 }}>
+                  <IconButton
+                    aria-label="Previous"
+                    onClick={() =>
+                      setTestimonialIndex(
+                        (prev) =>
+                          (prev - 1 + testimonials.length) %
+                          testimonials.length,
+                      )
+                    }
+                    sx={{
+                      border: `1px solid ${palette.border}`,
+                      color: palette.textPrimary,
+                    }}
+                  >
+                    <ArrowBackIosNew fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    aria-label="Next"
+                    onClick={() =>
+                      setTestimonialIndex(
+                        (prev) => (prev + 1) % testimonials.length,
+                      )
+                    }
+                    sx={{
+                      border: `1px solid ${palette.border}`,
+                      color: palette.textPrimary,
+                    }}
+                  >
+                    <ArrowForwardIos fontSize="small" />
+                  </IconButton>
+                </Stack>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Card
+                  sx={{ ...lightCardSx, borderRadius: "22px" }}
                   className="reveal"
                 >
                   <CardContent sx={{ p: { xs: 3, md: 4 } }}>
                     <Typography
                       sx={{
-                        fontFamily: displayFont,
+                        font: "inherit",
                         fontWeight: 600,
-                        fontSize: "1.5rem",
+                        fontSize: "1.15rem",
                         mb: 2.5,
-                        color: index === 0 ? palette.textPrimary : "white",
+                        color: palette.textPrimary,
                       }}
                     >
-                      {title}
+                      Data handling (from Privacy Policy)
                     </Typography>
-                    <Stack spacing={1.75}>
-                      {(index === 0
-                        ? [
-                            "Manual reading and highlighting",
-                            "Copying notes across tools",
-                            "No built-in sentiment or analytics",
-                            "Hard to refine or rewrite quickly",
-                          ]
-                        : [
-                            "Upload documents, tables, text, or code files",
-                            "Generate summary + bullet summary",
-                            "Run sentiment analysis and document analytics",
-                            "Chat, refine, rewrite, or use voice responses",
-                          ]
-                      ).map((item) => (
+                    <Stack spacing={2.5}>
+                      {[
+                        "Signed-in documents may be stored for later access.",
+                        "Guest uploads are processed but not stored.",
+                        "Google Drive access is read-only for file selection.",
+                      ].map((item) => (
                         <Stack
                           key={item}
                           direction="row"
-                          spacing={1.5}
+                          spacing={2}
                           alignItems="center"
                         >
-                          {index === 0 ? (
-                            <RemoveCircleOutline
-                              fontSize="small"
-                              sx={{ color: palette.textMuted }}
-                            />
-                          ) : (
-                            <CheckCircle
-                              fontSize="small"
-                              sx={{ color: "white" }}
-                            />
-                          )}
+                          <IconTile>
+                            <Security fontSize="small" />
+                          </IconTile>
                           <Typography
                             sx={{
                               font: "inherit",
-                              color:
-                                index === 0 ? palette.textSecondary : "white",
+                              color: palette.textSecondary,
                             }}
                           >
                             {item}
@@ -1662,477 +1950,234 @@ const LandingPage = () => {
                   </CardContent>
                 </Card>
               </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* Supported inputs — marquee */}
-        <Box sx={{ mt: sectionSpacing, textAlign: "center" }}>
-          <Eyebrow label="Supported inputs" />
-          <Typography
-            sx={{ ...sectionTitleSx, mb: 2 }}
-            className="reveal"
-          >
-            Bring almost anything
-          </Typography>
-          <Typography
-            sx={{
-              ...sectionSubtitleSx,
-              mb: { xs: 4, md: 6 },
-              maxWidth: "680px",
-              mx: "auto",
-            }}
-            className="reveal"
-          >
-            Documents, structured data, text, logs, and code. Google Drive
-            supports PDF, Word, JSON, and text-based files; voice chat supports
-            audio upload or recording.
-          </Typography>
-          <Box
-            sx={{
-              position: "relative",
-              overflow: "hidden",
-              py: 1,
-              "&::before, &::after": {
-                content: '""',
-                position: "absolute",
-                top: 0,
-                bottom: 0,
-                width: { xs: 40, md: 120 },
-                zIndex: 2,
-                pointerEvents: "none",
-              },
-              "&::before": {
-                left: 0,
-                background: `linear-gradient(to right, ${palette.background}, transparent)`,
-              },
-              "&::after": {
-                right: 0,
-                background: `linear-gradient(to left, ${palette.background}, transparent)`,
-              },
-            }}
-          >
-            {[0, 1].map((row) => (
-              <Box
-                key={row}
-                sx={{
-                  display: "flex",
-                  width: "max-content",
-                  gap: 1.5,
-                  mb: row === 0 ? 1.5 : 0,
-                  animation: reduceMotion
-                    ? "none"
-                    : `${row === 0 ? marquee : marqueeReverse} ${
-                        row === 0 ? 38 : 46
-                      }s linear infinite`,
-                  flexWrap: reduceMotion ? "wrap" : "nowrap",
-                  justifyContent: reduceMotion ? "center" : "flex-start",
-                  "&:hover": { animationPlayState: "paused" },
-                }}
-              >
-                {(reduceMotion
-                  ? integrations
-                  : [...integrations, ...integrations]
-                ).map((label, idx) => (
-                  <Chip
-                    key={`${row}-${label}-${idx}`}
-                    label={label}
-                    sx={{
-                      font: "inherit",
-                      fontSize: "0.95rem",
-                      py: 2.25,
-                      px: 0.5,
-                      borderRadius: "999px",
-                      backgroundColor: palette.surface,
-                      border: `1px solid ${palette.border}`,
-                      color: palette.textSecondary,
-                      "& .MuiChip-label": { px: 2 },
-                    }}
-                  />
-                ))}
-              </Box>
-            ))}
+            </Grid>
           </Box>
-        </Box>
 
-        {/* Use cases */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Eyebrow label="Use cases" />
-          <Typography
-            sx={{ ...sectionTitleSx, textAlign: "center", mb: { xs: 5, md: 7 } }}
-            className="reveal"
-          >
-            What you can do right now
-          </Typography>
-          <Grid container spacing={3}>
-            {useCases.map((useCase) => (
-              <Grid item xs={12} sm={6} md={3} key={useCase.title}>
-                <Card sx={lightCardSx} className="reveal">
-                  <CardContent sx={{ p: { xs: 3, md: 3.5 } }}>
-                    <IconTile>{useCase.icon}</IconTile>
+          {/* FAQ — accordion */}
+          <Box sx={{ mt: sectionSpacing }}>
+            <Eyebrow label="FAQ" />
+            <Typography
+              sx={{
+                ...sectionTitleSx,
+                textAlign: "center",
+                mb: { xs: 5, md: 7 },
+              }}
+              className="reveal"
+            >
+              Answers at a glance
+            </Typography>
+            <Box sx={{ maxWidth: 820, mx: "auto" }} className="reveal">
+              {faqs.map((faq, i) => (
+                <Accordion
+                  key={faq.title}
+                  defaultExpanded={i === 0}
+                  disableGutters
+                  elevation={0}
+                  sx={{
+                    mb: 1.5,
+                    borderRadius: "16px !important",
+                    border: `1px solid ${palette.border}`,
+                    backgroundColor: palette.surface,
+                    "&:before": { display: "none" },
+                    overflow: "hidden",
+                  }}
+                >
+                  <AccordionSummary
+                    expandIcon={<ExpandMore sx={{ color: palette.accent }} />}
+                    sx={{
+                      px: { xs: 2.5, md: 3 },
+                      py: 1,
+                      backgroundColor: "transparent",
+                      transition: "background-color 0.25s ease",
+                      "& .MuiAccordionSummary-content": { my: 1.5 },
+                      // Tighten the header→body gap when expanded (MUI defaults the
+                      // expanded content margin to 20px). Collapsed stays at 1.5.
+                      "& .MuiAccordionSummary-content.Mui-expanded": {
+                        mt: 1.5,
+                        mb: 0.25,
+                      },
+                      // No hover effect — neutralize the app-wide `button:hover`
+                      // red by keeping the background unchanged on hover.
+                      "&:hover": { backgroundColor: "transparent" },
+                    }}
+                  >
                     <Typography
                       sx={{
                         font: "inherit",
                         fontWeight: 600,
-                        fontSize: "1.1rem",
-                        mt: 2,
-                        mb: 1,
+                        fontSize: "1.05rem",
                         color: palette.textPrimary,
                       }}
                     >
-                      {useCase.title}
+                      {faq.title}
                     </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails
+                    sx={{ px: { xs: 2.5, md: 3 }, pt: 0, pb: 2.5 }}
+                  >
                     <Typography
                       sx={{ font: "inherit", color: palette.textSecondary }}
                     >
-                      {useCase.description}
+                      {faq.description}
                     </Typography>
-                  </CardContent>
-                </Card>
-              </Grid>
-            ))}
-          </Grid>
-        </Box>
-
-        {/* Inside the workspace + privacy */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Grid container spacing={{ xs: 4, md: 6 }} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Eyebrow label="Inside the workspace" align="left" />
-              <Typography
-                sx={{ ...sectionTitleSx, mb: 2 }}
-                className="reveal"
-              >
-                Made for real work
-              </Typography>
-              <Typography
-                sx={{ ...sectionSubtitleSx, mb: 3 }}
-                className="reveal"
-              >
-                Everything below reflects features available in the app today.
-              </Typography>
-              <Box
-                key={testimonialIndex}
-                sx={{
-                  p: 3,
-                  borderRadius: "18px",
-                  backgroundColor: palette.surfaceAlt,
-                  border: `1px solid ${palette.border}`,
-                  animation: reduceMotion
-                    ? "none"
-                    : `${fadeSwap} 0.6s ease-out`,
-                }}
-              >
-                <Typography
-                  sx={{
-                    fontFamily: displayFont,
-                    fontWeight: 600,
-                    fontSize: "1.3rem",
-                    mb: 1,
-                    color: palette.textPrimary,
-                  }}
-                >
-                  {testimonials[testimonialIndex].title}
-                </Typography>
-                <Typography
-                  sx={{ font: "inherit", color: palette.textSecondary }}
-                >
-                  {testimonials[testimonialIndex].description}
-                </Typography>
-              </Box>
-              <Stack direction="row" spacing={1} sx={{ mt: 3 }}>
-                <IconButton
-                  aria-label="Previous"
-                  onClick={() =>
-                    setTestimonialIndex(
-                      (prev) =>
-                        (prev - 1 + testimonials.length) % testimonials.length,
-                    )
-                  }
-                  sx={{
-                    border: `1px solid ${palette.border}`,
-                    color: palette.textPrimary,
-                  }}
-                >
-                  <ArrowBackIosNew fontSize="small" />
-                </IconButton>
-                <IconButton
-                  aria-label="Next"
-                  onClick={() =>
-                    setTestimonialIndex(
-                      (prev) => (prev + 1) % testimonials.length,
-                    )
-                  }
-                  sx={{
-                    border: `1px solid ${palette.border}`,
-                    color: palette.textPrimary,
-                  }}
-                >
-                  <ArrowForwardIos fontSize="small" />
-                </IconButton>
-              </Stack>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Card
-                sx={{ ...lightCardSx, borderRadius: "22px" }}
-                className="reveal"
-              >
-                <CardContent sx={{ p: { xs: 3, md: 4 } }}>
-                  <Typography
-                    sx={{
-                      font: "inherit",
-                      fontWeight: 600,
-                      fontSize: "1.15rem",
-                      mb: 2.5,
-                      color: palette.textPrimary,
-                    }}
-                  >
-                    Data handling (from Privacy Policy)
-                  </Typography>
-                  <Stack spacing={2.5}>
-                    {[
-                      "Signed-in documents may be stored for later access.",
-                      "Guest uploads are processed but not stored.",
-                      "Google Drive access is read-only for file selection.",
-                    ].map((item) => (
-                      <Stack
-                        key={item}
-                        direction="row"
-                        spacing={2}
-                        alignItems="center"
-                      >
-                        <IconTile>
-                          <Security fontSize="small" />
-                        </IconTile>
-                        <Typography
-                          sx={{ font: "inherit", color: palette.textSecondary }}
-                        >
-                          {item}
-                        </Typography>
-                      </Stack>
-                    ))}
-                  </Stack>
-                </CardContent>
-              </Card>
-            </Grid>
-          </Grid>
-        </Box>
-
-        {/* FAQ — accordion */}
-        <Box sx={{ mt: sectionSpacing }}>
-          <Eyebrow label="FAQ" />
-          <Typography
-            sx={{ ...sectionTitleSx, textAlign: "center", mb: { xs: 5, md: 7 } }}
-            className="reveal"
-          >
-            Answers at a glance
-          </Typography>
-          <Box sx={{ maxWidth: 820, mx: "auto" }} className="reveal">
-            {faqs.map((faq, i) => (
-              <Accordion
-                key={faq.title}
-                defaultExpanded={i === 0}
-                disableGutters
-                elevation={0}
-                sx={{
-                  mb: 1.5,
-                  borderRadius: "16px !important",
-                  border: `1px solid ${palette.border}`,
-                  backgroundColor: palette.surface,
-                  "&:before": { display: "none" },
-                  overflow: "hidden",
-                }}
-              >
-                <AccordionSummary
-                  expandIcon={<ExpandMore sx={{ color: palette.accent }} />}
-                  sx={{
-                    px: { xs: 2.5, md: 3 },
-                    py: 1,
-                    backgroundColor: "transparent",
-                    transition: "background-color 0.25s ease",
-                    "& .MuiAccordionSummary-content": { my: 1.5 },
-                    // Tighten the header→body gap when expanded (MUI defaults the
-                    // expanded content margin to 20px). Collapsed stays at 1.5.
-                    "& .MuiAccordionSummary-content.Mui-expanded": {
-                      mt: 1.5,
-                      mb: 0.25,
-                    },
-                    // No hover effect — neutralize the app-wide `button:hover`
-                    // red by keeping the background unchanged on hover.
-                    "&:hover": { backgroundColor: "transparent" },
-                  }}
-                >
-                  <Typography
-                    sx={{
-                      font: "inherit",
-                      fontWeight: 600,
-                      fontSize: "1.05rem",
-                      color: palette.textPrimary,
-                    }}
-                  >
-                    {faq.title}
-                  </Typography>
-                </AccordionSummary>
-                <AccordionDetails sx={{ px: { xs: 2.5, md: 3 }, pt: 0, pb: 2.5 }}>
-                  <Typography
-                    sx={{ font: "inherit", color: palette.textSecondary }}
-                  >
-                    {faq.description}
-                  </Typography>
-                </AccordionDetails>
-              </Accordion>
-            ))}
+                  </AccordionDetails>
+                </Accordion>
+              ))}
+            </Box>
           </Box>
-        </Box>
-      </Container>
+        </Container>
 
-      {/* ===================== 3D CTA bookend ===================== */}
-      <Box
-        component="section"
-        sx={{
-          mt: sectionSpacing,
-          position: "relative",
-          zIndex: 1,
-          width: "100%",
-          minHeight: { xs: 560, md: 620 },
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        {/* Scrim so the closing headline reads over the glowing core below it */}
+        {/* ===================== 3D CTA bookend ===================== */}
         <Box
+          component="section"
           sx={{
-            position: "absolute",
-            inset: 0,
+            mt: sectionSpacing,
+            position: "relative",
             zIndex: 1,
-            pointerEvents: "none",
-            background:
-              "radial-gradient(ellipse 120% 100% at 50% 50%, rgba(10,6,3,0.55) 0%, rgba(10,6,3,0.22) 45%, rgba(10,6,3,0) 100%)",
+            width: "100%",
+            minHeight: { xs: 560, md: 620 },
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
           }}
-        />
-        <Container
-          maxWidth="md"
-          sx={{ position: "relative", zIndex: 2, textAlign: "center", py: 8 }}
         >
+          {/* Scrim so the closing headline reads over the glowing core below it */}
           <Box
-            className="reveal"
-            sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+            sx={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 1,
+              pointerEvents: "none",
+              background:
+                "radial-gradient(ellipse 120% 100% at 50% 50%, rgba(10,6,3,0.55) 0%, rgba(10,6,3,0.22) 45%, rgba(10,6,3,0) 100%)",
+            }}
+          />
+          <Container
+            maxWidth="md"
+            sx={{ position: "relative", zIndex: 2, textAlign: "center", py: 8 }}
           >
-            <Eyebrow label="Get started" light />
-            <Typography
+            <Box
+              className="reveal"
               sx={{
-                fontFamily: displayFont,
-                fontWeight: 600,
-                fontSize: { xs: "2.4rem", sm: "3.2rem", md: "4rem" },
-                lineHeight: 1.12,
-                letterSpacing: "-0.02em",
-                color: palette.heroText,
-                mb: 2.5,
-                px: { xs: 1, sm: 0 },
-                pb: "0.12em",
-                textShadow: "0 2px 30px rgba(0,0,0,0.5)",
-              }}
-            >
-              Ready to make documents{" "}
-              <Box
-                component="span"
-                sx={{
-                  display: "inline-block",
-                  pr: "0.14em",
-                  fontStyle: "italic",
-                  background:
-                    "linear-gradient(90deg, #ff8a1e, #ffd27f, #ff6a00)",
-                  backgroundSize: "200% auto",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  color: "transparent",
-                  animation: reduceMotion
-                    ? "none"
-                    : `${textShimmer} 6s linear infinite`,
-                }}
-              >
-                instantly useful
-              </Box>
-              ?
-            </Typography>
-            <Typography
-              sx={{
-                font: "inherit",
-                color: palette.heroMuted,
-                fontSize: { xs: "1.05rem", md: "1.2rem" },
-                maxWidth: 560,
-                mb: 4,
-              }}
-            >
-              Start now and see how DocuThinker turns information into action —
-              no setup, no friction.
-            </Typography>
-            <Stack
-              direction={{ xs: "column", sm: "row" }}
-              spacing={2}
-              sx={{
-                width: { xs: "100%", sm: "auto" },
-                justifyContent: "center",
+                display: "flex",
+                flexDirection: "column",
                 alignItems: "center",
               }}
             >
-              <Button
-                component={Link}
-                to="/register"
-                variant="contained"
-                size="large"
-                endIcon={<ArrowForward />}
+              <Eyebrow label="Get started" light />
+              <Typography
                 sx={{
-                  backgroundColor: palette.accent,
-                  font: "inherit",
+                  fontFamily: displayFont,
                   fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: "1.05rem",
-                  px: 4,
-                  py: 1.3,
-                  borderRadius: "999px",
-                  boxShadow: "0 12px 34px rgba(245,124,0,0.45)",
-                  transition: "transform 0.25s ease, box-shadow 0.25s ease",
-                  "&:hover": {
-                    backgroundColor: palette.accentDark,
-                    transform: "translateY(-2px)",
-                    boxShadow: "0 18px 44px rgba(245,124,0,0.55)",
-                  },
-                }}
-              >
-                Get Started
-              </Button>
-              <Button
-                component={Link}
-                to="/register"
-                variant="outlined"
-                size="large"
-                sx={{
-                  borderColor: palette.heroGlassBorder,
+                  fontSize: { xs: "2.4rem", sm: "3.2rem", md: "4rem" },
+                  lineHeight: 1.12,
+                  letterSpacing: "-0.02em",
                   color: palette.heroText,
-                  font: "inherit",
-                  fontWeight: 600,
-                  textTransform: "none",
-                  fontSize: "1.05rem",
-                  px: 4,
-                  py: 1.3,
-                  borderRadius: "999px",
-                  backgroundColor: "rgba(255,255,255,0.03)",
-                  backdropFilter: "blur(6px)",
-                  "&:hover": {
-                    borderColor: "#ffb066",
-                    backgroundColor: "rgba(255,138,26,0.1)",
-                  },
+                  mb: 2.5,
+                  px: { xs: 1, sm: 0 },
+                  pb: "0.12em",
+                  textShadow: "0 2px 30px rgba(0,0,0,0.5)",
                 }}
               >
-                Create Account
-              </Button>
-            </Stack>
-          </Box>
-        </Container>
-      </Box>
+                Ready to make documents{" "}
+                <Box
+                  component="span"
+                  sx={{
+                    display: "inline-block",
+                    pr: "0.14em",
+                    fontStyle: "italic",
+                    background:
+                      "linear-gradient(90deg, #ff8a1e, #ffd27f, #ff6a00)",
+                    backgroundSize: "200% auto",
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    color: "transparent",
+                    animation: reduceMotion
+                      ? "none"
+                      : `${textShimmer} 6s linear infinite`,
+                  }}
+                >
+                  instantly useful
+                </Box>
+                ?
+              </Typography>
+              <Typography
+                sx={{
+                  font: "inherit",
+                  color: palette.heroMuted,
+                  fontSize: { xs: "1.05rem", md: "1.2rem" },
+                  maxWidth: 560,
+                  mb: 4,
+                }}
+              >
+                Start now and see how DocuThinker turns information into action
+                — no setup, no friction.
+              </Typography>
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                sx={{
+                  width: { xs: "100%", sm: "auto" },
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="contained"
+                  size="large"
+                  endIcon={<ArrowForward />}
+                  sx={{
+                    backgroundColor: palette.accent,
+                    font: "inherit",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: "1.05rem",
+                    px: 4,
+                    py: 1.3,
+                    borderRadius: "999px",
+                    boxShadow: "0 12px 34px rgba(245,124,0,0.45)",
+                    transition: "transform 0.25s ease, box-shadow 0.25s ease",
+                    "&:hover": {
+                      backgroundColor: palette.accentDark,
+                      transform: "translateY(-2px)",
+                      boxShadow: "0 18px 44px rgba(245,124,0,0.55)",
+                    },
+                  }}
+                >
+                  Get Started
+                </Button>
+                <Button
+                  component={Link}
+                  to="/register"
+                  variant="outlined"
+                  size="large"
+                  sx={{
+                    borderColor: palette.heroGlassBorder,
+                    color: palette.heroText,
+                    font: "inherit",
+                    fontWeight: 600,
+                    textTransform: "none",
+                    fontSize: "1.05rem",
+                    px: 4,
+                    py: 1.3,
+                    borderRadius: "999px",
+                    backgroundColor: "rgba(255,255,255,0.03)",
+                    backdropFilter: "blur(6px)",
+                    "&:hover": {
+                      borderColor: "#ffb066",
+                      backgroundColor: "rgba(255,138,26,0.1)",
+                    },
+                  }}
+                >
+                  Create Account
+                </Button>
+              </Stack>
+            </Box>
+          </Container>
+        </Box>
       </Box>
     </Box>
   );

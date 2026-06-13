@@ -165,53 +165,56 @@ function AppLayout({ theme, onThemeToggle }) {
       <Box sx={{ flexGrow: 1 }}>
         <div className={animClass} onAnimationEnd={handleAnimationEnd}>
           <Routes location={displayLocation}>
-          <Route path="/home" element={<Home theme={theme} />} />
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/landing" element={<LandingPage />} />
-          <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
-          <Route path="/documents" element={<DocumentsPage theme={theme} />} />
-          <Route
-            path="/forgot-password"
-            element={
-              <RequireGuest>
-                <ForgotPassword theme={theme} />
-              </RequireGuest>
-            }
-          />
-          <Route path="/profile" element={<Profile theme={theme} />} />
-          <Route
-            path="/passkeys"
-            element={
-              <RequireAuth>
-                <Passkeys theme={theme} />
-              </RequireAuth>
-            }
-          />
-          <Route
-            path="/privacy-policy"
-            element={<PrivacyPolicy theme={theme} />}
-          />
-          <Route
-            path="/terms-of-service"
-            element={<TermsOfService theme={theme} />}
-          />
-          <Route
-            path="/login"
-            element={
-              <RequireGuest>
-                <Login theme={theme} />
-              </RequireGuest>
-            }
-          />
-          <Route
-            path="/register"
-            element={
-              <RequireGuest>
-                <Register theme={theme} />
-              </RequireGuest>
-            }
-          />
-          <Route path="*" element={<NotFoundPage theme={theme} />} />
+            <Route path="/home" element={<Home theme={theme} />} />
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/how-to-use" element={<HowToUse theme={theme} />} />
+            <Route
+              path="/documents"
+              element={<DocumentsPage theme={theme} />}
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <RequireGuest>
+                  <ForgotPassword theme={theme} />
+                </RequireGuest>
+              }
+            />
+            <Route path="/profile" element={<Profile theme={theme} />} />
+            <Route
+              path="/passkeys"
+              element={
+                <RequireAuth>
+                  <Passkeys theme={theme} />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/privacy-policy"
+              element={<PrivacyPolicy theme={theme} />}
+            />
+            <Route
+              path="/terms-of-service"
+              element={<TermsOfService theme={theme} />}
+            />
+            <Route
+              path="/login"
+              element={
+                <RequireGuest>
+                  <Login theme={theme} />
+                </RequireGuest>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <RequireGuest>
+                  <Register theme={theme} />
+                </RequireGuest>
+              }
+            />
+            <Route path="*" element={<NotFoundPage theme={theme} />} />
           </Routes>
         </div>
       </Box>
