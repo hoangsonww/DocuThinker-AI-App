@@ -4,23 +4,42 @@
 // learn more: https://github.com/testing-library/jest-dom
 import "@testing-library/jest-dom";
 
-// --- jsdom polyfills ---
-// jsdom doesn't implement these browser APIs that MUI, animations, and a few
-// components reach for. Stub them so component renders don't crash in tests.
-if (!window.matchMedia) {
-  window.matchMedia = (query) => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => {},
-    removeListener: () => {},
-    addEventListener: () => {},
-    removeEventListener: () => {},
-    dispatchEvent: () => false,
-  });
+/*
+ * Browser-API polyfills for jsdom.
+ *
+ * jsdom omits several APIs our components rely on (matchMedia for
+ * reduced-motion checks, the Intersection/Resize observers used for scroll
+ * reveals, and scroll helpers). Without these, rendering components for
+ * snapshot tests throws. The stubs are intentionally inert so renders stay
+ * deterministic.
+ */
+if (typeof window !== "undefined") {
+  if (typeof window.matchMedia !== "function") {
+    window.matchMedia = (query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    });
+  }
+
+  if (typeof window.scrollTo !== "function") {
+    window.scrollTo = () => {};
+  }
+
+  if (typeof window.HTMLElement !== "undefined") {
+    window.HTMLElement.prototype.scrollIntoView = () => {};
+  }
 }
 
 class MockObserver {
+  constructor(callback) {
+    this.callback = callback;
+  }
   observe() {}
   unobserve() {}
   disconnect() {}
@@ -28,11 +47,15 @@ class MockObserver {
     return [];
   }
 }
-global.ResizeObserver = global.ResizeObserver || MockObserver;
-global.IntersectionObserver = global.IntersectionObserver || MockObserver;
 
-if (!window.scrollTo) {
-  window.scrollTo = () => {};
+if (typeof global.IntersectionObserver === "undefined") {
+  global.IntersectionObserver = MockObserver;
+  if (typeof window !== "undefined") window.IntersectionObserver = MockObserver;
+}
+
+if (typeof global.ResizeObserver === "undefined") {
+  global.ResizeObserver = MockObserver;
+  if (typeof window !== "undefined") window.ResizeObserver = MockObserver;
 }
 
 // Several forms use autoFocus, which toggles MUI's focus classes. jsdom honors
@@ -40,4 +63,9 @@ if (!window.scrollTo) {
 // CI), which would make focus-sensitive snapshots flaky. Neutralize focus so
 // the rendered markup is the unfocused state everywhere. (Not a jest mock, so
 // clearMocks doesn't reset it between tests.)
-HTMLElement.prototype.focus = () => {};
+if (
+  typeof window !== "undefined" &&
+  typeof window.HTMLElement !== "undefined"
+) {
+  window.HTMLElement.prototype.focus = () => {};
+}

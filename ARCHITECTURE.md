@@ -6,6 +6,7 @@
 - [System Architecture](#system-architecture)
 - [Production DevOps Platform](#production-devops-platform)
 - [Frontend Architecture](#frontend-architecture)
+- [Landing Page 3D Experience](#landing-page-3d-experience)
 - [Multi-Format Ingestion & Rendering](#multi-format-ingestion--rendering)
 - [Backend Architecture](#backend-architecture)
 - [Document Storage & Data Model](#document-storage--data-model)
@@ -365,6 +366,74 @@ graph TB
     N --> P
     O --> P
 ```
+
+---
+
+## Landing Page 3D Experience
+
+The marketing landing page (`frontend/src/pages/LandingPage.js`) is a cinematic, **scroll-reactive 3D experience** rendered with **Three.js** through **React Three Fiber (R3F)** and **Drei**. The scene lives in `frontend/src/components/three/HeroExperience.js` and is lazy-loaded (via `React.lazy`) so the first paint of the hero copy never blocks on the Three.js bundle (~240 kB gzipped, split into its own chunk).
+
+### Design goals
+
+- **One continuous background, not two boxes.** A single WebGL canvas sits behind the *entire* page and the camera travels through it as the user scrolls — replacing the earlier approach of two isolated canvases (hero + CTA).
+- **Readable content over a moving scene.** Content surfaces are **solid dark panels**; the 3D shows through the open areas (hero, CTA, inter-section gaps), keeping copy crisp.
+- **Zero binary assets.** Every shape is primitive geometry, lighting is rendered into an in-memory cube with `<Lightformer>` panels (no `.hdr`), and particles use `<Sparkles>`. Nothing extra ships in the bundle.
+- **Graceful degradation** for reduced-motion, no-WebGL, and low-power devices.
+
+### Compositing: sticky canvas + negative-margin overlay
+
+The page can't use `position: fixed` for the background because the app's route wrapper (`.page-transition`) applies `will-change: transform`, which creates a containing block that would trap a fixed child. Instead the canvas is pinned with `position: sticky`:
+
+```
+LandingPage root  (position: relative; overflow-x: clip)   ← clip, NOT hidden,
+│                                                             so it isn't a scroll
+│                                                             container (sticky-safe)
+├── 3D background  (position: sticky; top: 0; height: 100svh; z-index: 0)
+│     └── <HeroExperience />  ← single full-viewport WebGL canvas
+│     └── vignette + film-grain scrims (legibility)
+│
+└── Foreground content  (position: relative; z-index: 1; margin-top: -100svh)
+      └── hero · stats · features · … · CTA   (solid panels, transparent sections)
+```
+
+The foreground is pulled up over the sticky background with `margin-top: -100svh`, so the background stays pinned to the viewport for the whole scroll while content scrolls on top of it.
+
+### Scroll-driven camera
+
+Page scroll is normalized to a `0 → 1` progress value, **stored in a ref** and updated by a `passive` scroll listener — it is **never** put in React state, so scrolling triggers **no re-renders**. A `ScrollCamera` component reads that ref every frame (`useFrame`) and lerps the camera down a vertical column of objects:
+
+- **Descend** — `camera.y` travels from `0` (hero core) to `-9` (CTA core), passing frosted-glass "document" panels distributed along the way.
+- **Breathe** — `camera.z` eases back at the scroll midpoint (`sin(p·π)`) for a cinematic dolly.
+- **Sway** — a small lateral `camera.x` drift, plus pointer-parallax on the whole group (`Rig`).
+
+```mermaid
+flowchart LR
+    SCROLL[window scroll] -->|passive listener| REF[scrollRef 0..1]
+    REF -->|read each frame| UF[useFrame / ScrollCamera]
+    UF --> CAM[camera dolly y/z/x + lookAt]
+    CAM --> R[R3F renders single sticky canvas]
+    PTR[pointermove] -->|parallax| RIG[Rig group rotation] --> R
+```
+
+### Scene composition (`HeroExperience.js`)
+
+- **Two glowing cores** (`<MeshDistortMaterial>` icosahedra + additive halo) anchor the hero (top) and CTA (bottom).
+- **Frosted-glass panels** (`<RoundedBox>` with `meshPhysicalMaterial` transmission) drift along the column via `<Float>`.
+- **Metallic accents** (octahedron / dodecahedron / torus-knot) and a `<Sparkles>` field add depth.
+- **Procedural lighting** via `<Environment>` + `<Lightformer>` rectangles/ring rendered to an in-memory cube — no image-based lighting files.
+
+### Capability detection & fallbacks
+
+| Condition | Behavior |
+| --- | --- |
+| `prefers-reduced-motion` | All animation frozen; render loop switches to `frameloop="demand"`; camera holds its initial framing. |
+| No WebGL context | Canvas is never mounted; a pure-CSS warm-glow backdrop (`Fallback`) is shown so the layout/copy stay intact. |
+| Low-power device (≤4 cores / ≤4 GB) | Lighter scene — fewer panels/accents, no shadows or antialias, lower DPR, smaller environment resolution. |
+| GPU context loss | `webglcontextlost` is `preventDefault`ed so the browser can restore instead of blanking; a `CanvasErrorBoundary` swaps in the CSS fallback on hard failure. |
+
+### Testing
+
+Because jsdom has no WebGL, the snapshot suite (`frontend/src/__tests__/07_snapshots.test.js`) mocks `HeroExperience` with a deterministic stub and polyfills the browser APIs the page relies on (`matchMedia`, `IntersectionObserver`, `ResizeObserver`, scroll helpers) in `setupTests.js`. This lets the full `LandingPage` render and snapshot deterministically without a GPU.
 
 ---
 

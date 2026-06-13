@@ -44,38 +44,38 @@ The **DocuThinker Frontend** is built using **React 18** and **Material-UI** to 
 
 ## Tech Stack
 
-| Area | Technology |
-|---|---|
-| **UI framework** | [React 18](https://react.dev/) (functional components + hooks) |
-| **Component library** | [Material-UI (MUI) v6](https://mui.com/) with [Emotion](https://emotion.sh/) styling |
-| **Font** | [Poppins](https://fontsource.org/fonts/poppins) (`@fontsource/poppins`) |
-| **Routing** | [react-router-dom v6](https://reactrouter.com/) |
-| **HTTP** | [axios](https://axios-http.com/) |
-| **Build tooling** | [Create React App](https://create-react-app.dev/) compiled via [CRACO](https://craco.js.org/) (`craco.config.js`) |
-| **Storage client** | [`@supabase/supabase-js`](https://supabase.com/docs/reference/javascript) (direct-to-Storage signed uploads) |
-| **Client-side extraction** | A single `extractDocument()` dispatcher over [`pdfjs-dist`](https://github.com/mozilla/pdf.js) (PDF), [`mammoth`](https://github.com/mwilliamson/mammoth.js) (DOCX), `DOMPurify` (HTML), `file.text()` (Markdown/text/code), and a custom CSV/TSV→table + JSON pretty-printer |
-| **PDF text extraction** | [`pdfjs-dist`](https://github.com/mozilla/pdf.js) (legacy build, line/paragraph reconstruction) |
-| **DOCX conversion** | [`mammoth`](https://github.com/mwilliamson/mammoth.js) → plain text + display HTML |
-| **HTML sanitizing** | [`dompurify`](https://github.com/cure53/DOMPurify) for the original-document viewer |
-| **Markdown & summary rendering** | [`react-markdown`](https://github.com/remarkjs/react-markdown) + `remark-gfm` / `remark-math` / `rehype-katex` (KaTeX math) |
-| **Drag-and-drop upload** | [`react-dropzone`](https://react-dropzone.js.org/) |
-| **Google Drive import** | [`gapi-script`](https://github.com/cohaolain/gapi-script) (Drive read-only) |
-| **Passkeys** | [`@simplewebauthn/browser`](https://simplewebauthn.dev/) |
-| **Analytics** | Google Analytics + `@vercel/analytics` / `@vercel/speed-insights` |
+| Area                             | Technology                                                                                                                                                                                                                                                                    |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **UI framework**                 | [React 18](https://react.dev/) (functional components + hooks)                                                                                                                                                                                                                |
+| **Component library**            | [Material-UI (MUI) v6](https://mui.com/) with [Emotion](https://emotion.sh/) styling                                                                                                                                                                                          |
+| **Font**                         | [Poppins](https://fontsource.org/fonts/poppins) (`@fontsource/poppins`)                                                                                                                                                                                                       |
+| **Routing**                      | [react-router-dom v6](https://reactrouter.com/)                                                                                                                                                                                                                               |
+| **HTTP**                         | [axios](https://axios-http.com/)                                                                                                                                                                                                                                              |
+| **Build tooling**                | [Create React App](https://create-react-app.dev/) compiled via [CRACO](https://craco.js.org/) (`craco.config.js`)                                                                                                                                                             |
+| **Storage client**               | [`@supabase/supabase-js`](https://supabase.com/docs/reference/javascript) (direct-to-Storage signed uploads)                                                                                                                                                                  |
+| **Client-side extraction**       | A single `extractDocument()` dispatcher over [`pdfjs-dist`](https://github.com/mozilla/pdf.js) (PDF), [`mammoth`](https://github.com/mwilliamson/mammoth.js) (DOCX), `DOMPurify` (HTML), `file.text()` (Markdown/text/code), and a custom CSV/TSV→table + JSON pretty-printer |
+| **PDF text extraction**          | [`pdfjs-dist`](https://github.com/mozilla/pdf.js) (legacy build, line/paragraph reconstruction)                                                                                                                                                                               |
+| **DOCX conversion**              | [`mammoth`](https://github.com/mwilliamson/mammoth.js) → plain text + display HTML                                                                                                                                                                                            |
+| **HTML sanitizing**              | [`dompurify`](https://github.com/cure53/DOMPurify) for the original-document viewer                                                                                                                                                                                           |
+| **Markdown & summary rendering** | [`react-markdown`](https://github.com/remarkjs/react-markdown) + `remark-gfm` / `remark-math` / `rehype-katex` (KaTeX math)                                                                                                                                                   |
+| **Drag-and-drop upload**         | [`react-dropzone`](https://react-dropzone.js.org/)                                                                                                                                                                                                                            |
+| **Google Drive import**          | [`gapi-script`](https://github.com/cohaolain/gapi-script) (Drive read-only)                                                                                                                                                                                                   |
+| **Passkeys**                     | [`@simplewebauthn/browser`](https://simplewebauthn.dev/)                                                                                                                                                                                                                      |
+| **Analytics**                    | Google Analytics + `@vercel/analytics` / `@vercel/speed-insights`                                                                                                                                                                                                             |
 
 ## Pages
 
-| Route | Page | Description |
-|---|---|---|
-| `/` | **Landing** | Marketing / welcome page with light & dark variants. |
-| `/home` | **Home** | Upload a document, then view the original + summary and run all AI tools. Shows a sign-in card when logged out. |
-| `/documents` | **Documents** | Instant client-side **search** (by title or summary), **sort** (newest / oldest / title A–Z / Z–A), **type filter** (PDF / Word / Markdown / HTML / CSV / JSON / Text, each with its own icon + colored chip), paginated (5 per page), plus a spinner while a doc opens. Rename, delete, or re-open any document. |
-| `/profile` | **Profile** | Avatar, email, account stats (days since joined, document count), social links, and a hero card. Sign-in gated. |
-| `/passkeys` | **Passkeys** | WebAuthn management — add, rename, and delete passkeys (auth-only). |
-| `/how-to-use` | **How to Use** | Step-by-step guide to every feature. |
-| `/login` | **Login** | Email/password, Google OAuth, and "Sign in with a passkey". |
-| `/register` | **Register** | Account creation, followed by an optional "create a passkey" prompt. |
-| `/forgot-password` | **Forgot Password** | Password reset flow. |
+| Route              | Page                | Description                                                                                                                                                                                                                                                                                                       |
+| ------------------ | ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/`                | **Landing**         | Marketing / welcome page with light & dark variants.                                                                                                                                                                                                                                                              |
+| `/home`            | **Home**            | Upload a document, then view the original + summary and run all AI tools. Shows a sign-in card when logged out.                                                                                                                                                                                                   |
+| `/documents`       | **Documents**       | Instant client-side **search** (by title or summary), **sort** (newest / oldest / title A–Z / Z–A), **type filter** (PDF / Word / Markdown / HTML / CSV / JSON / Text, each with its own icon + colored chip), paginated (5 per page), plus a spinner while a doc opens. Rename, delete, or re-open any document. |
+| `/profile`         | **Profile**         | Avatar, email, account stats (days since joined, document count), social links, and a hero card. Sign-in gated.                                                                                                                                                                                                   |
+| `/passkeys`        | **Passkeys**        | WebAuthn management — add, rename, and delete passkeys (auth-only).                                                                                                                                                                                                                                               |
+| `/how-to-use`      | **How to Use**      | Step-by-step guide to every feature.                                                                                                                                                                                                                                                                              |
+| `/login`           | **Login**           | Email/password, Google OAuth, and "Sign in with a passkey".                                                                                                                                                                                                                                                       |
+| `/register`        | **Register**        | Account creation, followed by an optional "create a passkey" prompt.                                                                                                                                                                                                                                              |
+| `/forgot-password` | **Forgot Password** | Password reset flow.                                                                                                                                                                                                                                                                                              |
 
 ## User Interfaces
 
@@ -202,16 +202,16 @@ The frontend consists of several pages and components that make up the user inte
 
 The upload modal (`components/UploadModal.js`) accepts a wide range of formats. A single `extractDocument()` dispatcher inspects the file's MIME type / extension and routes it to the right handler, returning clean **text** (for the AI), display **HTML** (for the viewer), and a resolved **fileType**. The original file is always stored as-is; the AI only ever sees the extracted text.
 
-| Format | Extensions | How it's extracted | Viewer rendering |
-|---|---|---|---|
-| **PDF** | `.pdf` | `pdfjs-dist` (line/paragraph reconstruction) | Native `<iframe>` of the real PDF |
-| **Word** | `.docx` | `mammoth` → raw text + structured HTML | Sanitized HTML |
-| **Markdown** | `.md`, `.markdown` | `file.text()` | `react-markdown` (GFM + KaTeX) |
-| **HTML** | `.html`, `.htm` | `file.text()`, tags stripped for the AI | `DOMPurify`-sanitized HTML |
-| **CSV / TSV** | `.csv`, `.tsv` | `file.text()` → parsed delimited rows | HTML `<table>` (first row = header) |
-| **JSON** | `.json` | `file.text()`, pretty-printed via `JSON.stringify(…, 2)` | Monospace `<pre>` |
-| **Plain text** | `.txt`, `.text`, `.log` | `file.text()` | `pre-wrap` plaintext |
-| **Code / config** | `.xml` `.yaml`/`.yml` `.js`/`.jsx`/`.mjs`/`.cjs` `.ts`/`.tsx` `.py` `.java` `.c`/`.cpp`/`.cc`/`.h`/`.hpp` `.cs` `.go` `.rs` `.rb` `.php` `.sql` `.sh`/`.bash` `.css`/`.scss`/`.less` `.ini`/`.toml`/`.conf`/`.env` `.kt` `.swift` `.r` `.lua` `.pl` | `file.text()` | Monospace `<pre>` |
+| Format            | Extensions                                                                                                                                                                                                                                          | How it's extracted                                       | Viewer rendering                    |
+| ----------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ----------------------------------- |
+| **PDF**           | `.pdf`                                                                                                                                                                                                                                              | `pdfjs-dist` (line/paragraph reconstruction)             | Native `<iframe>` of the real PDF   |
+| **Word**          | `.docx`                                                                                                                                                                                                                                             | `mammoth` → raw text + structured HTML                   | Sanitized HTML                      |
+| **Markdown**      | `.md`, `.markdown`                                                                                                                                                                                                                                  | `file.text()`                                            | `react-markdown` (GFM + KaTeX)      |
+| **HTML**          | `.html`, `.htm`                                                                                                                                                                                                                                     | `file.text()`, tags stripped for the AI                  | `DOMPurify`-sanitized HTML          |
+| **CSV / TSV**     | `.csv`, `.tsv`                                                                                                                                                                                                                                      | `file.text()` → parsed delimited rows                    | HTML `<table>` (first row = header) |
+| **JSON**          | `.json`                                                                                                                                                                                                                                             | `file.text()`, pretty-printed via `JSON.stringify(…, 2)` | Monospace `<pre>`                   |
+| **Plain text**    | `.txt`, `.text`, `.log`                                                                                                                                                                                                                             | `file.text()`                                            | `pre-wrap` plaintext                |
+| **Code / config** | `.xml` `.yaml`/`.yml` `.js`/`.jsx`/`.mjs`/`.cjs` `.ts`/`.tsx` `.py` `.java` `.c`/`.cpp`/`.cc`/`.h`/`.hpp` `.cs` `.go` `.rs` `.rb` `.php` `.sql` `.sh`/`.bash` `.css`/`.scss`/`.less` `.ini`/`.toml`/`.conf`/`.env` `.kt` `.swift` `.r` `.lua` `.pl` | `file.text()`                                            | Monospace `<pre>`                   |
 
 Unsupported files surface a clear error listing the accepted formats; nothing is sent to the backend.
 
@@ -251,12 +251,12 @@ The Supabase browser client is created in `utils/supabaseClient.js` from `REACT_
 
 The Home page renders the left column based on the stored file type, so the viewer works identically for a fresh upload and a document reopened from history:
 
-| Source | Rendering |
-|---|---|
-| **PDF** (`fileType` includes `pdf` and a signed `fileUrl` exists) | Native `<iframe>` pointing at the signed Supabase URL — **real, paginated PDF pages**. |
-| **DOCX / HTML / CSV / TSV / code** (any `originalHtml` present) | The display HTML is sanitized with **DOMPurify** and styled for headings, bold, lists, tables, blockquotes, images, and `<pre>` code blocks. |
-| **Markdown** | Rendered with **`react-markdown`** (GFM tables + KaTeX math). |
-| **Anything else / no file** | Readable `pre-wrap` plaintext fallback. |
+| Source                                                            | Rendering                                                                                                                                    |
+| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| **PDF** (`fileType` includes `pdf` and a signed `fileUrl` exists) | Native `<iframe>` pointing at the signed Supabase URL — **real, paginated PDF pages**.                                                       |
+| **DOCX / HTML / CSV / TSV / code** (any `originalHtml` present)   | The display HTML is sanitized with **DOMPurify** and styled for headings, bold, lists, tables, blockquotes, images, and `<pre>` code blocks. |
+| **Markdown**                                                      | Rendered with **`react-markdown`** (GFM tables + KaTeX math).                                                                                |
+| **Anything else / no file**                                       | Readable `pre-wrap` plaintext fallback.                                                                                                      |
 
 While dragging the column splitter, a transparent overlay sits above the iframe so the PDF doesn't swallow the mouse events and break the drag.
 
@@ -264,20 +264,20 @@ While dragging the column splitter, a transparent overlay sits above the iframe 
 
 All AI tools run against the deployed backend. The **document title** is prepended as extra context (`withTitle(...)`) on non-persisted payloads, giving the model a stronger signal without polluting the stored text.
 
-| Tool | What it does |
-|---|---|
-| **Summary** | Generated on upload; rendered as Markdown with GFM tables + KaTeX math. |
-| **Key Ideas** | Extracts the most important points. |
-| **Discussion Points** | Prompts for debate / group analysis. |
-| **Bullet-Point Summary** | A concise bulleted digest. |
-| **Change Language** | Re-renders the summary in any of ~45 languages. |
-| **Sentiment Analysis** | A positive/neutral/negative meter. **Cached per document in `localStorage`** (content-addressed key) so revisits and history switches don't recompute. |
-| **Document Analytics** | A client-side stats modal: a Flesch **readability gauge**, **top-word bars**, word-length and sentence-length **distributions**, **punctuation** analysis, lexical diversity, reading & speaking time, and **animated counters** — all computed in the browser. |
-| **Generate Recommendations** | Actionable next steps based on the content. |
-| **Rewrite Content** | Rewrites the whole document — or just a highlighted passage — in a chosen tone/style. |
-| **Refine Summary** | Re-summarizes with custom instructions. |
-| **Voice Chat** | Upload or record audio (`mic-recorder-to-mp3`) and talk to the AI. |
-| **AI Chat** | Ask questions grounded in the document. Shows a friendly greeting when the thread is empty, and prepends the **document title** as context so the model has a stronger signal (also aware of today's date). |
+| Tool                         | What it does                                                                                                                                                                                                                                                    |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Summary**                  | Generated on upload; rendered as Markdown with GFM tables + KaTeX math.                                                                                                                                                                                         |
+| **Key Ideas**                | Extracts the most important points.                                                                                                                                                                                                                             |
+| **Discussion Points**        | Prompts for debate / group analysis.                                                                                                                                                                                                                            |
+| **Bullet-Point Summary**     | A concise bulleted digest.                                                                                                                                                                                                                                      |
+| **Change Language**          | Re-renders the summary in any of ~45 languages.                                                                                                                                                                                                                 |
+| **Sentiment Analysis**       | A positive/neutral/negative meter. **Cached per document in `localStorage`** (content-addressed key) so revisits and history switches don't recompute.                                                                                                          |
+| **Document Analytics**       | A client-side stats modal: a Flesch **readability gauge**, **top-word bars**, word-length and sentence-length **distributions**, **punctuation** analysis, lexical diversity, reading & speaking time, and **animated counters** — all computed in the browser. |
+| **Generate Recommendations** | Actionable next steps based on the content.                                                                                                                                                                                                                     |
+| **Rewrite Content**          | Rewrites the whole document — or just a highlighted passage — in a chosen tone/style.                                                                                                                                                                           |
+| **Refine Summary**           | Re-summarizes with custom instructions.                                                                                                                                                                                                                         |
+| **Voice Chat**               | Upload or record audio (`mic-recorder-to-mp3`) and talk to the AI.                                                                                                                                                                                              |
+| **AI Chat**                  | Ask questions grounded in the document. Shows a friendly greeting when the thread is empty, and prepends the **document title** as context so the model has a stronger signal (also aware of today's date).                                                     |
 
 ## File Structure
 
@@ -374,12 +374,12 @@ sequenceDiagram
 
 Public surface:
 
-| Export | Use |
-|---|---|
-| `isAuthenticated()` | Sync `!!localStorage.getItem("userId")` |
-| `setAuth(token, userId)` | Write both keys + emit |
-| `clearAuth()` | Remove both keys + emit |
-| `onAuthChange(handler)` | Subscribe (same tab + cross-tab); returns unsubscribe |
+| Export                   | Use                                                   |
+| ------------------------ | ----------------------------------------------------- |
+| `isAuthenticated()`      | Sync `!!localStorage.getItem("userId")`               |
+| `setAuth(token, userId)` | Write both keys + emit                                |
+| `clearAuth()`            | Remove both keys + emit                               |
+| `onAuthChange(handler)`  | Subscribe (same tab + cross-tab); returns unsubscribe |
 
 ### Notable refactors landed in the latest PR
 
@@ -416,12 +416,12 @@ Passwordless sign-in is implemented with [`@simplewebauthn/browser`](https://sim
 server emits the options JSON consumed here, and the response JSON produced here is verified verbatim by the
 server.
 
-| Surface | What it does |
-|---|---|
-| `pages/Login.js` | "Sign in with a passkey" button — discoverable (usernameless) or email-scoped. On success it calls the same `setAuth(token, userId)` as password login. |
-| `components/PasskeyPromptModal.js` | Shown right after sign-up to invite the user to enroll their first passkey (a styled modal, **never** a native `alert`/`prompt`). |
-| `pages/Passkeys.js` | Account-only page (guarded by `RequireAuth`) to add, rename, and delete multiple passkeys, with "Synced / This device" badges and themed dialogs. |
-| `components/Navbar.js` | When signed in, the Logout button becomes an **Account** dropdown → **Passkeys** + **Log Out** (Log Out stays destructive-red); the mobile drawer gets a Passkeys entry. |
+| Surface                            | What it does                                                                                                                                                             |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pages/Login.js`                   | "Sign in with a passkey" button — discoverable (usernameless) or email-scoped. On success it calls the same `setAuth(token, userId)` as password login.                  |
+| `components/PasskeyPromptModal.js` | Shown right after sign-up to invite the user to enroll their first passkey (a styled modal, **never** a native `alert`/`prompt`).                                        |
+| `pages/Passkeys.js`                | Account-only page (guarded by `RequireAuth`) to add, rename, and delete multiple passkeys, with "Synced / This device" badges and themed dialogs.                        |
+| `components/Navbar.js`             | When signed in, the Logout button becomes an **Account** dropdown → **Passkeys** + **Log Out** (Log Out stays destructive-red); the mobile drawer gets a Passkeys entry. |
 
 `utils/passkeys.js` exposes `isPasskeySupported()`, `registerPasskey()`, `authenticateWithPasskey()`,
 `listPasskeys()`, `renamePasskey()`, and `deletePasskey()`. The backend origin comes from `utils/api.js`
@@ -514,13 +514,13 @@ The app is built with **Create React App via CRACO** — the npm scripts call `c
 
 Here are the most important scripts available in `package.json`:
 
-| Script | Command | Description |
-|---|---|---|
-| `npm start` / `npm run dev` | `craco start` | Starts the app in development mode. |
-| `npm run build` | `craco build` | Builds the production bundle into `build/`. |
-| `npm test` | `jest` | Runs the test suite. |
-| `npm run test:watch` | `jest --watch` | Runs tests in watch mode. |
-| `npm run test:coverage` | `jest --coverage` | Runs tests with a coverage report. |
+| Script                      | Command           | Description                                 |
+| --------------------------- | ----------------- | ------------------------------------------- |
+| `npm start` / `npm run dev` | `craco start`     | Starts the app in development mode.         |
+| `npm run build`             | `craco build`     | Builds the production bundle into `build/`. |
+| `npm test`                  | `jest`            | Runs the test suite.                        |
+| `npm run test:watch`        | `jest --watch`    | Runs tests in watch mode.                   |
+| `npm run test:coverage`     | `jest --coverage` | Runs tests with a coverage report.          |
 
 ## Testing
 
@@ -535,7 +535,12 @@ npm run test:coverage    # with a coverage report
 Two kinds of suites live under `src/__tests__/`:
 
 - **Project suites** (6) — structure, package metadata, source content, deps, runtime basics, and README presence.
-- **Snapshot suites** (`src/__tests__/snapshots/`) — one per screen, covering **every page** in the app: Landing, Home, Documents, Profile, Passkeys, Login, Register, Forgot Password, How To Use, Privacy Policy, Terms of Service, and Not Found. Each renders the page with the props/providers it needs (theme, router, mocked services) and asserts the rendered markup with `toMatchSnapshot()`, so any unintended UI change shows up as a snapshot diff. Theme-aware pages are captured in both light and dark.
+- **Component snapshot suites** — lock in the rendered DOM of the screens so any unintended UI change shows up as a snapshot diff:
+
+  - `07_snapshots.test.js` — the static pages, auth pages, app chrome (Navbar / Footer / Spinner), and the 3D LandingPage.
+  - `snapshots/` — the data-heavy pages (Home, Documents, Profile, Passkeys), each captured in its deterministic initial/loading state and, where the screen is theme-aware, in both light and dark.
+
+  Together these snapshot every page in the app. Each test renders the screen with the props/providers it needs (theme, router, mocked services) and asserts with `toMatchSnapshot()`.
 
 The snapshots are deliberately deterministic so they pass identically on a local machine and on CI regardless of when or where they run: the 3D hero is stubbed (jsdom has no WebGL), `autoFocus` is neutralized in `setupTests.js` (jsdom applies it inconsistently across environments), and any time/randomness (`Date.now`, `Math.random`) is frozen. Data-heavy pages render their deterministic initial/loading state with network calls mocked.
 

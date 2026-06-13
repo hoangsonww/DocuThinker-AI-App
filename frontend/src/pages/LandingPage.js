@@ -28,6 +28,7 @@ import {
   ArrowForwardIos,
   ArrowDownward,
   ArrowForward,
+  PlayCircleOutline,
   ExpandMore,
   AutoStories,
   AutoAwesome,
@@ -62,12 +63,6 @@ const fadeSwap = keyframes`
   100% { opacity: 1; transform: translateY(0); }
 `;
 
-const ambientShift = keyframes`
-  0% { background-position: 0% 50%; opacity: 0.7; }
-  50% { background-position: 100% 50%; opacity: 1; }
-  100% { background-position: 0% 50%; opacity: 0.7; }
-`;
-
 const bounceHint = keyframes`
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(6px); }
@@ -76,11 +71,6 @@ const bounceHint = keyframes`
 const textShimmer = keyframes`
   0% { background-position: 0% 50%; }
   100% { background-position: 200% 50%; }
-`;
-
-const heroFloat = keyframes`
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
 `;
 
 const marquee = keyframes`
@@ -97,9 +87,10 @@ const LandingPage = () => {
   const [reduceMotion, setReduceMotion] = useState(false);
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const [ctaInView, setCtaInView] = useState(false);
   const clarityRef = useRef(null);
-  const ctaRef = useRef(null);
+  // Normalized scroll progress (0 at top → 1 at bottom). Held in a ref and read
+  // inside the r3f render loop so scroll updates never trigger React re-renders.
+  const scrollRef = useRef(0);
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -120,21 +111,25 @@ const LandingPage = () => {
     };
   }, []);
 
+  // Dark, cinematic palette: the whole page floats over a single full-page 3D
+  // canvas. The scene shows through the open areas (hero, CTA, the gaps between
+  // sections), but content surfaces themselves are SOLID dark panels — opaque,
+  // not see-through — so cards and copy stay crisp and readable.
   const palette = useMemo(
     () => ({
-      background: "#f7f2ec",
-      surface: "#ffffff",
-      surfaceAlt: "#fff6ea",
-      surfaceMuted: "#fff0dd",
-      textPrimary: "#141414",
-      textSecondary: "#4b4b4b",
-      textMuted: "#6d6d6d",
-      accent: "#f57c00",
-      accentDark: "#cc6600",
-      accentSoft: "#ffe6cc",
-      border: "#efe2d2",
-      shadow: "0 30px 60px rgba(20, 12, 4, 0.10)",
-      shadowSoft: "0 18px 40px rgba(20, 12, 4, 0.08)",
+      background: "#0c0805",
+      surface: "#1a130b",
+      surfaceAlt: "#1f1710",
+      surfaceMuted: "#15100a",
+      textPrimary: "#fbf2e6",
+      textSecondary: "rgba(251, 242, 230, 0.74)",
+      textMuted: "rgba(251, 242, 230, 0.55)",
+      accent: "#ff8a1e",
+      accentDark: "#ff6a00",
+      accentSoft: "rgba(255, 176, 102, 0.22)",
+      border: "rgba(255, 196, 138, 0.16)",
+      shadow: "0 30px 60px rgba(0, 0, 0, 0.5)",
+      shadowSoft: "0 18px 40px rgba(0, 0, 0, 0.4)",
       // Dark / hero tokens
       heroBg: "#0c0805",
       heroText: "#fbf2e6",
@@ -219,7 +214,7 @@ const LandingPage = () => {
   );
 
   // Rounded-square icon tile (replaces the round avatars for a more modern feel).
-  const IconTile = ({ children, light, large }) => (
+  const IconTile = ({ children, large }) => (
     <Box
       sx={{
         width: large ? 58 : 48,
@@ -228,11 +223,9 @@ const LandingPage = () => {
         display: "grid",
         placeItems: "center",
         flexShrink: 0,
-        color: light ? "#ffd9a8" : palette.accent,
-        background: light
-          ? "rgba(255,138,26,0.14)"
-          : "linear-gradient(135deg, #fff1de, #ffe1bd)",
-        border: `1px solid ${light ? "rgba(255,196,138,0.28)" : palette.accentSoft}`,
+        color: "#ffd9a8",
+        background: "rgba(255,138,26,0.14)",
+        border: "1px solid rgba(255,196,138,0.28)",
         "& .MuiSvgIcon-root": { fontSize: large ? "1.7rem" : "1.4rem" },
       }}
     >
@@ -536,16 +529,21 @@ const LandingPage = () => {
     return () => observer.disconnect();
   }, [reduceMotion]);
 
-  // Pause the bottom 3D band's render loop while it is off-screen.
+  // Track page scroll as 0→1 progress for the full-page 3D background's camera.
   useEffect(() => {
-    const node = ctaRef.current;
-    if (!node) return undefined;
-    const observer = new IntersectionObserver(
-      ([entry]) => setCtaInView(entry.isIntersecting),
-      { threshold: 0.05 },
-    );
-    observer.observe(node);
-    return () => observer.disconnect();
+    if (typeof window === "undefined") return undefined;
+    const onScroll = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      scrollRef.current =
+        max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
   }, []);
 
   const scrollToClarity = () =>
@@ -558,7 +556,10 @@ const LandingPage = () => {
         backgroundColor: palette.background,
         color: palette.textPrimary,
         position: "relative",
-        overflow: "hidden",
+        // `clip` (not `hidden`) keeps horizontal overflow contained WITHOUT
+        // turning this box into a scroll container — which would break the
+        // `position: sticky` full-page 3D background below.
+        overflowX: "clip",
         fontFamily: '"Poppins", sans-serif',
         "& *": { minWidth: 0, boxSizing: "border-box" },
         "& img, & svg": { maxWidth: "100%" },
@@ -589,57 +590,76 @@ const LandingPage = () => {
         "& .reveal.is-visible": { opacity: 1, transform: "translateY(0)" },
       }}
     >
-      {/* Soft warm corner glows */}
+      {/* ===================== Full-page 3D background (sticky) =====================
+          One persistent canvas pinned to the viewport for the entire scroll. Its
+          camera dollies down through the scene as the page scrolls (driven by
+          `scrollRef`), so the 3D reacts continuously instead of being boxed into
+          the hero and CTA. Content below floats on top via a negative margin. */}
       <Box
+        aria-hidden="true"
         sx={{
-          position: "absolute",
-          inset: 0,
-          background: `radial-gradient(circle at 12% 8%, ${palette.accentSoft} 0%, transparent 50%),
-            radial-gradient(circle at 88% 18%, rgba(245, 124, 0, 0.10) 0%, transparent 42%)`,
-          opacity: 0.85,
-          pointerEvents: "none",
-        }}
-      />
-      {/* Very subtle animated warm wash (toned down for a cleaner light look) */}
-      <Box
-        sx={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "linear-gradient(120deg, rgba(245,124,0,0.06), rgba(255,210,160,0.08), rgba(245,124,0,0.04))",
-          backgroundSize: "220% 220%",
-          animation: reduceMotion
-            ? "none"
-            : `${ambientShift} 14s ease-in-out infinite`,
-          pointerEvents: "none",
-        }}
-      />
-
-      {/* ===================== Cinematic 3D hero (full-bleed) ===================== */}
-      <Box
-        component="section"
-        sx={{
-          position: "relative",
-          zIndex: 1,
-          width: "100%",
-          minHeight: { xs: "94svh", md: "100svh" },
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
+          position: "sticky",
+          top: 0,
+          height: "100svh",
+          zIndex: 0,
           overflow: "hidden",
+          pointerEvents: "none",
           backgroundColor: palette.heroBg,
-          isolation: "isolate",
         }}
       >
-        <Box
-          sx={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
+        <Suspense
+          fallback={
+            <Box
+              sx={{
+                position: "absolute",
+                inset: 0,
+                background:
+                  "radial-gradient(circle at 58% 42%, rgba(255,138,26,0.45), rgba(255,77,0,0.14) 30%, #0c0805 62%)",
+              }}
+            />
+          }
         >
-          <Suspense fallback={null}>
-            <HeroExperience reduceMotion={reduceMotion} variant="hero" />
-          </Suspense>
-        </Box>
+          <HeroExperience reduceMotion={reduceMotion} scrollRef={scrollRef} />
+        </Suspense>
 
-        {/* Center scrim so the headline reads over the glowing core */}
+        {/* Global vignette so light text stays legible over the moving scene */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(ellipse 120% 90% at 50% 50%, rgba(10,6,3,0) 42%, rgba(10,6,3,0.5) 100%)",
+          }}
+        />
+        {/* Fine grain for filmic depth */}
+        <Box
+          sx={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.06,
+            mixBlendMode: "overlay",
+            backgroundImage:
+              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
+          }}
+        />
+      </Box>
+
+      {/* ===================== Foreground content (floats over the 3D) ===================== */}
+      <Box sx={{ position: "relative", zIndex: 1, mt: "-100svh" }}>
+        {/* ===================== Cinematic hero ===================== */}
+        <Box
+          component="section"
+          sx={{
+            position: "relative",
+            zIndex: 1,
+            width: "100%",
+            minHeight: { xs: "94svh", md: "100svh" },
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+          }}
+        >
+          {/* Center scrim so the headline reads over the glowing core */}
         <Box
           sx={{
             position: "absolute",
@@ -648,20 +668,6 @@ const LandingPage = () => {
             pointerEvents: "none",
             background:
               "radial-gradient(ellipse 130% 95% at 50% 44%, rgba(10,6,3,0.66) 0%, rgba(10,6,3,0.30) 38%, rgba(10,6,3,0) 72%)",
-          }}
-        />
-
-        {/* Fine grain for filmic depth */}
-        <Box
-          sx={{
-            position: "absolute",
-            inset: 0,
-            zIndex: 1,
-            pointerEvents: "none",
-            opacity: 0.07,
-            mixBlendMode: "overlay",
-            backgroundImage:
-              "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
           }}
         />
 
@@ -875,6 +881,7 @@ const LandingPage = () => {
                 to="/how-to-use"
                 variant="outlined"
                 size="large"
+                startIcon={<PlayCircleOutline />}
                 sx={{
                   borderColor: palette.heroGlassBorder,
                   color: palette.heroText,
@@ -894,6 +901,36 @@ const LandingPage = () => {
                 }}
               >
                 Take the tour
+              </Button>
+              {/* Text button that scrolls to the content below — replaces the
+                  old floating arrow that collided with the stats card. */}
+              <Button
+                onClick={scrollToClarity}
+                variant="text"
+                size="large"
+                startIcon={<ArrowDownward />}
+                aria-label="Scroll to learn more"
+                sx={{
+                  color: palette.heroMuted,
+                  font: "inherit",
+                  fontWeight: 600,
+                  textTransform: "none",
+                  fontSize: "1.05rem",
+                  px: 2.5,
+                  py: 1.3,
+                  borderRadius: "999px",
+                  "& .MuiButton-startIcon": {
+                    animation: reduceMotion
+                      ? "none"
+                      : `${bounceHint} 2.2s ease-in-out infinite`,
+                  },
+                  "&:hover": {
+                    color: palette.heroText,
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                  },
+                }}
+              >
+                Scroll to explore
               </Button>
             </Stack>
 
@@ -928,64 +965,19 @@ const LandingPage = () => {
           </Box>
         </Container>
 
-        {/* Bottom fade into the light sections below */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: { xs: 120, md: 200 },
-            zIndex: 2,
-            pointerEvents: "none",
-            background: `linear-gradient(to bottom, transparent, ${palette.background})`,
-          }}
-        />
-
-        {/* Scroll cue */}
-        <Box
-          sx={{
-            position: "absolute",
-            bottom: { xs: 22, md: 30 },
-            left: "50%",
-            transform: "translateX(-50%)",
-            zIndex: 3,
-            animation: reduceMotion
-              ? "none"
-              : `${heroFloat} 2.6s ease-in-out infinite`,
-          }}
-        >
-          <IconButton
-            aria-label="Scroll to learn more"
-            onClick={scrollToClarity}
-            sx={{
-              color: palette.heroText,
-              border: `1px solid ${palette.heroGlassBorder}`,
-              backgroundColor: "rgba(255,255,255,0.04)",
-              backdropFilter: "blur(6px)",
-              animation: reduceMotion
-                ? "none"
-                : `${bounceHint} 2.2s ease-in-out infinite`,
-              "&:hover": {
-                backgroundColor: "rgba(255,138,26,0.14)",
-                borderColor: "#ffb066",
-              },
-            }}
-          >
-            <ArrowDownward />
-          </IconButton>
-        </Box>
       </Box>
 
       <Container
         maxWidth="lg"
         sx={{ position: "relative", zIndex: 2, px: { xs: 2, sm: 3 } }}
       >
-        {/* Floating stats band (overlaps the hero fade) */}
+        {/* Floating stats band. On desktop it overlaps up into the hero for a
+            "floating" feel; on mobile that overlap collided with the hero's
+            scroll-cue arrow, so it sits clear below the hero instead. */}
         <Box
           ref={clarityRef}
           sx={{
-            mt: { xs: -6, md: -9 },
+            mt: { xs: 5, md: -9 },
             position: "relative",
             zIndex: 3,
             borderRadius: "24px",
@@ -1114,7 +1106,8 @@ const LandingPage = () => {
             mt: sectionSpacing,
             p: { xs: 3, md: 6 },
             borderRadius: "28px",
-            backgroundColor: palette.heroBg,
+            backgroundColor: "#0f0a05",
+            border: `1px solid ${palette.border}`,
             position: "relative",
             overflow: "hidden",
             boxShadow: palette.shadow,
@@ -1993,9 +1986,8 @@ const LandingPage = () => {
         </Box>
       </Container>
 
-      {/* ===================== Dark 3D CTA bookend (full-bleed) ===================== */}
+      {/* ===================== 3D CTA bookend ===================== */}
       <Box
-        ref={ctaRef}
         component="section"
         sx={{
           mt: sectionSpacing,
@@ -2006,22 +1998,9 @@ const LandingPage = () => {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          overflow: "hidden",
-          backgroundColor: palette.heroBg,
-          isolation: "isolate",
         }}
       >
-        <Box
-          sx={{ position: "absolute", inset: 0, zIndex: 0, pointerEvents: "none" }}
-        >
-          <Suspense fallback={null}>
-            <HeroExperience
-              reduceMotion={reduceMotion}
-              variant="cta"
-              paused={!ctaInView}
-            />
-          </Suspense>
-        </Box>
+        {/* Scrim so the closing headline reads over the glowing core below it */}
         <Box
           sx={{
             position: "absolute",
@@ -2029,20 +2008,7 @@ const LandingPage = () => {
             zIndex: 1,
             pointerEvents: "none",
             background:
-              "radial-gradient(ellipse 120% 100% at 50% 50%, rgba(10,6,3,0.62) 0%, rgba(10,6,3,0.32) 45%, rgba(10,6,3,0.6) 100%)",
-          }}
-        />
-        {/* top fade from the cream sections above */}
-        <Box
-          sx={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            height: { xs: 90, md: 130 },
-            zIndex: 1,
-            pointerEvents: "none",
-            background: `linear-gradient(to bottom, ${palette.background}, transparent)`,
+              "radial-gradient(ellipse 120% 100% at 50% 50%, rgba(10,6,3,0.55) 0%, rgba(10,6,3,0.22) 45%, rgba(10,6,3,0) 100%)",
           }}
         />
         <Container
@@ -2166,6 +2132,7 @@ const LandingPage = () => {
             </Stack>
           </Box>
         </Container>
+      </Box>
       </Box>
     </Box>
   );

@@ -234,97 +234,99 @@ function Rig({ children, reduceMotion, strength = 0.32 }) {
   return <group ref={ref}>{children}</group>;
 }
 
-function Scene({ reduceMotion, variant, lowPower }) {
-  const isCta = variant === "cta";
+// Drives the camera down through the scene as the page scrolls. `scrollRef`
+// carries a normalized 0→1 progress value (updated by a passive scroll listener
+// in the page), read here every frame so scrolling never re-renders React. The
+// camera descends a vertical "column" of floating panels, easing back on z at
+// the midpoint for a cinematic breath, and frames a glowing core at each end.
+function ScrollCamera({ reduceMotion, scrollRef }) {
+  useFrame(({ camera }) => {
+    const p = reduceMotion
+      ? 0
+      : THREE.MathUtils.clamp(
+          scrollRef && scrollRef.current ? scrollRef.current : 0,
+          0,
+          1,
+        );
+    const ty = -p * 9; // travel down past the panels
+    const tz = 6.5 + Math.sin(p * Math.PI) * 1.7; // pull back mid-scroll
+    const tx = Math.sin(p * Math.PI * 2) * 0.9; // gentle lateral sway
+    const k = reduceMotion ? 1 : 0.08;
+    camera.position.y += (ty - camera.position.y) * k;
+    camera.position.z += (tz - camera.position.z) * k;
+    camera.position.x += (tx - camera.position.x) * k;
+    camera.lookAt(0, camera.position.y, 0);
+  });
+  return null;
+}
 
+function Scene({ reduceMotion, lowPower, scrollRef }) {
+  // Panels are distributed along a tall vertical column (y: +2 → -9) so the
+  // descending camera always has something drifting through frame.
   const panels = useMemo(() => {
     const all = [
-      {
-        position: [-2.55, 0.45, -0.6],
-        rotation: [0.18, 0.55, 0.12],
-        scale: 1.05,
-        floatSeed: 0.2,
-      },
-      {
-        position: [2.65, -0.35, -0.4],
-        rotation: [-0.2, -0.6, -0.15],
-        scale: 0.95,
-        floatSeed: 0.6,
-      },
-      {
-        position: [0.2, 1.9, -1.4],
-        rotation: [0.4, 0.1, 0.3],
-        scale: 0.78,
-        floatSeed: 0.9,
-      },
+      { position: [-2.55, 0.55, -0.6], rotation: [0.18, 0.55, 0.12], scale: 1.05, floatSeed: 0.2 },
+      { position: [2.7, -0.1, -0.5], rotation: [-0.2, -0.6, -0.15], scale: 0.95, floatSeed: 0.6 },
+      { position: [0.5, 2.0, -1.4], rotation: [0.4, 0.1, 0.3], scale: 0.8, floatSeed: 0.9 },
+      { position: [-2.3, -2.7, -0.6], rotation: [0.1, 0.5, -0.18], scale: 0.92, floatSeed: 0.35 },
+      { position: [2.5, -4.3, -0.9], rotation: [-0.25, -0.4, 0.2], scale: 1.0, floatSeed: 0.75 },
+      { position: [-1.9, -6.1, -0.4], rotation: [0.3, 0.3, 0.1], scale: 0.85, floatSeed: 0.5 },
+      { position: [2.0, -7.7, -0.7], rotation: [-0.15, -0.55, -0.12], scale: 0.95, floatSeed: 0.65 },
+      { position: [-0.6, -9.3, -1.2], rotation: [0.35, 0.2, 0.28], scale: 0.8, floatSeed: 0.85 },
     ];
-    const count = isCta || lowPower ? 2 : 3;
-    return all.slice(0, count);
-  }, [isCta, lowPower]);
+    // Weak hardware: keep every other panel (8 → 4).
+    return lowPower ? all.filter((_, i) => i % 2 === 0) : all;
+  }, [lowPower]);
 
-  const sparkleCount = lowPower ? (isCta ? 18 : 30) : isCta ? 40 : 70;
+  const accents = useMemo(() => {
+    const all = [
+      { geometry: <octahedronGeometry args={[0.42, 0]} />, position: [-1.7, -1.4, 0.6], color: PALETTE.core, floatSeed: 0.3 },
+      { geometry: <dodecahedronGeometry args={[0.36, 0]} />, position: [1.7, -3.4, 0.8], color: PALETTE.core, floatSeed: 0.5 },
+      { geometry: <torusKnotGeometry args={[0.3, 0.11, 120, 16]} />, position: [-1.5, -5.2, 0.5], color: "#3a2a1c", floatSeed: 0.7 },
+      { geometry: <octahedronGeometry args={[0.4, 0]} />, position: [1.4, -8.6, 0.7], color: PALETTE.core, floatSeed: 0.45 },
+    ];
+    return lowPower ? all.filter((_, i) => i % 2 === 0) : all;
+  }, [lowPower]);
+
+  const sparkleCount = lowPower ? 60 : 130;
 
   return (
     <>
       <color attach="background" args={["#0c0805"]} />
-      <fog attach="fog" args={["#0c0805", 7, 16]} />
+      <fog attach="fog" args={["#0c0805", 6, 17]} />
 
       <ambientLight intensity={0.35} />
       <directionalLight
         position={[5, 6, 4]}
         intensity={2.2}
         color="#ffd9a8"
-        castShadow={!isCta && !lowPower}
+        castShadow={!lowPower}
       />
-      <pointLight
-        position={[0, 0, 2]}
-        intensity={6}
-        color={PALETTE.glow}
-        distance={9}
-      />
-      <pointLight
-        position={[-4, -3, 2]}
-        intensity={2}
-        color="#7aa7ff"
-        distance={12}
-      />
+      {/* Warm core lights at both ends of the journey (hero + CTA). */}
+      <pointLight position={[0, 0, 2]} intensity={6} color={PALETTE.glow} distance={9} />
+      <pointLight position={[0, -9, 2]} intensity={5} color={PALETTE.glow} distance={9} />
+      <pointLight position={[-4, -4, 2]} intensity={2} color="#7aa7ff" distance={14} />
 
-      <Rig reduceMotion={reduceMotion} strength={isCta ? 0.18 : 0.32}>
-        <Core reduceMotion={reduceMotion} radius={isCta ? 0.85 : 1.05} />
+      <ScrollCamera reduceMotion={reduceMotion} scrollRef={scrollRef} />
+
+      <Rig reduceMotion={reduceMotion} strength={0.14}>
+        <Core reduceMotion={reduceMotion} radius={1.05} />
+        <group position={[0, -9, 0]}>
+          <Core reduceMotion={reduceMotion} radius={0.85} />
+        </group>
 
         {panels.map((p, i) => (
           <Panel key={i} reduceMotion={reduceMotion} lowPower={lowPower} {...p} />
         ))}
 
-        <Accent
-          geometry={<octahedronGeometry args={[0.42, 0]} />}
-          position={[-1.7, -1.6, 0.6]}
-          color={PALETTE.core}
-          reduceMotion={reduceMotion}
-          floatSeed={0.3}
-        />
-        {!isCta && !lowPower && (
-          <>
-            <Accent
-              geometry={<torusKnotGeometry args={[0.32, 0.12, 120, 16]} />}
-              position={[2.1, 1.7, 0.4]}
-              color="#3a2a1c"
-              reduceMotion={reduceMotion}
-              floatSeed={0.7}
-            />
-            <Accent
-              geometry={<dodecahedronGeometry args={[0.36, 0]} />}
-              position={[1.5, -1.9, 1]}
-              color={PALETTE.core}
-              reduceMotion={reduceMotion}
-              floatSeed={0.5}
-            />
-          </>
-        )}
+        {accents.map((a, i) => (
+          <Accent key={i} reduceMotion={reduceMotion} {...a} />
+        ))}
 
         <Sparkles
           count={sparkleCount}
-          scale={[10, 7, 6]}
+          scale={[12, 26, 8]}
+          position={[0, -4.5, 0]}
           size={2.4}
           speed={reduceMotion ? 0 : 0.35}
           opacity={0.7}
@@ -365,25 +367,20 @@ function Scene({ reduceMotion, variant, lowPower }) {
   );
 }
 
-export default function HeroExperience({
-  reduceMotion = false,
-  variant = "hero",
-  paused = false,
-}) {
+export default function HeroExperience({ reduceMotion = false, scrollRef }) {
   const [supported] = useState(detectWebGL);
   const lowPower = useMemo(detectLowPower, []);
-  const isCta = variant === "cta";
 
   // No WebGL at all → clean CSS fallback, no canvas mounted.
   if (!supported) return <Fallback />;
 
-  const maxDpr = lowPower ? 1 : isCta ? 1.4 : 1.6;
+  const maxDpr = lowPower ? 1 : 1.6;
 
   return (
     <CanvasErrorBoundary fallback={<Fallback />}>
       <Canvas
         dpr={[1, maxDpr]}
-        shadows={!isCta && !lowPower}
+        shadows={!lowPower}
         gl={{
           antialias: !lowPower,
           alpha: false,
@@ -392,8 +389,8 @@ export default function HeroExperience({
           // capable GPU instead of refusing to create a context.
           failIfMajorPerformanceCaveat: false,
         }}
-        camera={{ position: [0, 0, isCta ? 7.5 : 6.5], fov: 38 }}
-        frameloop={reduceMotion || paused ? "demand" : "always"}
+        camera={{ position: [0, 0, 6.5], fov: 40 }}
+        frameloop={reduceMotion ? "demand" : "always"}
         style={{ position: "absolute", inset: 0, display: "block" }}
         onCreated={({ gl }) => {
           // Keep the page alive across a GPU context loss; let the browser
@@ -405,7 +402,7 @@ export default function HeroExperience({
           );
         }}
       >
-        <Scene reduceMotion={reduceMotion} variant={variant} lowPower={lowPower} />
+        <Scene reduceMotion={reduceMotion} lowPower={lowPower} scrollRef={scrollRef} />
       </Canvas>
     </CanvasErrorBoundary>
   );
