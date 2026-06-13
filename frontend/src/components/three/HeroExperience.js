@@ -143,7 +143,14 @@ function Core({ reduceMotion, radius = 1.05 }) {
 // A frosted-glass document panel. On capable GPUs MeshPhysicalMaterial
 // transmission gives a single-pass glass look; on weak hardware we fall back to
 // a cheap translucent standard material that reads the same but costs nothing.
-function Panel({ position, rotation, scale, reduceMotion, floatSeed, lowPower }) {
+function Panel({
+  position,
+  rotation,
+  scale,
+  reduceMotion,
+  floatSeed,
+  lowPower,
+}) {
   return (
     <Float
       speed={reduceMotion ? 0 : 0.9 + floatSeed * 0.4}
@@ -265,14 +272,54 @@ function Scene({ reduceMotion, lowPower, scrollRef }) {
   // descending camera always has something drifting through frame.
   const panels = useMemo(() => {
     const all = [
-      { position: [-2.55, 0.55, -0.6], rotation: [0.18, 0.55, 0.12], scale: 1.05, floatSeed: 0.2 },
-      { position: [2.7, -0.1, -0.5], rotation: [-0.2, -0.6, -0.15], scale: 0.95, floatSeed: 0.6 },
-      { position: [0.5, 2.0, -1.4], rotation: [0.4, 0.1, 0.3], scale: 0.8, floatSeed: 0.9 },
-      { position: [-2.3, -2.7, -0.6], rotation: [0.1, 0.5, -0.18], scale: 0.92, floatSeed: 0.35 },
-      { position: [2.5, -4.3, -0.9], rotation: [-0.25, -0.4, 0.2], scale: 1.0, floatSeed: 0.75 },
-      { position: [-1.9, -6.1, -0.4], rotation: [0.3, 0.3, 0.1], scale: 0.85, floatSeed: 0.5 },
-      { position: [2.0, -7.7, -0.7], rotation: [-0.15, -0.55, -0.12], scale: 0.95, floatSeed: 0.65 },
-      { position: [-0.6, -9.3, -1.2], rotation: [0.35, 0.2, 0.28], scale: 0.8, floatSeed: 0.85 },
+      {
+        position: [-2.55, 0.55, -0.6],
+        rotation: [0.18, 0.55, 0.12],
+        scale: 1.05,
+        floatSeed: 0.2,
+      },
+      {
+        position: [2.7, -0.1, -0.5],
+        rotation: [-0.2, -0.6, -0.15],
+        scale: 0.95,
+        floatSeed: 0.6,
+      },
+      {
+        position: [0.5, 2.0, -1.4],
+        rotation: [0.4, 0.1, 0.3],
+        scale: 0.8,
+        floatSeed: 0.9,
+      },
+      {
+        position: [-2.3, -2.7, -0.6],
+        rotation: [0.1, 0.5, -0.18],
+        scale: 0.92,
+        floatSeed: 0.35,
+      },
+      {
+        position: [2.5, -4.3, -0.9],
+        rotation: [-0.25, -0.4, 0.2],
+        scale: 1.0,
+        floatSeed: 0.75,
+      },
+      {
+        position: [-1.9, -6.1, -0.4],
+        rotation: [0.3, 0.3, 0.1],
+        scale: 0.85,
+        floatSeed: 0.5,
+      },
+      {
+        position: [2.0, -7.7, -0.7],
+        rotation: [-0.15, -0.55, -0.12],
+        scale: 0.95,
+        floatSeed: 0.65,
+      },
+      {
+        position: [-0.6, -9.3, -1.2],
+        rotation: [0.35, 0.2, 0.28],
+        scale: 0.8,
+        floatSeed: 0.85,
+      },
     ];
     // Weak hardware: keep every other panel (8 → 4).
     return lowPower ? all.filter((_, i) => i % 2 === 0) : all;
@@ -280,10 +327,30 @@ function Scene({ reduceMotion, lowPower, scrollRef }) {
 
   const accents = useMemo(() => {
     const all = [
-      { geometry: <octahedronGeometry args={[0.42, 0]} />, position: [-1.7, -1.4, 0.6], color: PALETTE.core, floatSeed: 0.3 },
-      { geometry: <dodecahedronGeometry args={[0.36, 0]} />, position: [1.7, -3.4, 0.8], color: PALETTE.core, floatSeed: 0.5 },
-      { geometry: <torusKnotGeometry args={[0.3, 0.11, 120, 16]} />, position: [-1.5, -5.2, 0.5], color: "#3a2a1c", floatSeed: 0.7 },
-      { geometry: <octahedronGeometry args={[0.4, 0]} />, position: [1.4, -8.6, 0.7], color: PALETTE.core, floatSeed: 0.45 },
+      {
+        geometry: <octahedronGeometry args={[0.42, 0]} />,
+        position: [-1.7, -1.4, 0.6],
+        color: PALETTE.core,
+        floatSeed: 0.3,
+      },
+      {
+        geometry: <dodecahedronGeometry args={[0.36, 0]} />,
+        position: [1.7, -3.4, 0.8],
+        color: PALETTE.core,
+        floatSeed: 0.5,
+      },
+      {
+        geometry: <torusKnotGeometry args={[0.3, 0.11, 120, 16]} />,
+        position: [-1.5, -5.2, 0.5],
+        color: "#3a2a1c",
+        floatSeed: 0.7,
+      },
+      {
+        geometry: <octahedronGeometry args={[0.4, 0]} />,
+        position: [1.4, -8.6, 0.7],
+        color: PALETTE.core,
+        floatSeed: 0.45,
+      },
     ];
     return lowPower ? all.filter((_, i) => i % 2 === 0) : all;
   }, [lowPower]);
@@ -303,9 +370,24 @@ function Scene({ reduceMotion, lowPower, scrollRef }) {
         castShadow={!lowPower}
       />
       {/* Warm core lights at both ends of the journey (hero + CTA). */}
-      <pointLight position={[0, 0, 2]} intensity={6} color={PALETTE.glow} distance={9} />
-      <pointLight position={[0, -9, 2]} intensity={5} color={PALETTE.glow} distance={9} />
-      <pointLight position={[-4, -4, 2]} intensity={2} color="#7aa7ff" distance={14} />
+      <pointLight
+        position={[0, 0, 2]}
+        intensity={6}
+        color={PALETTE.glow}
+        distance={9}
+      />
+      <pointLight
+        position={[0, -9, 2]}
+        intensity={5}
+        color={PALETTE.glow}
+        distance={9}
+      />
+      <pointLight
+        position={[-4, -4, 2]}
+        intensity={2}
+        color="#7aa7ff"
+        distance={14}
+      />
 
       <ScrollCamera reduceMotion={reduceMotion} scrollRef={scrollRef} />
 
@@ -316,7 +398,12 @@ function Scene({ reduceMotion, lowPower, scrollRef }) {
         </group>
 
         {panels.map((p, i) => (
-          <Panel key={i} reduceMotion={reduceMotion} lowPower={lowPower} {...p} />
+          <Panel
+            key={i}
+            reduceMotion={reduceMotion}
+            lowPower={lowPower}
+            {...p}
+          />
         ))}
 
         {accents.map((a, i) => (
@@ -402,7 +489,11 @@ export default function HeroExperience({ reduceMotion = false, scrollRef }) {
           );
         }}
       >
-        <Scene reduceMotion={reduceMotion} lowPower={lowPower} scrollRef={scrollRef} />
+        <Scene
+          reduceMotion={reduceMotion}
+          lowPower={lowPower}
+          scrollRef={scrollRef}
+        />
       </Canvas>
     </CanvasErrorBoundary>
   );
