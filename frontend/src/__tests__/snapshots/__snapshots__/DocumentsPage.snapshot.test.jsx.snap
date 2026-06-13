@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`DocumentsPage snapshot matches the rendered markup (dark) 1`] = `
+<DocumentFragment>
+  <div
+    class="MuiBox-root css-13ot3tw"
+  >
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-i7hq5o-MuiPaper-root"
+      style="--Paper-shadow: none;"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-19n3sl7-MuiSvgIcon-root"
+        data-testid="ArticleIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5 14H7v-2h7zm3-4H7v-2h10zm0-4H7V7h10z"
+        />
+      </svg>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1m66o6n-MuiTypography-root"
+      >
+        You're not signed in
+      </p>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-18l23t4-MuiTypography-root"
+      >
+        Please 
+        <a
+          href="/login"
+          style="color: rgb(245, 124, 0); font-weight: 600;"
+        >
+          log in
+        </a>
+         to view your documents.
+      </p>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`DocumentsPage snapshot matches the rendered markup (light) 1`] = `
+<DocumentFragment>
+  <div
+    class="MuiBox-root css-gtw5ez"
+  >
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-tp47va-MuiPaper-root"
+      style="--Paper-shadow: none;"
+    >
+      <svg
+        aria-hidden="true"
+        class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-19n3sl7-MuiSvgIcon-root"
+        data-testid="ArticleIcon"
+        focusable="false"
+        viewBox="0 0 24 24"
+      >
+        <path
+          d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2m-5 14H7v-2h7zm3-4H7v-2h10zm0-4H7V7h10z"
+        />
+      </svg>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-23kx2n-MuiTypography-root"
+      >
+        You're not signed in
+      </p>
+      <p
+        class="MuiTypography-root MuiTypography-body1 css-1wvtu5f-MuiTypography-root"
+      >
+        Please 
+        <a
+          href="/login"
+          style="color: rgb(245, 124, 0); font-weight: 600;"
+        >
+          log in
+        </a>
+         to view your documents.
+      </p>
+    </div>
+  </div>
+</DocumentFragment>
+`;
