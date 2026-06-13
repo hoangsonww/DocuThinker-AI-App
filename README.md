@@ -1905,6 +1905,20 @@ To run the frontend tests, follow these steps:
    
 This will run the unit tests and end-to-end tests for the frontend app using **Jest** and **React Testing Library**.
 
+#### Snapshot Tests
+
+Every screen in the frontend has a **snapshot test** under `frontend/src/__tests__/snapshots/` (one file per page — Landing, Home, Documents, Profile, Passkeys, Login, Register, Forgot Password, How To Use, Privacy Policy, Terms of Service, and Not Found). Each renders the page with the props/providers it needs and asserts the rendered markup with `toMatchSnapshot()`, capturing theme-aware pages in both light and dark. The snapshots are made deterministic (3D hero stubbed, `autoFocus` neutralized, `Date`/`Math.random` frozen, network mocked) so they pass identically on local machines and CI regardless of timezone or run time.
+
+```bash
+cd frontend
+
+# Run only the snapshot suites
+npm test -- src/__tests__/snapshots
+
+# Update the baselines after an intentional UI change, then commit the .snap files
+npm test -- -u
+```
+
 <h2 id="kubernetes">🚢 Kubernetes Integration</h2>
 
 - We are using **Kubernetes** for container orchestration and scaling. The app can be deployed on a Kubernetes cluster for high availability and scalability.

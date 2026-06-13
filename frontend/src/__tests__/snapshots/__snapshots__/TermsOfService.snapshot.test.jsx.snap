@@ -1,0 +1,351 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`TermsOfService snapshot matches the rendered markup (dark) 1`] = `
+<DocumentFragment>
+  <div
+    class="MuiBox-root css-1lw2lci"
+  >
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1k5c479-MuiPaper-root"
+      style="--Paper-shadow: none;"
+    >
+      <div
+        class="MuiBox-root css-1wxkees"
+      />
+      <div
+        class="MuiBox-root css-oqkw4m"
+      >
+        <div
+          class="MuiBox-root css-3b2wtl"
+        >
+          <div
+            class="MuiBox-root css-1fexsnk"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1p832ek-MuiSvgIcon-root"
+              data-testid="GavelOutlinedIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M1 21h12v2H1zM5.24 8.07l2.83-2.83 14.14 14.14-2.83 2.83zM12.32 1l5.66 5.66-2.83 2.83-5.66-5.66zM3.83 9.48l5.66 5.66-2.83 2.83L1 12.31z"
+              />
+            </svg>
+          </div>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-18ec6dc-MuiTypography-root"
+          >
+            Terms of Service
+          </p>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-hbw45i-MuiTypography-root"
+          >
+            The rules and terms for using DocuThinker.
+          </p>
+        </div>
+        <div
+          class="MuiBox-root css-u1z5uh"
+        >
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            1. Acceptance of Terms
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            By accessing and using DocuThinker, you agree to comply with and be bound by the following terms and conditions ("Terms of Service"). Please review these terms carefully. If you do not agree with these terms, you should not use this website.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            2. Services Provided
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            DocuThinker allows users to upload, analyze, and process documents to extract useful information and insights. We aim to provide a seamless and secure platform for document processing, but we cannot guarantee the absolute accuracy or completeness of our services.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            3. User Responsibilities
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            You agree to use DocuThinker in compliance with all applicable laws and regulations. You are responsible for the content of the documents you upload and must ensure that you have the necessary permissions or rights to use them. You agree not to use DocuThinker for any unlawful or prohibited activities.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            4. Account Security
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            You are responsible for maintaining the confidentiality of your account credentials, including your username and password. You agree to notify us immediately if you suspect any unauthorized use of your account or any other security breach.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            5. Termination of Use
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            We reserve the right to terminate or suspend your access to DocuThinker at any time, without notice, if we believe that you have violated these terms, misused our services, or engaged in any unlawful activities.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            6. Intellectual Property
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            All content, features, and functionality on DocuThinker, including text, graphics, logos, and software, are the exclusive property of DocuThinker or its licensors. You may not reproduce, modify, or distribute any part of this platform without our prior written consent.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            7. Limitation of Liability
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            DocuThinker will not be liable for any direct, indirect, incidental, or consequential damages arising from your use of our platform. This includes any loss of data or damage to your device as a result of using our services.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            8. Modifications to the Terms
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            We reserve the right to modify these Terms of Service at any time. We will notify you of any significant changes by posting the updated terms on our website. Continued use of the platform after such changes constitutes your acceptance of the new terms.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-19em3t1-MuiTypography-root"
+          >
+            9. Governing Law
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            These Terms of Service are governed by and construed in accordance with the laws of your jurisdiction, without regard to its conflict of law provisions. You agree to submit to the exclusive jurisdiction of the courts in your country or region.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-1rvc9ge-MuiTypography-root"
+          >
+            10. Contact Information
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            If you have any questions about these Terms of Service, please contact us at: 
+            <a
+              href="mailto:hoangson091104@gmail.com"
+              style="color: white;"
+            >
+              hoangson091104@gmail.com.
+            </a>
+          </p>
+          <div
+            style="height: 20px; border-bottom: 1px solid rgb(240, 240, 240); margin-bottom: 20px;"
+          />
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1r7da92-MuiTypography-root"
+          >
+            Made with ❤️ by 
+            <a
+              href="https://sonnguyenhoang.com"
+              style="color: rgb(245, 124, 0);"
+            >
+              Son Nguyen
+            </a>
+             in 2024. Thank you for using DocuThinker! 🚀
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`TermsOfService snapshot matches the rendered markup (light) 1`] = `
+<DocumentFragment>
+  <div
+    class="MuiBox-root css-ctpx7q"
+  >
+    <div
+      class="MuiPaper-root MuiPaper-elevation MuiPaper-rounded MuiPaper-elevation0 css-1hm4vh1-MuiPaper-root"
+      style="--Paper-shadow: none;"
+    >
+      <div
+        class="MuiBox-root css-1wxkees"
+      />
+      <div
+        class="MuiBox-root css-oqkw4m"
+      >
+        <div
+          class="MuiBox-root css-3b2wtl"
+        >
+          <div
+            class="MuiBox-root css-1fexsnk"
+          >
+            <svg
+              aria-hidden="true"
+              class="MuiSvgIcon-root MuiSvgIcon-fontSizeMedium css-1p832ek-MuiSvgIcon-root"
+              data-testid="GavelOutlinedIcon"
+              focusable="false"
+              viewBox="0 0 24 24"
+            >
+              <path
+                d="M1 21h12v2H1zM5.24 8.07l2.83-2.83 14.14 14.14-2.83 2.83zM12.32 1l5.66 5.66-2.83 2.83-5.66-5.66zM3.83 9.48l5.66 5.66-2.83 2.83L1 12.31z"
+              />
+            </svg>
+          </div>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1ysk6e4-MuiTypography-root"
+          >
+            Terms of Service
+          </p>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-br0cs1-MuiTypography-root"
+          >
+            The rules and terms for using DocuThinker.
+          </p>
+        </div>
+        <div
+          class="MuiBox-root css-1s58obv"
+        >
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            1. Acceptance of Terms
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            By accessing and using DocuThinker, you agree to comply with and be bound by the following terms and conditions ("Terms of Service"). Please review these terms carefully. If you do not agree with these terms, you should not use this website.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            2. Services Provided
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            DocuThinker allows users to upload, analyze, and process documents to extract useful information and insights. We aim to provide a seamless and secure platform for document processing, but we cannot guarantee the absolute accuracy or completeness of our services.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            3. User Responsibilities
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            You agree to use DocuThinker in compliance with all applicable laws and regulations. You are responsible for the content of the documents you upload and must ensure that you have the necessary permissions or rights to use them. You agree not to use DocuThinker for any unlawful or prohibited activities.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            4. Account Security
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            You are responsible for maintaining the confidentiality of your account credentials, including your username and password. You agree to notify us immediately if you suspect any unauthorized use of your account or any other security breach.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            5. Termination of Use
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            We reserve the right to terminate or suspend your access to DocuThinker at any time, without notice, if we believe that you have violated these terms, misused our services, or engaged in any unlawful activities.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            6. Intellectual Property
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            All content, features, and functionality on DocuThinker, including text, graphics, logos, and software, are the exclusive property of DocuThinker or its licensors. You may not reproduce, modify, or distribute any part of this platform without our prior written consent.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            7. Limitation of Liability
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            DocuThinker will not be liable for any direct, indirect, incidental, or consequential damages arising from your use of our platform. This includes any loss of data or damage to your device as a result of using our services.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            8. Modifications to the Terms
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            We reserve the right to modify these Terms of Service at any time. We will notify you of any significant changes by posting the updated terms on our website. Continued use of the platform after such changes constitutes your acceptance of the new terms.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-18ic5l3-MuiTypography-root"
+          >
+            9. Governing Law
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            These Terms of Service are governed by and construed in accordance with the laws of your jurisdiction, without regard to its conflict of law provisions. You agree to submit to the exclusive jurisdiction of the courts in your country or region.
+          </p>
+          <h6
+            class="MuiTypography-root MuiTypography-h6 css-1vfl5cw-MuiTypography-root"
+          >
+            10. Contact Information
+          </h6>
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1x8jngi-MuiTypography-root"
+          >
+            If you have any questions about these Terms of Service, please contact us at: 
+            <a
+              href="mailto:hoangson091104@gmail.com"
+              style="color: black;"
+            >
+              hoangson091104@gmail.com.
+            </a>
+          </p>
+          <div
+            style="height: 20px; border-bottom: 1px solid rgb(240, 240, 240); margin-bottom: 20px;"
+          />
+          <p
+            class="MuiTypography-root MuiTypography-body1 css-1r7da92-MuiTypography-root"
+          >
+            Made with ❤️ by 
+            <a
+              href="https://sonnguyenhoang.com"
+              style="color: rgb(245, 124, 0);"
+            >
+              Son Nguyen
+            </a>
+             in 2024. Thank you for using DocuThinker! 🚀
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</DocumentFragment>
+`;

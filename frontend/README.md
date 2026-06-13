@@ -532,7 +532,20 @@ npm run test:watch       # watch mode
 npm run test:coverage    # with a coverage report
 ```
 
-There are six suites under `src/__tests__/` covering structure, package metadata, source content, deps, runtime basics, and README presence.
+Two kinds of suites live under `src/__tests__/`:
+
+- **Project suites** (6) — structure, package metadata, source content, deps, runtime basics, and README presence.
+- **Snapshot suites** (`src/__tests__/snapshots/`) — one per screen, covering **every page** in the app: Landing, Home, Documents, Profile, Passkeys, Login, Register, Forgot Password, How To Use, Privacy Policy, Terms of Service, and Not Found. Each renders the page with the props/providers it needs (theme, router, mocked services) and asserts the rendered markup with `toMatchSnapshot()`, so any unintended UI change shows up as a snapshot diff. Theme-aware pages are captured in both light and dark.
+
+The snapshots are deliberately deterministic so they pass identically on a local machine and on CI regardless of when or where they run: the 3D hero is stubbed (jsdom has no WebGL), `autoFocus` is neutralized in `setupTests.js` (jsdom applies it inconsistently across environments), and any time/randomness (`Date.now`, `Math.random`) is frozen. Data-heavy pages render their deterministic initial/loading state with network calls mocked.
+
+```bash
+# Run only the snapshot suites
+npm test -- src/__tests__/snapshots
+
+# Update snapshots after an intentional UI change, then commit the .snap files
+npm test -- -u
+```
 
 ## Screenshots
 
