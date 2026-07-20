@@ -1,3 +1,7 @@
+// IMPORTANT: `./instrument` must be required before any other module so Sentry
+// can auto-instrument Express, HTTP, and other libraries at require-time.
+const Sentry = require("./instrument");
+
 const favicon = require("serve-favicon");
 const path = require("path");
 const express = require("express");
@@ -240,6 +244,10 @@ app.delete("/passkeys/:userId/:credentialId", deletePasskey);
 app.use((req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
+
+// Sentry error handler: must be registered after all controllers/routes and
+// before any other error-handling middleware. Captures errors thrown in routes.
+Sentry.setupExpressErrorHandler(app);
 
 // Global error handler
 app.use((err, req, res, next) => {

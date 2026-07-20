@@ -44,6 +44,7 @@ The backend is deployed as a **Vercel serverless function** (the whole Express a
 | Passwordless auth | **Passkeys / WebAuthn** (`@simplewebauthn/server`) |
 | Multipart parsing | **`formidable`** (the fallback file-upload endpoint) |
 | Document parsing | **`pdf-parse`** (PDF), **`mammoth`** (DOCX) |
+| Monitoring | **Sentry** (`@sentry/node` + `@sentry/profiling-node`) — errors, performance tracing, profiling, and logs |
 
 The codebase follows an **MVC-style** layout: `controllers/` (REST handlers), `services/` (Firebase, Supabase, and Gemini integration), `views/` (response formatting), `graphql/` (schema + resolvers), and `models/` (passkey persistence).
 
@@ -58,6 +59,7 @@ The codebase follows an **MVC-style** layout: `controllers/` (REST handlers), `s
 - **Redis Caching** — utility helpers for sessions, document metadata, query results, and recently-viewed documents.
 - **Swagger / OpenAPI Documentation** — self-documenting API generated from JSDoc annotations.
 - **Structured Logging & Error Handling** — request/response logging, structured error logs, a global error handler, and process-level crash loggers.
+- **Sentry Monitoring** — error tracking, performance tracing, CPU profiling, and structured logs via `@sentry/node`, initialized in `instrument.js` before any other module so Express is auto-instrumented; unhandled route errors are captured by `Sentry.setupExpressErrorHandler`.
 
 ## Prerequisites
 
@@ -145,6 +147,15 @@ Defaults are derived from the request `Origin` header. Pin these for production 
 | `WEBAUTHN_ORIGINS` | Comma-separated list of expected origins (e.g. `https://docuthinker-fullstack-app.vercel.app`). |
 | `WEBAUTHN_RP_NAME` | Human-readable Relying Party name shown in the browser prompt (defaults to `DocuThinker`). |
 
+### Sentry (monitoring — optional)
+
+Sentry is initialized in `instrument.js`, which is required at the **very top** of `index.js` (before any other module) so `@sentry/node` can auto-instrument Express/HTTP. `Sentry.setupExpressErrorHandler(app)` captures unhandled route errors. Sample rates tighten automatically when `NODE_ENV=production`.
+
+| Variable | Description |
+| -------- | ----------- |
+| `SENTRY_DSN` | Sentry project DSN for backend error, performance, and log monitoring. If unset, a hosted DocuThinker project DSN is used as a fallback. |
+| `SENTRY_RELEASE` | Release identifier attached to Sentry events (e.g. a git SHA). Optional. |
+
 ### Example `.env`
 
 ```bash
@@ -176,6 +187,10 @@ REDIS_URL=rediss://default:password@host:port
 WEBAUTHN_RP_ID=docuthinker-fullstack-app.vercel.app
 WEBAUTHN_ORIGINS=https://docuthinker-fullstack-app.vercel.app
 WEBAUTHN_RP_NAME=DocuThinker
+
+# Sentry (monitoring — optional; falls back to the hosted project DSN)
+SENTRY_DSN=https://<key>@<org>.ingest.us.sentry.io/<project>
+SENTRY_RELEASE=
 ```
 
 ## Running the Server
@@ -226,6 +241,7 @@ The backend follows an **MVC-style** layout for separation of concerns:
 ```
 DocuThinker-AI-App/
 └── backend/
+    ├── instrument.js            # Sentry init — required first in index.js (auto-instruments Express)
     ├── index.js                 # Express app entry point: middleware, routes, GraphQL, Swagger
     ├── controllers/
     │   ├── controllers.js       # REST handlers (auth, documents, AI, account)
