@@ -233,6 +233,7 @@ graph TB
         GRAF[Grafana<br/>Visualization]
         JAEGER[Jaeger<br/>Trace Analysis]
         ELK[ELK Stack<br/>Log Aggregation]
+        SENTRY[Sentry<br/>Errors + Replay + APM]
     end
 
     subgraph "Reliability Engineering"
@@ -269,6 +270,8 @@ graph TB
     OTEL --> PROM
     PROM --> GRAF
     BE -.->|Logs| ELK
+    FE -.->|Errors + Replay| SENTRY
+    BE -.->|Errors + Traces| SENTRY
 
     LITMUS -.->|Test| BE
     FLAGGER -.->|Canary| BE
@@ -337,9 +340,11 @@ graph TB
             S[Error Handling]
             T[Form Validation]
             U[Date Formatting]
+            SENT[Sentry<br/>ErrorBoundary + Replay + Tracing]
         end
     end
 
+    A --> SENT
     A --> B
     B --> C
     B --> D
@@ -366,6 +371,8 @@ graph TB
     N --> P
     O --> P
 ```
+
+**Error & session monitoring.** Sentry (`@sentry/react`) is initialized in `src/sentry.js`, which is imported **first** in `index.js` so `Sentry.init()` runs before React renders. The app tree is wrapped in `Sentry.ErrorBoundary`, so uncaught render errors are reported with a graceful fallback UI. The SDK also captures **browser performance traces** (`browserTracingIntegration`) and **session replays** (`replayIntegration`, 100% of errored sessions), and `tracePropagationTargets` propagates trace headers to the backend API so a browser transaction stitches to its backend spans. DSN and sample rates are configurable via `REACT_APP_SENTRY_*` env vars.
 
 ---
 
@@ -519,6 +526,7 @@ The backend follows the **MVC (Model-View-Controller)** pattern with additional 
 - **Raised JSON/urlencoded body limit** — `express.json({ limit: "25mb" })` (and the matching `urlencoded` limit), up from body-parser's ~100 KB default. The `/upload` body now carries the extracted **text + display HTML** for large documents; the **original file itself bypasses the backend entirely** (it goes straight to Supabase), so this limit only needs to cover the extracted payload.
 - **Structured request/response logging** — a paired `[REQ] METHOD url` on entry and `[RES] METHOD url -> status (Nms)` on `finish`, so every call is traceable in Vercel logs (5xx logged at `error` level).
 - **Layered error handling** — a global error handler, an `UnauthorizedError` handler, and a catch-all `[UNHANDLED]` handler that logs a full stack (skipping if headers are already sent) instead of a silent 500.
+- **Sentry monitoring** — `./instrument` is required at the **very top** of `index.js` (before any other module) so `@sentry/node` can auto-instrument Express/HTTP at require-time. `Sentry.setupExpressErrorHandler(app)` is registered **after all routes and before** the custom error handlers, so unhandled route errors are captured and forwarded to Sentry. Performance tracing, CPU profiling (`@sentry/profiling-node`), and structured logs are enabled; DSN and sample rates are configurable via `SENTRY_*` env vars.
 - **Process-level crash loggers** — `unhandledRejection` and `uncaughtException` listeners so crashes are never silent.
 - **Surfaces** — REST routes, **GraphQL at `/graphql`** (GraphiQL enabled), **Swagger UI at `/api-docs`** (served from CDN, JSON at `/swagger.json`), and the **Passkey/WebAuthn** routes.
 
@@ -534,6 +542,7 @@ graph TB
             D[Firebase Auth Middleware]
             E[Error Handlers<br/>global + Unauthorized + UNHANDLED]
             F[Req/Res Logger]
+            SEN[Sentry<br/>instrument + error handler]
         end
 
         subgraph "Routes Layer"

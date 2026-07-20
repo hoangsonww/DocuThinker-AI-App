@@ -319,6 +319,7 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   - **Coralogix**: Unified SaaS observability platform with TCO optimization — receives logs, metrics, and traces via OTel OTLP/gRPC; Fluent Bit DaemonSet for node-level log shipping; Prometheus remote write for metric correlation; 12 production alerts; recording rules; TCO cost policies; Terraform-managed via `coralogix/coralogix` provider.
   - **AlertManager**: Alert routing with Slack and PagerDuty integrations.
   - **SLI/SLO Monitoring**: Prometheus recording rules for availability and latency tracking.
+  - **Sentry**: Application-level error monitoring, performance tracing, session replay, and structured logs across the React frontend (`@sentry/react`) and Express backend (`@sentry/node` + profiling). Distributed tracing links browser transactions to backend spans via `tracePropagationTargets`, and the frontend `Sentry.ErrorBoundary` reports uncaught React render errors.
 - **Security & Compliance**:
   - **HashiCorp Vault 1.15**: Secrets management with HA Raft storage, AWS KMS seal, CSI provider.
   - **External Secrets Operator**: Syncs secrets from Vault and AWS Secrets Manager into Kubernetes.
@@ -489,6 +490,7 @@ DocuThinker is built with **120+ technologies** spanning frontend, backend, AI/M
   <img src="https://img.shields.io/badge/Kibana-005571?style=for-the-badge&logo=kibana&logoColor=white" alt="Kibana" />
   <img src="https://img.shields.io/badge/AlertManager-E6522C?style=for-the-badge&logo=prometheus&logoColor=white" alt="AlertManager" />
   <img src="https://img.shields.io/badge/Coralogix-6C63FF?style=for-the-badge&logo=datadog&logoColor=white" alt="Coralogix" />
+  <img src="https://img.shields.io/badge/Sentry-362D59?style=for-the-badge&logo=sentry&logoColor=white" alt="Sentry" />
 
   <!-- 🔒 Security & Compliance -->
   <img src="https://img.shields.io/badge/Vault-FFEC6E?style=for-the-badge&logo=vault&logoColor=black" alt="Vault" />
@@ -912,6 +914,8 @@ The backend and frontend each read from their own `.env` file (both git-ignored)
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side Supabase key for signing upload/download URLs and storing content (never exposed to the browser).                                                         |
 | `SUPABASE_BUCKET`           | Storage bucket name (defaults to `docuthinker`).                                                                                                                      |
 | `REDIS_*`                   | Redis connection config for caching.                                                                                                                                  |
+| `SENTRY_DSN`                | Sentry DSN for backend error, performance, and log monitoring (optional; falls back to the hosted project DSN).                                                      |
+| `SENTRY_RELEASE`            | Release identifier attached to Sentry events (optional, e.g. git SHA).                                                                                               |
 
 **Frontend (`frontend/.env`)**
 
@@ -923,6 +927,9 @@ The backend and frontend each read from their own `.env` file (both git-ignored)
 | `REACT_APP_GOOGLE_DRIVE_API_KEY`   | Google Drive Picker API key.                         |
 | `REACT_APP_GOOGLE_DRIVE_CLIENT_ID` | Google OAuth client ID for Drive import.             |
 | `REACT_APP_API_BASE_URL`           | Base URL of the backend API.                         |
+| `REACT_APP_SENTRY_DSN`             | Sentry DSN for browser error, tracing, and session-replay monitoring (optional; falls back to the hosted project DSN). |
+| `REACT_APP_SENTRY_ENV`             | Sentry environment name (defaults to `NODE_ENV`).    |
+| `REACT_APP_SENTRY_RELEASE`         | Release identifier attached to Sentry events (optional). |
 
 > [!IMPORTANT]
 > Only the **service-role** Supabase key lives on the backend; the browser ever only sees the public **anon** key plus one-time, path-scoped signed upload tokens. Keep `SUPABASE_SERVICE_ROLE_KEY` and `firebase-admin-sdk.json` out of source control.

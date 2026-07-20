@@ -37,7 +37,7 @@ DocuThinker uses a modern, enterprise-grade cloud-native architecture with **16 
 - **Infrastructure as Code**: Terraform + Helm
 - **CI/CD**: GitLab CI / GitHub Actions / Jenkins
 - **GitOps**: ArgoCD
-- **Observability**: OpenTelemetry + Prometheus + Grafana + Jaeger + ELK + **Coralogix**
+- **Observability**: OpenTelemetry + Prometheus + Grafana + Jaeger + ELK + **Coralogix** (infrastructure) · **Sentry** (application APM)
 - **Chaos Engineering**: Litmus 3.0
 - **Progressive Delivery**: Flagger 1.34
 - **Backup & DR**: Velero 1.12 (RTO < 1 hour)
@@ -878,6 +878,19 @@ cd terraform && terraform apply -target=module.coralogix
 ```
 
 **12 Production Alerts**: High error rate, P95 latency, pod crashlooping, memory/CPU usage, DB pool exhaustion, API endpoint down, error budget burn, node health, disk space, SLO violations, Redis memory.
+
+---
+
+### Sentry — Application Performance Monitoring (APM)
+
+Where the Prometheus / OTel / Coralogix stack instruments the **infrastructure** (nodes, pods, service mesh), **Sentry** provides **application-level** error monitoring wired directly into the app code — a complementary layer, not a replacement. It requires no K8s deployment; the SDKs initialize at process/bundle startup.
+
+| Layer | SDK | Init | Captures |
+|-------|-----|------|----------|
+| Frontend (React) | `@sentry/react` | `frontend/src/sentry.js` (imported first in `index.js`) | Uncaught render errors (via `Sentry.ErrorBoundary`), browser performance traces, session replay |
+| Backend (Express) | `@sentry/node` + `@sentry/profiling-node` | `backend/instrument.js` (required before any other module) | Unhandled route errors (via `setupExpressErrorHandler`), transaction traces, CPU profiles, structured logs |
+
+**Distributed tracing** — the frontend sets `tracePropagationTargets` to the backend API origin, so a browser transaction stitches to its backend spans inside Sentry. DSN and sample rates are env-configurable (`SENTRY_DSN` / `REACT_APP_SENTRY_DSN`); sample rates tighten automatically in production.
 
 ---
 

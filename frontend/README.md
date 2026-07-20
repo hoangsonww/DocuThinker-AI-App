@@ -62,6 +62,7 @@ The **DocuThinker Frontend** is built using **React 18** and **Material-UI** to 
 | **Google Drive import**          | [`gapi-script`](https://github.com/cohaolain/gapi-script) (Drive read-only)                                                                                                                                                                                                   |
 | **Passkeys**                     | [`@simplewebauthn/browser`](https://simplewebauthn.dev/)                                                                                                                                                                                                                      |
 | **Analytics**                    | Google Analytics + `@vercel/analytics` / `@vercel/speed-insights`                                                                                                                                                                                                             |
+| **Monitoring**                   | [`@sentry/react`](https://docs.sentry.io/platforms/javascript/guides/react/) — error monitoring, performance tracing, and session replay (initialized in `src/sentry.js`)                                                                                                      |
 
 ## Pages
 
@@ -322,7 +323,8 @@ DocuThinker-AI-App/
 │   │   │   ├── supabaseClient.js          # Browser Supabase client (REACT_APP_SUPABASE_*)
 │   │   │   └── passkeys.js                # WebAuthn (passkey) client helpers
 │   │   ├── App.js                         # Main App component
-│   │   ├── index.js                       # Entry point for the React app
+│   │   ├── index.js                       # Entry point for the React app (imports sentry.js first)
+│   │   ├── sentry.js                       # Sentry init (errors, tracing, session replay)
 │   │   ├── App.css                        # Global CSS 1
 │   │   ├── index.css                      # Global CSS 2
 │   │   ├── reportWebVitals.js             # Web Vitals reporting
@@ -478,12 +480,18 @@ REACT_APP_GOOGLE_DRIVE_CLIENT_ID=<oauth-client-id>   # Google OAuth client ID
 
 # --- Analytics (optional) ---
 REACT_APP_GOOGLE_ANALYTICS_ID=G-XXXXXX               # Google Analytics ID
+
+# --- Sentry monitoring (optional; falls back to the hosted project DSN) ---
+REACT_APP_SENTRY_DSN=https://<key>@<org>.ingest.us.sentry.io/<project>
+REACT_APP_SENTRY_ENV=production                       # Sentry environment (default: NODE_ENV)
+REACT_APP_SENTRY_RELEASE=                             # Release id, e.g. git SHA (optional)
 ```
 
 **Notes**
 
 - **Supabase vars** power the direct-to-Storage upload in `utils/supabaseClient.js`. If `REACT_APP_SUPABASE_URL` or `REACT_APP_SUPABASE_ANON_KEY` is missing, the browser client is `null` and uploads **fall back** to the through-backend path automatically — the app still works. `REACT_APP_SUPABASE_BUCKET` defaults to `docuthinker` when unset. The anon key cannot read the private bucket on its own; uploads are authorized by a short-lived signed-upload token minted by the backend.
 - **Google Drive vars** are only needed for the "Select from Google Drive" button in the upload modal. Leave them unset to use device upload only.
+- **Sentry vars** configure error monitoring, tracing, and session replay (initialized in `src/sentry.js`, imported first in `index.js`). If `REACT_APP_SENTRY_DSN` is unset, a hosted DocuThinker project DSN is used as a fallback; sample rates tighten automatically in production.
 - All variables are **public** in the shipped bundle. Keep service-role / secret keys on the backend.
 
 ## Running the App

@@ -22,6 +22,7 @@
     "@react-oauth/google": "^0.12.1",
     "@react-three/drei": "^9.122.0",
     "@react-three/fiber": "^8.18.0",
+    "@sentry/react": "^10.66.0",
     "@simplewebauthn/browser": "^13.3.0",
     "@supabase/supabase-js": "^2.106.2",
     "@testing-library/jest-dom": "^5.17.0",
