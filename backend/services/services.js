@@ -189,13 +189,71 @@ let geminiModelCache = {
   models: [],
 };
 let geminiModelRotationIndex = 0;
+let geminiKeyRotationIndex = 0;
 
+// Discover every configured Gemini API key. Any env var matching
+// `GOOGLE_AI_API_KEY` or `GOOGLE_AI_API_KEY<n>` (e.g. GOOGLE_AI_API_KEY1,
+// GOOGLE_AI_API_KEY2, ...) is picked up automatically, so adding another key is
+// purely an env-var change — no code edit required. Keys are ordered with the
+// base key first, then numerically, and de-duplicated by value.
+const getGoogleAiApiKeys = () => {
+  const keys = Object.keys(process.env)
+    .filter((name) => /^GOOGLE_AI_API_KEY\d*$/.test(name))
+    .map((name) => ({
+      name,
+      // Base key (no suffix) sorts first; suffixed keys sort by their number.
+      order:
+        name === "GOOGLE_AI_API_KEY"
+          ? 0
+          : Number(name.slice("GOOGLE_AI_API_KEY".length)),
+      value: (process.env[name] || "").trim(),
+    }))
+    .filter((entry) => entry.value.length > 0)
+    .sort((a, b) => a.order - b.order);
+
+  const seen = new Set();
+  const unique = [];
+  for (const entry of keys) {
+    if (!seen.has(entry.value)) {
+      seen.add(entry.value);
+      unique.push(entry.value);
+    }
+  }
+  return unique;
+};
+
+// First configured key. Used for non-rotated call sites (model discovery, file
+// manager) that only need a single valid key.
 const getGoogleAiApiKey = () => {
-  const apiKey = process.env.GOOGLE_AI_API_KEY;
-  if (!apiKey) {
+  const keys = getGoogleAiApiKeys();
+  if (keys.length === 0) {
     throw new Error("GOOGLE_AI_API_KEY is not configured.");
   }
-  return apiKey;
+  return keys[0];
+};
+
+// Round-robin the key order across requests so load spreads over all keys
+// instead of always hammering (and exhausting) the first one.
+const rotateGeminiKeys = (keys) => {
+  if (!Array.isArray(keys) || keys.length <= 1) {
+    return Array.isArray(keys) ? keys.slice() : [];
+  }
+  const startIndex = geminiKeyRotationIndex % keys.length;
+  geminiKeyRotationIndex = (startIndex + 1) % keys.length;
+  return keys.slice(startIndex).concat(keys.slice(0, startIndex));
+};
+
+// A 429 / quota / rate-limit failure is the signal that this *key* is
+// exhausted, so we should jump to the next key rather than grinding every model
+// on a key that has no quota left.
+const isGeminiQuotaError = (error) => {
+  const message = (error && (error.message || String(error))) || "";
+  return (
+    /\b429\b/.test(message) ||
+    /too many requests/i.test(message) ||
+    /quota/i.test(message) ||
+    /rate limit/i.test(message)
+  );
 };
 
 const normalizeGeminiModelName = (name) => name.replace(/^models\//, "");
@@ -299,31 +357,56 @@ const withGeminiModelFallback = async (label, handler) => {
     throw new Error("No Gemini models available to handle the request.");
   }
 
+  const keys = rotateGeminiKeys(getGoogleAiApiKeys());
+  if (keys.length === 0) {
+    throw new Error("GOOGLE_AI_API_KEY is not configured.");
+  }
+
+  // Try each API key in turn (outer loop) and, for each key, fall back across
+  // the available models (inner loop). Return on the first success. When a key
+  // hits a quota / 429 error we jump straight to the next key instead of
+  // grinding every model on an exhausted key — except on the last key, where we
+  // still try every model as a final fallback.
   let lastError = null;
-  for (const modelName of models) {
-    try {
-      return await handler(modelName);
-    } catch (error) {
-      lastError = error;
-      const errorMessage =
-        error instanceof Error ? error.message : String(error);
-      console.warn(
-        `[Gemini] ${label} failed on ${modelName}: ${errorMessage}`,
-        error && error.stack ? `\n${error.stack}` : "",
-      );
+  let attempts = 0;
+  for (let keyIndex = 0; keyIndex < keys.length; keyIndex += 1) {
+    const apiKey = keys[keyIndex];
+    const isLastKey = keyIndex === keys.length - 1;
+
+    for (const modelName of models) {
+      attempts += 1;
+      try {
+        return await handler(modelName, apiKey);
+      } catch (error) {
+        lastError = error;
+        const errorMessage =
+          error instanceof Error ? error.message : String(error);
+        console.warn(
+          `[Gemini] ${label} failed on ${modelName} (key ${keyIndex + 1}/${keys.length}): ${errorMessage}`,
+          error && error.stack ? `\n${error.stack}` : "",
+        );
+
+        // Exhausted key → skip its remaining models and try the next key.
+        if (isGeminiQuotaError(error) && !isLastKey) {
+          break;
+        }
+      }
     }
   }
 
-  // All models failed — surface a meaningful message (raw Gemini errors are
+  // Everything failed — surface a meaningful message (raw Gemini errors are
   // often blank, which is why the client saw a 500 with no detail).
   const lastMsg =
     lastError instanceof Error ? lastError.message : String(lastError);
-  console.error(`[Gemini] ${label} exhausted all ${models.length} model(s).`, {
-    lastMessage: lastMsg,
-    stack: lastError && lastError.stack,
-  });
+  console.error(
+    `[Gemini] ${label} exhausted ${attempts} attempt(s) across ${keys.length} key(s) and ${models.length} model(s).`,
+    {
+      lastMessage: lastMsg,
+      stack: lastError && lastError.stack,
+    },
+  );
   throw new Error(
-    `Gemini failed for "${label}" after trying ${models.length} model(s): ${
+    `Gemini failed for "${label}" after ${attempts} attempt(s) across ${keys.length} key(s) and ${models.length} model(s): ${
       lastMsg || "unknown error (likely rate limit or quota)"
     }`,
   );
@@ -346,8 +429,8 @@ const runGeminiChat = async ({
   message,
   errorMessage,
 }) => {
-  return withGeminiModelFallback(label, async (modelName) => {
-    const genAI = new GoogleGenerativeAI(getGoogleAiApiKey());
+  return withGeminiModelFallback(label, async (modelName, apiKey) => {
+    const genAI = new GoogleGenerativeAI(apiKey);
     const modelOptions = { model: modelName };
     if (systemInstruction) {
       modelOptions.systemInstruction = `${currentDateContext()} ${systemInstruction}`;
@@ -366,8 +449,8 @@ const runGeminiContent = async ({
   prompt,
   errorMessage,
 }) => {
-  return withGeminiModelFallback(label, async (modelName) => {
-    const genAI = new GoogleGenerativeAI(getGoogleAiApiKey());
+  return withGeminiModelFallback(label, async (modelName, apiKey) => {
+    const genAI = new GoogleGenerativeAI(apiKey);
     const finalModelOptions = { model: modelName, ...modelOptions };
     if (finalModelOptions.systemInstruction) {
       finalModelOptions.systemInstruction = `${currentDateContext()} ${finalModelOptions.systemInstruction}`;
@@ -444,7 +527,7 @@ exports.processAudio = async (file, context) => {
     );
   }
 
-  const fileManager = new GoogleAIFileManager(process.env.GOOGLE_AI_API_KEY);
+  const fileManager = new GoogleAIFileManager(getGoogleAiApiKey());
 
   // Upload file to Gemini
   const uploadResult = await fileManager.uploadFile(file.filepath, {

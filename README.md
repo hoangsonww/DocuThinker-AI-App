@@ -1,6 +1,6 @@
 # **DocuThinker - AI-Powered Document Analysis and Summarization App**
 
-Welcome to **DocuThinker**! This is a full-stack application that integrates an AI-powered document processing backend, blue/green & canary deployment on an AWS infrastructure, and a React-based frontend. The app allows users to upload documents for summarization, generate key insights, chat with an AI, and do even more with the document's content.
+Welcome to **DocuThinker**! This is a full-stack application that integrates an AI-powered document processing backend, blue/green & canary deployment on an AWS infrastructure, and a React-based frontend. The app allows users to upload documents for summarization, generate key insights, chat with an AI, and do even more with the document's content. 🚀
 
 <p align="center">
   <a href="https://docuthinker.vercel.app" style="cursor: pointer">
@@ -909,6 +909,7 @@ The backend and frontend each read from their own `.env` file (both git-ignored)
 | --------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `FIREBASE_*`                | Firebase Admin service-account credentials (`FIREBASE_PROJECT_ID`, `FIREBASE_PRIVATE_KEY`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_DATABASE_URL`, …) for Auth + Firestore. |
 | `GOOGLE_AI_API_KEY`         | Google Gemini API key (model list, generation, audio).                                                                                                                |
+| `GOOGLE_AI_API_KEY1`, `GOOGLE_AI_API_KEY2`, … | Optional extra Gemini keys — auto-discovered and rotated so a request fails over to the next key on a quota/`429`. Add as many `GOOGLE_AI_API_KEY<n>` as needed.       |
 | `AI_INSTRUCTIONS`           | Base system-prompt text prepended to every AI request.                                                                                                                |
 | `SUPABASE_URL`              | Supabase project URL.                                                                                                                                                 |
 | `SUPABASE_SERVICE_ROLE_KEY` | Server-side Supabase key for signing upload/download URLs and storing content (never exposed to the browser).                                                         |

@@ -37,7 +37,7 @@ The backend is deployed as a **Vercel serverless function** (the whole Express a
 | HTTP server | **Express** (`express`), deployed on **Vercel** as a serverless function |
 | Auth & user store | **Firebase Admin SDK** — Firebase Authentication + Cloud Firestore |
 | File & content storage | **Supabase Storage** (`@supabase/supabase-js`, private bucket, `service_role` key, server-side only) |
-| AI / LLM | **Google Gemini** (`@google/generative-ai`) with dynamic model discovery, rotation, and multi-model fallback |
+| AI / LLM | **Google Gemini** (`@google/generative-ai`) with dynamic model discovery, model rotation, multi-model fallback, and multi-key rotation |
 | Caching | **Redis** (`redis`) — session, document metadata, query results, recently-viewed lists |
 | GraphQL | **`express-graphql`** + **`@graphql-tools/schema`**, with the **GraphiQL** explorer at `/graphql` |
 | API docs | **Swagger / OpenAPI** (`swagger-jsdoc`), served via Swagger UI at `/api-docs` |
@@ -120,7 +120,8 @@ Create a `.env` file in the `backend` directory (or the repo root). The backend 
 
 | Variable | Description |
 | -------- | ----------- |
-| `GOOGLE_AI_API_KEY` | API key for Google Generative AI (Gemini). Required for all AI endpoints and audio processing. |
+| `GOOGLE_AI_API_KEY` | Primary API key for Google Generative AI (Gemini). Required for all AI endpoints and audio processing. |
+| `GOOGLE_AI_API_KEY1`, `GOOGLE_AI_API_KEY2`, … | **Optional** additional Gemini keys for automatic rotation/fallback. Any `GOOGLE_AI_API_KEY<n>` var is picked up automatically (add as many as you like); when one key hits a quota/`429`, the next is tried. |
 | `AI_INSTRUCTIONS` | Base system-prompt text prepended to every AI instruction (sets the assistant's persona/rules). |
 
 ### Supabase Storage
@@ -173,6 +174,9 @@ FIREBASE_DATABASE_URL=https://your-project-id.firebaseio.com
 
 # Google Gemini
 GOOGLE_AI_API_KEY=your-google-generative-ai-api-key
+# Optional extra keys for rotation/fallback on quota (429). Add as many as needed.
+GOOGLE_AI_API_KEY1=your-second-gemini-key
+GOOGLE_AI_API_KEY2=your-third-gemini-key
 AI_INSTRUCTIONS="You are DocuThinker, a helpful document assistant..."
 
 # Supabase Storage
@@ -362,7 +366,8 @@ All AI features use **Google Gemini** via `@google/generative-ai`, wrapped in a 
 
 - **Dynamic model discovery** — the live model list is fetched from the Generative Language API (`/v1/models`), filtered to text-capable Gemini models (excludes embedding/pro variants), and cached for 5 minutes. Falls back to `gemini-2.5-flash` if discovery fails.
 - **Rotation** — requests rotate the starting model across the discovered list to spread load.
-- **Multi-model fallback** — each request tries models in turn; if one fails (e.g. `429`/`503`/quota), it transparently retries the next, surfacing a meaningful error only after **all** models are exhausted.
+- **Multi-key fallback (API key rotation)** — multiple Gemini API keys can be configured (`GOOGLE_AI_API_KEY`, `GOOGLE_AI_API_KEY1`, `GOOGLE_AI_API_KEY2`, …). Keys are discovered automatically from the environment (any `GOOGLE_AI_API_KEY<n>` var — no code change to add more), rotated round-robin across requests, and tried in turn. When a key returns a quota/`429` error it is skipped and the **next key** is tried immediately, so a single exhausted free-tier quota no longer fails the request. A request succeeds on the first working key+model and only errors after **all keys** are exhausted.
+- **Multi-model fallback** — for each key, the request tries models in turn; if one fails (e.g. `503` or a non-quota error), it transparently retries the next model, surfacing a meaningful error only after all models (across all keys) are exhausted.
 - **Context injection** — every AI system prompt (for **all** generations, not just summaries) is prefixed with today's real date (`currentDateContext`), and for `/upload` the document `title` is prepended to the text fed to the model so it can reason about recency and subject matter. The `title` is used only as AI context — the stored/returned `originalText` stays clean (no title prefix).
 - **Readable summary formatting** — the `/upload` summary prompt asks Gemini to produce an easy-to-read, **model-decided** layout: clear plain language with short paragraphs, using a brief heading or short list **only where it genuinely improves clarity** (it explicitly avoids forced bullet-heavy or dense output). The summary is rendered as Markdown, so light Markdown (short headings, occasional bold/lists) is allowed.
 

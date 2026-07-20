@@ -37,7 +37,7 @@ DocuThinker is an **enterprise-grade**, full-stack AI-powered document analysis 
 - **Format-Aware Viewer**: The result screen renders each document the way it should look — native **PDF in an `<iframe>`** of a signed Supabase URL, **DOCX/HTML/CSV** as sanitized HTML, **Markdown** via `react-markdown`, **JSON/code** as monospace `<pre>`, and everything else as `pre-wrap` text
 - **Interactive Result View**: A **drag-resizable** Original | Summary split, a **text-selection action menu** (Copy / Summarize / Rewrite / Ask Chat / Search the web) that operates only on the highlighted text, and a **multi-step animated upload progress** (Reading → Storing → Analyzing → Ready) with a smooth reveal into results
 - **Scalable Per-Document Storage**: Each uploaded document is its own Firestore record in a `users/{uid}/documents/{docId}` **subcollection**, with heavy text/HTML/file payloads offloaded to **Supabase Storage**. This is the permanent fix for the previous inline-array design that hit Firestore's 1 MB-per-document ceiling (see [Document Storage & Data Model](#document-storage--data-model))
-- **AI-Powered Summarization**: Resilient summarization using **Google Gemini** (`@google/generative-ai`) with dynamic model discovery, rotation, and multi-model fallback (the production summary path). The document **title** and **today's date** are injected into every system prompt, and the summary prompt asks for easy-to-read, model-decided formatting (light Markdown). A separate Python **LangGraph + CrewAI** pipeline powers deep multi-agent analysis
+- **AI-Powered Summarization**: Resilient summarization using **Google Gemini** (`@google/generative-ai`) with dynamic model discovery, model + API-key rotation, and multi-model / multi-key fallback (the production summary path). The document **title** and **today's date** are injected into every system prompt, and the summary prompt asks for easy-to-read, model-decided formatting (light Markdown). A separate Python **LangGraph + CrewAI** pipeline powers deep multi-agent analysis
 - **Intelligent Chat**: Context-aware conversational AI for document Q&A
 - **Multi-Language Support**: Document processing and summarization in multiple languages
 - **Real-time Analytics**: User behavior tracking and document analytics
@@ -562,7 +562,7 @@ graph TB
         subgraph "Service Layer"
             O[User Service]
             P[Document Service]
-            Q[Gemini AI Service<br/>discovery + rotation + fallback]
+            Q[Gemini AI Service<br/>discovery + model/key rotation + fallback]
             R[Supabase Storage Service<br/>files + content JSON + signed URLs]
         end
 
@@ -615,7 +615,8 @@ graph TB
 > **Note on the production AI path.** The Express backend summarizes with **Google Gemini** via `@google/generative-ai` (see `services/services.js`). On each call it:
 > 1. **Discovers** available models from `GET https://generativelanguage.googleapis.com/v1/models`, keeping only models whose name contains `gemini`, **excludes** `embedding` and `pro` variants, and that advertise the `generateContent` method.
 > 2. **Caches** the discovered list for **5 minutes** (`GEMINI_MODEL_CACHE_TTL_MS`); if discovery fails it reuses the last good list or falls back to `gemini-2.5-flash` (`DEFAULT_GEMINI_MODEL_FALLBACK`).
-> 3. **Rotates** the starting model (round-robin via `geminiModelRotationIndex`) and **falls back across every model in order** — a `429`/`503`/blank error on one model transparently retries the next, and only after exhausting all of them does it surface a descriptive error (raw Gemini errors are often blank, which previously produced opaque 500s).
+> 3. **Rotates** the starting model (round-robin via `geminiModelRotationIndex`) and **falls back across every model in order** — a `503`/blank/non-quota error on one model transparently retries the next.
+> 4. **Rotates API keys** — every env var matching `GOOGLE_AI_API_KEY<n>` (`GOOGLE_AI_API_KEY`, `GOOGLE_AI_API_KEY1`, `GOOGLE_AI_API_KEY2`, …) is auto-discovered (`getGoogleAiApiKeys`), de-duplicated, and rotated round-robin (`geminiKeyRotationIndex`). Keys are the **outer** fallback loop, models the **inner** loop: when a key returns a quota/`429` error (`isGeminiQuotaError`) it is abandoned and the **next key** is tried immediately (rather than grinding every model on an exhausted key), so a single free-tier quota no longer fails the request. A descriptive error is surfaced only after **all keys × models** are exhausted (raw Gemini errors are often blank, which previously produced opaque 500s). Adding a key is an env-var change only — no code edit.
 >
 > **Prompt context injection.** Today's real date (`currentDateContext()`, formatted as a full `weekday, Month D, YYYY`) is prepended to **every** system instruction across all Gemini tasks (summary, chat, key ideas, discussion points, sentiment, bullet/translated summary, rewrite, recommendations, refine) for recency-aware reasoning. The document **title** is additionally fed to `generateSummary` as extra context (`Title: "…"` prefixed to the text), while the *stored* `originalText` is kept clean (no title prefix) so the viewer and chat stay intact. The summary prompt itself now asks for an **easy-to-read, model-decided layout** — short paragraphs with the occasional heading or short list only where it genuinely improves clarity, emitted as light Markdown — rather than a fixed structure.
 >
@@ -849,7 +850,7 @@ sequenceDiagram
     Note over FE,SB: Original bytes go straight to Supabase —<br/>bypasses Vercel's ~4.5 MB body limit
     Note over FE: Step 3 — Analyzing
     FE->>BE: POST /upload { userId, title, text, html, filePath, fileType }
-    BE->>AI: generateSummary(text, title)<br/>[date + title injected · discovery + rotation + fallback]
+    BE->>AI: generateSummary(text, title)<br/>[date + title injected · discovery + model/key rotation + fallback]
     AI-->>BE: summary
     BE->>SB: storeDocumentContent(uid, docId, { originalText, originalHtml })
     SB-->>BE: contentPath
