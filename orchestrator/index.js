@@ -11,6 +11,7 @@ const { BatchProcessor } = require("./core/batch-processor");
 const { AgentLoop } = require("./core/agent-loop");
 const { HandoffManager } = require("./core/handoff");
 const { DeadLetterQueue } = require("./core/dlq");
+const { RateLimiter, rateLimitMiddleware } = require("./core/rate-limiter");
 const { DocuThinkerSupervisor } = require("./core/supervisor");
 const { TokenBudgetManager } = require("./context/token-budget");
 const { ConversationStore } = require("./context/conversation-store");
@@ -38,6 +39,13 @@ const conversationStore = new ConversationStore({ tokenBudget, llmClient });
 const contextObservability = new ContextObservability();
 const promptCache = new PromptCacheStrategy();
 const dlq = new DeadLetterQueue({ maxRetries: 3 });
+// Per-client token bucket guarding the expensive LLM-backed routes. Defaults to
+// 60 requests with a 1 req/s sustained refill; override via env.
+const rateLimiter = new RateLimiter({
+  capacity: parseInt(process.env.RATE_LIMIT_CAPACITY || "60", 10),
+  refillPerSec: parseFloat(process.env.RATE_LIMIT_REFILL_PER_SEC || "1"),
+});
+const llmRateLimit = rateLimitMiddleware(rateLimiter);
 const toolRegistry = new ToolRegistry({ pythonBridge });
 toolRegistry.registerStandardTools();
 const batchProcessor = new BatchProcessor({ llmClient, costTracker });
@@ -160,6 +168,7 @@ app.get("/health", async (req, res) => {
       contextObservability: contextObservability.getStats(),
       conversations: { active: conversationStore.getConversationCount() },
       dlq: dlq.getStats(),
+      rateLimit: rateLimiter.getStats(),
       providers: llmClient.getAvailableProviders(),
       tools: toolRegistry.getToolNames(),
     });
@@ -172,6 +181,7 @@ app.get("/api/costs", (req, res) =>
   res.json(costTracker.getUsageReport(req.query.period || "month")),
 );
 app.get("/api/circuits", (req, res) => res.json(circuitBreaker.getStatus()));
+app.get("/api/rate-limit", (req, res) => res.json(rateLimiter.getStats()));
 app.get("/api/context-metrics", (req, res) =>
   res.json(contextObservability.getStats()),
 );
@@ -205,7 +215,7 @@ app.post("/api/token-check", (req, res) => {
   }
 });
 
-app.post("/api/supervisor/process", async (req, res) => {
+app.post("/api/supervisor/process", llmRateLimit, async (req, res) => {
   try {
     const result = await supervisor.process({
       route: req.body.route || null,
@@ -217,7 +227,7 @@ app.post("/api/supervisor/process", async (req, res) => {
   }
 });
 
-app.post("/api/agent/run", async (req, res) => {
+app.post("/api/agent/run", llmRateLimit, async (req, res) => {
   try {
     const { systemPrompt, message, context, provider } = req.body;
     if (!message) return res.status(400).json({ error: "message is required" });
@@ -235,7 +245,7 @@ app.post("/api/agent/run", async (req, res) => {
   }
 });
 
-app.post("/api/batch/process", async (req, res) => {
+app.post("/api/batch/process", llmRateLimit, async (req, res) => {
   try {
     const { documents, operation, provider } = req.body;
     if (!documents || !Array.isArray(documents) || documents.length === 0)

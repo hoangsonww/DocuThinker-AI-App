@@ -97,6 +97,10 @@ AI_ML_SERVICE_URL=http://localhost:8000
 CIRCUIT_BREAKER_THRESHOLD=3
 CIRCUIT_BREAKER_COOLDOWN_MS=60000
 
+# Rate limiting (per-client token bucket on LLM-backed routes)
+RATE_LIMIT_CAPACITY=60
+RATE_LIMIT_REFILL_PER_SEC=1
+
 # Cost budgets (USD)
 DAILY_BUDGET=10
 MONTHLY_BUDGET=200
@@ -179,6 +183,21 @@ Full system health report.
   "gemini": { "state": "CLOSED", "failures": 0, "uptime": "98.5%" }
 }
 ```
+
+### `GET /api/rate-limit`
+
+Current token-bucket rate-limiter configuration and the number of active client buckets.
+
+**Response:**
+```json
+{
+  "activeKeys": 3,
+  "capacity": 60,
+  "refillPerSec": 1
+}
+```
+
+The expensive LLM-backed routes (`/api/supervisor/process`, `/api/agent/run`, `/api/batch/process`) are guarded by a per-client token bucket. Each response carries `X-RateLimit-Limit` and `X-RateLimit-Remaining` headers; when the bucket is empty the route returns **`429 Too Many Requests`** with a `Retry-After` header and `{ "error": "Rate limit exceeded", "retryAfterMs": <ms> }`. Tune with `RATE_LIMIT_CAPACITY` / `RATE_LIMIT_REFILL_PER_SEC`.
 
 ### `POST /api/supervisor/process`
 
